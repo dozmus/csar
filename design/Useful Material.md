@@ -12,6 +12,8 @@ Useful Material
 ## Build Tool
 * [Gradle](https://gradle.org/)
 
+This is licensed under Apache License 2.0.
+
 ## Command-line Parsing Libraries
 * [Commons-CLI](https://commons.apache.org/proper/commons-cli/index.html)
 * [JCommander](http://jcommander.org/)
