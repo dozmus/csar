@@ -14,6 +14,12 @@ Useful Material
 
 This is licensed under Apache License 2.0.
 
+## Unit Testing
+* [JUnit](http://junit.org/junit4/)
+* [Mockito](http://site.mockito.org/)
+
+These are licensed under the Eclipse Public License 1.0 and MIT License respectively.
+
 ## Command-line Parsing Libraries
 * [Commons-CLI](https://commons.apache.org/proper/commons-cli/index.html)
 * [JCommander](http://jcommander.org/)
@@ -40,6 +46,3 @@ parboiled lacks up-to-date pre-written grammars (there are outdated ones for [Ja
 Coco/R seems lacks up-to-date pre-written grammars (there are outdated ones for [Java 1.4](http://ssw.jku.at/Coco/Java/Java.ATG) and [C# 3.0](http://ssw.jku.at/Coco/CS/CSharp3.atg)).  
 
 It also appears that the build tools ant and gradle support ANTLR and JavaCC out of the box.
-
-## Unit Testing Libraries
-...
