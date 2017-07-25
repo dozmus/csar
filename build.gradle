@@ -5,8 +5,9 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
-mainClassName = "org.qmul.Csar"
+mainClassName = 'org.qmul.Csar'
 
 repositories {
     mavenCentral()
