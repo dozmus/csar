@@ -15,6 +15,39 @@ Useful Material
 * [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 * [Twitter Java Style Guide](https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/styleguide.md)
 
+## (Partial) Java Language Elements
+* function definition
+* function usage
+* variable definition
+* variable usage
+* class definition
+* class usage
+* internal classes, anonymous classes
+* anonymous methods
+* package definition
+* package usage
+* for loop
+* for-each loop
+* try-catch
+* try with resources
+* throw
+* while loop
+* do-while loop
+* if stmt
+* goto
+* switch stmt
+* ternary stmt (aka conditional)
+* lambdas
+* single line comment
+* multi line comment
+* arithmetic: + - / * % ++ --
+* relational: == != > < >= <=
+* bitwise: & | ^ ~ << >> >>>
+* logical: && || !
+* assignment: = += -= *= /= %= <<= >>= &= |= ^=
+
+Many obtained from [Tutorials Point](https://www.tutorialspoint.com/java/java_basic_operators.htm) and [WideSkills](http://www.wideskills.com/java-tutorial/java-basic-language-elelemnts).
+
 # Libraries
 ## Build Tool
 * [Gradle](https://gradle.org/)
