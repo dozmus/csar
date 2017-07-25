@@ -13,5 +13,12 @@ repositories {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/com.beust/jcommander
+    compile group: 'com.beust', name: 'jcommander', version: '1.72'
+}
 
+run {
+    // Set java program arguments from gradle run arguments
+    if (project.hasProperty('jargs'))
+        args(jargs.split(' '))
 }
