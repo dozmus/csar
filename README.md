@@ -5,8 +5,6 @@ csar (code search and refactor)
 ```
 Usage: java -jar csar.jar [options] [Input files]
   Options:
-    --help, -h
-      Help information
   * --query, -q
       Search query
     --threads, -t
@@ -15,6 +13,8 @@ Usage: java -jar csar.jar [options] [Input files]
     --verbose, -v
       Verbose output
       Default: false
+    --help, -h
+      Help information
 ```
 
 Further Example: `java -jar csar.jar -q myquery src/*.java`
