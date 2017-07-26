@@ -16,4 +16,4 @@ Self-Assessment Criteria
 | Regular contact with advisor | Low | Minimum of 1 email update or meeting a week (until there is less to do). |
 | Code style verification (by processing batch queries) | Low | Reading a set of queries from a file, executing them and displaying the results (passed or failed). At a minimum to support the Google Java Style Guide. |
 
-Note: These minimums will decrease as more work has been done.
+Note: Some of these minimums will decrease as more work has been done.
