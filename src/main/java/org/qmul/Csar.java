@@ -19,8 +19,8 @@ public final class Csar {
         try {
             JCommander com = JCommander.newBuilder()
                     .addObject(ctx)
+                    .programName("java -jar csar.jar")
                     .build();
-            com.setProgramName("java -jar csar.jar");
             com.parse(args);
 
             if (ctx.isPrintHelp()) {
@@ -33,5 +33,6 @@ public final class Csar {
         }
 
         // TODO implement processing
+        // TODO check if input list values can be fooled
     }
 }

@@ -8,10 +8,10 @@ import java.util.List;
 /**
  * Command-line arguments for {@link Csar#main(String[])}.
  */
-public class CsarContext {
+public final class CsarContext {
 
-    @Parameter(description = "[Input files]", required = true)
-    private List<File> inputFiles; // XXX expansion of regex, etc. should be done by the shell invoking the program
+    @Parameter(description = "Input files", required = true)
+    private List<File> inputFiles; // XXX wildcards, etc. are handled by the shell invoking the program
 
     @Parameter(names = {"--query", "-q"}, description = "Search query", required = true)
     private String query;
