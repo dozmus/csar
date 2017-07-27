@@ -11,6 +11,17 @@ Useful Material
   This work is regarding an extensible plain-text code search in local projects.
 * There are also tons of material on code search engines, ranking code samples and finding code from textual descriptions, if the need arises.
 
+## Related Programs
+* [grep](https://en.wikipedia.org/wiki/Grep)  
+  A command-line utility for searching plain-text data against a regular expression.
+* [ack](https://beyondgrep.com/)  
+  A command-line utility for searching plain-text data against a regular expression - essentially a better grep.
+* [ag (aka the silver searcher)](https://github.com/ggreer/the_silver_searcher)  
+  A command-line utility for searching plain-text data against a regular expression - essentially a better ack.
+
+One takeaway from these works was some micro-optimisations they had. Ag uses ignore files to narrow the files it's searching and multi-threading. Another is how they search the entire project by default. Perhaps I can implement this as a command-line option.  
+None of these however identify language elements, they are just 'better' versions of grep.
+
 ## Code Style Documents
 * [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 * [Twitter Java Style Guide](https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/styleguide.md)
