@@ -6,10 +6,16 @@ Useful Material
 * [Ge X, Shepherd D, Damevski K, Murphy-Hill E. "Design and evaluation of a multi-recommendation system for local code search." International Journal of Computer Applications 138.6 (2016): 9-13.](http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y)  
   This work is regarding plain-text code search in local projects and includes various ideas for optimisations.
 * [Wang S, Lo D, Jiang L. "AutoQuery: Automatic Construction of Dependency Queries for Code Search." Automated Software Engineering 23.3 (2016): 393-425.](https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2)  
-  This work is regarding code searching with respect to language elements, they also devised a query language for this.
+  This work is regarding dependence-based code searching. They have also devised a query language to make producing Program Dependency Graphs easier.  
 * [Shepherd D, Damevski K, Ropski B, Fritz T. "Sando: an extensible local code search framework." Proceedings of the ACM SIGSOFT 20th International Symposium on the foundations of software engineering (2012).](http://dl.acm.org.ezproxy.library.qmul.ac.uk/citation.cfm?id=2393612)  
   This work is regarding an extensible plain-text code search in local projects.
 * There are also tons of material on code search engines, ranking code samples and finding code from textual descriptions, if the need arises.
+
+### AutoQuery - Query language analysis
+My interest in this project is their query language, and whether it can give me inspiration or insight to help produce my own.  
+Their query is broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
+Each group can have 0 or more pieces of information within it, so it is descriptive.  
+Its language isn't natural (w.r.t. english), you need to memorise an inflexible unorthodox syntax. I like how you can specify target file, line number, types, etc. and the fundamental control flow and language elements it handles. It is not very in depth though (i.e. omits searching for try-catch blocks, anonymous methods/classes) which hinders its usefulness.
 
 ## Related Programs
 * [grep](https://en.wikipedia.org/wiki/Grep)  
