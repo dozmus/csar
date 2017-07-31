@@ -1,17 +1,18 @@
 package org.qmul;
 
 import com.beust.jcommander.Parameter;
+import org.qmul.io.ProjectFileScanner;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Command-line arguments for {@link Csar#main(String[])}.
  */
 public final class CsarContext {
-
-    @Parameter(description = "Input files", required = true)
-    private List<File> inputFiles; // XXX wildcards, etc. are handled by the shell invoking the program
 
     @Parameter(names = {"--query", "-q"}, description = "Search query", required = true, order = 1)
     private String query;
@@ -25,9 +26,7 @@ public final class CsarContext {
     @Parameter(names = {"--help", "-h"}, description = "Help information", help = true, order = 4)
     private boolean printHelp;
 
-    public List<File> getInputFiles() {
-        return inputFiles;
-    }
+    private final List<ProjectFileScanner.CodeFile> codeFiles = new ArrayList<>();
 
     public String getQuery() {
         return query;
@@ -41,7 +40,19 @@ public final class CsarContext {
         return threads;
     }
 
+    public List<ProjectFileScanner.CodeFile> getCodeFiles() {
+        return codeFiles;
+    }
+
     public boolean isPrintHelp() {
         return printHelp;
+    }
+
+    public Path getDirectory() {
+        return Paths.get(".");
+    }
+
+    public boolean isGitRepository() {
+        return Files.isDirectory(Paths.get(".git"));
     }
 }

@@ -2,8 +2,11 @@ csar (code search and refactor)
 ========
 
 ### Usage
+All source code in the working directory will be searched, if the current directory is a git repository then only source
+code in the repository (and staging area) will be searched.
+
 ```
-Usage: java -jar csar.jar [options] [Input files]
+Usage: java -jar csar.jar [options]
   Options:
   * --query, -q
       Search query
@@ -17,8 +20,8 @@ Usage: java -jar csar.jar [options] [Input files]
       Help information
 ```
 
-Further Example: `java -jar csar.jar -q myquery src/*.java`
+Further Example: `java -jar csar.jar -q myquery`
 
 ### Contributing
 You can specify space separated arguments in the gradle `run` task as follows:  
-`gradle run -Pjargs="-q hello1 -i hello2"`
+`gradle run -Pjargs="-q myquery"`
