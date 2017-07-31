@@ -25,7 +25,7 @@ Its language isn't natural (w.r.t. english), you need to memorise an inflexible 
 * [ag (aka the silver searcher)](https://github.com/ggreer/the_silver_searcher)  
   A command-line utility for searching plain-text data against a regular expression - essentially a better ack.
 
-One takeaway from these works was some micro-optimisations they had. Ag uses ignore files to narrow the files it's searching and multi-threading. Another is how they search the entire project by default. Perhaps I can implement this as a command-line option.  
+Ag uses ignore files to narrow its search domain and multi-threading. Ack and ag search the entire project by default. I will do this as well.  
 None of these however identify language elements, they are just 'better' versions of grep.
 
 ## Code Style Documents
