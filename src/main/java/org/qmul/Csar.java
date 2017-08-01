@@ -3,12 +3,15 @@ package org.qmul;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.qmul.io.ProjectFileScanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Application main class.
  */
 public final class Csar {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
     private final ProjectFileScanner scanner;
 
@@ -45,20 +48,21 @@ public final class Csar {
         // Run csar
         Csar csar = new Csar(ctx);
         csar.init();
-        csar.run();
+        csar.process();
     }
 
     private void init() {
+        System.out.println("Initializing");
         scanner.scan();
-        System.out.println(ctx.getCodeFiles());
 
         if (ctx.getCodeFiles().size() == 0) {
-            System.err.println("No code files found.");
+            System.err.println("No code files found");
             System.exit(0);
         }
     }
 
-    private void run() {
+    private void process() {
+        System.out.println("Processing");
         // TODO impl
     }
 }

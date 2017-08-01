@@ -2,6 +2,8 @@ package org.qmul.io;
 
 import org.qmul.CsarContext;
 import org.qmul.util.ProcessHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -10,8 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * Finds code files in a directory.
+ */
 public final class ProjectFileScanner {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectFileScanner.class);
     private final CsarContext ctx;
 
     public ProjectFileScanner(CsarContext ctx) {
@@ -22,17 +28,24 @@ public final class ProjectFileScanner {
      * Finds the code files in the working directory and adds them to {@link CsarContext#codeFiles}.
      */
     public void scan() {
-        // find files
-        if (ctx.isGitRepository()) { // run: git ls-files
+        LOGGER.info("Scanning project directory: {}", ctx.getDirectory().toString());
+
+        // Find files
+        if (ctx.isGitRepository()) {
             scanGitDir();
-        } else { // scan directory
+        } else {
             scanDir();
         }
 
-        // sort list by size
-        ctx.getCodeFiles().sort((cf1, cf2) -> (int) (cf1.getSize() - cf2.getSize()));
+        // Sort code files by size
+        ctx.getCodeFiles().sort((f1, f2) -> (int) (f1.getSize() - f2.getSize()));
     }
 
+    /**
+     * Finds code files in a git repository, which are in the staging area or have been committed. This is done by
+     * creating an instance of the git program. Failure will result in {@link #scanDir()} being called instead.
+     * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
+     */
     private void scanGitDir() {
         List<String> output;
 
@@ -40,7 +53,7 @@ public final class ProjectFileScanner {
             Process p = ProcessHelper.runAndWait("git", "ls-files");
             output = ProcessHelper.readOutput(p);
         } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error running git ls-files: {}", e.getMessage());
             scanDir();
             return;
         }
@@ -51,6 +64,7 @@ public final class ProjectFileScanner {
 
         if (output1.startsWith("fatal: Not a git repository")
                 || output1.startsWith("'git' is not recognized as an internal or external command")) {
+            LOGGER.error("Error running git ls-files: {}", output1);
             scanDir();
             return;
         }
@@ -82,7 +96,7 @@ public final class ProjectFileScanner {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error scanning directory: {}", e.getMessage());
         }
     }
 
