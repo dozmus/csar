@@ -5,18 +5,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public final class FileTextWriter extends TextPrinter {
+public final class FileTextPrinter extends TextPrinter {
 
     private final Path filePath;
 
-    public FileTextWriter(Path filePath) {
+    public FileTextPrinter(Path filePath) {
         this.filePath = filePath;
     }
 
     @Override
-    public boolean write(String results) {
+    public boolean print(String text) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
-            writer.write(results);
+            writer.write(text);
             writer.close();
             return true;
         } catch (IOException e) {
