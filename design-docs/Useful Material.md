@@ -71,13 +71,18 @@ Many obtained from [Tutorials Point](https://www.tutorialspoint.com/java/java_ba
 
 This is licensed under Apache License 2.0.
 
+## Logging Framework
+* [slf4j](https://www.slf4j.org/)
+
+This is licensed under MIT License.
+
 ## Unit Testing
 * [JUnit](http://junit.org/junit4/)
 * [Mockito](http://site.mockito.org/)
 
 These are licensed under the Eclipse Public License 1.0 and MIT License respectively.
 
-## Command-line Parsing Libraries
+## Command-line Parsing
 * [Commons-CLI](https://commons.apache.org/proper/commons-cli/index.html)
 * [JCommander](http://jcommander.org/)
 * [JOpt Simple](https://pholser.github.io/jopt-simple/index.html)
@@ -85,7 +90,7 @@ These are licensed under the Eclipse Public License 1.0 and MIT License respecti
 My goal is to store command-line options and values into a `CsarContext` class and pass this around the program.
 This would be easiest with JCommander which uses reflection to set values in an object at run-time. It is licensed under the Apache License 2.0 which is acceptable to me.
 
-## Language Parsing Libraries
+## Language Parsing
 * [ANTLR4](http://www.antlr.org/)
 * [Grammatica](https://grammatica.percederberg.net/)
 * [JavaCC](https://github.com/javacc/javacc)
