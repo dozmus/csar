@@ -14,6 +14,11 @@ import java.util.List;
  */
 public final class CsarContext {
 
+    /**
+     * An array of handled code file extensions.
+     */
+    private static final String[] HANDLED_CODE_FILE_EXTENSIONS = {".java"};
+
     @Parameter(names = {"--query", "-q"}, description = "Search query", required = true, order = 1)
     private String query;
 
@@ -54,5 +59,22 @@ public final class CsarContext {
 
     public boolean isGitRepository() {
         return Files.isDirectory(Paths.get(".git"));
+    }
+
+    /**
+     * @return If the given file is not a directory and is handled by csar.
+     * @see {@link #HANDLED_CODE_FILE_EXTENSIONS}
+     */
+    public boolean accepts(Path path) {
+        if (path.toFile().isDirectory())
+            return false;
+        String fileName = path.getFileName().toString();
+
+        for (String ext : HANDLED_CODE_FILE_EXTENSIONS) {
+            if (fileName.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

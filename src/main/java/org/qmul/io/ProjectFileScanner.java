@@ -72,7 +72,7 @@ public final class ProjectFileScanner {
         for (String fileName : output) {
             Path path = Paths.get(fileName);
 
-            if (path.getFileName().toString().endsWith(".java")) {
+            if (ctx.accepts(path)) {
                 ctx.getCodeFiles().add(new CodeFile(path));
             }
         }
@@ -90,7 +90,7 @@ public final class ProjectFileScanner {
                         scanDir(entry);
                     }
 
-                    if (entry.getFileName().toString().endsWith(".java")) {
+                    if (ctx.accepts(entry)) {
                         ctx.getCodeFiles().add(new CodeFile(entry));
                     }
                 }
