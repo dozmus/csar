@@ -10,7 +10,8 @@ public final class PlainTextResultFormatter extends ResultFormatter {
 
         for (Result result : results) {
             sb.append(result.getPath().toString()).append(":").append(result.getLineNumber())
-                    .append(" ").append(result.getCodeFragment());
+                    .append(" ").append(result.getCodeFragment())
+                    .append(System.getProperty("line.separator"));
         }
         return sb.toString();
     }
