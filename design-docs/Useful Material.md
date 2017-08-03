@@ -35,10 +35,37 @@ Their queries are almost exactly that of Java. Examples below:
 * `call(public * Figure.* (..))`
 
 I like how you can combine queries together with and, or and not.  
-I also like the use of `*` as a wildcard, furthermore it should also support `?` as a wildcard (matching only 1 arbitrary character).  
+I like the use of `*` as a wildcard, furthermore it should also support `?` as a wildcard (matching only 1 arbitrary character).  
 The idea of creating aliases for multiple queries is one I am also looking into, to provide a way of code standards verification.  
-I also like the way method parameters are defined.  
-One problem is my tool will not be restricted to Java, so adopting Java-like syntax will annoy some programmers. This syntax also fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)` would be invalid in it (or very costly to figure out).  
+I like the way method parameters are defined.  
+One problem is my tool will not be restricted to Java, so adopting a Java-like syntax will confuse/annoy some programmers.  
+The syntax also fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)` would be invalid in it (or require lots of processing!).
+
+### [Infer](https://github.com/facebook/infer)
+Infer has developed a language called [AL](https://code.facebook.com/posts/277643589367408/) which it uses to define templates corresponding to code stink. Example below:  
+```
+DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
+    
+    LET name_contains_delegate =     
+        declaration_has_name(REGEXP("[dD]elegate"));
+      
+    LET name_does_not_contain_queue =
+        NOT declaration_has_name(REGEXP("[qQ]ueue"));
+    
+    SET report_when =
+        WHEN
+           name_contains_delegate 
+           AND name_does_not_contain_queue 
+           AND is_strong_property()
+        HOLDS-IN-NODE ObjCPropertyDecl;
+    
+    SET message = "Property or ivar %decl_name% declared strong";
+    SET suggestion = "In general delegates should be declared weak or assign";
+};
+```
+
+I like how you can define strings as regex patterns, this is a powerful feature.  
+I think the language is quite verbose and doesn't fit with how csar's competitors perform (one line queries), although it could have a place in batch query processing (particularly declarations and response messages).  
 
 ## Code Style Documents
 * [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
