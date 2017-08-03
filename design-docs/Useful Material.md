@@ -13,9 +13,9 @@ Useful Material
 
 ### AutoQuery - Query language analysis
 My interest in this project is their query language, and whether it can give me inspiration or insight to help produce my own.  
-Their query is broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
+Their queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
 Each group can have 0 or more pieces of information within it, so it is descriptive.  
-Its language isn't natural (w.r.t. english), you need to memorise an inflexible unorthodox syntax. I like how you can specify target file, line number, types, etc. and the fundamental control flow and language elements it handles. It is not very in depth though (i.e. omits searching for try-catch blocks, anonymous methods/classes) which hinders its usefulness.
+Its language isn't natural (w.r.t. english) and is very mechanical. I like how you can specify target file, line number, types, etc. and the fundamental control flow and language elements it handles. It is not very in-depth though (i.e. omits searching for try-catch blocks, anonymous methods/classes) which hinders its usefulness.
 
 ## Related Programs
 * [grep](https://en.wikipedia.org/wiki/Grep)  
