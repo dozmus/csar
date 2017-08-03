@@ -64,6 +64,7 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 };
 ```
 
+It is very descriptive and natural, I love this. It is also SQL-esque.  
 I like how you can define strings as regex patterns, this is a powerful feature.  
 I think the language is quite verbose and doesn't fit with how csar's competitors perform (one line queries), although it could have a place in batch query processing (particularly declarations and response messages).  
 
