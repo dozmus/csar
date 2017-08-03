@@ -11,12 +11,6 @@ Useful Material
   This work is regarding an extensible plain-text code search in local projects.
 * There are also tons of material on code search engines, ranking code samples and finding code from textual descriptions, if the need arises.
 
-### AutoQuery - Query language analysis
-My interest in this project is their query language, and whether it can give me inspiration or insight to help produce my own.  
-Their queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
-Each group can have 0 or more pieces of information within it, so it is descriptive.  
-Its language isn't natural (w.r.t. english) and is very mechanical. I like how you can specify target file, line number, types, etc. and the fundamental control flow and language elements it handles. It is not very in-depth though (i.e. omits searching for try-catch blocks, anonymous methods/classes) which hinders its usefulness.
-
 ## Related Programs
 * [grep](https://en.wikipedia.org/wiki/Grep)  
   A command-line utility for searching plain-text data against a regular expression.
@@ -27,6 +21,24 @@ Its language isn't natural (w.r.t. english) and is very mechanical. I like how y
 
 Ag uses ignore files to narrow its search domain and multi-threading. Ack and ag search the entire project by default. I will do this as well.  
 None of these however identify language elements, they are just 'better' versions of grep.
+
+## Query Language Analysis
+### AutoQuery
+Their queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
+Each group can have 0 or more pieces of information within it, so it is descriptive.  
+Its language isn't natural (w.r.t. english) and is very mechanical. I like how you can specify target file, line number, types, etc. and the fundamental control flow and language elements it handles. It is not very in-depth though (i.e. omits searching for try-catch blocks, anonymous methods/classes) which hinders its usefulness.
+
+### [AspectJ](https://eclipse.org/aspectj/doc/next/progguide/starting-aspectj.html)
+Their queries are almost exactly that of Java. Examples below:
+* `call(void Point.setX(int)) || call(void Point.setY(int))`
+* `call(void Figure.make*(..))`
+* `call(public * Figure.* (..))`
+
+I like how you can combine queries together with and, or and not.  
+I also like the use of `*` as a wildcard, furthermore it should also support `?` as a wildcard (matching only 1 arbitrary character).  
+The idea of creating aliases for multiple queries is one I am also looking into, to provide a way of code standards verification.  
+I also like the way method parameters are defined.  
+One problem is my tool will not be restricted to Java, so adopting Java-like syntax will annoy some programmers. This syntax also fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)` would be invalid in it (or very costly to figure out).  
 
 ## Code Style Documents
 * [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
