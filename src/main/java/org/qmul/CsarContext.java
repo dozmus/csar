@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public final class CsarContext {
     private int threads = 1;
 
     @Parameter(names = {"--verbose", "-v"}, description = "Verbose output", order = 3)
-    private boolean verbose; // TODO use alongside a logging framework?
+    private boolean verbose;
 
     @Parameter(names = {"--help", "-h"}, description = "Help information", help = true, order = 4)
     private boolean printHelp;
@@ -69,12 +70,6 @@ public final class CsarContext {
         if (path.toFile().isDirectory())
             return false;
         String fileName = path.getFileName().toString();
-
-        for (String ext : HANDLED_CODE_FILE_EXTENSIONS) {
-            if (fileName.endsWith(ext)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(HANDLED_CODE_FILE_EXTENSIONS).anyMatch(fileName::endsWith);
     }
 }
