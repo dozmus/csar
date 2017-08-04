@@ -74,7 +74,7 @@ Notes:
 | while | `while:{condition}?` |  |
 | if | `if:{condition}?` |  |
 | do-while | `do-while:{condition}?` |  |
-| switch | `switch:({condition}|{name)?` | switch with parameter of the given `{name}` |
+| switch | `switch:({condition}|{name})?` | switch with parameter of the given `{name}` |
 
 Notes:
 * `{modifiers} := (definition|usage):(a|i):(public|private|protected)? (static)? (final)?` where `a` is for anonymous classes/methods/etc and `i` is for inner classes/methods/etc.
