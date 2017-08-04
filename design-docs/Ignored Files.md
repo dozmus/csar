@@ -14,3 +14,7 @@ Some of the related programs I looked at functioned as follows:
 
 __Proposed Solution__:  
 It would be optimal if I either: had a command-line flag to search the current folder recursively or do that by default and only use the `-i` flag to not search recursively (i.e. specify specific targets).
+
+__Accepted Solution__:  
+I have decided to search the entire working directory by default. I support git ignore files (using the `git ls-files` command) and default to finding any source files (on: error or unavailable).  
+Allowing a `.csarignore` file is a stretch goal since it will be more complicated than my current approach.
