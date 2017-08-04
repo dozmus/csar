@@ -39,9 +39,9 @@ Notes:
   * Omitted - meaning no restriction on parameters
 
 ### Examples
-* `cls:u:MathHelper` or `cls:u:org.mt.MathHelper`
-* `fn:u:add(2)` or `fn:u:add(int, int)` or `fn:u:add(a, b)`
-* `field:d:result`
+* `cls:use:MathHelper` or `cls:u:org.mt.MathHelper`
+* `fn:use:add(2)` or `fn:u:add(int, int)` or `fn:u:add(a, b)`
+* `field:def:result`
 
 ### Problems
 * Allow fully qualified names for types and some names (side-note)
