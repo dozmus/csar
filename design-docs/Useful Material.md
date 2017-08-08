@@ -23,39 +23,40 @@ Ag uses ignore files to narrow its search domain and multi-threading. Ack and ag
 None of these however identify language elements, they are just 'better' versions of grep.
 
 ## Query Language Analysis
+The following languages do not necessarily address my problem but they may influence the development of my own query language.
+
 ### AutoQuery
-Their queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
+The queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
 Each group can have 0 or more pieces of information within it, so it is descriptive.  
-Its language isn't natural (w.r.t. english) and is very mechanical. I like how you can specify target file, line number, types, etc. and the fundamental control flow and language elements it handles. It is not very in-depth though (i.e. omits searching for try-catch blocks, anonymous methods/classes) which hinders its usefulness.
+Its language is unnatural (w.r.t. english) and is very mechanical. You can specify file, line number, types, and various elementary language elements (classes, methods, control flow). It is not very in-depth, it cannot represent try-catch blocks, anonymous methods/classes, etc. which hinders its usefulness.
 
 ### [AspectJ](https://eclipse.org/aspectj/doc/next/progguide/starting-aspectj.html)
-Their queries are almost exactly that of Java. Examples below:
+AspectJ has developed a language which it uses to address the problems presented by aspect-oriented programming.  
+
+Their queries have a syntax that closely resembles that of Java. Examples below:
 * `call(void Point.setX(int)) || call(void Point.setY(int))`
 * `call(void Figure.make*(..))`
 * `call(public * Figure.* (..))`
 
-I like how you can combine queries together with and, or and not.  
-I like the use of `*` as a wildcard, furthermore it should also support `?` as a wildcard (matching only 1 arbitrary character).  
-The idea of creating aliases for multiple queries is one I am also looking into, to provide a way of code standards verification.  
-I like the way method parameters are defined.  
-One problem is my tool will not be restricted to Java, so adopting a Java-like syntax will confuse/annoy some programmers.  
-The syntax also fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)` would be invalid in it (or require lots of processing!).
+You can restrict the domain of queries with the logical operators: and, or and not. You can use `*` as a wildcard but not `?`.  
+You can define a query with an alias, which helps address verbosity and the Don't Repeat Yourself principle. I can also use this to provide a method of code standards verification (i.e. define queries and run them against the project, matches imply errors in standards).  
+You can define method parameters as a type list or a named-type list which is flexible and expressive.  
+
+One issue is my tool aims to be language-agnostic, so adopting a Java-like syntax will be non intuitive for non-Java programmers.  
+The syntax fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)` would be invalid in it (or require lots of processing). This would require more flexibility in defining method parameters by allowing names lists.
 
 ### [Infer](https://github.com/facebook/infer)
 Infer has developed a language called [AL](https://code.facebook.com/posts/277643589367408/) which it uses to define templates corresponding to code stink. Example below:  
 ```
 DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
     
-    LET name_contains_delegate =     
-        declaration_has_name(REGEXP("[dD]elegate"));
-      
-    LET name_does_not_contain_queue =
-        NOT declaration_has_name(REGEXP("[qQ]ueue"));
+    LET name_contains_delegate = declaration_has_name(REGEXP("[dD]elegate"));
+    LET name_does_not_contain_queue = NOT declaration_has_name(REGEXP("[qQ]ueue"));
     
     SET report_when =
         WHEN
-           name_contains_delegate 
-           AND name_does_not_contain_queue 
+           name_contains_delegate
+           AND name_does_not_contain_queue
            AND is_strong_property()
         HOLDS-IN-NODE ObjCPropertyDecl;
     
@@ -64,15 +65,15 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 };
 ```
 
-It is very descriptive and natural, I love this. It is also SQL-esque.  
-I like how you can define strings as regex patterns, this is a powerful feature.  
-I think the language is quite verbose and doesn't fit with how csar's competitors perform (one line queries), although it could have a place in batch query processing (particularly declarations and response messages).  
+It is very descriptive (allows composites with `AND`, clear etc.) and natural. It is similar to SQL which means most developers will be similar with it.  
+You can define strings as regex patterns, this is a powerful feature.  
+The language is verbose and thus does not resonate with how csar's competitors use one line queries. However declarations and response messages may help in code conventions checking.  
 
 ## Code Style Documents
 * [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 * [Twitter Java Style Guide](https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/styleguide.md)
 
-## (Partial) Java Language Elements
+## Partial List of Java Language Elements
 * function definition
 * function usage
 * variable definition
