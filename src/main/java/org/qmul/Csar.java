@@ -63,6 +63,8 @@ public final class Csar {
 
     private void process() {
         System.out.println("Processing");
+        CodeParser parser = new CodeParser(ctx.getCodeFiles(), ctx.getThreads());
+        parser.parse();
         // TODO impl
     }
 }
