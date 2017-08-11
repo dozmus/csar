@@ -28,7 +28,7 @@ The following languages do not necessarily address my problem but they may influ
 ### AutoQuery
 The queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.  
 Each group can have 0 or more pieces of information within it, so it is descriptive.  
-Its language is unnatural (w.r.t. english) and is very mechanical. You can specify file, line number, types, and various elementary language elements (classes, methods, control flow). It is not very in-depth, it cannot represent try-catch blocks, anonymous methods/classes, etc. which hinders its usefulness.
+Its language is unnatural (w.r.t. english) and is very mechanical. You can specify file, line number, types, and various elementary language elements (classes, methods, control flow). It is not very expressive: it cannot represent try-catch blocks, anonymous methods/classes, etc.
 
 ### [AspectJ](https://eclipse.org/aspectj/doc/next/progguide/starting-aspectj.html)
 AspectJ has developed a language which it uses to address the problems presented by aspect-oriented programming.  
@@ -38,12 +38,13 @@ Their queries have a syntax that closely resembles that of Java. Examples below:
 * `call(void Figure.make*(..))`
 * `call(public * Figure.* (..))`
 
-You can restrict the domain of queries with the logical operators: and, or and not. You can use `*` as a wildcard but not `?`.  
-You can define a query with an alias, which helps address verbosity and the Don't Repeat Yourself principle. I can also use this to provide a method of code standards verification (i.e. define queries and run them against the project, matches imply errors in standards).  
+You can restrict the domain of queries with logical operators (and, or and not).  
+It has limited wildcards (`*`, `..` which serves as `*` specially for method parameters, but it lacks `?`).  
+You can define a query with an alias, which helps address the Don't Repeat Yourself principle, and thus verbosity. I can also use this to provide coding standards verification (i.e. define queries and run them against the project, with matches corresponding errors in standards).  
 You can define method parameters as a type list or a named-type list which is flexible and expressive.  
 
-One issue is my tool aims to be language-agnostic, so adopting a Java-like syntax will be non intuitive for non-Java programmers.  
-The syntax fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)` would be invalid in it (or require lots of processing). This would require more flexibility in defining method parameters by allowing names lists.
+One issue is csar aims to be language-agnostic, so adopting a Java-like syntax will be unintuitive for non-Java programmers.  
+The syntax partially fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)` would be invalid (or require additional processing). A solution to this is accepting variable name lists.
 
 ### [Infer](https://github.com/facebook/infer)
 Infer has developed a language called [AL](https://code.facebook.com/posts/277643589367408/) which it uses to define templates corresponding to code stink. Example below:  
@@ -65,9 +66,10 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 };
 ```
 
-It is very descriptive (allows composites with `AND`, clear etc.) and natural. It is similar to SQL which means most developers will be similar with it.  
+It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and intuitive (similar to SQL).  
 You can define strings as regex patterns, this is a powerful feature.  
-The language is verbose and thus does not resonate with how csar's competitors use one line queries. However declarations and response messages may help in code conventions checking.  
+The language is verbose and thus does not resonate with csar's competitors, which use single line queries.
+However, declarations and response messages can be useful for creating complex tools with csar (i.e. code convention checks).  
 
 ## Code Style Documents
 * [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
