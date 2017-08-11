@@ -10,25 +10,32 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
- * Finds code files in a directory.
+ * Iterates over accepted code files in a directory.
+ * @see {@link CsarContext#accepts(Path)}
  */
-public final class ProjectFileScanner {
+public final class ProjectIterator implements Iterator<Path> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectFileScanner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectIterator.class);
     private final CsarContext ctx;
+    private final List<Path> files = new ArrayList<>();
+    private int currentIdx = 0;
 
-    public ProjectFileScanner(CsarContext ctx) {
+    public ProjectIterator(CsarContext ctx) {
         this.ctx = ctx;
     }
 
     /**
-     * Finds the code files in the working directory and adds them to {@link CsarContext#codeFiles}.
+     * Finds the code files in the working directory and stores them in {@link #files}.
      */
-    public void scan() {
+    public void init() {
         LOGGER.info("Scanning project directory: {}", ctx.getDirectory().toString());
+        files.clear();
+        currentIdx = 0;
 
         // Find files
         if (ctx.isGitRepository()) {
@@ -36,9 +43,6 @@ public final class ProjectFileScanner {
         } else {
             scanDir();
         }
-
-        // Sort code files by size
-        ctx.getCodeFiles().sort((f1, f2) -> (int) (f1.getSize() - f2.getSize()));
     }
 
     /**
@@ -73,7 +77,7 @@ public final class ProjectFileScanner {
             Path path = Paths.get(fileName);
 
             if (ctx.accepts(path)) {
-                ctx.getCodeFiles().add(new CodeFile(path));
+                files.add(path);
             }
         }
     }
@@ -91,7 +95,7 @@ public final class ProjectFileScanner {
                     }
 
                     if (ctx.accepts(entry)) {
-                        ctx.getCodeFiles().add(new CodeFile(entry));
+                        files.add(entry);
                     }
                 }
             }
@@ -100,36 +104,13 @@ public final class ProjectFileScanner {
         }
     }
 
-    /**
-     * A code file on a storage device.
-     */
-    public static final class CodeFile {
+    @Override
+    public boolean hasNext() {
+        return currentIdx < files.size();
+    }
 
-        private final Path path;
-        private final long size;
-
-        public CodeFile(Path path) {
-            this.path = path;
-            long size = -1;
-
-            try {
-                size = Files.size(path);
-            } catch (IOException ignored) {
-            }
-            this.size = size;
-        }
-
-        public Path getPath() {
-            return path;
-        }
-
-        public long getSize() {
-            return size;
-        }
-
-        @Override
-        public String toString() {
-            return "CodeFile{path=" + path + ", size=" + size + "}";
-        }
+    @Override
+    public Path next() {
+        return files.get(currentIdx++);
     }
 }

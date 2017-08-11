@@ -1,42 +1,45 @@
 package org.qmul;
 
-import org.qmul.io.ProjectFileScanner;
+import org.qmul.io.ProjectIterator;
 
-import java.util.List;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A multi-threaded code file parser.
+ * A multi-threaded code file processor.
  */
-public final class CodeParser {
+public final class CodeProcessor {
 
     private final ExecutorService executor;
-    private final List<ProjectFileScanner.CodeFile> codeFiles;
+    private final ProjectIterator it;
     private final int threads;
-    private int currentCodeFileIdx = 0;
 
-    public CodeParser(List<ProjectFileScanner.CodeFile> codeFiles) {
-        this(codeFiles, 1);
+    public CodeProcessor(ProjectIterator it) {
+        this(it, 1);
     }
 
-    public CodeParser(List<ProjectFileScanner.CodeFile> codeFiles, int threads) {
-        this.codeFiles = codeFiles;
+    public CodeProcessor(ProjectIterator it, int threads) {
+        this.it = it;
         this.threads = threads;
         if (threads <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
         executor = Executors.newFixedThreadPool(threads);
     }
 
-    public void parse() {
+    public void run() {
+        if (!it.hasNext()) {
+            return;
+        }
+
         for (int i = 0; i < threads; i++) {
             executor.submit(() -> {
                 try {
                     while (true) {
-                        ProjectFileScanner.CodeFile file = nextCodeFile();
+                        Path file = next();
                         // TODO parse file
                         System.out.println(Thread.currentThread().getName() + ": parsed "
-                                + file.getPath().getFileName().toString());
+                                + file.getFileName().toString());
                     }
                 } catch (IllegalStateException ex) {
                     System.out.println(Thread.currentThread().getName() + ": done");
@@ -45,9 +48,9 @@ public final class CodeParser {
         }
     }
 
-    private synchronized ProjectFileScanner.CodeFile nextCodeFile() throws IllegalStateException {
-        if (currentCodeFileIdx < codeFiles.size()) {
-            return codeFiles.get(currentCodeFileIdx++);
+    private synchronized Path next() throws IllegalStateException {
+        if (it.hasNext()) {
+            return it.next();
         }
         throw new IllegalStateException("ran out of code files");
     }

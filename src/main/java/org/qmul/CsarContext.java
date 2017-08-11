@@ -1,14 +1,11 @@
 package org.qmul;
 
 import com.beust.jcommander.Parameter;
-import org.qmul.io.ProjectFileScanner;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Command-line arguments for {@link Csar#main(String[])}.
@@ -32,8 +29,6 @@ public final class CsarContext {
     @Parameter(names = {"--help", "-h"}, description = "Help information", help = true, order = 4)
     private boolean printHelp;
 
-    private final List<ProjectFileScanner.CodeFile> codeFiles = new ArrayList<>();
-
     public String getQuery() {
         return query;
     }
@@ -44,10 +39,6 @@ public final class CsarContext {
 
     public int getThreads() {
         return threads;
-    }
-
-    public List<ProjectFileScanner.CodeFile> getCodeFiles() {
-        return codeFiles;
     }
 
     public boolean isPrintHelp() {

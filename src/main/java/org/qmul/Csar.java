@@ -2,7 +2,7 @@ package org.qmul;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import org.qmul.io.ProjectFileScanner;
+import org.qmul.io.ProjectIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +13,11 @@ public final class Csar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
-    private final ProjectFileScanner scanner;
+    private final ProjectIterator projectIterator;
 
     public Csar(CsarContext ctx) {
         this.ctx = ctx;
-        this.scanner = new ProjectFileScanner(ctx);
+        this.projectIterator = new ProjectIterator(ctx);
     }
 
     /**
@@ -53,18 +53,18 @@ public final class Csar {
 
     private void init() {
         System.out.println("Initializing");
-        scanner.scan();
+        projectIterator.init();
 
-        if (ctx.getCodeFiles().size() == 0) {
-            System.err.println("No code files found");
+        if (!projectIterator.hasNext()) {
+            System.err.println("No code files found.");
             System.exit(0);
         }
     }
 
     private void process() {
         System.out.println("Processing");
-        CodeParser parser = new CodeParser(ctx.getCodeFiles(), ctx.getThreads());
-        parser.parse();
+        CodeProcessor processor = new CodeProcessor(projectIterator, ctx.getThreads());
+        processor.run();
         // TODO impl
     }
 }
