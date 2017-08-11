@@ -1,12 +1,13 @@
 Multi-threading
 ========
 
-# Parsing
-__Problem__: Distribute and parse _n_ source files on _k_ threads efficiently.
+# File Processing (Parsing, Search & Refactoring)
+__Problem__: Distribute and parse _n_ source files, search them and then apply refactors to them on _k_ different threads.
 
 __Proposed Solution__:  
-* Store the complete list of source files to parse in a data structure
-* Sort them by file size
-* Each thread picks and removes the largest source file from the data structure to parse.
-
-This way we minimize the throughput variance between different threads (e.g. if one thread does much more work than another). This is not perfect though, because file size isn't a comprehensive measure of source file parsing effort.
+* Create thread pool with a fixed size (from cli)
+* Submit tasks to:
+  * Parse source files
+  * Apply search
+  * If search is successful apply refactor
+  * Record result
