@@ -2,7 +2,7 @@ package org.qmul;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import org.qmul.io.ProjectIterator;
+import org.qmul.io.ProjectCodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +13,11 @@ public final class Csar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
-    private final ProjectIterator projectIterator;
+    private final ProjectCodeIterator projectCodeIterator;
 
     public Csar(CsarContext ctx) {
         this.ctx = ctx;
-        this.projectIterator = new ProjectIterator(ctx);
+        this.projectCodeIterator = new ProjectCodeIterator(ctx);
     }
 
     /**
@@ -53,9 +53,9 @@ public final class Csar {
 
     private void init() {
         System.out.println("Initializing");
-        projectIterator.init();
+        projectCodeIterator.init();
 
-        if (!projectIterator.hasNext()) {
+        if (!projectCodeIterator.hasNext()) {
             System.err.println("No code files found.");
             System.exit(0);
         }
@@ -63,7 +63,7 @@ public final class Csar {
 
     private void process() {
         System.out.println("Processing");
-        CodeProcessor processor = new CodeProcessor(projectIterator, ctx.getThreads());
+        CodeProcessor processor = new CodeProcessor(projectCodeIterator, ctx.getThreads());
         processor.run();
         // TODO impl
     }

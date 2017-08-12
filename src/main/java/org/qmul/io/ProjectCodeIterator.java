@@ -18,14 +18,14 @@ import java.util.List;
  * Iterates over accepted code files in a directory.
  * @see {@link CsarContext#accepts(Path)}
  */
-public final class ProjectIterator implements Iterator<Path> {
+public final class ProjectCodeIterator implements Iterator<Path> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectIterator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeIterator.class);
     private final CsarContext ctx;
     private final List<Path> files = new ArrayList<>();
     private int currentIdx = 0;
 
-    public ProjectIterator(CsarContext ctx) {
+    public ProjectCodeIterator(CsarContext ctx) {
         this.ctx = ctx;
     }
 
@@ -62,7 +62,6 @@ public final class ProjectIterator implements Iterator<Path> {
             return;
         }
 
-
         // Check if git repository found
         String output1 = output.get(0);
 
@@ -76,7 +75,7 @@ public final class ProjectIterator implements Iterator<Path> {
         for (String fileName : output) {
             Path path = Paths.get(fileName);
 
-            if (ctx.accepts(path)) {
+            if (ctx.accepts(path) && !Files.isDirectory(path)) {
                 files.add(path);
             }
         }
@@ -92,6 +91,7 @@ public final class ProjectIterator implements Iterator<Path> {
                 for (Path entry : stream) {
                     if (Files.isDirectory(entry)) {
                         scanDir(entry);
+                        continue;
                     }
 
                     if (ctx.accepts(entry)) {

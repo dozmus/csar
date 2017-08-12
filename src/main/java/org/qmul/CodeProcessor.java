@@ -1,6 +1,6 @@
 package org.qmul;
 
-import org.qmul.io.ProjectIterator;
+import org.qmul.io.ProjectCodeIterator;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
@@ -12,14 +12,14 @@ import java.util.concurrent.Executors;
 public final class CodeProcessor {
 
     private final ExecutorService executor;
-    private final ProjectIterator it;
+    private final ProjectCodeIterator it;
     private final int threads;
 
-    public CodeProcessor(ProjectIterator it) {
+    public CodeProcessor(ProjectCodeIterator it) {
         this(it, 1);
     }
 
-    public CodeProcessor(ProjectIterator it, int threads) {
+    public CodeProcessor(ProjectCodeIterator it, int threads) {
         this.it = it;
         this.threads = threads;
         if (threads <= 0)
