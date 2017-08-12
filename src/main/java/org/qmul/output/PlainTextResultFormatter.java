@@ -5,7 +5,7 @@ import java.util.List;
 public final class PlainTextResultFormatter extends ResultFormatter {
 
     @Override
-    public String format(List<Result> results) {
+    public String format(List<Result> results) throws Exception {
         StringBuilder sb = new StringBuilder();
 
         for (Result result : results) {
