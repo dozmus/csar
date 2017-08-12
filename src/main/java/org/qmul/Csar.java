@@ -41,7 +41,7 @@ public final class Csar {
                 System.exit(0);
             }
         } catch (ParameterException ex) {
-            System.err.println(ex.getMessage());
+            LOGGER.error(ex.getMessage());
             System.exit(1);
         }
 
@@ -52,17 +52,17 @@ public final class Csar {
     }
 
     private void init() {
-        System.out.println("Initializing");
+        LOGGER.info("Initializing");
         projectCodeIterator.init();
 
         if (!projectCodeIterator.hasNext()) {
-            System.err.println("No code files found.");
+            LOGGER.error("No code files found");
             System.exit(0);
         }
     }
 
     private void process() {
-        System.out.println("Processing");
+        LOGGER.info("Processing");
         CodeProcessor processor = new CodeProcessor(projectCodeIterator, ctx.getThreads());
         processor.run();
         // TODO impl
