@@ -1,4 +1,4 @@
-package org.qmul.util;
+package org.qmul.csar.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

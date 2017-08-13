@@ -8,7 +8,7 @@ apply plugin: 'antlr'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-mainClassName = 'org.qmul.Csar'
+mainClassName = 'org.qmul.csar.Csar'
 
 repositories {
     mavenCentral()

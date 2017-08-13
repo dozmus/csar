@@ -1,4 +1,4 @@
-package org.qmul.io;
+package org.qmul.csar.io;
 
 import java.io.IOException;
 import java.nio.file.Files;

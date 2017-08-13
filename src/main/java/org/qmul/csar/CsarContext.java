@@ -1,4 +1,4 @@
-package org.qmul;
+package org.qmul.csar;
 
 import com.beust.jcommander.Parameter;
 

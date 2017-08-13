@@ -1,8 +1,8 @@
-package org.qmul;
+package org.qmul.csar;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import org.qmul.io.ProjectCodeIterator;
+import org.qmul.csar.io.ProjectCodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
-package org.qmul;
+package org.qmul.csar;
 
-import org.qmul.io.ProjectCodeIterator;
+import org.qmul.csar.io.ProjectCodeIterator;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
