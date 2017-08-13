@@ -64,7 +64,13 @@ public final class Csar {
     private void process() {
         LOGGER.info("Processing");
         CodeProcessor processor = new CodeProcessor(projectCodeIterator, ctx.getThreads());
-        processor.run();
+
+        try {
+            processor.runAndWait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // TODO impl
+        LOGGER.info("Finished");
     }
 }

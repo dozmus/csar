@@ -3,6 +3,7 @@ package org.qmul.csar;
 import org.qmul.csar.io.ProjectCodeIterator;
 
 import java.nio.file.Path;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -14,46 +15,66 @@ public final class CodeProcessor {
     private final ExecutorService executor;
     private final ProjectCodeIterator it;
     private final int threads;
-    private int activeThreads = 0;
+    private final CountDownLatch finishedLatch;
+    private boolean running = false;
 
     public CodeProcessor(ProjectCodeIterator it) {
         this(it, 1);
     }
 
     public CodeProcessor(ProjectCodeIterator it, int threads) {
-        this.it = it;
-        this.threads = threads;
         if (threads <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
-        executor = Executors.newFixedThreadPool(threads);
+        this.it = it;
+        this.threads = threads;
+        this.executor = Executors.newFixedThreadPool(threads);
+        this.finishedLatch = new CountDownLatch(threads);
     }
 
     /**
-     * Submits tasks to the underlying thread pool to begin processing code files.
+     * Submits tasks to the underlying thread pool to begin processing code files, this is non-blocking.
+     * This should only be called once per instance of this class.
      */
     public void run() {
         // Check if ready to run
         if (!it.hasNext()) {
-            return;
+            throw new IllegalStateException("no code files available");
+        } else if (runningCount() == 0) {
+            throw new IllegalStateException("already finished running");
         } else if (isRunning()) {
             throw new IllegalStateException("already running");
         }
+        running = true;
 
         // Submit tasks
         for (int i = 0; i < threads; i++) {
             executor.submit(() -> {
-                addActiveThread(1);
-
-                while (hasNext()) {
-                    Path file = next();
-                    // TODO parse file
-                    System.out.println(Thread.currentThread().getName() + ": parsed "
-                            + file.getFileName().toString());
+                try {
+                    while (hasNext()) {
+                        Path file = next();
+                        // TODO parse file
+                        System.out.println(Thread.currentThread().getName() + ": parsed "
+                                + file.getFileName().toString());
+                    }
+                } finally {
+                    System.out.println(Thread.currentThread().getName() + ": done");
+                    countDown();
+                    updateRunning();
                 }
-                System.out.println(Thread.currentThread().getName() + ": done");
-                addActiveThread(-1);
             });
         }
+        executor.shutdown();
+    }
+
+    /**
+     * Executes {@link #run()} and blocks until finished, or an {@link InterruptedException} is thrown.
+     */
+    public void runAndWait() throws InterruptedException {
+        // Run
+        run();
+
+        // Wait
+        finishedLatch.await();
     }
 
     /**
@@ -79,17 +100,23 @@ public final class CodeProcessor {
         throw new IllegalStateException("ran out of code files");
     }
 
-    /**
-     * Thread-safe.
-     */
     public synchronized boolean isRunning() {
-        return activeThreads > 0;
+        return running;
     }
 
-    /**
-     * Thread-safe.
-     */
-    private synchronized void addActiveThread(int n) {
-        activeThreads += n;
+    private synchronized void updateRunning() {
+        running = (runningCount() > 0);
+    }
+
+    private long runningCount() {
+        synchronized (finishedLatch) {
+            return finishedLatch.getCount();
+        }
+    }
+
+    private void countDown() {
+        synchronized (finishedLatch) {
+            finishedLatch.countDown();
+        }
     }
 }
