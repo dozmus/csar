@@ -1,4 +1,4 @@
-package org.qmul.csar.output;
+package org.qmul.csar.result;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -1,4 +1,4 @@
-package org.qmul.csar.output;
+package org.qmul.csar.result;
 
 import java.nio.file.Path;
 
