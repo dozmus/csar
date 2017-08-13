@@ -14,6 +14,7 @@ public final class CodeProcessor {
     private final ExecutorService executor;
     private final ProjectCodeIterator it;
     private final int threads;
+    private int activeThreads = 0;
 
     public CodeProcessor(ProjectCodeIterator it) {
         this(it, 1);
@@ -27,31 +28,68 @@ public final class CodeProcessor {
         executor = Executors.newFixedThreadPool(threads);
     }
 
+    /**
+     * Submits tasks to the underlying thread pool to begin processing code files.
+     */
     public void run() {
+        // Check if ready to run
         if (!it.hasNext()) {
             return;
+        } else if (isRunning()) {
+            throw new IllegalStateException("already running");
         }
 
+        // Submit tasks
         for (int i = 0; i < threads; i++) {
             executor.submit(() -> {
-                try {
-                    while (true) {
-                        Path file = next();
-                        // TODO parse file
-                        System.out.println(Thread.currentThread().getName() + ": parsed "
-                                + file.getFileName().toString());
-                    }
-                } catch (IllegalStateException ex) {
-                    System.out.println(Thread.currentThread().getName() + ": done");
+                addActiveThread(1);
+
+                while (hasNext()) {
+                    Path file = next();
+                    // TODO parse file
+                    System.out.println(Thread.currentThread().getName() + ": parsed "
+                            + file.getFileName().toString());
                 }
+                System.out.println(Thread.currentThread().getName() + ": done");
+                addActiveThread(-1);
             });
         }
     }
 
-    private synchronized Path next() throws IllegalStateException {
-        if (it.hasNext()) {
-            return it.next();
+    /**
+     * Thread-safe.
+     * @return {@link #it#hasNext()}
+     */
+    private boolean hasNext() {
+        synchronized (it) {
+            return it.hasNext();
+        }
+    }
+
+    /**
+     * Thread-safe.
+     * @return {@link #it#next()}
+     */
+    private Path next() {
+        synchronized (it) {
+            if (it.hasNext()) {
+                return it.next();
+            }
         }
         throw new IllegalStateException("ran out of code files");
+    }
+
+    /**
+     * Thread-safe.
+     */
+    public synchronized boolean isRunning() {
+        return activeThreads > 0;
+    }
+
+    /**
+     * Thread-safe.
+     */
+    private synchronized void addActiveThread(int n) {
+        activeThreads += n;
     }
 }
