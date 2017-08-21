@@ -2,15 +2,17 @@
 ## Syntax ([E-BNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form))
 ```
 query = element [('CONTAINS' | 'contains') ['not'] element {('and' | 'or') ['not'] element}]
-element = class | method | variable | switch | if | for | foreach | while | dowhile | ternary | slc | mlc
+element = class | method | variable | controlflow | comment
 
 class = ('class' | 'cls' | 'c') common-modifiers class-modifiers name [super-classes]
 method = ('method' | 'function' | 'func' | 'fn' | 'f') common-modifiers [type] name [parameters]
+
 variable = instance | local | param
 instance = ('instance' | 'i' | 'ivar' | 'field' | 'fvar') common-modifiers instance-modifiers [type] name
 local = ('local' | 'l' | 'lvar') ['final'] [type] name
 param = ('param' | 'p' | 'pvar') ['final'] [type] name
 
+controlflow = if | switch | while | dowhile | for | foreach | ternary
 if = 'if' [' ' expr]
 switch = 'switch' [' ' expr]
 while = 'while' [' ' expr]
@@ -19,6 +21,7 @@ for = 'for' [' ' expr ',' expr ',' expr]
 foreach = 'foreach' [' ' expr]
 ternary = 'ternary' [' ' expr ',' expr ',' expr]
 
+comment = slc | mlc
 slc = 'slc' [' ' content]
 mlc = 'mlc' [' javadoc'] [' ' content]
 
@@ -56,22 +59,37 @@ number = {digit}
 
 ## Use Cases
 ### Search
-* I want to remove usage of a deprecated class. Suppose I want to replace `Calendar` with `LocalDateTime`. This is a complicated procedure, but a good starting point is finding all usages of the deprecated class.  
-  I can search for usages with `class:use:Calendar`.
-* I want to find all TODO comments. This might be because: I want to collate them in a bug tracking software or I want to find one to fix.  
+* I want to remove all usage of a deprecated class. Suppose I want to replace `Calendar` with `LocalDateTime`. This is not trivial, but a good starting point is finding all the usages.  
+  `class:use:Calendar`
+* I want to find all TODO comments. This might be because: I want to collate them in bug tracking software or find one to fix.
   I can find all single-line comments with `slc` and then refine it further with `slc TODO *`.
-* I want to find all usages of a method. This might be to: ensure my changes have no negative effects, understand the system, change its signature or split the method into two.  
-  I can search for usages with `fn:u:add`. Refining this query is described in the next use-case.
-* I want to find the definition of a method to see what it does.  
-  I can find the method by name, as follows: `method:def:add`, or more compactly with `fn:d:add`.  
-  I can also apply refinements such as: `fn:d:add(2)` or `fn:d:add(int, int)` or even `fn:d:public static int add(int a, int b)`.  
-* I want to find all usages of an instance variable (aka field). This might be to: ensure my changes have no negative effects or better understand the system.  
-  I can search for usages with `instance:result` or `instance:int result`.
-* I want to use a new language feature, say streams (Java 1.8) or String switch statements (Java 1.7). I need to be able to find these elements and address them.  
+* I want to find all usages of a method called `add`. This might be to: ensure my changes have no negative effects, change its signature or split the method into two.  
+  I can find the usages with `method:use:add`. Refining this query is described in the next use-case.
+* I want to find the definition of a method called `add` to inspect it or change its signature.  
+  I can find the definition, as follows: `method:def:add`, or more compactly with `fn:d:add`.  
+  I can also apply refinements such as: `fn:d:add(2)` or `fn:d:add(int, int)` or even `fn:d:public static int add(int a, int b)`.
+* I want to find all usages of an instance variable (field). This might be to ensure my changes have no negative effects.  
+  I can search for usages with `instance:u:result` or `instance:u:int result`.
+* I want to remove a language feature to reduce the version requirements of my program. Suppose we target String switch statements (Java 1.7).  
   I can find all switch statements with `switch` and refine it further by specifying the switch statement's argument, e.g. `switch person.getFullName()`.  
-  I cannot find them by the type of their argument, the grammar could be adapted to support it, e.g. `'switch' [' ' (expr | type)]`. Its argument would be ambiguous though, so we could change the rule to be more clear: `'switch'['(' expr ')' | ':' type]`.  
-  This would lead to expressions such as `switch(person.getFullName())` and `switch:String` - fully addressing our concerns.  
-  I have no possible resolutions for lambdas yet, I could add them as a general element for now, named `lambda` and refine the rule at a later date.
+  This is not supported if we want to search by the type of their argument, the grammar could be adapted to support it, e.g. `switch = 'switch' [' ' (expr | type)]`. Its argument would be ambiguous though, so we could change the rule to be more clear: `switch = 'switch'['(' expr ')' | ':' type]`.  
+  This would lead to expressions such as `switch(person.getFullName())` and `switch:String`.
+* I want to find all implementations of an abstract class or interface, called `SuperClass`.  
+  This is not supported yet. One solution is to extend the class rule as follows: `class = ('class' | 'cls' | 'c') common-modifiers class-modifiers (name | 'super') [super-classes]`.  
+  This would lead to: `class:use:super(SuperClass)`.
+* I want to find all implementations of a method in an abstract class or interface, called `SuperClass`.  
+  This is not supported yet. One solution is to extend the method rule as follows: `method = ('method' | 'function' | 'func' | 'fn' | 'f') common-modifiers ['overridden'] [type] name [parameters]`.
+* I want to find usages of a method called `add` which throw an exception called `ArithmeticException`.  
+  This is not supported yet. One solution is to extend the method rule as follows (taken from the above use case): `method = ('method' | 'function' | 'func' | 'fn' | 'f') common-modifiers ['overridden'] [type] name [parameters] ['throws ' type-list]`
+* I want to find all lambda expressions in a class called `MyClass`.  
+  This is not supported yet. We could begin by creating a general `lambda` rule and then refine it further as necessary.
+* I want to find all synchronization blocks, to examine the correctness of my multi-threaded program.  
+  This is not supported yet. We could introduce a general `synchronized` rule and then allow refinements by argument, whether variable name or type (like the newly formulated rule for `switch`).
+* I want to find all for-each statements with a specified iterated collection's type.  
+  This is not supported yet (the rule was a placeholder). We could introduce a refinement to the foreach rule as follows: `foreach = 'foreach' [':' type]`, where `type` would match its subtypes as well.
+* We might want to improve our code by removing the highly stigmatised `goto` statements.  
+  This is not supported yet. We could introduce a general `goto` rule.
 
 ### Refactor
 This version of the query language has no syntax to represent refactors.
+A possible solution to this is to adopt the following rule: `mainquery = SELECT query REFACTOR refactor` and expand upon the `refactor` rule in due time.
