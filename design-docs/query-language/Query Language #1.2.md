@@ -92,4 +92,4 @@ number = {digit}
 
 ### Refactor
 This version of the query language has no syntax to represent refactors.
-A possible solution to this is to adopt the following rule: `mainquery = SELECT query REFACTOR refactor` and expand upon the `refactor` rule in due time.
+A possible solution to this is to adopt the following rule: `mainquery = 'SELECT' query 'REFACTOR' refactor` and expand upon the `refactor` rule in due time.
