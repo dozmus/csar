@@ -1,6 +1,9 @@
 package org.qmul.csar;
 
 import org.qmul.csar.io.ProjectCodeIterator;
+import org.qmul.csar.util.NamedThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
@@ -12,6 +15,7 @@ import java.util.concurrent.Executors;
  */
 public final class CodeProcessor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CodeProcessor.class);
     private final ExecutorService executor;
     private final ProjectCodeIterator it;
     private final int threads;
@@ -27,7 +31,7 @@ public final class CodeProcessor {
             throw new IllegalArgumentException("threads must be greater than 0");
         this.it = it;
         this.threads = threads;
-        this.executor = Executors.newFixedThreadPool(threads);
+        this.executor = Executors.newFixedThreadPool(threads, new NamedThreadFactory("csar-%d"));
         this.finishedLatch = new CountDownLatch(threads);
     }
 
@@ -50,14 +54,13 @@ public final class CodeProcessor {
         for (int i = 0; i < threads; i++) {
             executor.submit(() -> {
                 try {
-                    while (hasNext()) {
+                    while (hasNext() && !Thread.currentThread().isInterrupted()) {
                         Path file = next();
                         // TODO parse file
-                        System.out.println(Thread.currentThread().getName() + ": parsed "
-                                + file.getFileName().toString());
+                        LOGGER.info("Parsed {}", file.getFileName().toString());
                     }
                 } finally {
-                    System.out.println(Thread.currentThread().getName() + ": done");
+                    LOGGER.info("Finished");
                     countDown();
                     updateRunning();
                 }
