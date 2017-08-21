@@ -13,11 +13,11 @@ public final class Csar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
-    private final ProjectCodeIterator projectCodeIterator;
+    private final ProjectCodeIterator it;
 
     public Csar(CsarContext ctx) {
         this.ctx = ctx;
-        this.projectCodeIterator = new ProjectCodeIterator(ctx);
+        this.it = new ProjectCodeIterator(ctx);
     }
 
     /**
@@ -53,9 +53,9 @@ public final class Csar {
 
     private void init() {
         LOGGER.info("Initializing");
-        projectCodeIterator.init();
+        it.init();
 
-        if (!projectCodeIterator.hasNext()) {
+        if (!it.hasNext()) {
             LOGGER.error("No code files found");
             System.exit(0);
         }
@@ -63,7 +63,7 @@ public final class Csar {
 
     private void process() {
         LOGGER.info("Processing");
-        CodeProcessor processor = new CodeProcessor(projectCodeIterator, ctx.getThreads());
+        CodeProcessor processor = new CodeProcessor(it, ctx.getThreads());
 
         try {
             processor.runAndWait();
