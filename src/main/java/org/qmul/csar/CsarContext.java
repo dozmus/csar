@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * Command-line arguments for {@link Csar#main(String[])}.
  */
-public final class CsarContext {
+public class CsarContext {
 
     /**
      * An array of handled code file extensions.
