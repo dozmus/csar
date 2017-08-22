@@ -63,10 +63,10 @@ public final class Csar {
 
     private void process() {
         LOGGER.info("Processing");
-        CodeProcessor processor = new CodeProcessor(it, ctx.getThreads());
+        CodeParser parser = new CodeParser(it, ctx.getThreads());
 
         try {
-            processor.runAndWait();
+            parser.runAndWait();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

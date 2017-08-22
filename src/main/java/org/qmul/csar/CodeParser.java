@@ -1,32 +1,37 @@
 package org.qmul.csar;
 
+import grammars.java8pt.JavaLexer;
+import grammars.java8pt.JavaParser;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.qmul.csar.io.ProjectCodeIterator;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A multi-threaded code file processor.
+ * A multi-threaded code parser.
  */
-public final class CodeProcessor {
+public final class CodeParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CodeParser.class);
     private final ExecutorService executor;
     private final ProjectCodeIterator it;
     private final int threads;
     private final CountDownLatch finishedLatch;
     private boolean running = false;
 
-    public CodeProcessor(ProjectCodeIterator it) {
+    public CodeParser(ProjectCodeIterator it) {
         this(it, 1);
     }
 
-    public CodeProcessor(ProjectCodeIterator it, int threads) {
+    public CodeParser(ProjectCodeIterator it, int threads) {
         if (threads <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
         this.it = it;
@@ -56,8 +61,19 @@ public final class CodeProcessor {
                 try {
                     while (hasNext() && !Thread.currentThread().isInterrupted()) {
                         Path file = next();
-                        // TODO parse file
-                        LOGGER.info("Parsed {}", file.getFileName().toString());
+                        String fileName = file.getFileName().toString();
+                        JavaLexer lexer;
+
+                        try {
+                            lexer = new JavaLexer(CharStreams.fromPath(file));
+                        } catch (IOException e) {
+                            LOGGER.error("Failed to read file {} because {}", fileName, e.getMessage());
+                            continue;
+                        }
+                        JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
+                        JavaParser.CompilationUnitContext document = parser.compilationUnit();
+                        // TODO interact with document
+                        LOGGER.info("Parsed {}", fileName);
                     }
                 } finally {
                     LOGGER.info("Finished");
