@@ -68,7 +68,7 @@ public final class Csar {
         try {
             parser.runAndWait();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to wait because {}", e.getMessage());
         }
         // TODO impl
         LOGGER.info("Finished");

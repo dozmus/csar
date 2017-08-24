@@ -77,7 +77,7 @@ public class CsarContext {
      * @see {@link #HANDLED_CODE_FILE_EXTENSIONS}
      */
     public boolean accepts(Path path) {
-        if (path.toFile().isDirectory())
+        if (Files.isDirectory(path))
             return false;
         String fileName = path.getFileName().toString();
         return Arrays.stream(HANDLED_CODE_FILE_EXTENSIONS).anyMatch(fileName::endsWith);

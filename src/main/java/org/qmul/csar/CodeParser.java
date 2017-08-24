@@ -71,7 +71,7 @@ public final class CodeParser {
                             continue;
                         }
                         JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
-                        JavaParser.CompilationUnitContext document = parser.compilationUnit();
+                        JavaParser.CompilationUnitContext cst = parser.compilationUnit();
                         // TODO interact with document
                         LOGGER.info("Parsed {}", fileName);
                     }
