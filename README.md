@@ -11,13 +11,17 @@ Usage: java -jar csar.jar [options]
   * --query, -q
       Search query
     --threads, -t
-      Thread count
+      Thread count (default: 1)
       Default: 1
     --verbose, -v
-      Verbose output
+      Verbose output (default: false)
       Default: false
+    --format, -f
+      Output format (default: plain text)
+    --output, -o
+      Output file name
     --help, -h
-      Help information
+      Print help information
 ```
 
 Further Example: `java -jar csar.jar -q myquery`

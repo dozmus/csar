@@ -1,6 +1,10 @@
 package org.qmul.csar;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.converters.PathConverter;
+import org.qmul.csar.result.PlainTextResultFormatter;
+import org.qmul.csar.util.ResultFormatterConverter;
+import org.qmul.csar.result.ResultFormatter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +30,14 @@ public class CsarContext {
     @Parameter(names = {"--verbose", "-v"}, description = "Verbose output", order = 3)
     private boolean verbose;
 
-    @Parameter(names = {"--help", "-h"}, description = "Help information", help = true, order = 4)
+    @Parameter(names = {"--format", "-f"}, description = "Output format", order = 4,
+            converter = ResultFormatterConverter.class)
+    private ResultFormatter resultFormatter = new PlainTextResultFormatter();
+
+    @Parameter(names = {"--output", "-o"}, description = "Output file name", order = 5, converter = PathConverter.class)
+    private Path path;
+
+    @Parameter(names = {"--help", "-h"}, description = "Print help information", help = true, order = 7)
     private boolean printHelp;
 
     public String getQuery() {
@@ -39,6 +50,14 @@ public class CsarContext {
 
     public int getThreads() {
         return threads;
+    }
+
+    public ResultFormatter getResultFormatter() {
+        return resultFormatter;
+    }
+
+    public Path getPath() {
+        return path;
     }
 
     public boolean isPrintHelp() {
