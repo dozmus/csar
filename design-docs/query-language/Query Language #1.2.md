@@ -26,8 +26,8 @@ ternary = 'ternary' [' ' expr ',' expr ',' expr]
 
 // comments
 comment = slc | mlc
-slc = 'slc' [' ' content]
-mlc = 'mlc' [' javadoc'] [' ' content]
+slc = 'slc:' [content]
+mlc = 'mlc:' ['javadoc'] [content]
 
 // helpers
 common-modifiers = ':' (('def' | 'd' | 'use' | 'u') ':') ['public' | 'private' | 'protected' | 'none'] ['static'] ['final']
@@ -56,66 +56,76 @@ primitive-type = 'int' | 'double' | 'float' | 'long' | 'short' | 'char' | 'byte'
 * `instance:def:transient int result` or `instance:d:result`
 
 ## Problems
-* Need more syntax for:
-  * Make sure we can distinguish `{name}` from `{type}` from `{condition}`
-  * Lambdas
-  * Try-catch, throw
-  * Computation/Storage: arithmetic, bitwise, relational, logical, assignment
-  * Encapsulating class name
+* Need more syntax for: Lambdas
+* Need more syntax for: Try-catch, throw
+* Need more syntax for: Computation/Storage: arithmetic, bitwise, relational, logical, assignment
+* Make sure there are have no ambiguities in the grammar (one such example is being able to distinguish `{name}` from `{type}` from `{condition}`)
+* A way to limit the scope of the search
 * Cannot search for multiple elements at once, a top-level 'or' operator would address this.
 
 ## Use Cases
+The use-cases will detail why and how the end users might use the tool.
+If changes to the syntax are recommended, they will be iteratively built upon from use-case to use-case.
+
 ### Search
 #### Fundamental
-* I want to remove all usage of a deprecated class. Suppose I want to replace `Calendar` with `LocalDateTime`. This is not trivial, but a good starting point is finding all the usages.  
-  `class:use:Calendar`
-* I want to search for the usage of an interface called `HttpProvider`.  
-  This is not supported yet. One solution is to extend the class rule as follows: `class-modifiers = [' abstract' | ' interface'] [' strictfp'] [' anonymous'] [' inner']`.
-* I want to find all implementations of a method in an abstract class or interface, called `SuperClass`.  
-  This is not supported yet. One solution is to extend the method rule as follows: `method = ('method' | 'function' | 'func' | 'fn' | 'f') common-modifiers ['overridden'] [type] name [parameters]`.
-* I want to find all usages of a method called `add`. This might be to: ensure my changes have no negative effects, change its signature or split the method into two.  
-  I can find the usages with `method:use:add`. Refining this query is described in the next use-case.
-* I want to find the definition of a method called `add` to inspect it or change its signature.  
-  I can find the definition, as follows: `method:def:add`, or more compactly with `fn:d:add`.  
-  I can also apply refinements such as: `fn:d:add(2)` or `fn:d:add(int, int)` or even `fn:d:public static int add(int a, int b)`.
-* I want to find usages of a method called `add` which throw an exception called `ArithmeticException`.  
-  This is not supported yet. One solution is to extend the method rule as follows (taken from the above use case): `method = ('method' | 'function' | 'func' | 'fn' | 'f') common-modifiers ['overridden'] [type] name [parameters] ['throws ' type-list]`.
+* **Task**: Remove all use of a deprecated class. Suppose this is replacing `Calendar` with `LocalDateTime`.  
+  **Solution**: This is not something the tool aims to completely address, but it can find all usages with `class:use:Calendar` to aid the process.
+* **Task**: Find all use of an interface called `HttpProvider`.  
+  **Solution**: Not supported yet. The class rule can be modified to accommodate as follows: `class-modifiers = [' abstract' | ' interface'] [' strictfp'] [' anonymous'] [' inner']`.  
+  Then, the solution would be `class:use:interface HttpProvider`.
+* **Task**: Find all implementations of a method in an abstract class or interface, called `SuperClass`.  
+  **Solution**: Not supported yet. The method rule can be modified to accommodate as follows: `method = ('method' | 'function' | 'func' | 'fn' | 'f') common-modifiers ['overridden'] [type] name [parameters] ['super' super-classes]`.  
+  Then, the solution would be `method:def:overridden * super(SuperClass)`.
+* **Task**: Find all use of a method called `add`. This might be to: ensure pending changes have no negative effects, change its signature manually or split the method into two.  
+  **Solution**: `method:use:add`.  
+  It is possible to also apply refinements such as: `method:u:add(2)`, `method:u:add(int, int)`, and `method:u:public static int add(int a, int b)`.
+* **Task**: Find the definition of a method whose name starts with `check` to inspect it or change its signature.  
+  **Solution**: `method:def:check*`, or more compactly as `fn:d:check*`.  
+* **Task**: Find all use of a method called `add` whose signature states that it throws an exception called `ArithmeticException`.  
+  **Solution**: Not supported yet. The method rule can be modified to accommodate as follows: `method = ('method' | 'function' | 'func' | 'fn' | 'f') common-modifiers ['overridden'] [type] name [parameters] ['throws ' type-list] ['super' super-classes]`.  
+  Then, the solution would be `method:use:add throws ArithmeticException`.
 
 #### Variables
-* I want to find all usages of an instance variable (field). This might be to ensure my changes have no negative effects.  
-  I can search for usages with `instance:u:result` or `instance:u:int result`.  
-  Note: This can be used for parameters and local variables too.
-* I want to find all variables in a class called `MyClass`.  
-  This is not supported yet. We could introduce a general `variable` rule and refine it as necessary.
+* **Task**: Find all use of an instance variable (field). This might be to ensure pending changes have no negative effects.  
+  **Solution**: `instance:u:result`, or refine it further to `instance:u:int result`.  
+  Note: This is analogous to searching for parameters and local variables.
+* **Task**: Find all variables in a class called `MyClass`.  
+  **Solution**: Not supported yet. A general `variable` could be introduced rule and refinements general to all variable types allowed.
 
 #### Control Flow
-* I want to remove a language feature to reduce the version requirements of my program. Suppose we target String switch statements (Java 1.7).  
-  I can find all switch statements with `switch` and refine it further by specifying the switch statement's argument, e.g. `switch person.getFullName()`.  
-  This is not supported if we want to search by the type of their argument, the grammar could be adapted to support it, e.g. `switch = 'switch' [' ' (expr | type)]`. Its argument would be ambiguous though, so we could change the rule to be more clear: `switch = 'switch'['(' expr ')' | ':' type]`.  
+* **Task**: Remove a language feature to reduce the version requirements of a program. Suppose the initial target of this process are String switch statements (introduced in Java 1.7).  
+  **Solution**: Find all switch statements with `switch` and then refine it by specifying the switch statement's argument, e.g. `switch person.getFullName()`.  
+  It is not possible to search by a switch statement's argument type though. The grammar could be adapted to support it, e.g. `switch = 'switch' [' ' (expr | type)]`.  
+  Its argument would be ambiguous though, so the rule will be modified to be more clear: `switch = 'switch'['(' expr ')' | ':' type]`.  
   This would lead to expressions such as `switch(person.getFullName())` and `switch:String`.
-* I want to find all implementations of an abstract class or interface, called `SuperClass`.  
-  This is not supported yet. One solution is to extend the class rule as follows: `class = ('class' | 'cls' | 'c') common-modifiers class-modifiers (name | 'super') [super-classes]`.  
+* **Task**: Find all implementations of an abstract class or interface, called `SuperClass`.  
+  **Solution**: Not supported yet. The class rule can be modified as follows: `class = ('class' | 'cls' | 'c') common-modifiers class-modifiers (name | 'super') [super-classes]`.  
   This would lead to: `class:use:super(SuperClass)`.
-* I want to find all lambda expressions in a class called `MyClass`.  
-  This is not supported yet. We could begin by creating a general `lambda` rule and then introduce refinements as necessary.
-* I want to find all for-each statements with a specified iterated collection's type.  
-  This is not supported yet (the rule was a placeholder). We could introduce a refinement to the foreach rule as follows: `foreach = 'foreach' [':' type]`, where `type` would match its subtypes as well.
-* We might want to improve our code by removing the highly stigmatised `goto` statement.  
-  This is not supported yet. We could introduce a general `goto` rule.
-* I want to find all if statements with a certain expression, say `value() == 3`.  
-  I could use the `if` rule and then refine it, `if value() == 3`.  
-  This syntax is dissimilar than the new one for `switch`, so I will change it to the following: `'if' ['(' expr ')']`.  
-  Note: The same applies to `while` and `dowhile` statements, and I will modify them in the same way.
-* I want to find all for-loops.  
-  I think it should remain a general `for` rule since it can be a very complex language construct.
-* I want to find all ternary statements.  
-  I think it should remain a general `ternary` rule since it can be a very complex language construct.
-* I want to find all synchronization blocks, to examine the correctness of my multi-threaded program.  
-  This is not supported yet. We could introduce a general `synchronized` rule and then allow refinements by argument, whether variable name or type (like the newly formulated rule for `switch`).
+* **Task**: Find all lambda expressions in a class called `MyClass`.  
+  **Solution**: Not supported yet. A general `lambda` rule could be introduced and then introduce refinements as necessary.  
+  Limiting the scope of the search is a problem which will be addressed in the next version of the query language.
+* **Task**: Find all for-each statements with a specified iterated collection's type.  
+  **Solution**: Not supported yet (the rule present is a placeholder). The for-each rule will be modified as follows: `foreach = 'foreach' [':' type]`, where `type` would match its subtypes as well.
+* **Task**: Improve code by removing the highly stigmatised `goto` statement.  
+  **Solution**: Not supported yet. A general `goto` rule could be introduced.
+* **Task**: Find all if statements with a certain expression, suppose `value() == 3`.  
+  **Solution**: `if value() == 3` obtained by refining the `if` rule.  
+  This rule is dissimilar from the revised one for `switch`, so changing it to the following will maintain consistency in the rules: `'if' ['(' expr ')']`.  
+  Note: This inconsistency applies to `while` and `dowhile` statements, and they will be modified in the same way.
+* **Task**: Find all for-loops.  
+  **Solution**: This is supported but quite complex. A general `for` rule will be introduced instead.
+* **Task**: Find all ternary statements.  
+  **Solution**: This is supported but quite complex. A general `ternary` rule will be introduced instead.
+* **Task**: Find all synchronization blocks, to examine the correctness of a multi-threaded program.  
+  **Solution**: Not supported yet. A general `synchronized` rule could be introduced and then allow refinements by argument, whether variable name or type (like the newly formulated rule for `switch`).  
+  So, `synchronized = 'synchronized'['(' expr ')' | ':' type]` which would result in the solution being `synchronized`.
 
 #### Comments
-* I want to find all TODO comments. This might be because: I want to collate them in bug tracking software or find one to fix.
-  I can find all single-line comments with `slc` and then refine it further with `slc TODO *`.
+* **Task**: Find all 'TODO' comments (i.e. comments starting with the word `TODO`). This might be because: they are to be collated in bug tracking software or to find one to assign to a team member.  
+  **Solution**: `slc:TODO *`.
+* **Task**: Find all multi-line comments which are javadocs for a project-wide rewriting of them.  
+  **Solution**: `mlc:javadoc`.
 
 ### Refactor
 This version of the query language has no syntax to represent refactors.
