@@ -57,7 +57,6 @@ primitive-type = 'int' | 'double' | 'float' | 'long' | 'short' | 'char' | 'byte'
 ```
 
 ## Implementation
-The preliminary version of the software will only handle searching for classes and methods.  
-The second version will include variable support, the third control flow and the fourth comments.  
-Further versions will focus on introducing new refactoring abilities.  
-Note: This version has omitted aliases for the language, for brevity. 
+The preliminary version of the software will only handle searching for classes and methods.
+Later versions will gradually include other features of the query language, until it is completely supported.  
+Note: This version of the grammar has omitted aliases for the language, for brevity. 
