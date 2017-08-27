@@ -34,7 +34,9 @@ parser grammar JavaParser;
     package grammars.java8pt;
 }
 
-options { tokenVocab='grammars/java8pt/JavaLexer'; }
+options {
+    tokenVocab='grammars/java8pt/JavaLexer';
+}
 
 compilationUnit
     : packageDeclaration? importDeclaration* typeDeclaration* EOF
