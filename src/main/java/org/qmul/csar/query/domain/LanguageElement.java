@@ -2,6 +2,7 @@ package org.qmul.csar.query.domain;
 
 import org.qmul.csar.query.CsarQuery;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class LanguageElement {
@@ -78,15 +79,25 @@ public class LanguageElement {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         LanguageElement that = (LanguageElement) o;
+        return type == that.type &&
+                searchType == that.searchType &&
+                visibilityModifier == that.visibilityModifier &&
+                Objects.equals(staticModifier, that.staticModifier) &&
+                Objects.equals(finalModifier, that.finalModifier) &&
+                Objects.equals(identifierName, that.identifierName);
+    }
 
-        if (!staticModifier.equals(that.staticModifier)) return false;
-        if (!finalModifier.equals(that.finalModifier)) return false;
-        if (type != that.type) return false;
-        if (searchType != that.searchType) return false;
-        if (visibilityModifier != that.visibilityModifier) return false;
-        return identifierName != null ? identifierName.equals(that.identifierName) : that.identifierName == null;
+    @Override
+    public String toString() {
+        return "LanguageElement{" +
+                "type=" + type +
+                ", searchType=" + searchType +
+                ", visibilityModifier=" + visibilityModifier +
+                ", staticModifier=" + staticModifier +
+                ", finalModifier=" + finalModifier +
+                ", identifierName='" + identifierName + '\'' +
+                '}';
     }
 
     public enum Type {

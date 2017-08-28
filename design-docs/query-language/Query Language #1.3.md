@@ -59,4 +59,5 @@ primitive-type = 'int' | 'double' | 'float' | 'long' | 'short' | 'char' | 'byte'
 ## Implementation
 The preliminary version of the software will only handle searching for classes and methods.
 Later versions will gradually include other features of the query language, until it is completely supported.  
-Note: This version of the grammar has omitted aliases for the language, for brevity. 
+Note: This version of the grammar has omitted aliases for the language, for brevity.  
+Note: The Java8PT ANTLR grammar does not parse comments, hence modification to it will be necessary.
