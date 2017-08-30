@@ -15,4 +15,9 @@ public final class PlainTextResultFormatter extends ResultFormatter {
         }
         return sb.toString();
     }
+
+    @Override
+    public String toString() {
+        return "PlainText";
+    }
 }

@@ -11,15 +11,19 @@ Usage: java -jar csar.jar [options]
   * --query, -q
       Search query
     --threads, -t
-      Thread count (default: 1)
+      Thread count
       Default: 1
     --verbose, -v
-      Verbose output (default: false)
+      Verbose output
       Default: false
     --format, -f
-      Output format (default: plain text)
+      Output format
+      Default: PlainText
     --output, -o
       Output file name
+    --project-url, --url
+      Print project URL
+      Default: false
     --help, -h
       Print help information
 ```

@@ -11,4 +11,9 @@ public final class JsonResultFormatter extends ResultFormatter {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(results);
     }
+
+    @Override
+    public String toString() {
+        return "Json";
+    }
 }
