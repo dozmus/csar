@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class Csar {
 
+    private static String PROJECT_URL = "https://github.research.its.qmul.ac.uk/ec15116/csar";
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
     private final ProjectCodeIterator it;
@@ -35,6 +36,11 @@ public final class Csar {
                     .programName("java -jar csar.jar")
                     .build();
             com.parse(args);
+
+            if (ctx.isPrintProjectUrl()) {
+                System.out.println(PROJECT_URL);
+                System.exit(0);
+            }
 
             if (ctx.isPrintHelp()) {
                 com.usage();

@@ -37,6 +37,9 @@ public class CsarContext {
     @Parameter(names = {"--output", "-o"}, description = "Output file name", order = 5, converter = PathConverter.class)
     private Path path;
 
+    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 6)
+    private boolean printProjectUrl;
+
     @Parameter(names = {"--help", "-h"}, description = "Print help information", help = true, order = 7)
     private boolean printHelp;
 
@@ -62,6 +65,10 @@ public class CsarContext {
 
     public boolean isPrintHelp() {
         return printHelp;
+    }
+
+    public boolean isPrintProjectUrl() {
+        return printProjectUrl;
     }
 
     public Path getDirectory() {
