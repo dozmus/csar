@@ -4,7 +4,7 @@ import grammars.csar.CsarLexer;
 import grammars.csar.CsarParser;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.qmul.csar.util.DummyANTLRErrorListener;
+import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
 
 public final class CsarQueryFactory {
 
@@ -19,7 +19,7 @@ public final class CsarQueryFactory {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CsarParser parser = new CsarParser(tokens);
         parser.setErrorHandler(new BailErrorStrategy()); // terminate parsing early if a parsing error occurs
-        parser.addErrorListener(new CsarParserErrorListener()); // throw runtime exception if a parsing error
+        parser.addErrorListener(new ThrowRuntimeExceptionErrorListener("csar query")); // throw runtime exception if a parsing error
 
         // Generate and return csar query
         ParseTreeWalker walker = new ParseTreeWalker();
@@ -28,16 +28,4 @@ public final class CsarQueryFactory {
         return gen.csarQuery();
     }
 
-    /**
-     * An error listener which throws a {@link RuntimeException} when
-     * {@link ANTLRErrorListener#syntaxError(Recognizer, Object, int, int, String, RecognitionException)} is invoked.
-     */
-    private static class CsarParserErrorListener extends DummyANTLRErrorListener {
-
-        @Override
-        public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
-                                int charPositionInLine, String msg, RecognitionException e) {
-            throw new RuntimeException("syntax error parsing csar query at line " + line);
-        }
-    }
 }
