@@ -11,13 +11,13 @@ import java.util.Optional;
 class CsarQueryGenerator extends DummyCsarParserListener {
 
     private LanguageElement target = null;
-    private LanguageElement fromTarget = null;
+    private String fromTarget = null;
     private DomainQuery domainQuery = null;
 
     @Override
     public void enterCsarQuery(CsarParser.CsarQueryContext ctx) {
-        if (ctx.languageElement() != null) {
-            fromTarget = parseLanguageElement(ctx.languageElement());
+        if (ctx.IDENTIFIER_NAME() != null) {
+            fromTarget = ctx.IDENTIFIER_NAME().getText();
         }
     }
 
@@ -172,17 +172,17 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                 mle.setParameterCount(Optional.of(Integer.parseInt(mpt.NUMBER().getText())));
             } else if (mpt.typeList() != null) {
                 for (CsarParser.TypeContext type : mpt.typeList().type()) {
-                    mle.addParameters(new Identifier(null, type.getText()));
+                    mle.addParameter(new Identifier(null, type.getText()));
                 }
             } else if (mpt.namedTypeList() != null) {
                 CsarParser.NamedTypeListContext ntlc = mpt.namedTypeList();
 
-                if (ntlc.type().size() != ntlc.TEXT().size()) {
+                if (ntlc.type().size() != ntlc.IDENTIFIER_NAME().size()) {
                     throw new RuntimeException("syntax error parsing csar query named type list");
                 }
 
                 for (int i = 0; i < ntlc.type().size(); i++) {
-                    mle.addParameters(new Identifier(ntlc.TEXT(i).getText(), ntlc.type(i).getText()));
+                    mle.addParameter(new Identifier(ntlc.IDENTIFIER_NAME(i).getText(), ntlc.type(i).getText()));
                 }
             }
         }

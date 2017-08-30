@@ -8,10 +8,10 @@ import java.util.Objects;
 public final class CsarQuery {
 
     private final LanguageElement target;
-    private final LanguageElement fromTarget;
+    private final String fromTarget;
     private final DomainQuery domain;
 
-    public CsarQuery(LanguageElement target, DomainQuery domain, LanguageElement fromTarget) {
+    public CsarQuery(LanguageElement target, DomainQuery domain, String fromTarget) {
         this.target = target;
         this.fromTarget = fromTarget;
         this.domain = domain;
@@ -25,7 +25,7 @@ public final class CsarQuery {
         return target;
     }
 
-    public LanguageElement getFromTarget() {
+    public String getFromTarget() {
         return fromTarget;
     }
 

@@ -56,7 +56,7 @@ public class MethodLanguageElement extends LanguageElement {
         return parameters;
     }
 
-    public void addParameters(Identifier parameter) {
+    public void addParameter(Identifier parameter) {
         if (parameters == null)
             parameters = new ArrayList<>();
         parameters.add(parameter);

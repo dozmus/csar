@@ -27,6 +27,13 @@ public class DomainElement {
             LogicalOperatorDomainElement that = (LogicalOperatorDomainElement) o;
             return logicalOperator == that.logicalOperator;
         }
+
+        @Override
+        public String toString() {
+            return "LogicalOperatorDomainElement{" +
+                    "logicalOperator=" + logicalOperator +
+                    '}';
+        }
     }
 
     public static class LanguageElementDomainElement extends DomainElement {
@@ -51,6 +58,13 @@ public class DomainElement {
             if (o == null || getClass() != o.getClass()) return false;
             LanguageElementDomainElement that = (LanguageElementDomainElement) o;
             return Objects.equals(element, that.element);
+        }
+
+        @Override
+        public String toString() {
+            return "LanguageElementDomainElement{" +
+                    "element=" + element +
+                    '}';
         }
     }
 }
