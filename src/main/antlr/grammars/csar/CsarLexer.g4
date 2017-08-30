@@ -41,12 +41,33 @@ UNDERSCORE: '_';
 COMMA: ',';
 LPAREN: '(';
 RPAREN: ')';
-ESCAPE_SEQUENCES: [\t\r\n]+ -> channel(HIDDEN);
+WS_ESCAPE_SEQUENCES: [\t\r\n]+ -> channel(HIDDEN);
 
 // Language elements
-IDENTIFIER_NAME: (TEXT | DOLLAR | UNDERSCORE) (TEXT | DIGIT | DOLLAR | UNDERSCORE)*; // TODO all unicode except space
+IDENTIFIER_NAME: JAVA_LETTER JAVA_LETTER_OR_DIGIT*;
 NUMBER: DIGIT+;
 
 // Fragments
 fragment TEXT: [a-zA-Z];
 fragment DIGIT: [0-9];
+
+// The following two rules are taken from: https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
+fragment JAVA_LETTER
+	:	[a-zA-Z$_] // these are the "java letters" below 0x7F
+	|	// covers all characters above 0x7F which are not a surrogate
+		~[\u0000-\u007F\uD800-\uDBFF]
+		{Character.isJavaIdentifierStart(_input.LA(-1))}?
+	|	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+		[\uD800-\uDBFF] [\uDC00-\uDFFF]
+		{Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
+	;
+
+fragment JAVA_LETTER_OR_DIGIT
+	:	[a-zA-Z0-9$_] // these are the "java letters or digits" below 0x7F
+	|	// covers all characters above 0x7F which are not a surrogate
+		~[\u0000-\u007F\uD800-\uDBFF]
+		{Character.isJavaIdentifierPart(_input.LA(-1))}?
+	|	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+		[\uD800-\uDBFF] [\uDC00-\uDFFF]
+		{Character.isJavaIdentifierPart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
+    ;
