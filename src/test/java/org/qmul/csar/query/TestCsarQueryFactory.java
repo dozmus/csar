@@ -3,11 +3,20 @@ package org.qmul.csar.query;
 import org.junit.Test;
 import org.qmul.csar.query.domain.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public final class TestCsarQueryFactory {
 
     // TODO fix output which says: line 1:0 no viable alternative at input '<EOF>'
+
+    private static List<String> toList(String... s) {
+        List<String> list = new ArrayList<>();
+        Collections.addAll(list, s);
+        return list;
+    }
 
     private static CsarQuery parse(String query) {
         return CsarQueryFactory.parse(query);
@@ -22,41 +31,47 @@ public final class TestCsarQueryFactory {
     public void testCsarQuery() {
         MethodLanguageElement method1 = new MethodLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
                 Optional.empty(), "add", null, Optional.empty(), Optional.empty(), null, null, null);
-        DomainQuery domainQuery = new DomainQuery();
-        domainQuery.addLogicalOperator(LogicalOperator.NOT);
-        domainQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
+        ContainsQuery containsQuery = new ContainsQuery();
+        containsQuery.addLogicalOperator(LogicalOperator.NOT);
+        containsQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
                 Optional.empty(), "MyClass", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
                 Optional.empty(), null));
-        domainQuery.addLogicalOperator(LogicalOperator.OR);
-        domainQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.DEFINITION, null, Optional.empty(),
+        containsQuery.addLogicalOperator(LogicalOperator.OR);
+        containsQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.DEFINITION, null, Optional.empty(),
                 Optional.empty(), "SecondClass", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
                 Optional.of(true), null));
         assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass FROM Helpers",
-                new CsarQuery(method1, domainQuery, "Helpers"));
+                new CsarQuery(method1, containsQuery, toList("Helpers"), null));
+        // TODO test refactor here
     }
 
     @Test
-    public void testDomainQueryPart() {
+    public void testContainsQueryPart() {
         MethodLanguageElement method1 = new MethodLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
                 Optional.empty(), "add", null, Optional.empty(), Optional.empty(), null, null, null);
-        DomainQuery domainQuery = new DomainQuery();
-        domainQuery.addLogicalOperator(LogicalOperator.NOT);
-        domainQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
+        ContainsQuery containsQuery = new ContainsQuery();
+        containsQuery.addLogicalOperator(LogicalOperator.NOT);
+        containsQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
                 Optional.empty(), "MyClass", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
                 Optional.empty(), null));
-        domainQuery.addLogicalOperator(LogicalOperator.OR);
-        domainQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.DEFINITION, null, Optional.empty(),
+        containsQuery.addLogicalOperator(LogicalOperator.OR);
+        containsQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.DEFINITION, null, Optional.empty(),
                 Optional.empty(), "SecondClass", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
                 Optional.of(true), null));
         assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass",
-                new CsarQuery(method1, domainQuery, null));
+                new CsarQuery(method1, containsQuery, null, null));
     }
 
     @Test
-    public void testFromLanguageElement() {
+    public void testFromQuery() {
         assertEquals("SELECT method:use:_ FROM MyClass", new CsarQuery(new MethodLanguageElement(CsarQuery.Type.USAGE,
                 null, Optional.empty(), Optional.empty(), "_", null, Optional.empty(), Optional.empty(), null, null,
-                null), null, "MyClass"));
+                null), null, toList("MyClass"), null));
+    }
+
+    @Test
+    public void testRefactorQuery() {
+        // TODO impl
     }
 
     @Test
@@ -96,6 +111,36 @@ public final class TestCsarQueryFactory {
         class1.addSuperClass("Printable");
         class1.addSuperClass("Searchable");
         assertEquals("class:def:interface class12(Runnable,Printable,Searchable)", new CsarQuery(class1));
+    }
+
+    @Test
+    public void testRegexIdentifierNames() {
+        CsarQuery methodUseQuery = new CsarQuery(new MethodLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
+                Optional.empty(), null, null, Optional.empty(), Optional.empty(), null, null, null));
+
+        methodUseQuery.getSearchTarget().setIdentifierName("*");
+        assertEquals("SELECT method:use:*", methodUseQuery);
+
+        methodUseQuery.getSearchTarget().setIdentifierName("check*");
+        assertEquals("SELECT method:use:check*", methodUseQuery);
+
+        methodUseQuery.getSearchTarget().setIdentifierName("check*");
+        assertEquals("SELECT method:use:check*", methodUseQuery);
+
+        methodUseQuery.getSearchTarget().setIdentifierName("ch_ck");
+        assertEquals("SELECT method:use:ch_ck", methodUseQuery);
+    }
+
+    @Test
+    public void testLexerRuleOverlapIdentifierNames() {
+        CsarQuery methodUseQuery = new CsarQuery(new MethodLanguageElement(CsarQuery.Type.USAGE, null, Optional.empty(),
+                Optional.empty(), null, null, Optional.empty(), Optional.empty(), null, null, null));
+
+        methodUseQuery.getSearchTarget().setIdentifierName("FROM");
+        assertEquals("SELECT method:use:FROM", methodUseQuery);
+
+        methodUseQuery.getSearchTarget().setIdentifierName("rename");
+        assertEquals("SELECT method:use:rename", methodUseQuery);
     }
 
     @Test(expected = RuntimeException.class)

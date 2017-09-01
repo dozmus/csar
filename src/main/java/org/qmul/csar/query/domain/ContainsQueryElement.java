@@ -2,13 +2,13 @@ package org.qmul.csar.query.domain;
 
 import java.util.Objects;
 
-public class DomainElement {
+public class ContainsQueryElement {
 
-    public static class LogicalOperatorDomainElement extends DomainElement {
+    public static class LogicalOperatorContainsQueryElement extends ContainsQueryElement {
 
         private LogicalOperator logicalOperator;
 
-        public LogicalOperatorDomainElement(LogicalOperator logicalOperator) {
+        public LogicalOperatorContainsQueryElement(LogicalOperator logicalOperator) {
             this.logicalOperator = logicalOperator;
         }
 
@@ -24,7 +24,7 @@ public class DomainElement {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            LogicalOperatorDomainElement that = (LogicalOperatorDomainElement) o;
+            LogicalOperatorContainsQueryElement that = (LogicalOperatorContainsQueryElement) o;
             return logicalOperator == that.logicalOperator;
         }
 
@@ -36,11 +36,11 @@ public class DomainElement {
         }
     }
 
-    public static class LanguageElementDomainElement extends DomainElement {
+    public static class LanguageElementContainsQueryElement extends ContainsQueryElement {
 
         private LanguageElement element;
 
-        public LanguageElementDomainElement(LanguageElement element) {
+        public LanguageElementContainsQueryElement(LanguageElement element) {
             this.element = element;
         }
 
@@ -56,7 +56,7 @@ public class DomainElement {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            LanguageElementDomainElement that = (LanguageElementDomainElement) o;
+            LanguageElementContainsQueryElement that = (LanguageElementContainsQueryElement) o;
             return Objects.equals(element, that.element);
         }
 

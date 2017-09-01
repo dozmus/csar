@@ -4,23 +4,47 @@ lexer grammar CsarLexer;
     package grammars.csar;
 }
 
-// Keywords
+// Csar query keywords
 SELECT: 'SELECT' | 'select';
-FROM: 'FROM' | 'from';
 CONTAINS: 'CONTAINS' | 'contains';
-AND: 'AND' | 'and' | '&&';
-OR: 'OR' | 'or' | '||';
-NOT: 'NOT' | 'not' | '!';
+FROM: 'FROM' | 'from';
+REFACTOR: 'REFACTOR' | 'refactor';
 
 DEF: 'DEFINITION' | 'definition' | 'def' | 'd';
 USE: 'USAGE' | 'usage' | 'use' | 'u';
 
-CLASS: 'CLASS' | 'class' | 'cls' | 'c';
+// Logical operators
+AND: 'AND' | 'and';
+OR: 'OR' | 'or';
+NOT: 'NOT' | 'not';
+
+// Language elements
+CLASS_NV: 'CLASS' | 'cls' | 'c';
+CLASS_V: 'class'; // separated the java keyword from the non-keywords
 METHOD: 'METHOD' | 'method' | 'm' | 'FUNCTION' | 'function' | 'func' | 'fn' | 'f';
 
-PUBLIC: 'public' | 'pub';
-PRIVATE: 'private' | 'priv';
-PROTECTED: 'protected' | 'prot';
+INSTANCE: 'INSTANCE' | 'instance' | 'FIELD' | 'field' | 'i';
+LOCAL: 'LOCAL' | 'local' | 'l';
+PARAM: 'PARAM' | 'param' | 'p';
+
+IF: 'if';
+SWITCH: 'switch';
+WHILE: 'while';
+DOWHILE: 'dowhile';
+FOR: 'for';
+FOREACH: 'foreach';
+TERNARY: 'ternary';
+SYNCHRONIZED: 'synchronized';
+
+// TODO create EXPR and CONTENT lexer rules.
+
+SINGLE_LINE_COMMENT: 'slc';
+MULTI_LINE_COMMENT: 'mlc';
+
+// Class/method
+PUBLIC: 'public';
+PRIVATE: 'private';
+PROTECTED: 'protected';
 PACKAGE_PRIVATE: 'pkgpriv' | 'none';
 STATIC: 'static';
 FINAL: 'final';
@@ -33,16 +57,27 @@ SUPER: 'super';
 OVERRIDDEN: 'overridden';
 THROWS: 'throws';
 
+// Refactor
+RENAME: 'rename';
+CHANGE_PARAMETERS: 'changeparam';
+
+// Misc
+TRANSIENT: 'transient';
+VOLATILE: 'volatile';
+JAVADOC: 'javadoc';
+
 // Symbols
 SPACE: ' ';
 COLON: ':';
 COMMA: ',';
+S_QUOTE: '\'';
 LPAREN: '(';
 RPAREN: ')';
 WS_ESCAPE_SEQUENCES: [\t\r\n]+ -> channel(HIDDEN);
 
 // Language elements
-IDENTIFIER_NAME: JAVA_LETTER (JAVA_LETTER | DIGIT)*; // TODO does this allow * and _
+IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
+// TODO change IDENTIFIER_NAME to allow other rules like 'FROM' to be valid for it - WIP
 NUMBER: DIGIT+;
 
 // Fragments
@@ -51,11 +86,13 @@ fragment DIGIT: [0-9];
 
 // The following rule is taken from: https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
 fragment JAVA_LETTER
-	:	TEXT | [$_] // these are the "java letters" below 0x7F
-	|	// covers all characters above 0x7F which are not a surrogate
-		~[\u0000-\u007F\uD800-\uDBFF]
-		{Character.isJavaIdentifierStart(_input.LA(-1))}?
-	|	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
-		[\uD800-\uDBFF] [\uDC00-\uDFFF]
-		{Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
-	;
+    :   TEXT | [$_] // these are the "java letters" below 0x7F
+    |   // covers all characters above 0x7F which are not a surrogate
+        ~[\u0000-\u007F\uD800-\uDBFF]
+        {Character.isJavaIdentifierStart(_input.LA(-1))}?
+    |	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+        [\uD800-\uDBFF] [\uDC00-\uDFFF]
+        {Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
+    ;
+
+fragment REGEX_WC: '*' | '_';

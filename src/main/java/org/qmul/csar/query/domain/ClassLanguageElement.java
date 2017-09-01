@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public class ClassLanguageElement extends LanguageElement {
 
+    private CommonModifiers commonModifiers;
     private Optional<Boolean> interfaceModifier = Optional.empty();
     private Optional<Boolean> abstractModifier = Optional.empty();
     private Optional<Boolean> strictfpModifier = Optional.empty();
@@ -18,6 +19,7 @@ public class ClassLanguageElement extends LanguageElement {
 
     public ClassLanguageElement() {
         setType(Type.CLASS);
+        this.commonModifiers = new CommonModifiers();
     }
 
     public ClassLanguageElement(CsarQuery.Type searchType, VisibilityModifier visibilityModifier,
@@ -25,7 +27,8 @@ public class ClassLanguageElement extends LanguageElement {
                                 String identifierName, Optional<Boolean> interfaceModifier,
                                 Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
                                 Optional<Boolean> anonymous, Optional<Boolean> inner, List<String> superClasses) {
-        super(Type.CLASS, searchType, visibilityModifier, staticModifier, finalModifier, identifierName);
+        super(Type.CLASS, identifierName);
+        this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier);
         this.interfaceModifier = interfaceModifier;
         this.abstractModifier = abstractModifier;
         this.strictfpModifier = strictfpModifier;
@@ -84,6 +87,10 @@ public class ClassLanguageElement extends LanguageElement {
         return superClasses;
     }
 
+    public CommonModifiers getCommonModifiers() {
+        return commonModifiers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -95,6 +102,7 @@ public class ClassLanguageElement extends LanguageElement {
                 Objects.equals(strictfpModifier, that.strictfpModifier) &&
                 Objects.equals(anonymous, that.anonymous) &&
                 Objects.equals(inner, that.inner) &&
-                Objects.equals(superClasses, that.superClasses);
+                Objects.equals(superClasses, that.superClasses) &&
+                Objects.equals(commonModifiers, that.commonModifiers);
     }
 }

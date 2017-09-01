@@ -3,6 +3,8 @@ package org.qmul.csar.query;
 import grammars.csar.CsarParser;
 import org.qmul.csar.query.domain.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -10,54 +12,61 @@ import java.util.Optional;
  */
 class CsarQueryGenerator extends DummyCsarParserListener {
 
-    private LanguageElement target = null;
-    private String fromTarget = null;
-    private DomainQuery domainQuery = null;
+    private LanguageElement searchTarget;
+    private List<String> fromTarget;
+    private ContainsQuery containsQuery;
+    private RefactorElement refactorElement;
 
     @Override
     public void enterCsarQuery(CsarParser.CsarQueryContext ctx) {
-        if (ctx.IDENTIFIER_NAME() != null) {
-            fromTarget = ctx.IDENTIFIER_NAME().getText();
+        if (ctx.containsQuery() != null) {
+            containsQuery = new ContainsQuery();
         }
+
+        if (ctx.fromQuery() != null) {
+            fromTarget = new ArrayList<>();
+        }
+        searchTarget = parseLanguageElement(ctx.languageElement());
     }
 
     @Override
-    public void enterSearchQuery(CsarParser.SearchQueryContext ctx) {
-        if (ctx.languageElement() != null) {
-            target = parseLanguageElement(ctx.languageElement());
-        }
-
-        if (ctx.domainQueryPart() != null) {
-            domainQuery = new DomainQuery();
-        }
-    }
-
-    @Override
-    public void enterDomainQueryPart(CsarParser.DomainQueryPartContext ctx) {
+    public void enterContainsQuery(CsarParser.ContainsQueryContext ctx) {
         // Logical operators
         if (ctx.NOT() != null) {
-            domainQuery.addLogicalOperator(LogicalOperator.NOT);
+            containsQuery.addLogicalOperator(LogicalOperator.NOT);
         }
 
         // Language element
-        domainQuery.addLanguageElement(parseLanguageElement(ctx.languageElement()));
+        containsQuery.addLanguageElement(parseLanguageElement(ctx.languageElement()));
     }
 
     @Override
-    public void enterDomainQueryRest(CsarParser.DomainQueryRestContext ctx) {
+    public void enterContainsQueryRest(CsarParser.ContainsQueryRestContext ctx) {
         // Logical operators
         if (ctx.AND() != null) {
-            domainQuery.addLogicalOperator(LogicalOperator.AND);
+            containsQuery.addLogicalOperator(LogicalOperator.AND);
         } else if (ctx.OR() != null) {
-            domainQuery.addLogicalOperator(LogicalOperator.OR);
+            containsQuery.addLogicalOperator(LogicalOperator.OR);
         }
 
         if (ctx.NOT() != null) {
-            domainQuery.addLogicalOperator(LogicalOperator.NOT);
+            containsQuery.addLogicalOperator(LogicalOperator.NOT);
         }
 
         // Language element
-        domainQuery.addLanguageElement(parseLanguageElement(ctx.languageElement()));
+        containsQuery.addLanguageElement(parseLanguageElement(ctx.languageElement()));
+    }
+
+    @Override
+    public void enterFromQuery(CsarParser.FromQueryContext ctx) {
+        for (CsarParser.TypeContext type : ctx.typeList().type()) {
+            fromTarget.add(type.getText());
+        }
+    }
+
+    @Override
+    public void enterRefactorQuery(CsarParser.RefactorQueryContext ctx) {
+        // TODO refactorElement = ...
     }
 
     private static LanguageElement parseLanguageElement(CsarParser.LanguageElementContext ctx) {
@@ -65,21 +74,26 @@ class CsarQueryGenerator extends DummyCsarParserListener {
             return parseClazz(ctx.clazz());
         } else if (ctx.method() != null) {
             return parseMethod(ctx.method());
+        } else if (ctx.variable() != null) {
+            return parseVariable(ctx.variable());
+        } else if (ctx.controlFlow() != null) {
+            return parseControlflow(ctx.controlFlow());
+        } else { // comment
+            return parseComment(ctx.comment());
         }
-        throw new RuntimeException("syntax error parsing csar query language element");
     }
 
     private static LanguageElement parseClazz(CsarParser.ClazzContext ctx) {
         ClassLanguageElement cle = new ClassLanguageElement();
 
         // languageElementHeader
-        applyLanguageElementHeader(cle, ctx.languageElementHeader());
+        applyCommonModifiers(cle.getCommonModifiers(), ctx.commonModifiers());
 
         // classModifiers
         applyClassModifiers(cle, ctx.classModifiers());
 
         // identifier name
-        cle.setIdentifierName(ctx.IDENTIFIER_NAME().getText());
+        cle.setIdentifierName(ctx.identifierName().getText());
 
         // superClassList
         if (ctx.superClassList() != null) {
@@ -90,12 +104,12 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         return cle;
     }
 
-    private static void applyLanguageElementHeader(LanguageElement le, CsarParser.LanguageElementHeaderContext ctx) {
+    private static void applyCommonModifiers(CommonModifiers commonModifiers, CsarParser.CommonModifiersContext ctx) {
         // Search type
         if (ctx.DEF() != null) {
-            le.setSearchType(CsarQuery.Type.DEFINITION);
+            commonModifiers.setSearchType(CsarQuery.Type.DEFINITION);
         } else if (ctx.USE() != null) {
-            le.setSearchType(CsarQuery.Type.USAGE);
+            commonModifiers.setSearchType(CsarQuery.Type.USAGE);
         }
 
         // Visibility modifier
@@ -103,23 +117,23 @@ class CsarQueryGenerator extends DummyCsarParserListener {
             CsarParser.VisibilityModifierContext vmc = ctx.visibilityModifier();
 
             if (vmc.PUBLIC() != null) {
-                le.setVisibilityModifier(VisibilityModifier.PUBLIC);
+                commonModifiers.setVisibilityModifier(VisibilityModifier.PUBLIC);
             } else if (vmc.PRIVATE() != null) {
-                le.setVisibilityModifier(VisibilityModifier.PRIVATE);
+                commonModifiers.setVisibilityModifier(VisibilityModifier.PRIVATE);
             } else if (vmc.PROTECTED() != null) {
-                le.setVisibilityModifier(VisibilityModifier.PROTECTED);
+                commonModifiers.setVisibilityModifier(VisibilityModifier.PROTECTED);
             } else if (vmc.PACKAGE_PRIVATE() != null) {
-                le.setVisibilityModifier(VisibilityModifier.PACKAGE_PRIVATE);
+                commonModifiers.setVisibilityModifier(VisibilityModifier.PACKAGE_PRIVATE);
             }
         }
 
         // Other modifiers
         if (ctx.STATIC() != null) {
-            le.setStaticModifier(Optional.of(true));
+            commonModifiers.setStaticModifier(Optional.of(true));
         }
 
         if (ctx.FINAL() != null) {
-            le.setFinalModifier(Optional.of(true));
+            commonModifiers.setFinalModifier(Optional.of(true));
         }
     }
 
@@ -149,7 +163,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         MethodLanguageElement mle = new MethodLanguageElement();
 
         // languageElementHeader
-        applyLanguageElementHeader(mle, ctx.languageElementHeader());
+        applyCommonModifiers(mle.getCommonModifiers(), ctx.commonModifiers());
 
         // overridden
         if (ctx.OVERRIDDEN() != null) {
@@ -162,7 +176,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         }
 
         // identifier name
-        mle.setIdentifierName(ctx.IDENTIFIER_NAME().getText());
+        mle.setIdentifierName(ctx.identifierName().getText());
 
         // methodParameters
         if (ctx.methodParameters() != null) {
@@ -177,12 +191,12 @@ class CsarQueryGenerator extends DummyCsarParserListener {
             } else if (mpt.namedTypeList() != null) {
                 CsarParser.NamedTypeListContext ntlc = mpt.namedTypeList();
 
-                if (ntlc.type().size() != ntlc.IDENTIFIER_NAME().size()) {
+                if (ntlc.type().size() != ntlc.identifierName().size()) {
                     throw new RuntimeException("syntax error parsing csar query named type list");
                 }
 
                 for (int i = 0; i < ntlc.type().size(); i++) {
-                    mle.addParameter(new Identifier(ntlc.IDENTIFIER_NAME(i).getText(), ntlc.type(i).getText()));
+                    mle.addParameter(new Identifier(ntlc.identifierName(i).getText(), ntlc.type(i).getText()));
                 }
             }
         }
@@ -203,7 +217,56 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         return mle;
     }
 
+    private static LanguageElement parseVariable(CsarParser.VariableContext ctx) {
+        if (ctx.instanceVariable() != null) {
+            return null; // TODO impl
+        } else if (ctx.localVariable() != null) {
+            CsarParser.LocalVariableContext lctx = ctx.localVariable();
+            return new VariableLanguageElement(VariableLanguageElement.VariableType.LOCAL,
+                    lctx.identifierName().getText(), Optional.of(lctx.FINAL() != null));
+        } else { // param
+            CsarParser.ParamVariableContext pctx = ctx.paramVariable();
+            return new VariableLanguageElement(VariableLanguageElement.VariableType.PARAM,
+                    pctx.identifierName().getText(), Optional.of(pctx.FINAL() != null));
+        }
+    }
+
+    private static LanguageElement parseControlflow(CsarParser.ControlFlowContext ctx) {
+        if (ctx.if0() != null) {
+
+        } else if (ctx.switch0() != null) {
+
+        } else if (ctx.while0() != null) {
+
+        } else if (ctx.dowhile() != null) {
+
+        } else if (ctx.for0() != null) {
+            return new ControlFlowLanguageElement(ControlFlowLanguageElement.ControlFlowType.FOR);
+        } else if (ctx.foreach() != null) {
+            ControlFlowLanguageElement foreach =  new ControlFlowLanguageElement(
+                    ControlFlowLanguageElement.ControlFlowType.FOREACH);
+            if (ctx.foreach().identifierName() != null)
+                foreach.setIdentifierName(ctx.foreach().identifierName().getText());
+        } else if (ctx.ternary() != null) {
+            return new ControlFlowLanguageElement(ControlFlowLanguageElement.ControlFlowType.TERNARY);
+        } else { // synchronized
+
+        }
+        return null; // TODO impl
+    }
+
+    private static LanguageElement parseComment(CsarParser.CommentContext ctx) {
+        if (ctx.singleLineComment() != null) {
+            CsarParser.SingleLineCommentContext sctx = ctx.singleLineComment();
+            return new CommentLanguageElement(CommentLanguageElement.CommentType.SINGLE,false, sctx.CONTENT().getText());
+        } else { // multi-line
+            CsarParser.MultiLineCommentContext mctx = ctx.multiLineComment();
+            return new CommentLanguageElement(CommentLanguageElement.CommentType.MULTI, mctx.JAVADOC() != null,
+                    mctx.CONTENT().getText());
+        }
+    }
+
     public CsarQuery csarQuery() {
-        return new CsarQuery(target, domainQuery, fromTarget);
+        return new CsarQuery(searchTarget, containsQuery, fromTarget, refactorElement);
     }
 }
