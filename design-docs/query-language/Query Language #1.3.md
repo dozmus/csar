@@ -4,10 +4,11 @@
 csarquery = 'SELECT ' query [' FROM ' element] ' REFACTOR ' refactor
 query = element ['CONTAINS' [' NOT'] element {(' AND' | ' OR') [' NOT'] element}]
 element = class | method | variable | control-flow | comment
+refactor = rename | change-parameters
 
 // refactor
 rename = 'rename:' name
-signature = 'signature:' common-modifiers ['overridden '] [type] name [parameters] ['throws ' type-list] ['super' super-classes]
+change-parameters = 'changeparam:' parameters
 
 // fundamental
 class = 'class' common-modifiers class-modifiers (name | 'super') [super-classes]
