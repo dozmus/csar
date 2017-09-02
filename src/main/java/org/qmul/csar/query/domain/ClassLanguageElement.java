@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ClassLanguageElement extends LanguageElement {
+public class ClassLanguageElement extends NamedLanguageElement {
 
     private CommonModifiers commonModifiers;
     private Optional<Boolean> interfaceModifier = Optional.empty();
@@ -18,7 +18,7 @@ public class ClassLanguageElement extends LanguageElement {
     private List<String> superClasses = null;
 
     public ClassLanguageElement() {
-        setType(Type.CLASS);
+        setType(LanguageElement.Type.CLASS);
         this.commonModifiers = new CommonModifiers();
     }
 
@@ -27,7 +27,7 @@ public class ClassLanguageElement extends LanguageElement {
                                 String identifierName, Optional<Boolean> interfaceModifier,
                                 Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
                                 Optional<Boolean> anonymous, Optional<Boolean> inner, List<String> superClasses) {
-        super(Type.CLASS, identifierName);
+        super(LanguageElement.Type.CLASS, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier);
         this.interfaceModifier = interfaceModifier;
         this.abstractModifier = abstractModifier;
@@ -97,12 +97,25 @@ public class ClassLanguageElement extends LanguageElement {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         ClassLanguageElement that = (ClassLanguageElement) o;
-        return Objects.equals(interfaceModifier, that.interfaceModifier) &&
+        return Objects.equals(commonModifiers, that.commonModifiers) &&
+                Objects.equals(interfaceModifier, that.interfaceModifier) &&
                 Objects.equals(abstractModifier, that.abstractModifier) &&
                 Objects.equals(strictfpModifier, that.strictfpModifier) &&
                 Objects.equals(anonymous, that.anonymous) &&
                 Objects.equals(inner, that.inner) &&
-                Objects.equals(superClasses, that.superClasses) &&
-                Objects.equals(commonModifiers, that.commonModifiers);
+                Objects.equals(superClasses, that.superClasses);
+    }
+
+    @Override
+    public String toString() {
+        return "ClassLanguageElement{" +
+                "commonModifiers=" + commonModifiers +
+                ", interfaceModifier=" + interfaceModifier +
+                ", abstractModifier=" + abstractModifier +
+                ", strictfpModifier=" + strictfpModifier +
+                ", anonymous=" + anonymous +
+                ", inner=" + inner +
+                ", superClasses=" + superClasses +
+                "} " + super.toString();
     }
 }

@@ -313,6 +313,14 @@ class DummyCsarParserListener implements CsarParserListener {
     }
 
     @Override
+    public void enterContent(CsarParser.ContentContext ctx) {
+    }
+
+    @Override
+    public void exitContent(CsarParser.ContentContext ctx) {
+    }
+
+    @Override
     public void enterExpr(CsarParser.ExprContext ctx) {
     }
 

@@ -60,7 +60,24 @@ public final class CsarQuery {
                 Objects.equals(refactorElement, csarQuery.refactorElement);
     }
 
+    @Override
+    public String toString() {
+        return "CsarQuery{" +
+                "searchTarget=" + searchTarget +
+                ", containsQuery=" + containsQuery +
+                ", fromTarget=" + fromTarget +
+                ", refactorElement=" + refactorElement +
+                '}';
+    }
+
     public enum Type {
-        DEFINITION, USAGE
+        /**
+         * A definition of an element.
+         */
+        DEF,
+        /**
+         * A usage of a defined element.
+         */
+        USE
     }
 }

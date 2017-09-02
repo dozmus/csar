@@ -36,8 +36,6 @@ FOREACH: 'foreach';
 TERNARY: 'ternary';
 SYNCHRONIZED: 'synchronized';
 
-// TODO create EXPR and CONTENT lexer rules.
-
 SINGLE_LINE_COMMENT: 'slc';
 MULTI_LINE_COMMENT: 'mlc';
 
@@ -73,16 +71,18 @@ COMMA: ',';
 S_QUOTE: '\'';
 LPAREN: '(';
 RPAREN: ')';
-WS_ESCAPE_SEQUENCES: [\t\r\n]+ -> channel(HIDDEN);
 
 // Language elements
 IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
-// TODO change IDENTIFIER_NAME to allow other rules like 'FROM' to be valid for it - WIP
 NUMBER: DIGIT+;
+
+// Fall-back
+CATCH_ALL: (.)+?;
 
 // Fragments
 fragment TEXT: [a-zA-Z];
 fragment DIGIT: [0-9];
+fragment REGEX_WC: '*' | '_';
 
 // The following rule is taken from: https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
 fragment JAVA_LETTER
@@ -94,5 +94,3 @@ fragment JAVA_LETTER
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
         {Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
     ;
-
-fragment REGEX_WC: '*' | '_';

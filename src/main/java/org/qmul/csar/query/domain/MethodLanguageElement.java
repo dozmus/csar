@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class MethodLanguageElement extends LanguageElement {
+public class MethodLanguageElement extends NamedLanguageElement {
 
     private CommonModifiers commonModifiers;
     private String returnType;
     private Optional<Boolean> overridden = Optional.empty();
     private Optional<Integer> parameterCount = Optional.empty();
-    private List<Identifier> parameters = null;
-    private List<String> thrownExceptions = null;
-    private List<String> superClasses = null;
+    private List<Identifier> parameters;
+    private List<String> thrownExceptions;
+    private List<String> superClasses;
 
     public MethodLanguageElement() {
         setType(Type.METHOD);
@@ -101,12 +101,25 @@ public class MethodLanguageElement extends LanguageElement {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         MethodLanguageElement that = (MethodLanguageElement) o;
-        return Objects.equals(returnType, that.returnType) &&
+        return Objects.equals(commonModifiers, that.commonModifiers) &&
+                Objects.equals(returnType, that.returnType) &&
                 Objects.equals(overridden, that.overridden) &&
                 Objects.equals(parameterCount, that.parameterCount) &&
                 Objects.equals(parameters, that.parameters) &&
                 Objects.equals(thrownExceptions, that.thrownExceptions) &&
-                Objects.equals(superClasses, that.superClasses) &&
-                Objects.equals(commonModifiers, that.commonModifiers);
+                Objects.equals(superClasses, that.superClasses);
+    }
+
+    @Override
+    public String toString() {
+        return "MethodLanguageElement{" +
+                "commonModifiers=" + commonModifiers +
+                ", returnType='" + returnType + '\'' +
+                ", overridden=" + overridden +
+                ", parameterCount=" + parameterCount +
+                ", parameters=" + parameters +
+                ", thrownExceptions=" + thrownExceptions +
+                ", superClasses=" + superClasses +
+                "} " + super.toString();
     }
 }

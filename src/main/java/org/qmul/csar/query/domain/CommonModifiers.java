@@ -65,4 +65,14 @@ public class CommonModifiers {
                 Objects.equals(staticModifier, that.staticModifier) &&
                 Objects.equals(finalModifier, that.finalModifier);
     }
+
+    @Override
+    public String toString() {
+        return "CommonModifiers{" +
+                "searchType=" + searchType +
+                ", visibilityModifier=" + visibilityModifier +
+                ", staticModifier=" + staticModifier +
+                ", finalModifier=" + finalModifier +
+                '}';
+    }
 }

@@ -28,4 +28,9 @@ public class Identifier {
         return Objects.equals(name, that.name) &&
                 Objects.equals(type, that.type);
     }
+
+    @Override
+    public String toString() {
+        return String.format("Identifier{name='%s', type='%s'}", name, type);
+    }
 }
