@@ -34,8 +34,6 @@ public class ContainsQuery {
 
     @Override
     public String toString() {
-        return "DomainQuery{" +
-                "elements=" + elements +
-                '}';
+        return String.format("DomainQuery{elements=%s}", elements);
     }
 }

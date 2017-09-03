@@ -16,10 +16,6 @@ public class ContainsQueryElement {
             return logicalOperator;
         }
 
-        public void setLogicalOperator(LogicalOperator logicalOperator) {
-            this.logicalOperator = logicalOperator;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -30,9 +26,7 @@ public class ContainsQueryElement {
 
         @Override
         public String toString() {
-            return "LogicalOperatorDomainElement{" +
-                    "logicalOperator=" + logicalOperator +
-                    '}';
+            return String.format("LogicalOperatorDomainElement{logicalOperator=%s}", logicalOperator);
         }
     }
 
@@ -48,10 +42,6 @@ public class ContainsQueryElement {
             return element;
         }
 
-        public void setElement(LanguageElement element) {
-            this.element = element;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -62,9 +52,7 @@ public class ContainsQueryElement {
 
         @Override
         public String toString() {
-            return "LanguageElementDomainElement{" +
-                    "element=" + element +
-                    '}';
+            return String.format("LanguageElementDomainElement{element=%s}", element);
         }
     }
 }

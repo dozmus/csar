@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ClassLanguageElement extends NamedLanguageElement {
+public class ClassLanguageElement extends IdentifiableLanguageElement {
 
     private CommonModifiers commonModifiers;
     private Optional<Boolean> interfaceModifier = Optional.empty();
