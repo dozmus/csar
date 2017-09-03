@@ -10,9 +10,6 @@ import java.util.Optional;
 
 public final class TestCsarQueryFactory {
 
-    // TODO fix output which says: line 1:0 no viable alternative at input '<EOF>'
-    // ^ fixed by manually handling empty string input in CsarQueryFactory#parse(..)
-
     private static List<String> toList(String... s) {
         List<String> list = new ArrayList<>();
         Collections.addAll(list, s);
@@ -280,7 +277,7 @@ public final class TestCsarQueryFactory {
         parse("switch(test(");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testEmptyQuery() {
         parse("");
     }

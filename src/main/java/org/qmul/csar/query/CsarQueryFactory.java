@@ -10,10 +10,13 @@ public final class CsarQueryFactory {
 
     /**
      * Creates a {@link CsarQuery} from the provided textual representation of it.
-     * @throws IllegalArgumentException
-     * @throws RuntimeException
+     * @throws IllegalArgumentException If the query is the empty string
+     * @throws RuntimeException If the query does not adhere to the syntax of csar query
      */
     public static CsarQuery parse(String query) throws IllegalArgumentException {
+        if (query.length() == 0) // NOTE suppresses the following msg: line 1:0 no viable alternative at input '<EOF>'
+            throw new IllegalArgumentException("csar query input is empty");
+
         // Prepare parser
         CsarLexer lexer = new CsarLexer(CharStreams.fromString(query));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
