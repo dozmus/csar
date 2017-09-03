@@ -15,10 +15,12 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Iterates over accepted code files in a directory.
+ * Iterates over files in a directory recursively to find accepted ones.
+ * The code files may be narrowed down further if the folder is a git repository (if no error occurs).
  * @see {@link CsarContext#accepts(Path)}
+ * @see {@link #scanGitDir()}
  */
-public final class ProjectCodeIterator implements Iterator<Path> {
+public class ProjectCodeIterator implements Iterator<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeIterator.class);
     private final CsarContext ctx;
@@ -49,6 +51,7 @@ public final class ProjectCodeIterator implements Iterator<Path> {
      * Finds code files in a git repository, which are in the staging area or have been committed. This is done by
      * creating an instance of the git program. Failure will result in {@link #scanDir()} being called instead.
      * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
+     * @see {@link CsarContext#accepts(Path)}
      */
     private void scanGitDir() {
         List<String> output;
@@ -76,32 +79,41 @@ public final class ProjectCodeIterator implements Iterator<Path> {
             Path path = Paths.get(fileName);
 
             if (ctx.accepts(path) && !Files.isDirectory(path)) {
-                files.add(path);
+                addFile(path);
             }
         }
     }
 
     private void scanDir() {
-        scanDir(ctx.getDirectory());
+        scanDir(ctx.getDirectory(), false);
     }
 
-    private void scanDir(Path path) {
+    /**
+     * Scans the specified directory recursively, calling {@link #addFile(Path)} with files which are accepted.
+     * @param path The directory to be searched.
+     * @see {@link CsarContext#accepts(Path)}
+     */
+    private void scanDir(Path path, boolean recursiveSearch) {
         try {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
                 for (Path entry : stream) {
-                    if (Files.isDirectory(entry)) {
-                        scanDir(entry);
+                    if (Files.isDirectory(entry) && recursiveSearch) {
+                        scanDir(entry, true);
                         continue;
                     }
 
                     if (ctx.accepts(entry)) {
-                        files.add(entry);
+                        addFile(entry);
                     }
                 }
             }
         } catch (IOException e) {
             LOGGER.error("Error scanning directory: {}", e.getMessage());
         }
+    }
+
+    protected void addFile(Path path) {
+        files.add(path);
     }
 
     @Override
