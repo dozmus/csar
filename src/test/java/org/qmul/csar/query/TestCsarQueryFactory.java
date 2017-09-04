@@ -83,7 +83,7 @@ public final class TestCsarQueryFactory {
                 .parameters(new Identifier("k", "int"), new Identifier("t", "Thread"))
                 .build();
         expectedCsarQuery = new CsarQuery.Builder(method1)
-                .refactor(new RefactorElement.ChangeParameters(parameters1))
+                .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters1))
                 .build();
         assertEquals("method:def:static boolean SELECT(int k,  Thread t ) REFACTOR changeparam: int k,  Runnable r",
                 expectedCsarQuery);
@@ -98,7 +98,7 @@ public final class TestCsarQueryFactory {
                 .parameters(new Identifier(null, "float"), new Identifier(null, "char"))
                 .build();
         expectedCsarQuery = new CsarQuery.Builder(method2)
-                .refactor(new RefactorElement.ChangeParameters(parameters2))
+                .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters2))
                 .build();
         assertEquals("method:def:static int add(float, char) REFACTOR changeparam:float,String", expectedCsarQuery);
     }

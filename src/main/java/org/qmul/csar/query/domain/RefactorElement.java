@@ -32,14 +32,11 @@ public class RefactorElement {
         }
     }
 
-    public static class ChangeParameters extends RefactorElement {
+    public static class ChangeParametersRefactorElement extends RefactorElement {
 
-        private List<Identifier> parameters = null;
+        private List<Identifier> parameters = new ArrayList<>();
 
-        public ChangeParameters() {
-        }
-
-        public ChangeParameters(List<Identifier> parameters) {
+        public ChangeParametersRefactorElement(List<Identifier> parameters) {
             this.parameters = parameters;
         }
 
@@ -47,23 +44,17 @@ public class RefactorElement {
             return parameters;
         }
 
-        public void addParameter(Identifier identifier) {
-            if (parameters == null)
-                parameters = new ArrayList<>();
-            parameters.add(identifier);
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            ChangeParameters that = (ChangeParameters) o;
+            ChangeParametersRefactorElement that = (ChangeParametersRefactorElement) o;
             return Objects.equals(parameters, that.parameters);
         }
 
         @Override
         public String toString() {
-            return String.format("ChangeParameters{identifiers=%s} %s", parameters, super.toString());
+            return String.format("ChangeParametersRefactorElement{identifiers=%s} %s", parameters, super.toString());
         }
     }
 }

@@ -18,10 +18,6 @@ public class IdentifiableLanguageElement extends LanguageElement {
         return identifierName;
     }
 
-    public void setIdentifierName(String identifierName) {
-        this.identifierName = identifierName;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

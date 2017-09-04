@@ -14,11 +14,6 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     private List<String> thrownExceptions = new ArrayList<>();
     private List<String> superClasses = new ArrayList<>();
 
-    public MethodLanguageElement() {
-        setType(Type.METHOD);
-        this.commonModifiers = new CommonModifiers();
-    }
-
     public MethodLanguageElement(CsarQuery.Type searchType, VisibilityModifier visibilityModifier,
                                  Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                  String identifierName, String returnType, Optional<Boolean> overridden,
@@ -38,14 +33,6 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         return overridden;
     }
 
-    public void setOverridden(Optional<Boolean> overridden) {
-        this.overridden = overridden;
-    }
-
-    public void addSuperClass(String superClass) {
-        superClasses.add(superClass);
-    }
-
     public List<String> getSuperClasses() {
         return superClasses;
     }
@@ -54,32 +41,16 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         return parameters;
     }
 
-    public void addParameter(Identifier parameter) {
-        parameters.add(parameter);
-    }
-
     public List<String> getThrownExceptions() {
         return thrownExceptions;
-    }
-
-    public void addThrownException(String thrownException) {
-        thrownExceptions.add(thrownException);
     }
 
     public String getReturnType() {
         return returnType;
     }
 
-    public void setReturnType(String returnType) {
-        this.returnType = returnType;
-    }
-
     public Optional<Integer> getParameterCount() {
         return parameterCount;
-    }
-
-    public void setParameterCount(Optional<Integer> parameterCount) {
-        this.parameterCount = parameterCount;
     }
 
     public CommonModifiers getCommonModifiers() {

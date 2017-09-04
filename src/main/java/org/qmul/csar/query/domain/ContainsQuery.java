@@ -7,22 +7,10 @@ import java.util.Objects;
 
 public class ContainsQuery {
 
-    private final List<ContainsQueryElement> elements = new ArrayList<>();
+    private final List<ContainsQueryElement> elements;
 
-    public void addLogicalOperator(LogicalOperator operator) {
-        add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(operator));
-    }
-
-    public void addLanguageElement(LanguageElement element) {
-        add(new ContainsQueryElement.LanguageElementContainsQueryElement(element));
-    }
-
-    public void add(ContainsQueryElement element) {
-        elements.add(element);
-    }
-
-    public void addAll(Collection<ContainsQueryElement> elements) {
-        this.elements.addAll(elements);
+    public ContainsQuery(List<ContainsQueryElement> elements) {
+        this.elements = elements;
     }
 
     public List<ContainsQueryElement> getElements() {
@@ -65,9 +53,7 @@ public class ContainsQuery {
         }
 
         public ContainsQuery build() {
-            ContainsQuery query = new ContainsQuery();
-            query.addAll(elements);
-            return query;
+            return new ContainsQuery(elements);
         }
     }
 }

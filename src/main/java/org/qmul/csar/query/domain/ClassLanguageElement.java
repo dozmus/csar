@@ -14,11 +14,6 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
     private Optional<Boolean> inner = Optional.empty();
     private List<String> superClasses = new ArrayList<>();
 
-    public ClassLanguageElement() {
-        setType(LanguageElement.Type.CLASS);
-        this.commonModifiers = new CommonModifiers();
-    }
-
     public ClassLanguageElement(CsarQuery.Type searchType, VisibilityModifier visibilityModifier,
                                 Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                 String identifierName, Optional<Boolean> interfaceModifier,
@@ -38,44 +33,20 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         return interfaceModifier;
     }
 
-    public void setInterfaceModifier(Optional<Boolean> interfaceModifier) {
-        this.interfaceModifier = interfaceModifier;
-    }
-
     public Optional<Boolean> getAbstractModifier() {
         return abstractModifier;
-    }
-
-    public void setAbstractModifier(Optional<Boolean> abstractModifier) {
-        this.abstractModifier = abstractModifier;
     }
 
     public Optional<Boolean> getStrictfpModifier() {
         return strictfpModifier;
     }
 
-    public void setStrictfpModifier(Optional<Boolean> strictfpModifier) {
-        this.strictfpModifier = strictfpModifier;
-    }
-
     public Optional<Boolean> getAnonymous() {
         return anonymous;
     }
 
-    public void setAnonymous(Optional<Boolean> anonymous) {
-        this.anonymous = anonymous;
-    }
-
     public Optional<Boolean> getInner() {
         return inner;
-    }
-
-    public void setInner(Optional<Boolean> inner) {
-        this.inner = inner;
-    }
-
-    public void addSuperClass(String superClass) {
-        superClasses.add(superClass);
     }
 
     public List<String> getSuperClasses() {

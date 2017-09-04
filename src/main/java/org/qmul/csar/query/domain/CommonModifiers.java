@@ -27,32 +27,16 @@ public class CommonModifiers {
         return searchType;
     }
 
-    public void setSearchType(CsarQuery.Type searchType) {
-        this.searchType = searchType;
-    }
-
     public VisibilityModifier getVisibilityModifier() {
         return visibilityModifier;
-    }
-
-    public void setVisibilityModifier(VisibilityModifier visibilityModifier) {
-        this.visibilityModifier = visibilityModifier;
     }
 
     public Optional<Boolean> getStaticModifier() {
         return staticModifier;
     }
 
-    public void setStaticModifier(Optional<Boolean> staticModifier) {
-        this.staticModifier = staticModifier;
-    }
-
     public Optional<Boolean> getFinalModifier() {
         return finalModifier;
-    }
-
-    public void setFinalModifier(Optional<Boolean> finalModifier) {
-        this.finalModifier = finalModifier;
     }
 
     @Override
