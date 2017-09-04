@@ -2,8 +2,7 @@ package org.qmul.csar.query.domain;
 
 import org.qmul.csar.query.CsarQuery;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class VariableLanguageElement extends IdentifiableLanguageElement {
 
@@ -67,6 +66,38 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         INSTANCE, LOCAL, PARAM
     }
 
+    public static class Builder {
+
+        private CsarQuery.Type searchType;
+        private String identifierName;
+        private String identifierType;
+        private VariableType variableType;
+        private Optional<Boolean> finalModifier = Optional.empty();
+
+        public Builder(CsarQuery.Type searchType, VariableType variableType, String identifierName) {
+            this.searchType = searchType;
+            this.variableType = variableType;
+            this.identifierName = identifierName;
+
+            if (variableType == VariableType.INSTANCE)
+                throw new IllegalArgumentException("variableType must not be INSTANCE");
+        }
+
+        public Builder identifierType(String identifierType) {
+            this.identifierType = identifierType;
+            return this;
+        }
+
+        public Builder finalModifier(Optional<Boolean> finalModifier) {
+            this.finalModifier = finalModifier;
+            return this;
+        }
+
+        public VariableLanguageElement build() {
+            return new VariableLanguageElement(searchType, variableType, finalModifier, identifierName, identifierType);
+        }
+    }
+
     public static class InstanceVariableLanguageElement extends VariableLanguageElement {
 
         private CommonModifiers commonModifiers;
@@ -100,6 +131,46 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         public String toString() {
             return String.format("InstanceVariableLanguageElement{commonModifiers=%s} %s", commonModifiers,
                     super.toString());
+        }
+
+        public static class Builder {
+
+            private CsarQuery.Type searchType;
+            private String identifierName;
+            private String identifierType;
+            private VisibilityModifier visibilityModifier;
+            private Optional<Boolean> staticModifier = Optional.empty();
+            private Optional<Boolean> finalModifier = Optional.empty();
+
+            public Builder(CsarQuery.Type searchType, String identifierName) {
+                this.searchType = searchType;
+                this.identifierName = identifierName;
+            }
+
+            public Builder identifierType(String identifierType) {
+                this.identifierType = identifierType;
+                return this;
+            }
+
+            public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
+                this.visibilityModifier = visibilityModifier;
+                return this;
+            }
+
+            public Builder staticModifier(Optional<Boolean> staticModifier) {
+                this.staticModifier = staticModifier;
+                return this;
+            }
+
+            public Builder finalModifier(Optional<Boolean> finalModifier) {
+                this.finalModifier = finalModifier;
+                return this;
+            }
+
+            public InstanceVariableLanguageElement build() {
+                return new InstanceVariableLanguageElement(searchType, visibilityModifier, staticModifier,
+                        finalModifier, identifierName, identifierType);
+            }
         }
     }
 }

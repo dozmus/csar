@@ -9,9 +9,11 @@ import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
 public final class CsarQueryFactory {
 
     /**
-     * Creates a {@link CsarQuery} from the provided textual representation of it.
-     * @throws IllegalArgumentException If the query is the empty string
-     * @throws RuntimeException If the query does not adhere to the syntax of csar query
+     * Creates a {@link CsarQuery} from the textual representation of it (in csar query language syntax).
+     * @param query the query
+     * @throws IllegalArgumentException if the query is the empty string
+     * @throws RuntimeException if the query does not adhere to the syntax of the csar query language
+     * @return CsarQuery representing the String query
      */
     public static CsarQuery parse(String query) throws IllegalArgumentException {
         if (query.length() == 0) // NOTE suppresses the following msg: line 1:0 no viable alternative at input '<EOF>'

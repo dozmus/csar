@@ -53,7 +53,7 @@ synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
 comment: singleLineComment | multiLineComment;
 singleLineComment: SINGLE_LINE_COMMENT (COLON S_QUOTE content S_QUOTE)?;
 multiLineComment: MULTI_LINE_COMMENT (COLON (JAVADOC COLON)? S_QUOTE content S_QUOTE)?;
-// TODO allow escaping S_QUOTE in comments
+// TODO allow escaping S_QUOTE in comments? it doesnt seem to cause a problem though
 
 // Refactor
 rename: RENAME COLON SPACE* identifierName;

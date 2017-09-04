@@ -33,6 +33,39 @@ public class ControlFlowLanguageElement extends LanguageElement {
         return String.format("ControlFlowLanguageElement{controlFlowType=%s} %s", controlFlowType, super.toString());
     }
 
+    public static class Builder {
+
+        private ControlFlowType type;
+        private String identifierName;
+        private String expr;
+
+        public Builder(ControlFlowType controlFlowType) {
+            this.type = controlFlowType;
+        }
+
+        public Builder identifierName(String identifierName) {
+            this.identifierName = identifierName;
+            return this;
+        }
+
+        public Builder expr(String expr) {
+            this.expr = expr;
+            return this;
+        }
+
+        public ControlFlowLanguageElement build() {
+            if (type == ControlFlowType.FOR || type == ControlFlowType.TERNARY) {
+                return new ControlFlowLanguageElement(type);
+            } else if (type == ControlFlowType.IF || type == ControlFlowType.WHILE || type == ControlFlowType.DOWHILE) {
+                return new ExprControlFlowLanguageElement(type, expr);
+            } else if (type == ControlFlowType.FOREACH) {
+                return new NamedControlFlowLanguageElement(type, identifierName);
+            } else {
+                return new NamedExprControlFlowLanguageElement(type, identifierName, expr);
+            }
+        }
+    }
+
     public static class ExprControlFlowLanguageElement extends ControlFlowLanguageElement {
 
         private String expr;

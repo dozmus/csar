@@ -2,10 +2,7 @@ package org.qmul.csar.query.domain;
 
 import org.qmul.csar.query.CsarQuery;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class MethodLanguageElement extends IdentifiableLanguageElement {
 
@@ -13,9 +10,9 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     private String returnType;
     private Optional<Boolean> overridden = Optional.empty();
     private Optional<Integer> parameterCount = Optional.empty();
-    private List<Identifier> parameters;
-    private List<String> thrownExceptions;
-    private List<String> superClasses;
+    private List<Identifier> parameters = new ArrayList<>();
+    private List<String> thrownExceptions = new ArrayList<>();
+    private List<String> superClasses = new ArrayList<>();
 
     public MethodLanguageElement() {
         setType(Type.METHOD);
@@ -46,8 +43,6 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     }
 
     public void addSuperClass(String superClass) {
-        if (superClasses == null)
-            superClasses = new ArrayList<>();
         superClasses.add(superClass);
     }
 
@@ -60,8 +55,6 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     }
 
     public void addParameter(Identifier parameter) {
-        if (parameters == null)
-            parameters = new ArrayList<>();
         parameters.add(parameter);
     }
 
@@ -70,8 +63,6 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     }
 
     public void addThrownException(String thrownException) {
-        if (thrownExceptions == null)
-            thrownExceptions = new ArrayList<>();
         thrownExceptions.add(thrownException);
     }
 
@@ -121,5 +112,90 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
                 ", thrownExceptions=" + thrownExceptions +
                 ", superClasses=" + superClasses +
                 "} " + super.toString();
+    }
+
+    public static class Builder {
+
+        private CsarQuery.Type searchType;
+        private String identifierName;
+        private String returnType;
+        private VisibilityModifier visibilityModifier;
+        private Optional<Boolean> staticModifier = Optional.empty();
+        private Optional<Boolean> finalModifier = Optional.empty();
+        private Optional<Boolean> overridden = Optional.empty();
+        private Optional<Integer> parameterCount = Optional.empty();
+        private List<Identifier> parameters = new ArrayList<>();
+        private List<String> thrownExceptions = new ArrayList<>();
+        private List<String> superClasses = new ArrayList<>();
+
+        public Builder(CsarQuery.Type searchType, String identifierName) {
+            this.searchType = searchType;
+            this.identifierName = identifierName;
+        }
+
+        public Builder returnType(String returnType) {
+            this.returnType = returnType;
+            return this;
+        }
+
+        public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
+            this.visibilityModifier = visibilityModifier;
+            return this;
+        }
+
+        public Builder staticModifier(Optional<Boolean> staticModifier) {
+            this.staticModifier = staticModifier;
+            return this;
+        }
+
+        public Builder finalModifier(Optional<Boolean> finalModifier) {
+            this.finalModifier = finalModifier;
+            return this;
+        }
+
+        public Builder overridden(Optional<Boolean> overridden) {
+            this.overridden = overridden;
+            return this;
+        }
+
+        public Builder parameterCount(Optional<Integer> parameterCount) {
+            this.parameterCount = parameterCount;
+            return this;
+        }
+
+        public Builder parameters(List<Identifier> parameters) {
+            this.parameters = parameters;
+            return this;
+        }
+
+        public Builder parameters(Identifier... parameters) {
+            this.parameters = Arrays.asList(parameters);
+            return this;
+        }
+
+        public Builder thrownExceptions(List<String> thrownExceptions) {
+            this.thrownExceptions = thrownExceptions;
+            return this;
+        }
+
+        public Builder thrownExceptions(String... thrownExceptions) {
+            this.thrownExceptions = Arrays.asList(thrownExceptions);
+            return this;
+        }
+
+        public Builder superClasses(List<String> superClasses) {
+            this.superClasses = superClasses;
+            return this;
+        }
+
+        public Builder superClasses(String... superClasses) {
+            this.superClasses = Arrays.asList(superClasses);
+            return this;
+        }
+
+        public MethodLanguageElement build() {
+            return new MethodLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
+                    identifierName, returnType, overridden, parameterCount, parameters, thrownExceptions, superClasses);
+        }
     }
 }

@@ -4,9 +4,7 @@ import org.qmul.csar.query.domain.ContainsQuery;
 import org.qmul.csar.query.domain.LanguageElement;
 import org.qmul.csar.query.domain.RefactorElement;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public final class CsarQuery {
 
@@ -18,13 +16,13 @@ public final class CsarQuery {
     public CsarQuery(LanguageElement searchTarget, ContainsQuery containsQuery, List<String> fromTarget,
                      RefactorElement refactorElement) {
         this.searchTarget = searchTarget;
-        this.fromTarget = fromTarget;
+        this.fromTarget = Collections.unmodifiableList(fromTarget);
         this.containsQuery = containsQuery;
         this.refactorElement = refactorElement;
     }
 
     public CsarQuery(LanguageElement searchTarget) {
-        this(searchTarget, null, null, null);
+        this(searchTarget, null, new ArrayList<>(), null);
     }
 
     public LanguageElement getSearchTarget() {
@@ -43,12 +41,6 @@ public final class CsarQuery {
         return refactorElement;
     }
 
-    public void addFromTarget(String s) {
-        if (fromTarget == null)
-            fromTarget = new ArrayList<>();
-        fromTarget.add(s);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -62,12 +54,8 @@ public final class CsarQuery {
 
     @Override
     public String toString() {
-        return "CsarQuery{" +
-                "searchTarget=" + searchTarget +
-                ", containsQuery=" + containsQuery +
-                ", fromTarget=" + fromTarget +
-                ", refactorElement=" + refactorElement +
-                '}';
+        return String.format("CsarQuery{searchTarget=%s, containsQuery=%s, fromTarget=%s, refactorElement=%s}",
+                searchTarget, containsQuery, fromTarget, refactorElement);
     }
 
     public enum Type {
@@ -79,5 +67,41 @@ public final class CsarQuery {
          * A usage of a defined element.
          */
         USE
+    }
+
+    public static class Builder {
+
+        private final LanguageElement searchTarget;
+        private ContainsQuery containsQuery;
+        private List<String> fromTarget = new ArrayList<>();
+        private RefactorElement refactorElement;
+
+        public Builder(LanguageElement searchTarget) {
+            this.searchTarget = searchTarget;
+        }
+
+        public Builder contains(ContainsQuery containsQuery) {
+            this.containsQuery = containsQuery;
+            return this;
+        }
+
+        public Builder from(List<String> fromTarget) {
+            this.fromTarget = fromTarget;
+            return this;
+        }
+
+        public Builder from(String... fromTarget) {
+            this.fromTarget = Arrays.asList(fromTarget);
+            return this;
+        }
+
+        public Builder refactor(RefactorElement refactorElement) {
+            this.refactorElement = refactorElement;
+            return this;
+        }
+
+        public CsarQuery build() {
+            return new CsarQuery(searchTarget, containsQuery, fromTarget, refactorElement);
+        }
     }
 }

@@ -48,4 +48,29 @@ public class CommentLanguageElement extends LanguageElement {
     public enum CommentType {
         SINGLE, MULTI
     }
+
+    public static class Builder {
+
+        private final CommentType commentType;
+        private Optional<Boolean> javadoc = Optional.empty();
+        private String content;
+
+        public Builder(CommentType commentType) {
+            this.commentType = commentType;
+        }
+
+        public Builder javadoc(Optional<Boolean> javadoc) {
+            this.javadoc = javadoc;
+            return this;
+        }
+
+        public Builder content(String content) {
+            this.content = content;
+            return this;
+        }
+
+        public CommentLanguageElement build() {
+            return new CommentLanguageElement(commentType, javadoc, content);
+        }
+    }
 }

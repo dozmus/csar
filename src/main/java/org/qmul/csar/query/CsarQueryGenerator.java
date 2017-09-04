@@ -14,7 +14,7 @@ import java.util.Optional;
 class CsarQueryGenerator extends DummyCsarParserListener {
 
     private LanguageElement searchTarget;
-    private List<String> fromTarget;
+    private List<String> fromTarget = new ArrayList<>();
     private ContainsQuery containsQuery;
     private RefactorElement refactorElement;
 
@@ -29,6 +29,13 @@ class CsarQueryGenerator extends DummyCsarParserListener {
 
     private static String parseTypeTextOrNull(CsarParser.TypeContext ctx) {
         return ctx != null ? ctx.getText() : null;
+    }
+
+    /**
+     * @return <code></code>Optional#of(true)</code> if o is not null, and <code>Optional#empty()</code> otherwise.
+     */
+    private static Optional<Boolean> parseOptionalTrueOrEmpty(Object o) {
+        return o != null ? Optional.of(true) : Optional.empty();
     }
 
     private static LanguageElement parseLanguageElement(CsarParser.LanguageElementContext ctx) {
@@ -173,8 +180,8 @@ class CsarQueryGenerator extends DummyCsarParserListener {
             return new VariableLanguageElement.InstanceVariableLanguageElement(
                     parseType(ictx.commonModifiers().DEF(), ictx.commonModifiers().USE()),
                     visibilityModifier(common.visibilityModifier()),
-                    common.STATIC() != null ? Optional.of(true) : Optional.empty(),
-                    common.FINAL() != null ? Optional.of(true) : Optional.empty(),
+                    parseOptionalTrueOrEmpty(common.STATIC()),
+                    parseOptionalTrueOrEmpty(common.FINAL()),
                     ictx.identifierName().getText(),
                     parseTypeTextOrNull(ictx.type())
             );
@@ -182,7 +189,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
             CsarParser.LocalVariableContext lctx = ctx.localVariable();
             return new VariableLanguageElement(parseType(lctx.DEF(), lctx.USE()),
                     VariableLanguageElement.VariableType.LOCAL,
-                    lctx.FINAL() != null ? Optional.of(true) : Optional.empty(),
+                    parseOptionalTrueOrEmpty(lctx.FINAL()),
                     lctx.identifierName().getText(),
                     parseTypeTextOrNull(lctx.type())
             );
@@ -190,7 +197,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
             CsarParser.ParamVariableContext pctx = ctx.paramVariable();
             return new VariableLanguageElement(parseType(pctx.DEF(), pctx.USE()),
                     VariableLanguageElement.VariableType.PARAM,
-                    pctx.FINAL() != null ? Optional.of(true) : Optional.empty(),
+                    parseOptionalTrueOrEmpty(pctx.FINAL()),
                     pctx.identifierName().getText(),
                     parseTypeTextOrNull(pctx.type())
             );
@@ -239,7 +246,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         } else { // multi-line
             CsarParser.MultiLineCommentContext mctx = ctx.multiLineComment();
             return new CommentLanguageElement(CommentLanguageElement.CommentType.MULTI,
-                    mctx.JAVADOC() != null ? Optional.of(true) : Optional.empty(), mctx.content().getText());
+                    parseOptionalTrueOrEmpty(mctx.JAVADOC()), mctx.content().getText());
         }
     }
 

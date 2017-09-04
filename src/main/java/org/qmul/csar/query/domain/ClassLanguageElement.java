@@ -2,10 +2,7 @@ package org.qmul.csar.query.domain;
 
 import org.qmul.csar.query.CsarQuery;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class ClassLanguageElement extends IdentifiableLanguageElement {
 
@@ -15,7 +12,7 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
     private Optional<Boolean> strictfpModifier = Optional.empty();
     private Optional<Boolean> anonymous = Optional.empty();
     private Optional<Boolean> inner = Optional.empty();
-    private List<String> superClasses = null;
+    private List<String> superClasses = new ArrayList<>();
 
     public ClassLanguageElement() {
         setType(LanguageElement.Type.CLASS);
@@ -78,8 +75,6 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
     }
 
     public void addSuperClass(String superClass) {
-        if (superClasses == null)
-            superClasses = new ArrayList<>();
         superClasses.add(superClass);
     }
 
@@ -117,5 +112,81 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
                 ", inner=" + inner +
                 ", superClasses=" + superClasses +
                 "} " + super.toString();
+    }
+
+    public static class Builder {
+
+        private CsarQuery.Type searchType;
+        private VisibilityModifier visibilityModifier;
+        private String identifierName;
+        private Optional<Boolean> staticModifier = Optional.empty();
+        private Optional<Boolean> finalModifier = Optional.empty();
+        private Optional<Boolean> interfaceModifier = Optional.empty();
+        private Optional<Boolean> abstractModifier = Optional.empty();
+        private Optional<Boolean> strictfpModifier = Optional.empty();
+        private Optional<Boolean> anonymous = Optional.empty();
+        private Optional<Boolean> inner = Optional.empty();
+        private List<String> superClasses = new ArrayList<>();
+
+        public Builder(CsarQuery.Type searchType, String identifierName) {
+            this.searchType = searchType;
+            this.identifierName = identifierName;
+        }
+
+        public Builder staticModifier(Optional<Boolean> staticModifier) {
+            this.staticModifier = staticModifier;
+            return this;
+        }
+
+        public Builder finalModifier(Optional<Boolean> finalModifier) {
+            this.finalModifier = finalModifier;
+            return this;
+        }
+
+        public Builder interfaceModifier(Optional<Boolean> interfaceModifier) {
+            this.interfaceModifier = interfaceModifier;
+            return this;
+        }
+
+        public Builder abstractModifier(Optional<Boolean> abstractModifier) {
+            this.abstractModifier = abstractModifier;
+            return this;
+        }
+
+        public Builder strictfpModifier(Optional<Boolean> strictfpModifier) {
+            this.strictfpModifier = strictfpModifier;
+            return this;
+        }
+
+        public Builder anonymous(Optional<Boolean> anonymous) {
+            this.anonymous = anonymous;
+            return this;
+        }
+
+        public Builder inner(Optional<Boolean> inner) {
+            this.inner = inner;
+            return this;
+        }
+
+        public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
+            this.visibilityModifier = visibilityModifier;
+            return this;
+        }
+
+        public Builder superClasses(List<String> superClasses) {
+            this.superClasses = superClasses;
+            return this;
+        }
+
+        public Builder superClasses(String... superClasses) {
+            this.superClasses = Arrays.asList(superClasses);
+            return this;
+        }
+
+        public ClassLanguageElement build() {
+            return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
+                    identifierName, interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner,
+                    superClasses);
+        }
     }
 }
