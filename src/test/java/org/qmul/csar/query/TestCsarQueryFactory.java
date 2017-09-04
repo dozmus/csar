@@ -38,9 +38,9 @@ public final class TestCsarQueryFactory {
         containsQuery.addLanguageElement(new ClassLanguageElement(CsarQuery.Type.DEF, null, Optional.empty(),
                 Optional.empty(), "SecondClass", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
                 Optional.of(true), null));
-        assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass FROM Helpers",
-                new CsarQuery(method1, containsQuery, toList("Helpers"), null));
-        // TODO test refactor here
+        assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass "
+                        + "FROM Helpers REFACTOR rename:addInt", new CsarQuery(method1, containsQuery,
+                toList("Helpers"), new RefactorElement.RenameRefactorElement("addInt")));
     }
 
     @Test
