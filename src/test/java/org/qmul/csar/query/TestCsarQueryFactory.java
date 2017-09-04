@@ -234,16 +234,16 @@ public final class TestCsarQueryFactory {
         CsarQuery methodUseQuery = new CsarQuery(new MethodLanguageElement(CsarQuery.Type.USE, null, Optional.empty(),
                 Optional.empty(), null, null, Optional.empty(), Optional.empty(), null, null, null));
 
-        ((NamedLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("*");
+        ((IdentifiableLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("*");
         assertEquals("SELECT method:use:*", methodUseQuery);
 
-        ((NamedLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("check*");
+        ((IdentifiableLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("check*");
         assertEquals("SELECT method:use:check*", methodUseQuery);
 
-        ((NamedLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("check*");
+        ((IdentifiableLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("check*");
         assertEquals("SELECT method:use:check*", methodUseQuery);
 
-        ((NamedLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("ch_ck");
+        ((IdentifiableLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("ch_ck");
         assertEquals("SELECT method:use:ch_ck", methodUseQuery);
     }
 
@@ -252,13 +252,13 @@ public final class TestCsarQueryFactory {
         CsarQuery methodUseQuery = new CsarQuery(new MethodLanguageElement(CsarQuery.Type.USE, null, Optional.empty(),
                 Optional.empty(), null, null, Optional.empty(), Optional.empty(), null, null, null));
 
-        ((NamedLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("FROM");
+        ((IdentifiableLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("FROM");
         assertEquals("SELECT method:use:FROM", methodUseQuery);
 
-        ((NamedLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("renameIdentifier");
+        ((IdentifiableLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("renameIdentifier");
         assertEquals("SELECT method:use:renameIdentifier", methodUseQuery);
 
-        ((NamedLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("rename");
+        ((IdentifiableLanguageElement)methodUseQuery.getSearchTarget()).setIdentifierName("rename");
         assertEquals("SELECT method:use:rename", methodUseQuery);
     }
 

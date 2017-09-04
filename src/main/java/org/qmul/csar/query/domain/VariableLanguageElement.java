@@ -5,7 +5,7 @@ import org.qmul.csar.query.CsarQuery;
 import java.util.Objects;
 import java.util.Optional;
 
-public class VariableLanguageElement extends NamedLanguageElement {
+public class VariableLanguageElement extends IdentifiableLanguageElement {
 
     private CsarQuery.Type searchType;
     protected VariableType variableType;

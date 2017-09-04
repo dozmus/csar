@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class MethodLanguageElement extends NamedLanguageElement {
+public class MethodLanguageElement extends IdentifiableLanguageElement {
 
     private CommonModifiers commonModifiers;
     private String returnType;

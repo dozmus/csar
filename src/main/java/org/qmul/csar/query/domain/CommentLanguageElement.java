@@ -41,11 +41,8 @@ public class CommentLanguageElement extends LanguageElement {
 
     @Override
     public String toString() {
-        return "CommentLanguageElement{" +
-                "commentType=" + commentType +
-                ", javadoc=" + javadoc +
-                ", content='" + content + '\'' +
-                '}';
+        return String.format("CommentLanguageElement{commentType=%s, javadoc=%s, content='%s'}", commentType, javadoc,
+                content);
     }
 
     public enum CommentType {

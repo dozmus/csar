@@ -92,7 +92,8 @@ public class ControlFlowLanguageElement extends LanguageElement {
 
         @Override
         public String toString() {
-            return String.format("ExprControlFlowLanguageElement{identifierName='%s'} %s", identifierName, super.toString());
+            return String.format("ExprControlFlowLanguageElement{identifierName='%s'} %s", identifierName,
+                    super.toString());
         }
     }
 
