@@ -9,12 +9,12 @@ import java.util.*;
 public final class CsarQuery {
 
     private final LanguageElement searchTarget;
-    private final ContainsQuery containsQuery;
-    private List<String> fromTarget;
-    private final RefactorElement refactorElement;
+    private final Optional<ContainsQuery> containsQuery;
+    private final List<String> fromTarget;
+    private final Optional<RefactorElement> refactorElement;
 
-    public CsarQuery(LanguageElement searchTarget, ContainsQuery containsQuery, List<String> fromTarget,
-                     RefactorElement refactorElement) {
+    public CsarQuery(LanguageElement searchTarget, Optional<ContainsQuery> containsQuery, List<String> fromTarget,
+                     Optional<RefactorElement> refactorElement) {
         this.searchTarget = searchTarget;
         this.fromTarget = Collections.unmodifiableList(fromTarget);
         this.containsQuery = containsQuery;
@@ -22,7 +22,7 @@ public final class CsarQuery {
     }
 
     public CsarQuery(LanguageElement searchTarget) {
-        this(searchTarget, null, new ArrayList<>(), null);
+        this(searchTarget, Optional.empty(), new ArrayList<>(), Optional.empty());
     }
 
     public LanguageElement getSearchTarget() {
@@ -33,11 +33,11 @@ public final class CsarQuery {
         return fromTarget;
     }
 
-    public ContainsQuery getContainsQuery() {
+    public Optional<ContainsQuery> getContainsQuery() {
         return containsQuery;
     }
 
-    public RefactorElement getRefactorElement() {
+    public Optional<RefactorElement> getRefactorElement() {
         return refactorElement;
     }
 
@@ -69,19 +69,19 @@ public final class CsarQuery {
         USE
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private final LanguageElement searchTarget;
-        private ContainsQuery containsQuery;
+        private Optional<ContainsQuery> containsQuery = Optional.empty();
         private List<String> fromTarget = new ArrayList<>();
-        private RefactorElement refactorElement;
+        private Optional<RefactorElement> refactorElement = Optional.empty();
 
         public Builder(LanguageElement searchTarget) {
             this.searchTarget = searchTarget;
         }
 
         public Builder contains(ContainsQuery containsQuery) {
-            this.containsQuery = containsQuery;
+            this.containsQuery = Optional.of(containsQuery);
             return this;
         }
 
@@ -96,7 +96,7 @@ public final class CsarQuery {
         }
 
         public Builder refactor(RefactorElement refactorElement) {
-            this.refactorElement = refactorElement;
+            this.refactorElement = Optional.of(refactorElement);
             return this;
         }
 

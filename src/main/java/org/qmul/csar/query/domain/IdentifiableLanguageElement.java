@@ -4,10 +4,7 @@ import java.util.Objects;
 
 public class IdentifiableLanguageElement extends LanguageElement {
 
-    private String identifierName;
-
-    public IdentifiableLanguageElement() {
-    }
+    private final String identifierName;
 
     public IdentifiableLanguageElement(LanguageElement.Type type, String identifierName) {
         super(type);
@@ -28,7 +25,12 @@ public class IdentifiableLanguageElement extends LanguageElement {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), identifierName);
+    }
+
+    @Override
     public String toString() {
-        return String.format("IdentifiableLanguageElement{type=%s, identifierName='%s'}", getType(), identifierName);
+        return String.format("IdentifiableLanguageElement{identifierName='%s'} %s", identifierName, super.toString());
     }
 }

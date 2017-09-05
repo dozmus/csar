@@ -8,14 +8,11 @@ import java.util.Optional;
 public class CommonModifiers {
 
     private CsarQuery.Type searchType;
-    private VisibilityModifier visibilityModifier;
+    private Optional<VisibilityModifier> visibilityModifier;
     private Optional<Boolean> staticModifier = Optional.empty();
     private Optional<Boolean> finalModifier = Optional.empty();
 
-    public CommonModifiers() {
-    }
-
-    public CommonModifiers(CsarQuery.Type searchType, VisibilityModifier visibilityModifier,
+    public CommonModifiers(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                            Optional<Boolean> staticModifier, Optional<Boolean> finalModifier) {
         this.searchType = searchType;
         this.visibilityModifier = visibilityModifier;
@@ -27,7 +24,7 @@ public class CommonModifiers {
         return searchType;
     }
 
-    public VisibilityModifier getVisibilityModifier() {
+    public Optional<VisibilityModifier> getVisibilityModifier() {
         return visibilityModifier;
     }
 
@@ -45,18 +42,14 @@ public class CommonModifiers {
         if (o == null || getClass() != o.getClass()) return false;
         CommonModifiers that = (CommonModifiers) o;
         return searchType == that.searchType &&
-                visibilityModifier == that.visibilityModifier &&
+                Objects.equals(visibilityModifier, that.visibilityModifier) &&
                 Objects.equals(staticModifier, that.staticModifier) &&
                 Objects.equals(finalModifier, that.finalModifier);
     }
 
     @Override
     public String toString() {
-        return "CommonModifiers{" +
-                "searchType=" + searchType +
-                ", visibilityModifier=" + visibilityModifier +
-                ", staticModifier=" + staticModifier +
-                ", finalModifier=" + finalModifier +
-                '}';
+        return String.format("CommonModifiers{searchType=%s, visibilityModifier=%s, staticModifier=%s, "
+                + "finalModifier=%s}", searchType, visibilityModifier, staticModifier, finalModifier);
     }
 }

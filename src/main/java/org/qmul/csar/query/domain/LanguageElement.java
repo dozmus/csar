@@ -1,11 +1,10 @@
 package org.qmul.csar.query.domain;
 
+import java.util.Objects;
+
 public class LanguageElement {
 
-    private LanguageElement.Type type;
-
-    public LanguageElement() {
-    }
+    private final LanguageElement.Type type;
 
     public LanguageElement(Type type) {
         this.type = type;
@@ -21,6 +20,11 @@ public class LanguageElement {
         if (o == null || getClass() != o.getClass()) return false;
         LanguageElement that = (LanguageElement) o;
         return type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type);
     }
 
     @Override

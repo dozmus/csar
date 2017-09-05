@@ -2,21 +2,19 @@ package org.qmul.csar.query.domain;
 
 import org.qmul.csar.query.CsarQuery;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
 
 public class VariableLanguageElement extends IdentifiableLanguageElement {
 
-    private CsarQuery.Type searchType;
-    protected VariableType variableType;
-    private String identifierType;
-    private Optional<Boolean> finalModifier = Optional.empty();
-
-    public VariableLanguageElement() {
-        super(Type.VARIABLE, null);
-    }
+    private final CsarQuery.Type searchType;
+    private final VariableType variableType;
+    private final Optional<String> identifierType;
+    private final Optional<Boolean> finalModifier;
 
     public VariableLanguageElement(CsarQuery.Type searchType, VariableType variableType,
-                                   Optional<Boolean> finalModifier, String identifierName, String identifierType) {
+                                   Optional<Boolean> finalModifier, String identifierName,
+                                   Optional<String> identifierType) {
         super(Type.VARIABLE, identifierName);
         this.searchType = searchType;
         this.identifierType = identifierType;
@@ -36,7 +34,7 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         return searchType;
     }
 
-    public String getIdentifierType() {
+    public Optional<String> getIdentifierType() {
         return identifierType;
     }
 
@@ -53,13 +51,14 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), searchType, variableType, identifierType, finalModifier);
+    }
+
+    @Override
     public String toString() {
-        return "VariableLanguageElement{" +
-                "searchType=" + searchType +
-                ", variableType=" + variableType +
-                ", identifierType='" + identifierType + '\'' +
-                ", finalModifier=" + finalModifier +
-                "} " + super.toString();
+        return String.format("VariableLanguageElement{searchType=%s, variableType=%s, identifierType=%s, "
+                + "finalModifier=%s} %s", searchType, variableType, identifierType, finalModifier, super.toString());
     }
 
     public enum VariableType {
@@ -69,9 +68,9 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
     public static class Builder {
 
         private CsarQuery.Type searchType;
-        private String identifierName;
-        private String identifierType;
         private VariableType variableType;
+        private String identifierName;
+        private Optional<String> identifierType = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
 
         public Builder(CsarQuery.Type searchType, VariableType variableType, String identifierName) {
@@ -84,12 +83,12 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         }
 
         public Builder identifierType(String identifierType) {
-            this.identifierType = identifierType;
+            this.identifierType = Optional.of(identifierType);
             return this;
         }
 
-        public Builder finalModifier(Optional<Boolean> finalModifier) {
-            this.finalModifier = finalModifier;
+        public Builder finalModifier(boolean finalModifier) {
+            this.finalModifier = Optional.of(finalModifier);
             return this;
         }
 
@@ -102,14 +101,10 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
 
         private CommonModifiers commonModifiers;
 
-        public InstanceVariableLanguageElement() {
-            this.variableType = VariableType.INSTANCE;
-            this.commonModifiers = new CommonModifiers();
-        }
-
-        public InstanceVariableLanguageElement(CsarQuery.Type searchType, VisibilityModifier visibilityModifier,
+        public InstanceVariableLanguageElement(CsarQuery.Type searchType,
+                                               Optional<VisibilityModifier> visibilityModifier,
                                                Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
-                                               String identifierName, String identifierType) {
+                                               String identifierName, Optional<String> identifierType) {
             super(searchType, VariableType.INSTANCE, finalModifier, identifierName, identifierType);
             this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier);
         }
@@ -128,6 +123,11 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), commonModifiers);
+        }
+
+        @Override
         public String toString() {
             return String.format("InstanceVariableLanguageElement{commonModifiers=%s} %s", commonModifiers,
                     super.toString());
@@ -137,8 +137,8 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
 
             private CsarQuery.Type searchType;
             private String identifierName;
-            private String identifierType;
-            private VisibilityModifier visibilityModifier;
+            private Optional<String> identifierType = Optional.empty();
+            private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
             private Optional<Boolean> staticModifier = Optional.empty();
             private Optional<Boolean> finalModifier = Optional.empty();
 
@@ -148,22 +148,22 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
             }
 
             public Builder identifierType(String identifierType) {
-                this.identifierType = identifierType;
+                this.identifierType = Optional.of(identifierType);
                 return this;
             }
 
             public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
-                this.visibilityModifier = visibilityModifier;
+                this.visibilityModifier = Optional.of(visibilityModifier);
                 return this;
             }
 
-            public Builder staticModifier(Optional<Boolean> staticModifier) {
-                this.staticModifier = staticModifier;
+            public Builder staticModifier(boolean staticModifier) {
+                this.staticModifier = Optional.of(staticModifier);
                 return this;
             }
 
-            public Builder finalModifier(Optional<Boolean> finalModifier) {
-                this.finalModifier = finalModifier;
+            public Builder finalModifier(boolean finalModifier) {
+                this.finalModifier = Optional.of(finalModifier);
                 return this;
             }
 

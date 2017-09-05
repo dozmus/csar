@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public final class TestCsarQueryFactory {
 
-    // TODO test char[] as identifiername somewhere
+    // TODO test char[] as identifierName somewhere
 
     private static CsarQuery parse(String query) {
         return CsarQueryFactory.parse(query);
@@ -28,7 +28,7 @@ public final class TestCsarQueryFactory {
                 .addLanguageElement(new ClassLanguageElement.Builder(CsarQuery.Type.USE, "MyClass").build())
                 .addLogicalOperator(LogicalOperator.OR)
                 .addLanguageElement(new ClassLanguageElement.Builder(CsarQuery.Type.DEF, "SecondClass")
-                        .inner(Optional.of(true))
+                        .inner(true)
                         .build())
                 .build();
         CsarQuery expectedCsarQuery = new CsarQuery.Builder(method)
@@ -48,7 +48,7 @@ public final class TestCsarQueryFactory {
                 .addLanguageElement(new ClassLanguageElement.Builder(CsarQuery.Type.USE, "MyClass").build())
                 .addLogicalOperator(LogicalOperator.OR)
                 .addLanguageElement(new ClassLanguageElement.Builder(CsarQuery.Type.DEF, "SecondClass")
-                        .inner(Optional.of(true))
+                        .inner(true)
                         .build())
                 .build();
         assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass",
@@ -75,12 +75,12 @@ public final class TestCsarQueryFactory {
 
         // Change parameters #1
         List<Identifier> parameters1 = new ArrayList<>();
-        parameters1.add(new Identifier("k", "int"));
-        parameters1.add(new Identifier("r", "Runnable"));
+        parameters1.add(new Identifier("int", Optional.of("k")));
+        parameters1.add(new Identifier("Runnable", Optional.of("r")));
         MethodLanguageElement method1 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "SELECT")
-                .staticModifier(Optional.of(true))
+                .staticModifier(true)
                 .returnType("boolean")
-                .parameters(new Identifier("k", "int"), new Identifier("t", "Thread"))
+                .parameters(new Identifier("int", Optional.of("k")), new Identifier("Thread", Optional.of("t")))
                 .build();
         expectedCsarQuery = new CsarQuery.Builder(method1)
                 .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters1))
@@ -90,12 +90,12 @@ public final class TestCsarQueryFactory {
 
         // Change parameters #2
         List<Identifier> parameters2 = new ArrayList<>();
-        parameters2.add(new Identifier(null, "float"));
-        parameters2.add(new Identifier(null, "String"));
+        parameters2.add(new Identifier("float", Optional.empty()));
+        parameters2.add(new Identifier("String", Optional.empty()));
         MethodLanguageElement method2 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "add")
-                .staticModifier(Optional.of(true))
+                .staticModifier(true)
                 .returnType("int")
-                .parameters(new Identifier(null, "float"), new Identifier(null, "char"))
+                .parameters(new Identifier("float", Optional.empty()), new Identifier("char", Optional.empty()))
                 .build();
         expectedCsarQuery = new CsarQuery.Builder(method2)
                 .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters2))
@@ -109,9 +109,9 @@ public final class TestCsarQueryFactory {
         assertEquals("SELECT method:use:add", new CsarQuery(method1));
 
         MethodLanguageElement method2 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "$sqrt_0")
-                .staticModifier(Optional.of(true))
+                .staticModifier(true)
                 .returnType("double")
-                .parameters(new Identifier("k", "int"), new Identifier("r", "Runnable"))
+                .parameters(new Identifier("int", Optional.of("k")), new Identifier("Runnable", Optional.of("r")))
                 .build();
         assertEquals("method:def:static double $sqrt_0(int k,  Runnable r )", new CsarQuery(method2));
 
@@ -122,16 +122,16 @@ public final class TestCsarQueryFactory {
         assertEquals("method:def:$ throws(IllegalArgumentException) super(Main)", new CsarQuery(method3));
 
         MethodLanguageElement method4 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "add")
-                .staticModifier(Optional.of(true))
+                .staticModifier(true)
                 .returnType("byte")
-                .parameterCount(Optional.of(2))
+                .parameterCount(2)
                 .build();
         assertEquals("method:def:static byte add(2)", new CsarQuery(method4));
 
         MethodLanguageElement method5 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "add")
-                .staticModifier(Optional.of(true))
+                .staticModifier(true)
                 .returnType("int")
-                .parameters(new Identifier(null, "float"), new Identifier(null, "String"))
+                .parameters(new Identifier("float", Optional.empty()), new Identifier("String", Optional.empty()))
                 .build();
         assertEquals("method:def:static int add(float, String)", new CsarQuery(method5));
     }
@@ -140,13 +140,13 @@ public final class TestCsarQueryFactory {
     public void testClassQuery() {
         ClassLanguageElement class1 = new ClassLanguageElement.Builder(CsarQuery.Type.DEF, "MyClass")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .staticModifier(Optional.of(true))
-                .finalModifier(Optional.of(true))
+                .staticModifier(true)
+                .finalModifier(true)
                 .build();
         assertEquals("class:def:public static final MyClass", new CsarQuery(class1));
 
         ClassLanguageElement class2 = new ClassLanguageElement.Builder(CsarQuery.Type.DEF, "class12")
-                .interfaceModifier(Optional.of(true))
+                .interfaceModifier(true)
                 .superClasses("Runnable", "Printable", "Searchable")
                 .build();
         assertEquals("class:def:interface class12(Runnable,Printable,Searchable)", new CsarQuery(class2));
@@ -168,15 +168,15 @@ public final class TestCsarQueryFactory {
         VariableLanguageElement variable3 = new VariableLanguageElement.Builder(CsarQuery.Type.DEF,
                 VariableLanguageElement.VariableType.PARAM, "x")
                 .identifierType("int")
-                .finalModifier(Optional.of(true))
+                .finalModifier(true)
                 .build();
         assertEquals("param:def:final int x", new CsarQuery(variable3));
 
         VariableLanguageElement.InstanceVariableLanguageElement variable4
                 = new VariableLanguageElement.InstanceVariableLanguageElement.Builder(CsarQuery.Type.USE, "LOGGER")
                 .visibilityModifier(VisibilityModifier.PRIVATE)
-                .staticModifier(Optional.of(true))
-                .finalModifier(Optional.of(true))
+                .staticModifier(true)
+                .finalModifier(true)
                 .build();
         assertEquals("instance:use:private static final LOGGER", new CsarQuery(variable4));
     }
@@ -201,7 +201,7 @@ public final class TestCsarQueryFactory {
 
         expectedCsarQuery = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.MULTI)
                 .content("Gets the x coordinate of this Entity.")
-                .javadoc(Optional.of(true))
+                .javadoc(true)
                 .build());
         assertEquals("mlc:javadoc:'Gets the x coordinate of this Entity.'", expectedCsarQuery);
     }
@@ -238,21 +238,30 @@ public final class TestCsarQueryFactory {
         assertEquals("switch(personName)", expected);
 
         // While
-        assertEquals("while", new CsarQuery(new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                ControlFlowLanguageElement.ControlFlowType.WHILE, null)));
-        assertEquals("while(a && b)", new CsarQuery(new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                ControlFlowLanguageElement.ControlFlowType.WHILE, "a && b")));
-        assertEquals("while((a && b) || isActive(5, k, \"'hey'\"))", new CsarQuery(
-                new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                        ControlFlowLanguageElement.ControlFlowType.WHILE, "(a && b) || isActive(5, k, \"'hey'\")")));
+        expected = new CsarQuery(
+                new ControlFlowLanguageElement.Builder(ControlFlowLanguageElement.ControlFlowType.WHILE)
+                        .build());
+        assertEquals("while", expected);
+
+        expected = new CsarQuery(
+                new ControlFlowLanguageElement.Builder(ControlFlowLanguageElement.ControlFlowType.WHILE)
+                        .expr("a && b")
+                        .build());
+        assertEquals("while(a && b)", expected);
+
+        expected = new CsarQuery(
+                new ControlFlowLanguageElement.Builder(ControlFlowLanguageElement.ControlFlowType.WHILE)
+                        .expr("(a && b) || isActive(5, k, \"'hey'\")")
+                        .build());
+        assertEquals("while((a && b) || isActive(5, k, \"'hey'\"))", expected);
 
         // Do While
         expected = new CsarQuery(
-                new ControlFlowLanguageElement.Builder(ControlFlowLanguageElement.ControlFlowType.DOWHILE).build());
+                new ControlFlowLanguageElement.Builder(ControlFlowLanguageElement.ControlFlowType.DO_WHILE).build());
         assertEquals("dowhile", expected);
 
         expected = new CsarQuery(
-                new ControlFlowLanguageElement.Builder(ControlFlowLanguageElement.ControlFlowType.DOWHILE)
+                new ControlFlowLanguageElement.Builder(ControlFlowLanguageElement.ControlFlowType.DO_WHILE)
                         .expr("iterator.hasNext()")
                         .build());
         assertEquals("dowhile(iterator.hasNext())", expected);

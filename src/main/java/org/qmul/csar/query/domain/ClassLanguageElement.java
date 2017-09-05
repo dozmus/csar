@@ -14,7 +14,7 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
     private Optional<Boolean> inner = Optional.empty();
     private List<String> superClasses = new ArrayList<>();
 
-    public ClassLanguageElement(CsarQuery.Type searchType, VisibilityModifier visibilityModifier,
+    public ClassLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                 Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                 String identifierName, Optional<Boolean> interfaceModifier,
                                 Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
@@ -73,22 +73,22 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner, superClasses);
+    }
+
+    @Override
     public String toString() {
-        return "ClassLanguageElement{" +
-                "commonModifiers=" + commonModifiers +
-                ", interfaceModifier=" + interfaceModifier +
-                ", abstractModifier=" + abstractModifier +
-                ", strictfpModifier=" + strictfpModifier +
-                ", anonymous=" + anonymous +
-                ", inner=" + inner +
-                ", superClasses=" + superClasses +
-                "} " + super.toString();
+        return String.format("ClassLanguageElement{commonModifiers=%s, interfaceModifier=%s, abstractModifier=%s, "
+                + "strictfpModifier=%s, anonymous=%s, inner=%s, superClasses=%s} %s", commonModifiers,
+                interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner, superClasses,
+                super.toString());
     }
 
     public static class Builder {
 
         private CsarQuery.Type searchType;
-        private VisibilityModifier visibilityModifier;
+        private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private String identifierName;
         private Optional<Boolean> staticModifier = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
@@ -104,43 +104,43 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
             this.identifierName = identifierName;
         }
 
-        public Builder staticModifier(Optional<Boolean> staticModifier) {
-            this.staticModifier = staticModifier;
+        public Builder staticModifier(boolean staticModifier) {
+            this.staticModifier = Optional.of(staticModifier);
             return this;
         }
 
-        public Builder finalModifier(Optional<Boolean> finalModifier) {
-            this.finalModifier = finalModifier;
+        public Builder finalModifier(boolean finalModifier) {
+            this.finalModifier = Optional.of(finalModifier);
             return this;
         }
 
-        public Builder interfaceModifier(Optional<Boolean> interfaceModifier) {
-            this.interfaceModifier = interfaceModifier;
+        public Builder interfaceModifier(boolean interfaceModifier) {
+            this.interfaceModifier = Optional.of(interfaceModifier);
             return this;
         }
 
-        public Builder abstractModifier(Optional<Boolean> abstractModifier) {
-            this.abstractModifier = abstractModifier;
+        public Builder abstractModifier(boolean abstractModifier) {
+            this.abstractModifier = Optional.of(abstractModifier);
             return this;
         }
 
-        public Builder strictfpModifier(Optional<Boolean> strictfpModifier) {
-            this.strictfpModifier = strictfpModifier;
+        public Builder strictfpModifier(boolean strictfpModifier) {
+            this.strictfpModifier = Optional.of(strictfpModifier);
             return this;
         }
 
-        public Builder anonymous(Optional<Boolean> anonymous) {
-            this.anonymous = anonymous;
+        public Builder anonymous(boolean anonymous) {
+            this.anonymous = Optional.of(anonymous);
             return this;
         }
 
-        public Builder inner(Optional<Boolean> inner) {
-            this.inner = inner;
+        public Builder inner(boolean inner) {
+            this.inner = Optional.of(inner);
             return this;
         }
 
         public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
-            this.visibilityModifier = visibilityModifier;
+            this.visibilityModifier = Optional.of(visibilityModifier);
             return this;
         }
 

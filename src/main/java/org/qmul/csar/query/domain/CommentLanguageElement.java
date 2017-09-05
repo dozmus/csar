@@ -40,6 +40,11 @@ public class CommentLanguageElement extends LanguageElement {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), commentType, javadoc, content);
+    }
+
+    @Override
     public String toString() {
         return String.format("CommentLanguageElement{commentType=%s, javadoc=%s, content='%s'}", commentType, javadoc,
                 content);
@@ -59,8 +64,8 @@ public class CommentLanguageElement extends LanguageElement {
             this.commentType = commentType;
         }
 
-        public Builder javadoc(Optional<Boolean> javadoc) {
-            this.javadoc = javadoc;
+        public Builder javadoc(boolean javadoc) {
+            this.javadoc = Optional.of(javadoc);
             return this;
         }
 

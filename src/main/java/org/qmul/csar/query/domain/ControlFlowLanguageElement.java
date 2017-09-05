@@ -1,6 +1,7 @@
 package org.qmul.csar.query.domain;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class ControlFlowLanguageElement extends LanguageElement {
 
@@ -16,7 +17,7 @@ public class ControlFlowLanguageElement extends LanguageElement {
     }
 
     public enum ControlFlowType {
-        IF, SWITCH, WHILE, DOWHILE, FOR, FOREACH, TERNARY, SYNCHRONIZED
+        IF, SWITCH, WHILE, DO_WHILE, FOR, FOREACH, TERNARY, SYNCHRONIZED
     }
 
     @Override
@@ -29,6 +30,11 @@ public class ControlFlowLanguageElement extends LanguageElement {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), controlFlowType);
+    }
+
+    @Override
     public String toString() {
         return String.format("ControlFlowLanguageElement{controlFlowType=%s} %s", controlFlowType, super.toString());
     }
@@ -36,27 +42,28 @@ public class ControlFlowLanguageElement extends LanguageElement {
     public static class Builder {
 
         private ControlFlowType type;
-        private String identifierName;
-        private String expr;
+        private Optional<String> identifierName = Optional.empty();
+        private Optional<String> expr = Optional.empty();
 
         public Builder(ControlFlowType controlFlowType) {
             this.type = controlFlowType;
         }
 
         public Builder identifierName(String identifierName) {
-            this.identifierName = identifierName;
+            this.identifierName = Optional.of(identifierName);
             return this;
         }
 
         public Builder expr(String expr) {
-            this.expr = expr;
+            this.expr = Optional.of(expr);
             return this;
         }
 
         public ControlFlowLanguageElement build() {
             if (type == ControlFlowType.FOR || type == ControlFlowType.TERNARY) {
                 return new ControlFlowLanguageElement(type);
-            } else if (type == ControlFlowType.IF || type == ControlFlowType.WHILE || type == ControlFlowType.DOWHILE) {
+            } else if (type == ControlFlowType.IF || type == ControlFlowType.WHILE
+                    || type == ControlFlowType.DO_WHILE) {
                 return new ExprControlFlowLanguageElement(type, expr);
             } else if (type == ControlFlowType.FOREACH) {
                 return new NamedControlFlowLanguageElement(type, identifierName);
@@ -68,18 +75,18 @@ public class ControlFlowLanguageElement extends LanguageElement {
 
     public static class ExprControlFlowLanguageElement extends ControlFlowLanguageElement {
 
-        private String expr;
+        private final Optional<String> expr;
 
-        public ExprControlFlowLanguageElement(ControlFlowType controlFlowType, String expr) {
+        public ExprControlFlowLanguageElement(ControlFlowType controlFlowType, Optional<String> expr) {
             super(controlFlowType);
             this.expr = expr;
 
             if (controlFlowType != ControlFlowType.IF && controlFlowType != ControlFlowType.WHILE
-                    && controlFlowType != ControlFlowType.DOWHILE)
+                    && controlFlowType != ControlFlowType.DO_WHILE)
                 throw new RuntimeException("invalid control flow type for expr-bound control flow language element");
         }
 
-        public String getExpr() {
+        public Optional<String> getExpr() {
             return expr;
         }
 
@@ -93,16 +100,21 @@ public class ControlFlowLanguageElement extends LanguageElement {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), expr);
+        }
+
+        @Override
         public String toString() {
-            return String.format("ExprControlFlowLanguageElement{expr='%s'} %s", expr, super.toString());
+            return String.format("ExprControlFlowLanguageElement{expr=%s} %s", expr, super.toString());
         }
     }
 
     public static class NamedControlFlowLanguageElement extends ControlFlowLanguageElement {
 
-        private String identifierName;
+        private final Optional<String> identifierName;
 
-        public NamedControlFlowLanguageElement(ControlFlowType controlFlowType, String identifierName) {
+        public NamedControlFlowLanguageElement(ControlFlowType controlFlowType, Optional<String> identifierName) {
             super(controlFlowType);
             this.identifierName = identifierName;
 
@@ -110,7 +122,7 @@ public class ControlFlowLanguageElement extends LanguageElement {
                 throw new RuntimeException("invalid control flow type for identifier-bound control flow language element");
         }
 
-        public String getExpr() {
+        public Optional<String> getExpr() {
             return identifierName;
         }
 
@@ -124,19 +136,24 @@ public class ControlFlowLanguageElement extends LanguageElement {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), identifierName);
+        }
+
+        @Override
         public String toString() {
-            return String.format("ExprControlFlowLanguageElement{identifierName='%s'} %s", identifierName,
+            return String.format("NamedControlFlowLanguageElement{identifierName=%s} %s", identifierName,
                     super.toString());
         }
     }
 
     public static class NamedExprControlFlowLanguageElement extends ControlFlowLanguageElement {
 
-        private String identifierName;
-        private String expr;
+        private final Optional<String> identifierName;
+        private final Optional<String> expr;
 
-        public NamedExprControlFlowLanguageElement(ControlFlowType controlFlowType, String identifierName,
-                                                   String expr) {
+        public NamedExprControlFlowLanguageElement(ControlFlowType controlFlowType, Optional<String> identifierName,
+                                                   Optional<String> expr) {
             super(controlFlowType);
             this.identifierName = identifierName;
             this.expr = expr;
@@ -145,11 +162,11 @@ public class ControlFlowLanguageElement extends LanguageElement {
                 throw new RuntimeException("invalid control flow type for name,expr-bound control flow language element");
         }
 
-        public String getIdentifierName() {
+        public Optional<String> getIdentifierName() {
             return identifierName;
         }
 
-        public String getExpr() {
+        public Optional<String> getExpr() {
             return expr;
         }
 
@@ -164,9 +181,14 @@ public class ControlFlowLanguageElement extends LanguageElement {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), identifierName, expr);
+        }
+
+        @Override
         public String toString() {
-            return String.format("NamedExprControlFlowLanguageElement{identifierName='%s', expr='%s'} %s",
-                    identifierName, expr, super.toString());
+            return String.format("NamedExprControlFlowLanguageElement{identifierName=%s, expr=%s} %s", identifierName,
+                    expr, super.toString());
         }
     }
 }

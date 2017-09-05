@@ -6,17 +6,17 @@ import java.util.*;
 
 public class MethodLanguageElement extends IdentifiableLanguageElement {
 
-    private CommonModifiers commonModifiers;
-    private String returnType;
-    private Optional<Boolean> overridden = Optional.empty();
-    private Optional<Integer> parameterCount = Optional.empty();
-    private List<Identifier> parameters = new ArrayList<>();
-    private List<String> thrownExceptions = new ArrayList<>();
-    private List<String> superClasses = new ArrayList<>();
+    private final CommonModifiers commonModifiers;
+    private final Optional<String> returnType;
+    private final Optional<Boolean> overridden;
+    private final Optional<Integer> parameterCount;
+    private final List<Identifier> parameters;
+    private final List<String> thrownExceptions;
+    private final List<String> superClasses;
 
-    public MethodLanguageElement(CsarQuery.Type searchType, VisibilityModifier visibilityModifier,
+    public MethodLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                  Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
-                                 String identifierName, String returnType, Optional<Boolean> overridden,
+                                 String identifierName, Optional<String> returnType, Optional<Boolean> overridden,
                                  Optional<Integer> parameterCount, List<Identifier> parameters,
                                  List<String> thrownExceptions, List<String> superClasses) {
         super(Type.METHOD, identifierName);
@@ -45,7 +45,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         return thrownExceptions;
     }
 
-    public String getReturnType() {
+    public Optional<String> getReturnType() {
         return returnType;
     }
 
@@ -73,24 +73,23 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), commonModifiers, returnType, overridden, parameterCount, parameters, thrownExceptions, superClasses);
+    }
+
+    @Override
     public String toString() {
-        return "MethodLanguageElement{" +
-                "commonModifiers=" + commonModifiers +
-                ", returnType='" + returnType + '\'' +
-                ", overridden=" + overridden +
-                ", parameterCount=" + parameterCount +
-                ", parameters=" + parameters +
-                ", thrownExceptions=" + thrownExceptions +
-                ", superClasses=" + superClasses +
-                "} " + super.toString();
+        return String.format("MethodLanguageElement{commonModifiers=%s, returnType=%s, overridden=%s, "
+                + "parameterCount=%s, parameters=%s, thrownExceptions=%s, superClasses=%s} %s", commonModifiers,
+                returnType, overridden, parameterCount, parameters, thrownExceptions, superClasses, super.toString());
     }
 
     public static class Builder {
 
         private CsarQuery.Type searchType;
         private String identifierName;
-        private String returnType;
-        private VisibilityModifier visibilityModifier;
+        private Optional<String> returnType = Optional.empty();
+        private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
         private Optional<Boolean> overridden = Optional.empty();
@@ -105,32 +104,32 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         }
 
         public Builder returnType(String returnType) {
-            this.returnType = returnType;
+            this.returnType = Optional.of(returnType);
             return this;
         }
 
         public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
-            this.visibilityModifier = visibilityModifier;
+            this.visibilityModifier = Optional.of(visibilityModifier);
             return this;
         }
 
-        public Builder staticModifier(Optional<Boolean> staticModifier) {
-            this.staticModifier = staticModifier;
+        public Builder staticModifier(boolean staticModifier) {
+            this.staticModifier = Optional.of(staticModifier);
             return this;
         }
 
-        public Builder finalModifier(Optional<Boolean> finalModifier) {
-            this.finalModifier = finalModifier;
+        public Builder finalModifier(boolean finalModifier) {
+            this.finalModifier = Optional.of(finalModifier);
             return this;
         }
 
-        public Builder overridden(Optional<Boolean> overridden) {
-            this.overridden = overridden;
+        public Builder overridden(boolean overridden) {
+            this.overridden = Optional.of(overridden);
             return this;
         }
 
-        public Builder parameterCount(Optional<Integer> parameterCount) {
-            this.parameterCount = parameterCount;
+        public Builder parameterCount(int parameterCount) {
+            this.parameterCount = Optional.of(parameterCount);
             return this;
         }
 

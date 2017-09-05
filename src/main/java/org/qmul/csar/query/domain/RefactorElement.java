@@ -1,6 +1,5 @@
 package org.qmul.csar.query.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,7 +7,7 @@ public class RefactorElement {
 
     public static class RenameRefactorElement extends RefactorElement {
 
-        private String identifierName;
+        private final String identifierName;
 
         public RenameRefactorElement(String identifierName) {
             this.identifierName = identifierName;
@@ -27,6 +26,11 @@ public class RefactorElement {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(identifierName);
+        }
+
+        @Override
         public String toString() {
             return String.format("RenameRefactorElement{identifierName='%s'} %s", identifierName, super.toString());
         }
@@ -34,7 +38,7 @@ public class RefactorElement {
 
     public static class ChangeParametersRefactorElement extends RefactorElement {
 
-        private List<Identifier> parameters = new ArrayList<>();
+        private final List<Identifier> parameters;
 
         public ChangeParametersRefactorElement(List<Identifier> parameters) {
             this.parameters = parameters;
@@ -53,8 +57,13 @@ public class RefactorElement {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(parameters);
+        }
+
+        @Override
         public String toString() {
-            return String.format("ChangeParametersRefactorElement{identifiers=%s} %s", parameters, super.toString());
+            return String.format("ChangeParametersRefactorElement{parameters=%s} %s", parameters, super.toString());
         }
     }
 }

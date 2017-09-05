@@ -1,6 +1,7 @@
 package org.qmul.csar.query;
 
 import grammars.csar.CsarParser;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.qmul.csar.query.domain.*;
 
@@ -15,8 +16,8 @@ class CsarQueryGenerator extends DummyCsarParserListener {
 
     private LanguageElement searchTarget;
     private List<String> fromTarget = new ArrayList<>();
-    private ContainsQuery containsQuery;
-    private RefactorElement refactorElement;
+    private Optional<ContainsQuery> containsQuery = Optional.empty();
+    private Optional<RefactorElement> refactorElement = Optional.empty();
     private final List<ContainsQueryElement> containsQueryElements = new ArrayList<>();
 
     private static CsarQuery.Type parseType(TerminalNode defNode, TerminalNode useNode) {
@@ -28,12 +29,15 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         throw new RuntimeException("invalid defNode and useNode states");
     }
 
-    private static String parseTypeTextOrNull(CsarParser.TypeContext ctx) {
-        return ctx != null ? ctx.getText() : null;
+    /**
+     * @return {@code Optional.of(ctx.getText())} if ctx is not null, and <code>Optional.empty()} otherwise.
+     */
+    private static Optional<String> parseTextOrEmpty(ParserRuleContext ctx) {
+        return ctx != null ? Optional.of(ctx.getText()) : Optional.empty();
     }
 
     /**
-     * @return <code>Optional#of(true)</code> if node is not null, and <code>Optional#empty()</code> otherwise.
+     * @return {@code Optional.of(true)} if node is not null, and {@code Optional.empty()} otherwise.
      */
     private static Optional<Boolean> parseOptionalTrueOrEmpty(TerminalNode node) {
         return node != null ? Optional.of(true) : Optional.empty();
@@ -57,8 +61,8 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         // languageElementHeader
         CsarParser.CommonModifiersContext commonModsCtx = ctx.commonModifiers();
         CsarQuery.Type searchType = parseType(commonModsCtx.DEF(), commonModsCtx.USE());
-        VisibilityModifier visibilityModifier = commonModsCtx.visibilityModifier() == null
-                ? null : visibilityModifier(commonModsCtx.visibilityModifier());
+        Optional<VisibilityModifier> visibilityModifier = commonModsCtx.visibilityModifier() != null
+                ? visibilityModifier(commonModsCtx.visibilityModifier()) : Optional.empty();
 
         // Other modifiers
         Optional<Boolean> staticModifier = parseOptionalTrueOrEmpty(commonModsCtx.STATIC());
@@ -91,8 +95,8 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         // languageElementHeader
         CsarParser.CommonModifiersContext commonModsCtx = ctx.commonModifiers();
         CsarQuery.Type searchType = parseType(commonModsCtx.DEF(), commonModsCtx.USE());
-        VisibilityModifier visibilityModifier = commonModsCtx.visibilityModifier() == null
-                ? null : visibilityModifier(commonModsCtx.visibilityModifier());
+        Optional<VisibilityModifier> visibilityModifier = commonModsCtx.visibilityModifier() != null
+                ? visibilityModifier(commonModsCtx.visibilityModifier()) : Optional.empty();
 
         // Other modifiers
         Optional<Boolean> staticModifier = parseOptionalTrueOrEmpty(commonModsCtx.STATIC());
@@ -100,7 +104,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
 
         // overridden
         Optional<Boolean> overriddenModifier = parseOptionalTrueOrEmpty(ctx.OVERRIDDEN());
-        String returnType = ctx.type() != null ? ctx.type().getText() : null;
+        Optional<String> returnType = parseTextOrEmpty(ctx.type());
 
         // identifier name
         String identifierName = ctx.identifierName().getText();
@@ -117,7 +121,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                 parameterCount = Optional.of(count);
             } else if (mpt.typeList() != null) {
                 for (CsarParser.TypeContext type : mpt.typeList().type()) {
-                    parameters.add(new Identifier(null, type.getText()));
+                    parameters.add(new Identifier(type.getText(), Optional.empty()));
                 }
             } else if (mpt.namedTypeList() != null) {
                 CsarParser.NamedTypeListContext ntlc = mpt.namedTypeList();
@@ -127,7 +131,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                 }
 
                 for (int i = 0; i < ntlc.type().size(); i++) {
-                    parameters.add(new Identifier(ntlc.identifierName(i).getText(), ntlc.type(i).getText()));
+                    parameters.add(new Identifier(ntlc.type(i).getText(), Optional.of(ntlc.identifierName(i).getText())));
                 }
             }
         }
@@ -163,7 +167,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                     parseOptionalTrueOrEmpty(common.STATIC()),
                     parseOptionalTrueOrEmpty(common.FINAL()),
                     ictx.identifierName().getText(),
-                    parseTypeTextOrNull(ictx.type())
+                    parseTextOrEmpty(ictx.type())
             );
         } else if (ctx.localVariable() != null) {
             CsarParser.LocalVariableContext lctx = ctx.localVariable();
@@ -171,7 +175,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                     VariableLanguageElement.VariableType.LOCAL,
                     parseOptionalTrueOrEmpty(lctx.FINAL()),
                     lctx.identifierName().getText(),
-                    parseTypeTextOrNull(lctx.type())
+                    parseTextOrEmpty(lctx.type())
             );
         } else { // param
             CsarParser.ParamVariableContext pctx = ctx.paramVariable();
@@ -179,7 +183,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                     VariableLanguageElement.VariableType.PARAM,
                     parseOptionalTrueOrEmpty(pctx.FINAL()),
                     pctx.identifierName().getText(),
-                    parseTypeTextOrNull(pctx.type())
+                    parseTextOrEmpty(pctx.type())
             );
         }
     }
@@ -188,33 +192,33 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         if (ctx.if0() != null) {
             return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
                     ControlFlowLanguageElement.ControlFlowType.IF,
-                    ctx.if0().expr() != null ? ctx.if0().expr().getText() : null);
+                    parseTextOrEmpty(ctx.if0().expr()));
         } else if (ctx.switch0() != null) {
             return new ControlFlowLanguageElement.NamedExprControlFlowLanguageElement(
                     ControlFlowLanguageElement.ControlFlowType.SWITCH,
-                    ctx.switch0().identifierName() != null ? ctx.switch0().identifierName().getText() : null,
-                    ctx.switch0().expr() != null ? ctx.switch0().expr().getText() : null);
+                    parseTextOrEmpty(ctx.switch0().identifierName()),
+                    parseTextOrEmpty(ctx.switch0().expr()));
         } else if (ctx.while0() != null) {
             return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
                     ControlFlowLanguageElement.ControlFlowType.WHILE,
-                    ctx.while0().expr() != null ? ctx.while0().expr().getText() : null);
+                    parseTextOrEmpty(ctx.while0().expr()));
         } else if (ctx.dowhile() != null) {
             return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                    ControlFlowLanguageElement.ControlFlowType.DOWHILE,
-                    ctx.dowhile().expr() != null ? ctx.dowhile().expr().getText() : null);
+                    ControlFlowLanguageElement.ControlFlowType.DO_WHILE,
+                    parseTextOrEmpty(ctx.dowhile().expr()));
         } else if (ctx.for0() != null) {
             return new ControlFlowLanguageElement(ControlFlowLanguageElement.ControlFlowType.FOR);
         } else if (ctx.foreach() != null) {
             return new ControlFlowLanguageElement.NamedControlFlowLanguageElement(
                     ControlFlowLanguageElement.ControlFlowType.FOREACH,
-                    ctx.foreach().identifierName() != null ? ctx.foreach().identifierName().getText() : null);
+                    parseTextOrEmpty(ctx.foreach().identifierName()));
         } else if (ctx.ternary() != null) {
             return new ControlFlowLanguageElement(ControlFlowLanguageElement.ControlFlowType.TERNARY);
         } else { // synchronized
             return new ControlFlowLanguageElement.NamedExprControlFlowLanguageElement(
                     ControlFlowLanguageElement.ControlFlowType.SYNCHRONIZED,
-                    ctx.synchronized0().identifierName() != null ? ctx.synchronized0().identifierName().getText() : null,
-                    ctx.synchronized0().expr() != null ? ctx.synchronized0().expr().getText() : null);
+                    parseTextOrEmpty(ctx.synchronized0().identifierName()),
+                    parseTextOrEmpty(ctx.synchronized0().expr()));
         }
     }
 
@@ -230,15 +234,15 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         }
     }
 
-    private static VisibilityModifier visibilityModifier(CsarParser.VisibilityModifierContext ctx) {
+    private static Optional<VisibilityModifier> visibilityModifier(CsarParser.VisibilityModifierContext ctx) {
         if (ctx.PUBLIC() != null) {
-            return VisibilityModifier.PUBLIC;
+            return Optional.of(VisibilityModifier.PUBLIC);
         } else if (ctx.PRIVATE() != null) {
-            return VisibilityModifier.PRIVATE;
+            return Optional.of(VisibilityModifier.PRIVATE);
         } else if (ctx.PROTECTED() != null) {
-            return VisibilityModifier.PROTECTED;
+            return Optional.of(VisibilityModifier.PROTECTED);
         } else { // package private
-            return VisibilityModifier.PACKAGE_PRIVATE;
+            return Optional.of(VisibilityModifier.PACKAGE_PRIVATE);
         }
     }
 
@@ -249,7 +253,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
 
             if (cpc.typeList() != null) {
                 for (CsarParser.TypeContext type : cpc.typeList().type()) {
-                    parameters.add(new Identifier(null, type.getText()));
+                    parameters.add(new Identifier(type.getText(), Optional.empty()));
                 }
             } else { // namedTypeList
                 CsarParser.NamedTypeListContext ntlc = cpc.namedTypeList();
@@ -259,7 +263,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                 }
 
                 for (int i = 0; i < ntlc.type().size(); i++) {
-                    parameters.add(new Identifier(ntlc.identifierName(i).getText(), ntlc.type(i).getText()));
+                    parameters.add(new Identifier(ntlc.type(i).getText(), Optional.of(ntlc.identifierName(i).getText())));
                 }
             }
             return new RefactorElement.ChangeParametersRefactorElement(parameters);
@@ -305,7 +309,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
 
     @Override
     public void exitContainsQueryRest(CsarParser.ContainsQueryRestContext ctx) {
-        containsQuery = new ContainsQuery(containsQueryElements);
+        containsQuery = Optional.of(new ContainsQuery(containsQueryElements));
     }
 
     @Override
@@ -317,7 +321,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
 
     @Override
     public void enterRefactorQuery(CsarParser.RefactorQueryContext ctx) {
-        refactorElement = parseRefactorElement(ctx.refactorElement());
+        refactorElement = Optional.of(parseRefactorElement(ctx.refactorElement()));
     }
 
     public CsarQuery csarQuery() {

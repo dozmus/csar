@@ -26,6 +26,11 @@ public class ContainsQuery {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(elements);
+    }
+
+    @Override
     public String toString() {
         return String.format("ContainsQuery{elements=%s}", elements);
     }

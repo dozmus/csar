@@ -6,7 +6,7 @@ public class ContainsQueryElement {
 
     public static class LogicalOperatorContainsQueryElement extends ContainsQueryElement {
 
-        private LogicalOperator logicalOperator;
+        private final LogicalOperator logicalOperator;
 
         public LogicalOperatorContainsQueryElement(LogicalOperator logicalOperator) {
             this.logicalOperator = logicalOperator;
@@ -25,6 +25,11 @@ public class ContainsQueryElement {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(logicalOperator);
+        }
+
+        @Override
         public String toString() {
             return String.format("LogicalOperatorDomainElement{logicalOperator=%s}", logicalOperator);
         }
@@ -32,7 +37,7 @@ public class ContainsQueryElement {
 
     public static class LanguageElementContainsQueryElement extends ContainsQueryElement {
 
-        private LanguageElement element;
+        private final LanguageElement element;
 
         public LanguageElementContainsQueryElement(LanguageElement element) {
             this.element = element;
@@ -48,6 +53,11 @@ public class ContainsQueryElement {
             if (o == null || getClass() != o.getClass()) return false;
             LanguageElementContainsQueryElement that = (LanguageElementContainsQueryElement) o;
             return Objects.equals(element, that.element);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(element);
         }
 
         @Override
