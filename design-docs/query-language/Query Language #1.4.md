@@ -145,7 +145,7 @@ synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
 // Comment
 comment: singleLineComment | multiLineComment;
 singleLineComment: SINGLE_LINE_COMMENT (COLON S_QUOTE content S_QUOTE)?;
-multiLineComment: MULTI_LINE_COMMENT (COLON (JAVADOC COLON)? S_QUOTE content S_QUOTE)?;
+multiLineComment: MULTI_LINE_COMMENT (COLON JAVADOC)? (COLON S_QUOTE content S_QUOTE)?;
 
 // Refactor
 rename: RENAME COLON SPACE* identifierName;
@@ -184,8 +184,70 @@ expr: content;
 
 ## Problems with the Syntax
 * Cannot represent lambdas
+* Cannot represent goto
 * Cannot represent try-catch blocks
 * Cannot represent throw (i.e. throwing an exception)
+* Cannot represent generics
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
   However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error. One solution is to print an error message and terminate.
+
+## Use Cases
+The use-cases will detail why and how end users might use this tool.  
+Each will be complemented with a (S)upported tag, (P)artially supported tag, or an (U)nsupported tag.
+These indicate if the tool will aim to handle searching/refactoring/etc of them.
+
+### Search
+#### Fundamental
+* **Task (P)**: Remove all use of a deprecated class. Suppose this is replacing `Calendar` with `LocalDateTime`.  
+  **Solution**: This is not something the tool aims to completely address, but it can find all usages with `class:use:Calendar` to aid the process.
+* **Task (S)**: Find all use of an interface called `HttpProvider`.  
+  **Solution**: `class:use:interface HttpProvider`
+* **Task (S)**: Find all implementations of a method in an abstract class or interface, called `SuperClass`.  
+  **Solution**: `method:def:overridden * super(SuperClass)`
+* **Task (S)**: Find all use of a method called `add`. This might be to: ensure pending changes have no negative effects, change its signature manually or split the method into two.  
+  **Solution**: `method:use:add`  
+  It is possible to also apply refinements such as: `method:u:add(2)`, `method:u:add(int, int)`, and `method:u:public static int add(int a, int b)`.
+* **Task (S)**: Find the definition of a method whose name starts with `check` to inspect it or change its signature.  
+  **Solution**: `method:def:check*`, or more compactly as `fn:d:check*`.  
+* **Task (S)**: Find all use of a method called `add` whose signature states that it throws an exception called `ArithmeticException`.  
+  **Solution**: `method:use:add throws(ArithmeticException)`
+
+#### Variables
+* **Task (U)**: Find all use of an instance variable (aka field). This might be to ensure pending changes have no negative effects.  
+  **Solution**: `instance:u:result`, or refine it further to `instance:u:int result`.  
+  Note: This is analogous to searching for parameters and local variables.
+* **Task (U)**: Find all variables in a class called `MyClass`.  
+  **Solution**: Not supported.
+
+#### Control Flow
+* **Task (U)**: Remove language feature usage to reduce the version requirements of a program. Suppose the initial target of this process are String switch statements (introduced in Java 1.7).  
+  **Solution**: `switch:String`.
+* **Task (U)**: Find all implementations of an abstract class or interface, called `SuperClass`.  
+  **Solution**: `class:def:* super(SuperClass)`.
+* **Task (U)**: Find all lambda expressions in a class called `MyClass`.  
+  **Solution**: Not supported yet.
+* **Task (U)**: Find all for-each statements with a specified iterated collection's type.  
+  **Solution**: `foreach:CollectionType`
+* **Task (U)**: Improve code by removing the highly stigmatised `goto` statement.  
+  **Solution**: Not supported.
+* **Task (U)**: Find all if statements with a certain expression, suppose `value() == 3`.  
+  **Solution**: `if(value() == 3)`
+* **Task (U)**: Find all for-loops.  
+  **Solution**: `for`
+* **Task (U)**: Find all ternary statements.  
+  **Solution**: `ternary`
+* **Task (U)**: Find all synchronization blocks, to examine the correctness of a multi-threaded program.  
+  **Solution**: `synchronized`
+
+#### Comments
+* **Task (U)**: Find all 'TODO' comments (i.e. comments starting with the word `TODO`). This might be because: they are to be collated in bug tracking software or to find one to assign to a team member.  
+  **Solution**: `slc:'TODO *'`
+* **Task (U)**: Find all multi-line comments which are javadocs for a project-wide rewriting of them.  
+  **Solution**: `mlc:javadoc`
+
+### Refactor
+* **Task (S)**: Rename a method called `add` in class `MathHelper` to `addInt`.  
+  **Solution**: `method:def:add FROM MathHelper REFACTOR rename:addInt`
+* **Task (S)**: Change a method called `add`'s parameters from `(int x, int y)` to `(Number a, Number b)`.
+  **Solution**: `method:def:add(int x, int y) REFACTOR changeparam:(Number a, Number b)`
