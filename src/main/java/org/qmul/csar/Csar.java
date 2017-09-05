@@ -3,6 +3,8 @@ package org.qmul.csar;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.qmul.csar.io.ProjectCodeIterator;
+import org.qmul.csar.query.CsarQuery;
+import org.qmul.csar.query.CsarQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,18 @@ public final class Csar {
 
     private void process() {
         LOGGER.info("Processing");
+
+        // Parse query
+        CsarQuery csarQuery;
+
+        try {
+            csarQuery = CsarQueryFactory.parse(ctx.getQuery());
+        } catch (Exception ex) {
+            LOGGER.error("Failed to parse csar query because {}", ex.getMessage());
+            return;
+        }
+
+        // Parse code
         CodeParser parser = new CodeParser(it, ctx.getThreads());
 
         try {
@@ -76,6 +90,7 @@ public final class Csar {
         } catch (InterruptedException e) {
             LOGGER.error("Failed to wait because {}", e.getMessage());
         }
+
         // TODO impl
         LOGGER.info("Finished");
     }
