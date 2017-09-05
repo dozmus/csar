@@ -7,9 +7,9 @@ public class CommentLanguageElement extends LanguageElement {
 
     private CommentType commentType;
     private Optional<Boolean> javadoc;
-    private String content;
+    private Optional<String> content;
 
-    public CommentLanguageElement(CommentType commentType, Optional<Boolean> javadoc, String content) {
+    public CommentLanguageElement(CommentType commentType, Optional<Boolean> javadoc, Optional<String> content) {
         super(Type.COMMENT);
         this.commentType = commentType;
         this.javadoc = javadoc;
@@ -24,7 +24,7 @@ public class CommentLanguageElement extends LanguageElement {
         return javadoc;
     }
 
-    public String getContent() {
+    public Optional<String> getContent() {
         return content;
     }
 
@@ -46,8 +46,8 @@ public class CommentLanguageElement extends LanguageElement {
 
     @Override
     public String toString() {
-        return String.format("CommentLanguageElement{commentType=%s, javadoc=%s, content='%s'}", commentType, javadoc,
-                content);
+        return String.format("CommentLanguageElement{commentType=%s, javadoc=%s, content=%s} %s", commentType, javadoc,
+                content, super.toString());
     }
 
     public enum CommentType {
@@ -58,7 +58,7 @@ public class CommentLanguageElement extends LanguageElement {
 
         private final CommentType commentType;
         private Optional<Boolean> javadoc = Optional.empty();
-        private String content;
+        private Optional<String> content = Optional.empty();
 
         public Builder(CommentType commentType) {
             this.commentType = commentType;
@@ -70,7 +70,7 @@ public class CommentLanguageElement extends LanguageElement {
         }
 
         public Builder content(String content) {
-            this.content = content;
+            this.content = Optional.of(content);
             return this;
         }
 

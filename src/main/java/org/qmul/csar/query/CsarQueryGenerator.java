@@ -226,11 +226,11 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         if (ctx.singleLineComment() != null) {
             CsarParser.SingleLineCommentContext sctx = ctx.singleLineComment();
             return new CommentLanguageElement(CommentLanguageElement.CommentType.SINGLE, Optional.empty(),
-                    sctx.content().getText());
+                    parseTextOrEmpty(sctx.content()));
         } else { // multi-line
             CsarParser.MultiLineCommentContext mctx = ctx.multiLineComment();
             return new CommentLanguageElement(CommentLanguageElement.CommentType.MULTI,
-                    parseOptionalTrueOrEmpty(mctx.JAVADOC()), mctx.content().getText());
+                    parseOptionalTrueOrEmpty(mctx.JAVADOC()), parseTextOrEmpty(mctx.content()));
         }
     }
 

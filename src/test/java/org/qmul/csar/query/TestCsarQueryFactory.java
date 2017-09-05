@@ -183,27 +183,31 @@ public final class TestCsarQueryFactory {
 
     @Test
     public void testCommentQuery() {
-        CsarQuery expectedCsarQuery = new CsarQuery(
-                new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.SINGLE)
-                        .content("TODO fix bug re public & private accessor")
-                        .build());
-        assertEquals("slc:'TODO fix bug re public & private accessor'", expectedCsarQuery);
+        CsarQuery expected = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.SINGLE)
+                .content("TODO fix bug re public & private accessor")
+                .build());
+        assertEquals("slc:'TODO fix bug re public & private accessor'", expected);
 
-        expectedCsarQuery = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.SINGLE)
-                        .content("TODO fix bug 're' public & private accessor")
-                        .build());
-        assertEquals("slc:'TODO fix bug 're' public & private accessor'", expectedCsarQuery);
+        expected = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.SINGLE)
+                .content("TODO fix bug 're' public & private accessor")
+                .build());
+        assertEquals("slc:'TODO fix bug 're' public & private accessor'", expected);
 
-        expectedCsarQuery = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.MULTI)
+        expected = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.MULTI)
                 .content("Gets *")
                 .build());
-        assertEquals("mlc:'Gets *'", expectedCsarQuery);
+        assertEquals("mlc:'Gets *'", expected);
 
-        expectedCsarQuery = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.MULTI)
+        expected = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.MULTI)
                 .content("Gets the x coordinate of this Entity.")
                 .javadoc(true)
                 .build());
-        assertEquals("mlc:javadoc:'Gets the x coordinate of this Entity.'", expectedCsarQuery);
+        assertEquals("mlc:javadoc:'Gets the x coordinate of this Entity.'", expected);
+
+        expected = new CsarQuery(new CommentLanguageElement.Builder(CommentLanguageElement.CommentType.MULTI)
+                .javadoc(true)
+                .build());
+        assertEquals("mlc:javadoc", expected);
     }
 
     @Test
