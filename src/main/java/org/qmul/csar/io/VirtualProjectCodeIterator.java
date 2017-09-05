@@ -13,7 +13,6 @@ public class VirtualProjectCodeIterator extends ProjectCodeIterator {
 
     @Override
     public void init() {
-        throw new IllegalStateException("cannot initialize a VirtualProjectCodeIterator");
     }
 
     @Override
