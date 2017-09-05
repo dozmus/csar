@@ -6,10 +6,8 @@ All source code in the working directory will be searched, if the current direct
 code in the repository (and staging area) will be searched.
 
 ```
-Usage: java -jar csar.jar [options]
+Usage: java -jar csar.jar [options] Search query
   Options:
-  * --query, -q
-      Search query
     --threads, -t
       Thread count
       Default: 1
@@ -28,7 +26,7 @@ Usage: java -jar csar.jar [options]
       Print help information
 ```
 
-Further Example: `java -jar csar.jar -q myquery`
+Further Example: `java -jar csar.jar SELECT method:def:add -t 4`
 
 ### Contributing
 You can specify space separated arguments in the gradle `run` task as follows:  

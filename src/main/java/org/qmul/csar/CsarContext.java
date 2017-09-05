@@ -3,13 +3,15 @@ package org.qmul.csar;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.PathConverter;
 import org.qmul.csar.result.PlainTextResultFormatter;
-import org.qmul.csar.util.ResultFormatterConverter;
 import org.qmul.csar.result.ResultFormatter;
+import org.qmul.csar.util.ResultFormatterConverter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Command-line arguments for {@link Csar#main(String[])}.
@@ -21,8 +23,8 @@ public class CsarContext {
      */
     private static final String[] HANDLED_CODE_FILE_EXTENSIONS = {".java"};
 
-    @Parameter(names = {"--query", "-q"}, description = "Search query", required = true, order = 1)
-    private String query;
+    @Parameter(description = "Search query", required = true, order = 1)
+    private List<String> query = new ArrayList<>();
 
     @Parameter(names = {"--threads", "-t"}, description = "Thread count", order = 2)
     private int threads = 1;
@@ -44,7 +46,7 @@ public class CsarContext {
     private boolean printHelp;
 
     public String getQuery() {
-        return query;
+        return String.join(" ", query);
     }
 
     public boolean isVerbose() {
