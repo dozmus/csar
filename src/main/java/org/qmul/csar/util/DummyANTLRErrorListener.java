@@ -9,6 +9,9 @@ import org.antlr.v4.runtime.dfa.DFA;
 
 import java.util.BitSet;
 
+/**
+ * A NOP implementation of {@link ANTLRErrorListener}.
+ */
 public class DummyANTLRErrorListener implements ANTLRErrorListener {
 
     @Override

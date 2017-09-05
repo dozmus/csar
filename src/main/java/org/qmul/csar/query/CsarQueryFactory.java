@@ -9,22 +9,25 @@ import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
 public final class CsarQueryFactory {
 
     /**
-     * Creates a {@link CsarQuery} from the textual representation of it (in csar query language syntax).
-     * @param query the query
-     * @throws IllegalArgumentException if the query is the empty string
-     * @throws RuntimeException if the query does not adhere to the syntax of the csar query language
-     * @return CsarQuery representing the String query
+     * Parses the String argument as a {@link CsarQuery}.
+     * The parsing is reliant on the ANTLR generated classes {@link CsarLexer} and {@link CsarParser}, and uses the
+     * {@link BailErrorStrategy}.
+     * @param query the csar query
+     * @throws IllegalArgumentException thrown if the query is the empty string
+     * @throws RuntimeException thrown if the query has invalid syntax
+     * @return the CsarQuery represented by the argument
      */
     public static CsarQuery parse(String query) throws IllegalArgumentException {
-        if (query.length() == 0) // NOTE suppresses the following msg: line 1:0 no viable alternative at input '<EOF>'
+        if (query.length() == 0) // suppresses the following msg: line 1:0 no viable alternative at input '<EOF>'
             throw new IllegalArgumentException("csar query input is empty");
 
-        // Prepare parser
+        // Create and configure parser
         CsarLexer lexer = new CsarLexer(CharStreams.fromString(query));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CsarParser parser = new CsarParser(tokens);
         parser.setErrorHandler(new BailErrorStrategy()); // terminate parsing early if a parsing error occurs
-        parser.addErrorListener(new ThrowRuntimeExceptionErrorListener("csar query")); // throw runtime exception if a parsing error
+        parser.addErrorListener(
+                new ThrowRuntimeExceptionErrorListener("csar query")); // throw runtime exception if a parsing error
 
         // Generate and return csar query
         ParseTreeWalker walker = new ParseTreeWalker();
@@ -32,5 +35,4 @@ public final class CsarQueryFactory {
         walker.walk(gen, parser.csarQuery());
         return gen.csarQuery();
     }
-
 }

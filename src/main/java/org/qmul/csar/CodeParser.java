@@ -87,6 +87,7 @@ public final class CodeParser {
 
     /**
      * Executes {@link #run()} and blocks until finished, or an {@link InterruptedException} is thrown.
+     * @throws InterruptedException if the current thread is interrupted while waiting
      */
     public void runAndWait() throws InterruptedException {
         // Run

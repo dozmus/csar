@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
+/**
+ * A JSON formatter of a {@link Result}.
+ */
 public final class JsonResultFormatter extends ResultFormatter {
 
     @Override

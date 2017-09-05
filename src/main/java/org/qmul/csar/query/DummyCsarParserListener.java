@@ -6,6 +6,9 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+/**
+ * A NOP implementation of {@link CsarParserListener}.
+ */
 class DummyCsarParserListener implements CsarParserListener {
 
     @Override

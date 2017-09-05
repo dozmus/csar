@@ -2,6 +2,9 @@ package org.qmul.csar.result;
 
 import java.util.List;
 
+/**
+ * A plain-text formatter of a {@link Result}.
+ */
 public final class PlainTextResultFormatter extends ResultFormatter {
 
     @Override

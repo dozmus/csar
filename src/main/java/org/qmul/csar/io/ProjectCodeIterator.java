@@ -17,8 +17,8 @@ import java.util.List;
 /**
  * Iterates over files in a directory recursively to find accepted ones.
  * The code files may be narrowed down further if the folder is a git repository (if no error occurs).
- * @see {@link CsarContext#accepts(Path)}
- * @see {@link #scanGitDir()}
+ * @see CsarContext#accepts(Path)
+ * @see #scanGitDir()
  */
 public class ProjectCodeIterator implements Iterator<Path> {
 

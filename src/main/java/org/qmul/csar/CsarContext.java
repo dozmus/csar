@@ -82,8 +82,10 @@ public class CsarContext {
     }
 
     /**
-     * @return If the given file is not a directory and is handled by csar.
-     * @see {@link #HANDLED_CODE_FILE_EXTENSIONS}
+     * Returns if the argument path is accepted as a code file.
+     * @param path the file or directory to check is accepted
+     * @return if the given file is not a directory and is handled by csar
+     * @see #HANDLED_CODE_FILE_EXTENSIONS
      */
     public boolean accepts(Path path) {
         if (Files.isDirectory(path))

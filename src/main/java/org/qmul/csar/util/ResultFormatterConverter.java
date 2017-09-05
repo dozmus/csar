@@ -6,6 +6,9 @@ import org.qmul.csar.result.JsonResultFormatter;
 import org.qmul.csar.result.PlainTextResultFormatter;
 import org.qmul.csar.result.ResultFormatter;
 
+/**
+ * A command-line parser for fields of type {@link ResultFormatter}.
+ */
 public final class ResultFormatterConverter implements IStringConverter<ResultFormatter> {
 
     @Override

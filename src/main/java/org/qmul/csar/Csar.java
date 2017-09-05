@@ -9,24 +9,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Application main class.
+ * A code search and refactorer.
  */
 public final class Csar {
 
+    /**
+     * The URL of this project on the internet.
+     */
     private static String PROJECT_URL = "https://github.research.its.qmul.ac.uk/ec15116/csar";
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
     private final ProjectCodeIterator it;
 
+    /**
+     * Constructs a new Csar, with a standard {@link ProjectCodeIterator}.
+     * @param ctx the details of what it should perform
+     */
     public Csar(CsarContext ctx) {
-        this.ctx = ctx;
-        this.it = new ProjectCodeIterator(ctx);
+        this(ctx, new ProjectCodeIterator(ctx));
     }
 
     /**
-     * Application main method. Parses command-line arguments and executes actions corresponding to them.
+     * Constructs a new Csar.
+     * @param ctx the details of what it should perform
+     * @param it the project code iterator to use
+     */
+    public Csar(CsarContext ctx, ProjectCodeIterator it) {
+        this.ctx = ctx;
+        this.it = it;
+    }
+
+    /**
+     * Application main method.
+     * This parses command-line arguments and stores them in an instance of {@link CsarContext}.
+     * Then executes the actions which they describe.
      *
-     * @see {@link CsarContext}
+     * @param args application command-line arguments
+     * @see CsarContext
      */
     public static void main(String[] args) {
         // Parse command-line arguments

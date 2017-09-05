@@ -131,7 +131,8 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                 }
 
                 for (int i = 0; i < ntlc.type().size(); i++) {
-                    parameters.add(new Identifier(ntlc.type(i).getText(), Optional.of(ntlc.identifierName(i).getText())));
+                    parameters.add(new Identifier(ntlc.type(i).getText(),
+                            Optional.of(ntlc.identifierName(i).getText())));
                 }
             }
         }
@@ -263,7 +264,8 @@ class CsarQueryGenerator extends DummyCsarParserListener {
                 }
 
                 for (int i = 0; i < ntlc.type().size(); i++) {
-                    parameters.add(new Identifier(ntlc.type(i).getText(), Optional.of(ntlc.identifierName(i).getText())));
+                    parameters.add(new Identifier(ntlc.type(i).getText(),
+                            Optional.of(ntlc.identifierName(i).getText())));
                 }
             }
             return new RefactorElement.ChangeParametersRefactorElement(parameters);

@@ -6,6 +6,18 @@ import org.qmul.csar.query.domain.RefactorElement;
 
 import java.util.*;
 
+/**
+ * A description of the task {@link org.qmul.csar.Csar} should carry out.
+ * This is comprised of four parts, but only the first is required:
+ * <ul>
+ *     <li>searchTarget - The element to select.</li>
+ *     <li>containsQuery - What searchTarget should contain within it..</li>
+ *     <li>fromTarget - Where searchTarget should be found.</li>
+ *     <li>refactorElement - The transformation to apply to searchTarget.</li>
+ * </ul>
+ * <p>
+ * All classes which comprise CsarQuery are immutable.
+ */
 public final class CsarQuery {
 
     private final LanguageElement searchTarget;
