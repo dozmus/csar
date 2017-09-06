@@ -61,10 +61,6 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
                 + "finalModifier=%s} %s", searchType, variableType, identifierType, finalModifier, super.toString());
     }
 
-    public enum VariableType {
-        INSTANCE, LOCAL, PARAM
-    }
-
     public static class Builder {
 
         private CsarQuery.Type searchType;

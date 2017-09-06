@@ -16,10 +16,6 @@ public class ControlFlowLanguageElement extends LanguageElement {
         return controlFlowType;
     }
 
-    public enum ControlFlowType {
-        IF, SWITCH, WHILE, DO_WHILE, FOR, FOREACH, TERNARY, SYNCHRONIZED
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

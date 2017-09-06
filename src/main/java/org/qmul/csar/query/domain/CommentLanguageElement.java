@@ -50,10 +50,6 @@ public class CommentLanguageElement extends LanguageElement {
                 content, super.toString());
     }
 
-    public enum CommentType {
-        SINGLE, MULTI
-    }
-
     public static class Builder {
 
         private final CommentType commentType;

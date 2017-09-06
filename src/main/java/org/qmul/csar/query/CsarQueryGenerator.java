@@ -173,7 +173,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         } else if (ctx.localVariable() != null) {
             CsarParser.LocalVariableContext lctx = ctx.localVariable();
             return new VariableLanguageElement(parseType(lctx.DEF(), lctx.USE()),
-                    VariableLanguageElement.VariableType.LOCAL,
+                    VariableType.LOCAL,
                     parseOptionalTrueOrEmpty(lctx.FINAL()),
                     lctx.identifierName().getText(),
                     parseTextOrEmpty(lctx.type())
@@ -181,7 +181,7 @@ class CsarQueryGenerator extends DummyCsarParserListener {
         } else { // param
             CsarParser.ParamVariableContext pctx = ctx.paramVariable();
             return new VariableLanguageElement(parseType(pctx.DEF(), pctx.USE()),
-                    VariableLanguageElement.VariableType.PARAM,
+                    VariableType.PARAM,
                     parseOptionalTrueOrEmpty(pctx.FINAL()),
                     pctx.identifierName().getText(),
                     parseTextOrEmpty(pctx.type())
@@ -192,32 +192,32 @@ class CsarQueryGenerator extends DummyCsarParserListener {
     private static LanguageElement parseControlflow(CsarParser.ControlFlowContext ctx) {
         if (ctx.if0() != null) {
             return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                    ControlFlowLanguageElement.ControlFlowType.IF,
+                    ControlFlowType.IF,
                     parseTextOrEmpty(ctx.if0().expr()));
         } else if (ctx.switch0() != null) {
             return new ControlFlowLanguageElement.NamedExprControlFlowLanguageElement(
-                    ControlFlowLanguageElement.ControlFlowType.SWITCH,
+                    ControlFlowType.SWITCH,
                     parseTextOrEmpty(ctx.switch0().identifierName()),
                     parseTextOrEmpty(ctx.switch0().expr()));
         } else if (ctx.while0() != null) {
             return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                    ControlFlowLanguageElement.ControlFlowType.WHILE,
+                    ControlFlowType.WHILE,
                     parseTextOrEmpty(ctx.while0().expr()));
         } else if (ctx.dowhile() != null) {
             return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                    ControlFlowLanguageElement.ControlFlowType.DO_WHILE,
+                    ControlFlowType.DO_WHILE,
                     parseTextOrEmpty(ctx.dowhile().expr()));
         } else if (ctx.for0() != null) {
-            return new ControlFlowLanguageElement(ControlFlowLanguageElement.ControlFlowType.FOR);
+            return new ControlFlowLanguageElement(ControlFlowType.FOR);
         } else if (ctx.foreach() != null) {
             return new ControlFlowLanguageElement.NamedControlFlowLanguageElement(
-                    ControlFlowLanguageElement.ControlFlowType.FOREACH,
+                    ControlFlowType.FOREACH,
                     parseTextOrEmpty(ctx.foreach().identifierName()));
         } else if (ctx.ternary() != null) {
-            return new ControlFlowLanguageElement(ControlFlowLanguageElement.ControlFlowType.TERNARY);
+            return new ControlFlowLanguageElement(ControlFlowType.TERNARY);
         } else { // synchronized
             return new ControlFlowLanguageElement.NamedExprControlFlowLanguageElement(
-                    ControlFlowLanguageElement.ControlFlowType.SYNCHRONIZED,
+                    ControlFlowType.SYNCHRONIZED,
                     parseTextOrEmpty(ctx.synchronized0().identifierName()),
                     parseTextOrEmpty(ctx.synchronized0().expr()));
         }
@@ -226,11 +226,11 @@ class CsarQueryGenerator extends DummyCsarParserListener {
     private static LanguageElement parseComment(CsarParser.CommentContext ctx) {
         if (ctx.singleLineComment() != null) {
             CsarParser.SingleLineCommentContext sctx = ctx.singleLineComment();
-            return new CommentLanguageElement(CommentLanguageElement.CommentType.SINGLE, Optional.empty(),
+            return new CommentLanguageElement(CommentType.SINGLE, Optional.empty(),
                     parseTextOrEmpty(sctx.content()));
         } else { // multi-line
             CsarParser.MultiLineCommentContext mctx = ctx.multiLineComment();
-            return new CommentLanguageElement(CommentLanguageElement.CommentType.MULTI,
+            return new CommentLanguageElement(CommentType.MULTI,
                     parseOptionalTrueOrEmpty(mctx.JAVADOC()), parseTextOrEmpty(mctx.content()));
         }
     }
