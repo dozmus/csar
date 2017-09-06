@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public final class TestCsarQueryFactory {
 
-    // TODO test char[] as identifierName somewhere
-
     private static CsarQuery parse(String query) {
         return CsarQueryFactory.parse(query);
     }
@@ -129,9 +127,9 @@ public final class TestCsarQueryFactory {
         MethodLanguageElement method5 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "add")
                 .staticModifier(true)
                 .returnType("int")
-                .parameters(new Identifier("float", Optional.empty()), new Identifier("String", Optional.empty()))
+                .parameters(new Identifier("float[]", Optional.empty()), new Identifier("String", Optional.empty()))
                 .build();
-        assertEquals("method:def:static int add(float, String)", new CsarQuery(method5));
+        assertEquals("method:def:static int add(float[], String)", new CsarQuery(method5));
     }
 
     @Test
@@ -159,16 +157,16 @@ public final class TestCsarQueryFactory {
 
         VariableLanguageElement variable2 = new VariableLanguageElement.Builder(CsarQuery.Type.USE, VariableType.LOCAL,
                 "s")
-                .identifierType("String")
+                .identifierType("String[]")
                 .build();
-        assertEquals("local:use:String s", new CsarQuery(variable2));
+        assertEquals("local:use:String[] s", new CsarQuery(variable2));
 
         VariableLanguageElement variable3 = new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.PARAM,
                 "x")
-                .identifierType("int")
+                .identifierType("int[]")
                 .finalModifier(true)
                 .build();
-        assertEquals("param:def:final int x", new CsarQuery(variable3));
+        assertEquals("param:def:final int[] x", new CsarQuery(variable3));
 
         VariableLanguageElement.InstanceVariableLanguageElement variable4
                 = new VariableLanguageElement.InstanceVariableLanguageElement.Builder(CsarQuery.Type.USE, "LOGGER")
@@ -316,8 +314,23 @@ public final class TestCsarQueryFactory {
     }
 
     @Test(expected = RuntimeException.class)
+    public void testInvalidParamVariableIdentifierName() {
+        parse("param:def:final x[]");
+    }
+
+    @Test(expected = RuntimeException.class)
     public void testInvalidClassDefinitionQuery() {
         parse("class:def:");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testInvalidClassNameQuery() {
+        parse("class:def:Element[]");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testInvalidMethodNameQuery() {
+        parse("method:def:element[]");
     }
 
     @Test(expected = RuntimeException.class)

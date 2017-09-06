@@ -65,7 +65,7 @@ commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPA
 visibilityModifier: PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE;
 instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
 
-type: identifierName;
+type: identifierName (LBRACK RBRACK)?;
 typeList: type (SPACE* COMMA SPACE* type)*;
 namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ identifierName)*;
 identifierName
@@ -80,6 +80,7 @@ content
         | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
+        | LBRACK | RBRACK
       )*
     ;
 expr: content; // XXX this should be parsed further at a language-specific level
