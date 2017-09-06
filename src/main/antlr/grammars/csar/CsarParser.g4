@@ -29,8 +29,12 @@ method
     : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
      (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
     ;
-methodParameters: LPAREN SPACE* (NUMBER | typeList | namedTypeList) SPACE* RPAREN;
+methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
 methodThrownExceptions: THROWS SPACE* LPAREN SPACE* typeList SPACE* RPAREN;
+paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest*;
+paramTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type;
+paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest*;
+paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifierName;
 
 // Variable
 variable: instanceVariable | localVariable | paramVariable;

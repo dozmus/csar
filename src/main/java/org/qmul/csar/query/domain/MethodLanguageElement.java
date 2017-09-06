@@ -10,14 +10,14 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     private final Optional<String> returnType;
     private final Optional<Boolean> overridden;
     private final Optional<Integer> parameterCount;
-    private final List<Identifier> parameters;
+    private final List<Parameter> parameters;
     private final List<String> thrownExceptions;
     private final List<String> superClasses;
 
     public MethodLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                  Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                  String identifierName, Optional<String> returnType, Optional<Boolean> overridden,
-                                 Optional<Integer> parameterCount, List<Identifier> parameters,
+                                 Optional<Integer> parameterCount, List<Parameter> parameters,
                                  List<String> thrownExceptions, List<String> superClasses) {
         super(Type.METHOD, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier);
@@ -37,7 +37,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         return superClasses;
     }
 
-    public List<Identifier> getParameters() {
+    public List<Parameter> getParameters() {
         return parameters;
     }
 
@@ -94,7 +94,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         private Optional<Boolean> finalModifier = Optional.empty();
         private Optional<Boolean> overridden = Optional.empty();
         private Optional<Integer> parameterCount = Optional.empty();
-        private List<Identifier> parameters = new ArrayList<>();
+        private List<Parameter> parameters = new ArrayList<>();
         private List<String> thrownExceptions = new ArrayList<>();
         private List<String> superClasses = new ArrayList<>();
 
@@ -133,12 +133,12 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
-        public Builder parameters(List<Identifier> parameters) {
+        public Builder parameters(List<Parameter> parameters) {
             this.parameters = parameters;
             return this;
         }
 
-        public Builder parameters(Identifier... parameters) {
+        public Builder parameters(Parameter... parameters) {
             this.parameters = Arrays.asList(parameters);
             return this;
         }

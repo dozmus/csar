@@ -54,6 +54,7 @@ public class ProjectCodeIterator implements Iterator<Path> {
      * @see {@link CsarContext#accepts(Path)}
      */
     private void scanGitDir() {
+        LOGGER.trace("Git repository detected");
         List<String> output;
 
         try {

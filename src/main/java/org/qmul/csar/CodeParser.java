@@ -4,6 +4,9 @@ import grammars.java8pt.JavaLexer;
 import grammars.java8pt.JavaParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.qmul.csar.code.JavaCodeTreeGenerator;
+import org.qmul.csar.code.NodeHelper;
 import org.qmul.csar.io.ProjectCodeIterator;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
@@ -58,22 +61,45 @@ public final class CodeParser {
         // Submit tasks
         for (int i = 0; i < threads; i++) {
             executor.submit(() -> {
+                String fileName = "";
+
                 try {
                     while (hasNext() && !Thread.currentThread().isInterrupted()) {
+                        // Get the next file
                         Path file = next();
-                        String fileName = file.getFileName().toString();
+                        fileName = file.getFileName().toString();
                         JavaLexer lexer;
 
                         try {
                             lexer = new JavaLexer(CharStreams.fromPath(file));
-                        } catch (IOException e) {
-                            LOGGER.error("Failed to read file {} because {}", fileName, e.getMessage());
+                        } catch (IOException ex) {
+                            LOGGER.error("Failed to read file {} because {}", fileName, ex.getMessage());
+
+                            if (LOGGER.isTraceEnabled()) {
+                                ex.printStackTrace();
+                            }
                             continue;
                         }
                         JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
-                        JavaParser.CompilationUnitContext cst = parser.compilationUnit();
-                        // TODO interact with document
+
+                        // Generate the code tree for it
+                        ParseTreeWalker walker = new ParseTreeWalker();
+                        JavaCodeTreeGenerator gen = new JavaCodeTreeGenerator();
+                        walker.walk(gen, parser.compilationUnit());
+
+                        // Print code tree
+                        if (LOGGER.isTraceEnabled() && gen.getRoot() != null) {
+                            LOGGER.trace("Tree for {}:\r\n{}", fileName, NodeHelper.toStringRecursively(gen.getRoot()));
+                        }
+
+                        // TODO finish impl
                         LOGGER.info("Parsed {}", fileName);
+                    }
+                } catch (Exception ex) {
+                    LOGGER.error("Parsing terminated {} because {}", fileName, ex.getMessage());
+
+                    if (LOGGER.isTraceEnabled()) {
+                        ex.printStackTrace();
                     }
                 } finally {
                     LOGGER.info("Finished");

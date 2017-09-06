@@ -112,7 +112,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
 
         // methodParameters
         Optional<Integer> parameterCount = Optional.empty();
-        List<Identifier> parameters = new ArrayList<>();
+        List<Parameter> parameters = new ArrayList<>();
 
         if (ctx.methodParameters() != null) {
             CsarParser.MethodParametersContext mpt = ctx.methodParameters();
@@ -120,20 +120,25 @@ class CsarQueryGenerator extends CsarParserBaseListener {
             if (mpt.NUMBER() != null) {
                 int count = Integer.parseInt(mpt.NUMBER().getText());
                 parameterCount = Optional.of(count);
-            } else if (mpt.typeList() != null) {
-                for (CsarParser.TypeContext type : mpt.typeList().type()) {
-                    parameters.add(new Identifier(type.getText(), Optional.empty()));
-                }
-            } else if (mpt.namedTypeList() != null) {
-                CsarParser.NamedTypeListContext ntlc = mpt.namedTypeList();
+            } else if (mpt.paramTypeList() != null) {
+                CsarParser.ParamTypeListContext pnt = mpt.paramTypeList();
+                Optional<Boolean> paramFinal = pnt.FINAL() != null ? Optional.of(true) : Optional.empty();
+                parameters.add(new Parameter(pnt.type().getText(), Optional.empty(), paramFinal));
 
-                if (ntlc.type().size() != ntlc.identifierName().size()) {
-                    throw new RuntimeException("syntax error parsing csar query named type list");
+                for (CsarParser.ParamTypeListRestContext p : pnt.paramTypeListRest()) {
+                    paramFinal = p.FINAL() != null ? Optional.of(true) : Optional.empty();
+                    parameters.add(new Parameter(p.type().getText(), Optional.empty(), paramFinal));
                 }
+            } else if (mpt.paramNamedTypeList() != null) {
+                CsarParser.ParamNamedTypeListContext ntlc = mpt.paramNamedTypeList();
+                Optional<Boolean> paramFinal = ntlc.FINAL() != null ? Optional.of(true) : Optional.empty();
+                parameters.add(new Parameter(ntlc.type().getText(), Optional.of(ntlc.identifierName().getText()),
+                        paramFinal));
 
-                for (int i = 0; i < ntlc.type().size(); i++) {
-                    parameters.add(new Identifier(ntlc.type(i).getText(),
-                            Optional.of(ntlc.identifierName(i).getText())));
+                for (CsarParser.ParamNamedTypeListRestContext p : ntlc.paramNamedTypeListRest()) {
+                    paramFinal = p.FINAL() != null ? Optional.of(true) : Optional.empty();
+                    parameters.add(new Parameter(p.type().getText(), Optional.of(p.identifierName().getText()),
+                            paramFinal));
                 }
             }
         }
@@ -250,12 +255,12 @@ class CsarQueryGenerator extends CsarParserBaseListener {
 
     private static RefactorElement parseRefactorElement(CsarParser.RefactorElementContext ctx) {
         if (ctx.changeParameters() != null) {
-            List<Identifier> parameters = new ArrayList<>();
+            List<Parameter> parameters = new ArrayList<>();
             CsarParser.ChangeParametersContext cpc = ctx.changeParameters();
 
             if (cpc.typeList() != null) {
                 for (CsarParser.TypeContext type : cpc.typeList().type()) {
-                    parameters.add(new Identifier(type.getText(), Optional.empty()));
+                    parameters.add(new Parameter(type.getText(), Optional.empty()));
                 }
             } else { // namedTypeList
                 CsarParser.NamedTypeListContext ntlc = cpc.namedTypeList();
@@ -265,7 +270,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                 }
 
                 for (int i = 0; i < ntlc.type().size(); i++) {
-                    parameters.add(new Identifier(ntlc.type(i).getText(),
+                    parameters.add(new Parameter(ntlc.type(i).getText(),
                             Optional.of(ntlc.identifierName(i).getText())));
                 }
             }

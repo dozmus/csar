@@ -38,13 +38,13 @@ public class RefactorElement {
 
     public static class ChangeParametersRefactorElement extends RefactorElement {
 
-        private final List<Identifier> parameters;
+        private final List<Parameter> parameters;
 
-        public ChangeParametersRefactorElement(List<Identifier> parameters) {
+        public ChangeParametersRefactorElement(List<Parameter> parameters) {
             this.parameters = parameters;
         }
 
-        public List<Identifier> getParameters() {
+        public List<Parameter> getParameters() {
             return parameters;
         }
 

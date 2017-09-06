@@ -70,13 +70,13 @@ public final class TestCsarQueryFactory {
         assertEquals("SELECT method:use:add REFACTOR rename:addInt", expected);
 
         // Change parameters #1
-        List<Identifier> parameters1 = new ArrayList<>();
-        parameters1.add(new Identifier("int", Optional.of("k")));
-        parameters1.add(new Identifier("Runnable", Optional.of("r")));
+        List<Parameter> parameters1 = new ArrayList<>();
+        parameters1.add(new Parameter("int", Optional.of("k")));
+        parameters1.add(new Parameter("Runnable", Optional.of("r")));
         MethodLanguageElement method1 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "SELECT")
                 .staticModifier(true)
                 .returnType("boolean")
-                .parameters(new Identifier("int", Optional.of("k")), new Identifier("Thread", Optional.of("t")))
+                .parameters(new Parameter("int", Optional.of("k")), new Parameter("Thread", Optional.of("t")))
                 .build();
         expected = new CsarQuery.Builder(method1)
                 .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters1))
@@ -85,13 +85,13 @@ public final class TestCsarQueryFactory {
                 expected);
 
         // Change parameters #2
-        List<Identifier> parameters2 = new ArrayList<>();
-        parameters2.add(new Identifier("float", Optional.empty()));
-        parameters2.add(new Identifier("String", Optional.empty()));
+        List<Parameter> parameters2 = new ArrayList<>();
+        parameters2.add(new Parameter("float", Optional.empty()));
+        parameters2.add(new Parameter("String", Optional.empty()));
         MethodLanguageElement method2 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "add")
                 .staticModifier(true)
                 .returnType("int")
-                .parameters(new Identifier("float", Optional.empty()), new Identifier("char", Optional.empty()))
+                .parameters(new Parameter("float", Optional.empty()), new Parameter("char", Optional.empty()))
                 .build();
         expected = new CsarQuery.Builder(method2)
                 .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters2))
@@ -107,7 +107,7 @@ public final class TestCsarQueryFactory {
         MethodLanguageElement method2 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "$sqrt_0")
                 .staticModifier(true)
                 .returnType("double")
-                .parameters(new Identifier("int", Optional.of("k")), new Identifier("Runnable", Optional.of("r")))
+                .parameters(new Parameter("int", Optional.of("k")), new Parameter("Runnable", Optional.of("r")))
                 .build();
         assertEquals("method:def:static double $sqrt_0(int k,  Runnable r )", new CsarQuery(method2));
 
@@ -127,9 +127,10 @@ public final class TestCsarQueryFactory {
         MethodLanguageElement method5 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "add")
                 .staticModifier(true)
                 .returnType("int")
-                .parameters(new Identifier("float[]", Optional.empty()), new Identifier("String", Optional.empty()))
+                .parameters(new Parameter("float[]", Optional.empty(), Optional.of(true)),
+                        new Parameter("String", Optional.empty()))
                 .build();
-        assertEquals("method:def:static int add(float[], String)", new CsarQuery(method5));
+        assertEquals("method:def:static int add(final float[], String)", new CsarQuery(method5));
     }
 
     @Test
