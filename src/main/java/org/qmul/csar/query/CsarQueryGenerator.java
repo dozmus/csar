@@ -1,6 +1,7 @@
 package org.qmul.csar.query;
 
 import grammars.csar.CsarParser;
+import grammars.csar.CsarParserBaseListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.qmul.csar.query.domain.*;
@@ -12,7 +13,7 @@ import java.util.Optional;
 /**
  * A {@link CsarQuery} generator.
  */
-class CsarQueryGenerator extends DummyCsarParserListener {
+class CsarQueryGenerator extends CsarParserBaseListener {
 
     private LanguageElement searchTarget;
     private List<String> fromTarget = new ArrayList<>();
