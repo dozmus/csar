@@ -50,7 +50,7 @@ task(fatJar, type: Jar) {
     with jar
 }
 
-// ANTLR generator process settings - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
+// ANTLR process settings - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
 generateGrammarSource {
     maxHeapSize = '64m'
     arguments += ['-visitor', '-long-messages']
