@@ -65,7 +65,7 @@ commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPA
 visibilityModifier: PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE;
 instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
 
-type: identifierName (LBRACK RBRACK)?;
+type: identifierName (LBRACK RBRACK)*;
 typeList: type (SPACE* COMMA SPACE* type)*;
 namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ identifierName)*;
 identifierName

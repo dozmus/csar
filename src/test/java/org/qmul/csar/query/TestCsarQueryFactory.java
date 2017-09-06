@@ -163,10 +163,10 @@ public final class TestCsarQueryFactory {
 
         VariableLanguageElement variable3 = new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.PARAM,
                 "x")
-                .identifierType("int[]")
+                .identifierType("int[][]")
                 .finalModifier(true)
                 .build();
-        assertEquals("param:def:final int[] x", new CsarQuery(variable3));
+        assertEquals("param:def:final int[][] x", new CsarQuery(variable3));
 
         VariableLanguageElement.InstanceVariableLanguageElement variable4
                 = new VariableLanguageElement.InstanceVariableLanguageElement.Builder(CsarQuery.Type.USE, "LOGGER")
