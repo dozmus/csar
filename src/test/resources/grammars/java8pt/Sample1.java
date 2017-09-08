@@ -1,6 +1,6 @@
 package grammars.java8pt
 
-public strictfp abstract class Sample1 {
+public strictfp abstract class Sample1 extends AbstractSample {
 
     public abstract void add(final int a, int b);
 

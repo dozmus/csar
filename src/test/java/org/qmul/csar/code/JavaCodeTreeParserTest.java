@@ -30,6 +30,7 @@ public class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .strictfpModifier(true)
                 .abstractModifier(true)
+                .superClasses("AbstractSample")
                 .build();
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "add")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
