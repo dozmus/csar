@@ -2,7 +2,7 @@ package grammars.java8pt;
 
 import java.lang.Runnable;
 
-public interface Sample2 implements Runnable {
+public interface Sample2 extends Runnable {
 
     void print(String s);
 
