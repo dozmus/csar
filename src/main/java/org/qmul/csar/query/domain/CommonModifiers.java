@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public class CommonModifiers {
 
-    private CsarQuery.Type searchType;
-    private Optional<VisibilityModifier> visibilityModifier;
-    private Optional<Boolean> staticModifier = Optional.empty();
-    private Optional<Boolean> finalModifier = Optional.empty();
+    private final CsarQuery.Type searchType;
+    private final Optional<VisibilityModifier> visibilityModifier;
+    private final Optional<Boolean> staticModifier;
+    private final Optional<Boolean> finalModifier;
     private final Optional<Boolean> abstractModifier;
     private final Optional<Boolean> strictfpModifier;
 

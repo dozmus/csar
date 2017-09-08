@@ -33,50 +33,50 @@ public class NodeHelper {
 
             if (common.getVisibilityModifier().isPresent()
                     && common.getVisibilityModifier().get() != VisibilityModifier.PACKAGE_PRIVATE) {
-                builder = builder.append(common.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
+                builder.append(common.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
             }
 
             if (common.getStaticModifier().isPresent() && common.getStaticModifier().get()) {
-                builder = builder.append("static ");
+                builder.append("static ");
             }
 
             if (common.getFinalModifier().isPresent() && common.getFinalModifier().get()) {
-                builder = builder.append("final ");
+                builder.append("final ");
             }
 
-            if (clazz.getStrictfpModifier().isPresent() && clazz.getStrictfpModifier().get()) {
-                builder = builder.append("strictfp ");
+            if (common.getStrictfpModifier().isPresent() && common.getStrictfpModifier().get()) {
+                builder.append("strictfp ");
             }
 
             if (clazz.getInterfaceModifier().isPresent() && clazz.getInterfaceModifier().get()) {
-                builder = builder.append("interface ");
+                builder.append("interface ");
             }
 
-            if (clazz.getAbstractModifier().isPresent() && clazz.getAbstractModifier().get()) {
-                builder = builder.append("abstract ");
+            if (common.getAbstractModifier().isPresent() && common.getAbstractModifier().get()) {
+                builder.append("abstract ");
             }
 
             if (clazz.getAnonymous().isPresent() && clazz.getAnonymous().get()) {
-                builder = builder.append("(anonymous) ");
+                builder.append("(anonymous) ");
             }
 
             if (clazz.getInner().isPresent() && clazz.getInner().get()) {
-                builder = builder.append("(inner) ");
+                builder.append("(inner) ");
             }
 
-            builder = builder.append("class ").append(clazz.getIdentifierName());
+            builder.append("class ").append(clazz.getIdentifierName());
 
             if (clazz.getSuperClasses().size() > 0) {
-                builder = builder.append("(");
+                builder.append("(");
 
                 for (int i = 0; i < clazz.getSuperClasses().size(); i++) {
                     String superClass = clazz.getSuperClasses().get(i);
-                    builder = builder.append(superClass);
+                    builder.append(superClass);
 
                     if (i + 1 < clazz.getSuperClasses().size())
-                        builder = builder.append(", ");
+                        builder.append(", ");
                 }
-                builder = builder.append(")");
+                builder.append(")");
             }
             return builder.toString();
         } else if (e instanceof MethodLanguageElement) {
@@ -87,75 +87,83 @@ public class NodeHelper {
                     .append(":");
 
             if (common.getVisibilityModifier().isPresent()) {
-                builder = builder.append(common.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
+                builder.append(common.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
             }
 
             if (common.getStaticModifier().isPresent() && common.getStaticModifier().get()) {
-                builder = builder.append("static ");
+                builder.append("static ");
             }
 
             if (common.getFinalModifier().isPresent() && common.getFinalModifier().get()) {
-                builder = builder.append("final ");
+                builder.append("final ");
+            }
+
+            if (common.getStrictfpModifier().isPresent() && common.getStrictfpModifier().get()) {
+                builder.append("strictfp ");
+            }
+
+            if (common.getAbstractModifier().isPresent() && common.getAbstractModifier().get()) {
+                builder.append("abstract ");
             }
 
             if (method.getOverridden().isPresent() && method.getOverridden().get()) {
-                builder = builder.append("(overridden) ");
+                builder.append("(overridden) ");
             }
 
             if (method.getReturnType().isPresent()) {
-                builder = builder.append(method.getReturnType().get()).append(" ");
+                builder.append(method.getReturnType().get()).append(" ");
             }
 
-            builder = builder.append(method.getIdentifierName());
+            builder.append(method.getIdentifierName());
 
             if (method.getParameters().size() > 0) {
-                builder = builder.append("(");
+                builder.append("(");
 
                 for (int i = 0; i < method.getParameters().size(); i++) {
                     Parameter param = method.getParameters().get(i);
 
                     if (param.getFinalModifier().isPresent() && param.getFinalModifier().get()) {
-                        builder = builder.append("final ");
+                        builder.append("final ");
                     }
 
-                    builder = builder.append(param.getType());
+                    builder.append(param.getType());
 
                     if (param.getName().isPresent()) {
-                        builder = builder.append(" ").append(param.getName().get());
+                        builder.append(" ").append(param.getName().get());
                     }
 
                     if (i + 1 < method.getParameters().size())
-                        builder = builder.append(", ");
+                        builder.append(", ");
                 }
-                builder = builder.append(")");
+                builder.append(")");
             } else {
-                builder = builder.append("()");
+                builder.append("()");
             }
 
             if (method.getThrownExceptions().size() > 0) {
-                builder = builder.append(" throws(");
+                builder.append(" throws(");
 
                 for (int i = 0; i < method.getThrownExceptions().size(); i++) {
                     String thrownException = method.getThrownExceptions().get(i);
-                    builder = builder.append(thrownException);
+                    builder.append(thrownException);
 
                     if (i + 1 < method.getThrownExceptions().size())
-                        builder = builder.append(", ");
+                        builder.append(", ");
                 }
-                builder = builder.append(")");
+                builder.append(")");
             }
 
             if (method.getSuperClasses().size() > 0) {
-                builder = builder.append(" super(");
+                builder.append(" super(");
 
                 for (int i = 0; i < method.getSuperClasses().size(); i++) {
                     String superClass = method.getSuperClasses().get(i);
-                    builder = builder.append(superClass);
+                    builder.append(superClass);
 
                     if (i + 1 < method.getSuperClasses().size())
-                        builder = builder.append(", ");
+                        builder.append(", ");
                 }
-                builder = builder.append(")");
+                builder.append(")");
             }
             return builder.toString();
         } else {
