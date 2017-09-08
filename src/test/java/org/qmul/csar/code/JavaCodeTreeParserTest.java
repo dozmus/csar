@@ -15,6 +15,9 @@ import static org.junit.Assert.assertEquals;
 
 public class JavaCodeTreeParserTest {
 
+    /**
+     * Directory of the java code files.
+     */
     private static final String SAMPLES_DIRECTORY = "src/test/resources/grammars/java8pt/";
 
     /**

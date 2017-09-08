@@ -17,6 +17,147 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
     private Node root;
 
+    private static void parseParameters(JavaParser.FormalParameterListContext ctx, List<Parameter> paramIdentifiers,
+                                        List<VariableLanguageElement> params) {
+        if (ctx == null)
+            return;
+        for (JavaParser.FormalParameterContext p : ctx.formalParameter()) { // regular args
+            String name = p.variableDeclaratorId().getText();
+            String type = p.typeType().getText();
+            boolean finalModifier = false;
+
+            for (JavaParser.VariableModifierContext vm : p.variableModifier()) {
+                if (vm.FINAL() != null) {
+                    finalModifier = true;
+                    break;
+                }
+            }
+            params.add(new VariableLanguageElement.Builder(DEF, VariableType.PARAM, name)
+                    .identifierType(type)
+                    .finalModifier(finalModifier)
+                    .build());
+            paramIdentifiers.add(new Parameter(type, Optional.of(name), Optional.of(finalModifier)));
+        }
+
+        if (ctx.lastFormalParameter() != null) { // varargs
+            JavaParser.LastFormalParameterContext last = ctx.lastFormalParameter();
+            String name = last.variableDeclaratorId().getText();
+            String type = last.typeType().getText();
+            boolean finalModifier = false;
+
+            for (JavaParser.VariableModifierContext vm : last.variableModifier()) {
+                if (vm.FINAL() != null) {
+                    finalModifier = true;
+                    break;
+                }
+            }
+            params.add(new VariableLanguageElement.Builder(DEF, VariableType.PARAM, name)
+                    .identifierType(type + "...")
+                    .finalModifier(finalModifier)
+                    .build());
+            paramIdentifiers.add(new Parameter(type + "...", Optional.of(name), Optional.of(finalModifier)));
+        }
+    }
+
+    private static void applyClassModifiers(ClassLanguageElement.Builder builder,
+                                            List<JavaParser.ClassOrInterfaceModifierContext> ctx) {
+        for (JavaParser.ClassOrInterfaceModifierContext mods : ctx) {
+            if (mods.PUBLIC() != null) {
+                builder.visibilityModifier(VisibilityModifier.PUBLIC);
+            } else if (mods.PRIVATE() != null) {
+                builder.visibilityModifier(VisibilityModifier.PRIVATE);
+            } else if (mods.PROTECTED() != null) {
+                builder.visibilityModifier(VisibilityModifier.PROTECTED);
+            } else if (mods.ABSTRACT() != null) {
+                builder.abstractModifier(true);
+            } else if (mods.FINAL() != null) {
+                builder.finalModifier(true);
+            } else if (mods.STATIC() != null) {
+                builder.staticModifier(true);
+            } else if (mods.STRICTFP() != null) {
+                builder.strictfpModifier(true);
+            }
+        }
+    }
+
+    private static void parseImplemented(List<String> superClasses, JavaParser.TypeListContext ctx) {
+        if (ctx == null)
+            return;
+        for (JavaParser.TypeTypeContext t : ctx.typeType()) {
+            superClasses.add(t.getText());
+        }
+    }
+
+    private static List<String> parseThrows(JavaParser.QualifiedNameListContext ctx) {
+        List<String> throwsList = new ArrayList<>();
+
+        for (JavaParser.QualifiedNameContext q : ctx.qualifiedName()) {
+            for (TerminalNode identifier : q.IDENTIFIER()) {
+                throwsList.add(identifier.getText());
+            }
+        }
+        return throwsList;
+    }
+
+    private static void applyMethodModifiers(MethodLanguageElement.Builder methodBuilder,
+                                             JavaParser.ModifierContext ctx) {
+        // TODO impl native/synchronized?
+        if (ctx.NATIVE() != null) {
+        }
+
+        if (ctx.SYNCHRONIZED() != null) {
+        }
+        JavaParser.ClassOrInterfaceModifierContext mods = ctx.classOrInterfaceModifier();
+
+        if (mods != null) {
+            if (mods.PUBLIC() != null) {
+                methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+            } else if (mods.PRIVATE() != null) {
+                methodBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
+            } else if (mods.PROTECTED() != null) {
+                methodBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
+            } else if (mods.ABSTRACT() != null) {
+                methodBuilder.abstractModifier(true);
+            } else if (mods.FINAL() != null) {
+                methodBuilder.finalModifier(true);
+            } else if (mods.STATIC() != null) {
+                methodBuilder.staticModifier(true);
+            }  else if (mods.STRICTFP() != null) {
+                methodBuilder.strictfpModifier(true);
+            }
+        }
+    }
+
+    private static MethodLanguageElement.Builder parseMethodSkeleton(TerminalNode identifier,
+                                                                     JavaParser.TypeTypeOrVoidContext type,
+                                                                     List<JavaParser.ModifierContext> modifiers,
+                                                                     JavaParser.FormalParameterListContext parameterCtx,
+                                                                     JavaParser.QualifiedNameListContext throwsCtx,
+                                                                     boolean overridden) {
+        String identifierName = identifier.getText();
+        MethodLanguageElement.Builder methodBuilder = MethodLanguageElement.Builder.allFalse(DEF, identifierName)
+                .overridden(overridden)
+                .returnType(type.getText());
+
+        // Modifiers
+        for (JavaParser.ModifierContext modifier : modifiers) {
+            applyMethodModifiers(methodBuilder, modifier);
+        }
+
+        // Parameters
+        List<Parameter> paramIdentifiers = new ArrayList<>();
+        List<VariableLanguageElement> params = new ArrayList<>();
+        parseParameters(parameterCtx, paramIdentifiers, params);
+
+        // Throws list
+        List<String> throwsList = (throwsCtx == null) ? new ArrayList<>() : parseThrows(throwsCtx);
+
+        return methodBuilder
+                .parameterCount(paramIdentifiers.size())
+                .parameters(paramIdentifiers)
+                .thrownExceptions(throwsList);
+    }
+
     @Override
     public void enterPackageDeclaration(JavaParser.PackageDeclarationContext ctx) {
         // TODO impl
@@ -47,21 +188,17 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             String identifierName = dec.IDENTIFIER().getText();
             builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName);
 
-            // Modifiers
+            // Class modifiers
             applyClassModifiers(builder, ctx.classOrInterfaceModifier());
 
             // Implemented interfaces
-            applyImplemented(superClasses, dec.typeList());
+            parseImplemented(superClasses, dec.typeList());
 
             // Extended class
             JavaParser.TypeTypeContext extendedClass = dec.typeType();
 
             if (extendedClass != null) {
-                if (extendedClass.primitiveType() != null) {
-                    superClasses.add(extendedClass.primitiveType().getText());
-                } else if (extendedClass.classOrInterfaceType() != null) {
-                    superClasses.add(extendedClass.classOrInterfaceType().getText());
-                }
+                superClasses.add(extendedClass.getText());
             }
 
             // Methods
@@ -70,111 +207,11 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     continue;
 
                 JavaParser.MethodDeclarationContext method = classBody.memberDeclaration().methodDeclaration();
-                identifierName = method.IDENTIFIER().getText();
-                MethodLanguageElement.Builder methodBuilder = MethodLanguageElement.Builder.allFalse(DEF, identifierName)
-                        .overridden(false)
-                        .returnType(method.typeTypeOrVoid().getText());
-
-                // Modifiers
-                for (JavaParser.ModifierContext mods : classBody.modifier()) { // TODO finish: native/synchronized?
-                    if (mods.NATIVE() != null) {
-                    }
-
-                    if (mods.SYNCHRONIZED() != null) {
-                    }
-                    JavaParser.ClassOrInterfaceModifierContext otherMods = mods.classOrInterfaceModifier();
-
-                    if (otherMods != null) {
-                        if (otherMods.PUBLIC() != null) {
-                            methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
-                        } else if (otherMods.PRIVATE() != null) {
-                            methodBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
-                        } else if (otherMods.PROTECTED() != null) {
-                            methodBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
-                        } else if (otherMods.ABSTRACT() != null) {
-                            methodBuilder = methodBuilder.abstractModifier(true);
-                        } else if (otherMods.FINAL() != null) {
-                            methodBuilder.finalModifier(true);
-                        } else if (otherMods.STATIC() != null) {
-                            methodBuilder.staticModifier(true);
-                        }  else if (otherMods.STRICTFP() != null) {
-                            methodBuilder = methodBuilder.strictfpModifier(true);
-                        }
-                    }
-                }
-
-                // Extended class
-                extendedClass = dec.typeType();
-
-                if (extendedClass != null) {
-                    if (extendedClass.primitiveType() != null) {
-                        superClasses.add(extendedClass.primitiveType().getText());
-                    } else if (extendedClass.classOrInterfaceType() != null) {
-                        superClasses.add(extendedClass.classOrInterfaceType().getText());
-                    }
-                }
-
-                // Parameters
-                List<Parameter> paramIdentifiers = new ArrayList<>();
-                List<VariableLanguageElement> params = new ArrayList<>();
-                JavaParser.FormalParameterListContext paramCtx = method.formalParameters().formalParameterList();
-
-                if (paramCtx != null) {
-                    for (JavaParser.FormalParameterContext p : paramCtx.formalParameter()) {
-                        String name = p.variableDeclaratorId().getText();
-                        String type = typeTypeText(p.typeType());
-                        boolean finalModifier = false;
-
-                        for (JavaParser.VariableModifierContext vm : p.variableModifier()) {
-                            if (vm.FINAL() != null) {
-                                finalModifier = true;
-                                break;
-                            }
-                        }
-                        params.add(new VariableLanguageElement.Builder(DEF, VariableType.PARAM, name)
-                                .identifierType(type)
-                                .finalModifier(finalModifier)
-                                .build());
-                        paramIdentifiers.add(new Parameter(type, Optional.of(name), Optional.of(finalModifier)));
-                    }
-
-                    if (paramCtx.lastFormalParameter() != null) { // varargs
-                        JavaParser.LastFormalParameterContext last = paramCtx.lastFormalParameter();
-                        String name = last.variableDeclaratorId().getText();
-                        String type = typeTypeText(last.typeType());
-                        boolean finalModifier = false;
-
-                        for (JavaParser.VariableModifierContext vm : last.variableModifier()) {
-                            if (vm.FINAL() != null) {
-                                finalModifier = true;
-                                break;
-                            }
-                        }
-                        params.add(new VariableLanguageElement.Builder(DEF, VariableType.PARAM, name)
-                                .identifierType(type + "...")
-                                .finalModifier(finalModifier)
-                                .build());
-                        paramIdentifiers.add(new Parameter(type + "...", Optional.of(name), Optional.of(finalModifier)));
-                    }
-                }
-
-                // Throws list
-                List<String> throwsList = new ArrayList<>();
-
-                if (method.qualifiedNameList() != null) {
-                    for (JavaParser.QualifiedNameContext q : method.qualifiedNameList().qualifiedName()) {
-                        for (TerminalNode identifier : q.IDENTIFIER()) {
-                            throwsList.add(identifier.getText());
-                        }
-                    }
-                }
-
-                // TODO parse method body
-                methods.add(methodBuilder
-                        .parameterCount(paramIdentifiers.size())
-                        .parameters(paramIdentifiers)
-                        .thrownExceptions(throwsList)
-                        .build());
+                MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                        method.typeTypeOrVoid(), classBody.modifier(), method.formalParameters().formalParameterList(),
+                        method.qualifiedNameList(), false);
+                // TODO finish (incl. parse method body)
+                methods.add(methodBuilder.build());
             }
         } else if (ctx.interfaceDeclaration() != null) { // interface
             JavaParser.InterfaceDeclarationContext dec = ctx.interfaceDeclaration();
@@ -182,54 +219,25 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName)
                     .interfaceModifier(true);
 
-            // Modifiers
+            // Class modifiers
             applyClassModifiers(builder, ctx.classOrInterfaceModifier());
 
             // Extended interfaces
-            applyImplemented(superClasses, dec.typeList());
+            parseImplemented(superClasses, dec.typeList());
 
             // Methods
-            for (JavaParser.InterfaceBodyDeclarationContext intBodyDecl : dec.interfaceBody().interfaceBodyDeclaration()) {
-                JavaParser.InterfaceMethodDeclarationContext intMethod = intBodyDecl.interfaceMemberDeclaration()
+            for (JavaParser.InterfaceBodyDeclarationContext intBody : dec.interfaceBody().interfaceBodyDeclaration()) {
+                JavaParser.InterfaceMethodDeclarationContext method = intBody.interfaceMemberDeclaration()
                         .interfaceMethodDeclaration();
 
-                if (intMethod == null || intMethod.interfaceMethodModifier() == null)
+                if (method == null || method.interfaceMethodModifier() == null)
                     continue;
 
-                identifierName = intMethod.IDENTIFIER().getText();
-                MethodLanguageElement.Builder methodBuilder = MethodLanguageElement.Builder.allFalse(DEF, identifierName)
-                        .overridden(false)
-                        .returnType(intMethod.typeTypeOrVoid().getText());
+                MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                        method.typeTypeOrVoid(), intBody.modifier(), method.formalParameters().formalParameterList(),
+                        method.qualifiedNameList(), false);
 
-                // Modifiers
-                for (JavaParser.ModifierContext mods : intBodyDecl.modifier()) { // TODO finish: native/synchronized?
-                    if (mods.NATIVE() != null) {
-                    }
-
-                    if (mods.SYNCHRONIZED() != null) {
-                    }
-                    JavaParser.ClassOrInterfaceModifierContext otherMods = mods.classOrInterfaceModifier();
-
-                    if (otherMods != null) {
-                        if (otherMods.PUBLIC() != null) {
-                            methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
-                        } else if (otherMods.PRIVATE() != null) {
-                            methodBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
-                        } else if (otherMods.PROTECTED() != null) {
-                            methodBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
-                        } else if (otherMods.ABSTRACT() != null) {
-                            methodBuilder = methodBuilder.abstractModifier(true);
-                        } else if (otherMods.FINAL() != null) {
-                            methodBuilder.finalModifier(true);
-                        } else if (otherMods.STATIC() != null) {
-                            methodBuilder.staticModifier(true);
-                        }  else if (otherMods.STRICTFP() != null) {
-                            methodBuilder = methodBuilder.strictfpModifier(true);
-                        }
-                    }
-                }
-
-                for (JavaParser.InterfaceMethodModifierContext mods : intMethod.interfaceMethodModifier()) {
+                for (JavaParser.InterfaceMethodModifierContext mods : method.interfaceMethodModifier()) {
                     if (mods.PUBLIC() != null) {
                         methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
                     } else if (mods.ABSTRACT() != null) {
@@ -243,66 +251,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     }
                 }
 
-                // Parameters
-                List<Parameter> paramIdentifiers = new ArrayList<>();
-                List<VariableLanguageElement> params = new ArrayList<>();
-                JavaParser.FormalParameterListContext paramCtx = intMethod.formalParameters().formalParameterList();
-
-                if (paramCtx != null) {
-                    for (JavaParser.FormalParameterContext p : paramCtx.formalParameter()) {
-                        String name = p.variableDeclaratorId().getText();
-                        String type = typeTypeText(p.typeType());
-                        boolean finalModifier = false;
-
-                        for (JavaParser.VariableModifierContext vm : p.variableModifier()) {
-                            if (vm.FINAL() != null) {
-                                finalModifier = true;
-                                break;
-                            }
-                        }
-                        params.add(new VariableLanguageElement.Builder(DEF, VariableType.PARAM, name)
-                                .identifierType(type)
-                                .finalModifier(finalModifier)
-                                .build());
-                        paramIdentifiers.add(new Parameter(type, Optional.of(name), Optional.of(finalModifier)));
-                    }
-
-                    if (paramCtx.lastFormalParameter() != null) { // varargs
-                        JavaParser.LastFormalParameterContext last = paramCtx.lastFormalParameter();
-                        String name = last.variableDeclaratorId().getText();
-                        String type = typeTypeText(last.typeType());
-                        boolean finalModifier = false;
-
-                        for (JavaParser.VariableModifierContext vm : last.variableModifier()) {
-                            if (vm.FINAL() != null) {
-                                finalModifier = true;
-                                break;
-                            }
-                        }
-                        params.add(new VariableLanguageElement.Builder(DEF, VariableType.PARAM, name)
-                                .identifierType(type + "...")
-                                .finalModifier(finalModifier)
-                                .build());
-                        paramIdentifiers.add(new Parameter(type + "...", Optional.of(name), Optional.of(finalModifier)));
-                    }
-                }
-
-                // Throws list
-                List<String> throwsList = new ArrayList<>();
-
-                if (intMethod.qualifiedNameList() != null) {
-                    for (JavaParser.QualifiedNameContext q : intMethod.qualifiedNameList().qualifiedName()) {
-                        for (TerminalNode identifier : q.IDENTIFIER()) {
-                            throwsList.add(identifier.getText());
-                        }
-                    }
-                }
-
-                methods.add(methodBuilder
-                        .parameterCount(paramIdentifiers.size())
-                        .parameters(paramIdentifiers)
-                        .thrownExceptions(throwsList)
-                        .build());
+                // TODO finish
+                methods.add(methodBuilder.build());
             }
         }
 
@@ -313,39 +263,6 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         // Append methods to root
         for (MethodLanguageElement method : methods) {
             root.addNode(new Node(method));
-        }
-    }
-
-    private static String typeTypeText(JavaParser.TypeTypeContext ctx) {
-        return ctx.getText();
-    }
-
-    private static void applyClassModifiers(ClassLanguageElement.Builder builder,
-                                            List<JavaParser.ClassOrInterfaceModifierContext> ctx) {
-        for (JavaParser.ClassOrInterfaceModifierContext mods : ctx) {
-            if (mods.PUBLIC() != null) {
-                builder.visibilityModifier(VisibilityModifier.PUBLIC);
-            } else if (mods.PRIVATE() != null) {
-                builder.visibilityModifier(VisibilityModifier.PRIVATE);
-            } else if (mods.PROTECTED() != null) {
-                builder.visibilityModifier(VisibilityModifier.PROTECTED);
-            } else if (mods.ABSTRACT() != null) {
-                builder.abstractModifier(true);
-            } else if (mods.FINAL() != null) {
-                builder.finalModifier(true);
-            } else if (mods.STATIC() != null) {
-                builder.staticModifier(true);
-            } else if (mods.STRICTFP() != null) {
-                builder.strictfpModifier(true);
-            }
-        }
-    }
-
-    private static void applyImplemented(List<String> superClasses, JavaParser.TypeListContext ctx) {
-        if (ctx == null)
-            return;
-        for (JavaParser.TypeTypeContext t : ctx.typeType()) {
-            superClasses.add(typeTypeText(t));
         }
     }
 
