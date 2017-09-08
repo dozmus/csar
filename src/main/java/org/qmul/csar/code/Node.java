@@ -1,6 +1,6 @@
 package org.qmul.csar.code;
 
-import org.qmul.csar.query.domain.LanguageElement;
+import org.qmul.csar.lang.LanguageElement;
 
 import java.util.ArrayList;
 import java.util.List;

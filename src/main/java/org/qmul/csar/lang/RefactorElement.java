@@ -1,4 +1,4 @@
-package org.qmul.csar.query.domain;
+package org.qmul.csar.lang;
 
 import java.util.List;
 import java.util.Objects;

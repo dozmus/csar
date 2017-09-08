@@ -1,6 +1,6 @@
 package org.qmul.csar.code;
 
-import org.qmul.csar.query.domain.*;
+import org.qmul.csar.lang.*;
 
 public final class NodeHelper {
 

@@ -1,4 +1,4 @@
-package org.qmul.csar.query.domain;
+package org.qmul.csar.lang;
 
 public enum VariableType {
     INSTANCE, LOCAL, PARAM

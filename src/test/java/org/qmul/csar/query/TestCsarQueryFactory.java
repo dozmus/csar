@@ -1,7 +1,7 @@
 package org.qmul.csar.query;
 
 import org.junit.Test;
-import org.qmul.csar.query.domain.*;
+import org.qmul.csar.lang.*;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.qmul.csar.query.domain;
+package org.qmul.csar.lang;
 
 import org.qmul.csar.query.CsarQuery;
 

@@ -1,8 +1,8 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.query.domain.ContainsQuery;
-import org.qmul.csar.query.domain.LanguageElement;
-import org.qmul.csar.query.domain.RefactorElement;
+import org.qmul.csar.lang.ContainsQuery;
+import org.qmul.csar.lang.LanguageElement;
+import org.qmul.csar.lang.RefactorElement;
 
 import java.util.*;
 

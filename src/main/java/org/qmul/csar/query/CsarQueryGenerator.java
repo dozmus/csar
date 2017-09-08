@@ -4,7 +4,7 @@ import grammars.csar.CsarParser;
 import grammars.csar.CsarParserBaseListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.qmul.csar.query.domain.*;
+import org.qmul.csar.lang.*;
 
 import java.util.ArrayList;
 import java.util.List;

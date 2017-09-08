@@ -3,7 +3,7 @@ package org.qmul.csar.code;
 import grammars.java8pt.JavaParser;
 import grammars.java8pt.JavaParserBaseListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.qmul.csar.query.domain.*;
+import org.qmul.csar.lang.*;
 
 import java.util.ArrayList;
 import java.util.List;
