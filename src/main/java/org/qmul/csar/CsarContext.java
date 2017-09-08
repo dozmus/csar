@@ -10,18 +10,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Command-line arguments for {@link Csar#main(String[])}.
  */
 public class CsarContext {
-
-    /**
-     * An array of handled code file extensions.
-     */
-    private static final String[] HANDLED_CODE_FILE_EXTENSIONS = {".java"};
 
     @Parameter(description = "Search query", required = true, order = 1)
     private List<String> query = new ArrayList<>();
@@ -79,18 +73,5 @@ public class CsarContext {
 
     public boolean isGitRepository() {
         return Files.isDirectory(Paths.get(".git"));
-    }
-
-    /**
-     * Returns if the argument path is accepted as a code file.
-     * @param path the file or directory to check is accepted
-     * @return if the given file is not a directory and is handled by csar
-     * @see #HANDLED_CODE_FILE_EXTENSIONS
-     */
-    public boolean accepts(Path path) {
-        if (Files.isDirectory(path))
-            return false;
-        String fileName = path.getFileName().toString();
-        return Arrays.stream(HANDLED_CODE_FILE_EXTENSIONS).anyMatch(fileName::endsWith);
     }
 }

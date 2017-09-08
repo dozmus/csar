@@ -2,7 +2,7 @@ package org.qmul.csar.code;
 
 import org.qmul.csar.query.domain.*;
 
-public class NodeHelper {
+public final class NodeHelper {
 
     private static final String NEW_LINE = System.getProperty("line.separator");
 

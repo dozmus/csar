@@ -1,11 +1,7 @@
 package org.qmul.csar;
 
-import grammars.java8pt.JavaLexer;
-import grammars.java8pt.JavaParser;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.qmul.csar.code.JavaCodeTreeGenerator;
+import org.qmul.csar.code.CodeTreeParserFactory;
+import org.qmul.csar.code.Node;
 import org.qmul.csar.code.NodeHelper;
 import org.qmul.csar.io.ProjectCodeIterator;
 import org.qmul.csar.util.NamedThreadFactory;
@@ -68,10 +64,10 @@ public final class CodeParser {
                         // Get the next file
                         Path file = next();
                         fileName = file.getFileName().toString();
-                        JavaLexer lexer;
+                        Node root;
 
                         try {
-                            lexer = new JavaLexer(CharStreams.fromPath(file));
+                            root = CodeTreeParserFactory.parse(file);
                         } catch (IOException ex) {
                             LOGGER.error("Failed to read file {} because {}", fileName, ex.getMessage());
 
@@ -80,19 +76,13 @@ public final class CodeParser {
                             }
                             continue;
                         }
-                        JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
-
-                        // Generate the code tree for it
-                        ParseTreeWalker walker = new ParseTreeWalker();
-                        JavaCodeTreeGenerator gen = new JavaCodeTreeGenerator();
-                        walker.walk(gen, parser.compilationUnit());
 
                         // Print code tree
-                        if (LOGGER.isTraceEnabled() && gen.getRoot() != null) {
-                            LOGGER.trace("Tree for {}:\r\n{}", fileName, NodeHelper.toStringRecursively(gen.getRoot()));
+                        if (LOGGER.isTraceEnabled() && root != null) {
+                            LOGGER.trace("Tree for {}:\r\n{}", fileName, NodeHelper.toStringRecursively(root));
                         }
 
-                        // TODO finish impl
+                        // TODO finish?
                         LOGGER.info("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {

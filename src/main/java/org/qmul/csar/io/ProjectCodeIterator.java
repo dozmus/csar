@@ -1,6 +1,7 @@
 package org.qmul.csar.io;
 
 import org.qmul.csar.CsarContext;
+import org.qmul.csar.code.CodeTreeParserFactory;
 import org.qmul.csar.util.ProcessHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * Iterates over files in a directory recursively to find accepted ones.
  * The code files may be narrowed down further if the folder is a git repository (if no error occurs).
- * @see CsarContext#accepts(Path)
+ * @see CodeTreeParserFactory#accepts(Path)
  * @see #scanGitDir()
  */
 public class ProjectCodeIterator implements Iterator<Path> {
@@ -51,7 +52,7 @@ public class ProjectCodeIterator implements Iterator<Path> {
      * Finds code files in a git repository, which are in the staging area or have been committed. This is done by
      * creating an instance of the git program. Failure will result in {@link #scanDir()} being called instead.
      * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
-     * @see {@link CsarContext#accepts(Path)}
+     * @see CodeTreeParserFactory#accepts(Path)
      */
     private void scanGitDir() {
         LOGGER.trace("Git repository detected");
@@ -79,7 +80,7 @@ public class ProjectCodeIterator implements Iterator<Path> {
         for (String fileName : output) {
             Path path = Paths.get(fileName);
 
-            if (ctx.accepts(path) && !Files.isDirectory(path)) {
+            if (CodeTreeParserFactory.accepts(path)) {
                 addFile(path);
             }
         }
@@ -92,7 +93,7 @@ public class ProjectCodeIterator implements Iterator<Path> {
     /**
      * Scans the specified directory recursively, calling {@link #addFile(Path)} with files which are accepted.
      * @param path The directory to be searched.
-     * @see {@link CsarContext#accepts(Path)}
+     * @see CodeTreeParserFactory#accepts(Path)
      */
     private void scanDir(Path path, boolean recursiveSearch) {
         try {
@@ -103,7 +104,7 @@ public class ProjectCodeIterator implements Iterator<Path> {
                         continue;
                     }
 
-                    if (ctx.accepts(entry)) {
+                    if (CodeTreeParserFactory.accepts(entry)) {
                         addFile(entry);
                     }
                 }
