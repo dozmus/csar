@@ -108,6 +108,20 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
             this.identifierName = identifierName;
         }
 
+        /**
+         * An instance with the argument type, identifierName and all booleans set to false.
+         * @return
+         */
+        public static MethodLanguageElement.Builder allFalse(CsarQuery.Type type, String identifierName) {
+            return new Builder(type, identifierName)
+                    .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                    .staticModifier(false)
+                    .finalModifier(false)
+                    .abstractModifier(false)
+                    .strictfpModifier(false)
+                    .overridden(false);
+        }
+
         public Builder returnType(String returnType) {
             this.returnType = Optional.of(returnType);
             return this;

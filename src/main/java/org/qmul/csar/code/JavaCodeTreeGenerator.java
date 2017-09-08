@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import static org.qmul.csar.query.CsarQuery.Type.DEF;
 
-public class JavaCodeTreeGenerator extends JavaParserBaseListener {
+public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
     // TODO class/method LE may need to be extended to be given more information - could just be bad parser code tho
 
@@ -70,10 +70,7 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                 JavaParser.MethodDeclarationContext method = classBody.memberDeclaration().methodDeclaration();
                 identifierName = method.IDENTIFIER().getText();
-                MethodLanguageElement.Builder methodBuilder = new MethodLanguageElement.Builder(DEF, identifierName)
-                        .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
-                        .staticModifier(false)
-                        .finalModifier(false)
+                MethodLanguageElement.Builder methodBuilder = MethodLanguageElement.Builder.allFalse(DEF, identifierName)
                         .overridden(false)
                         .returnType(method.typeTypeOrVoid().getText());
 
@@ -99,8 +96,7 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
                             methodBuilder.finalModifier(true);
                         } else if (otherMods.STATIC() != null) {
                             methodBuilder.staticModifier(true);
-                        }
-                        else if (otherMods.STRICTFP() != null) {
+                        }  else if (otherMods.STRICTFP() != null) {
                             methodBuilder = methodBuilder.strictfpModifier(true);
                         }
                     }
@@ -127,7 +123,7 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
                                 .identifierType(type)
                                 .finalModifier(finalModifier)
                                 .build());
-                        paramIdentifiers.add(new Parameter(type, Optional.of(name)));
+                        paramIdentifiers.add(new Parameter(type, Optional.of(name), Optional.of(finalModifier)));
                     }
 
                     if (paramCtx.lastFormalParameter() != null) { // varargs
@@ -224,14 +220,10 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
     }
 
     private static void applyImplemented(List<String> superClasses, JavaParser.TypeListContext ctx) {
-        if (ctx != null) {
-            for (JavaParser.TypeTypeContext t : ctx.typeType()) {
-                if (t.primitiveType() != null) {
-                    superClasses.add(t.primitiveType().getText());
-                } else if (t.classOrInterfaceType() != null) {
-                    superClasses.add(t.classOrInterfaceType().getText());
-                }
-            }
+        if (ctx == null)
+            return;
+        for (JavaParser.TypeTypeContext t : ctx.typeType()) {
+            superClasses.add(typeTypeText(t));
         }
     }
 
