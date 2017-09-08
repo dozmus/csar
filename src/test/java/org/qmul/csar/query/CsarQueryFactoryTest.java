@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public final class TestCsarQueryFactory {
+public final class CsarQueryFactoryTest {
 
     private static CsarQuery parse(String query) {
         return CsarQueryFactory.parse(query);
