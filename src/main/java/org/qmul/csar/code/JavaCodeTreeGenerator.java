@@ -3,7 +3,6 @@ package org.qmul.csar.code;
 import grammars.java8pt.JavaParser;
 import grammars.java8pt.JavaParserBaseListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.domain.*;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
         if (ctx.classDeclaration() != null) { // class
             JavaParser.ClassDeclarationContext dec = ctx.classDeclaration();
             String identifierName = dec.IDENTIFIER().getText();
-            builder = newDefaultClassBuilder(DEF, identifierName);
+            builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName);
 
             // Modifiers
             applyClassModifiers(builder, ctx.classOrInterfaceModifier());
@@ -89,17 +88,17 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                     if (otherMods != null) {
                         if (otherMods.PUBLIC() != null) {
-                            methodBuilder = methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+                            methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
                         } else if (otherMods.PRIVATE() != null) {
-                            methodBuilder = methodBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
+                            methodBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
                         } else if (otherMods.PROTECTED() != null) {
-                            methodBuilder = methodBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
+                            methodBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
 //                        } else if (otherMods.ABSTRACT() != null) {
 //                            methodBuilder = methodBuilder.abstractModifier(true);
                         } else if (otherMods.FINAL() != null) {
-                            methodBuilder = methodBuilder.finalModifier(true);
+                            methodBuilder.finalModifier(true);
                         } else if (otherMods.STATIC() != null) {
-                            methodBuilder = methodBuilder.staticModifier(true);
+                            methodBuilder.staticModifier(true);
                         }
 //                        else if (otherMods.STRICTFP() != null) {
 //                            methodBuilder = methodBuilder.strictfpModifier(true);
@@ -172,7 +171,7 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
         } else if (ctx.interfaceDeclaration() != null) { // interface
             JavaParser.InterfaceDeclarationContext dec = ctx.interfaceDeclaration();
             String identifierName = dec.IDENTIFIER().getText();
-            builder = newDefaultClassBuilder(DEF, identifierName)
+            builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName)
                     .interfaceModifier(true);
 
             // Modifiers
@@ -186,7 +185,7 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
         }
 
         // Create root
-        builder = builder.superClasses(superClasses);
+        builder.superClasses(superClasses);
         root = new Node(builder.build());
 
         // Append methods to root
@@ -207,19 +206,19 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
                                             List<JavaParser.ClassOrInterfaceModifierContext> ctx) {
         for (JavaParser.ClassOrInterfaceModifierContext mods : ctx) {
             if (mods.PUBLIC() != null) {
-                builder = builder.visibilityModifier(VisibilityModifier.PUBLIC);
+                builder.visibilityModifier(VisibilityModifier.PUBLIC);
             } else if (mods.PRIVATE() != null) {
-                builder = builder.visibilityModifier(VisibilityModifier.PRIVATE);
+                builder.visibilityModifier(VisibilityModifier.PRIVATE);
             } else if (mods.PROTECTED() != null) {
-                builder = builder.visibilityModifier(VisibilityModifier.PROTECTED);
+                builder.visibilityModifier(VisibilityModifier.PROTECTED);
             } else if (mods.ABSTRACT() != null) {
-                builder = builder.abstractModifier(true);
+                builder.abstractModifier(true);
             } else if (mods.FINAL() != null) {
-                builder = builder.finalModifier(true);
+                builder.finalModifier(true);
             } else if (mods.STATIC() != null) {
-                builder = builder.staticModifier(true);
+                builder.staticModifier(true);
             } else if (mods.STRICTFP() != null) {
-                builder = builder.strictfpModifier(true);
+                builder.strictfpModifier(true);
             }
         }
     }
@@ -234,18 +233,6 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 }
             }
         }
-    }
-
-    private static ClassLanguageElement.Builder newDefaultClassBuilder(CsarQuery.Type type, String identifierName) {
-        return new ClassLanguageElement.Builder(type, identifierName)
-                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
-                .abstractModifier(false)
-                .staticModifier(false)
-                .finalModifier(false)
-                .strictfpModifier(false)
-                .interfaceModifier(false)
-                .inner(false)
-                .anonymous(false);
     }
 
     public Node getRoot() {

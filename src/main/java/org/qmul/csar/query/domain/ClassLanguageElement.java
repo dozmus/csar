@@ -104,6 +104,22 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
             this.identifierName = identifierName;
         }
 
+        /**
+         * An instance with the argument type, identifierName and all booleans set to false.
+         * @return
+         */
+        public static Builder allFalse(CsarQuery.Type type, String identifierName) {
+            return new Builder(type, identifierName)
+                    .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                    .abstractModifier(false)
+                    .staticModifier(false)
+                    .finalModifier(false)
+                    .strictfpModifier(false)
+                    .interfaceModifier(false)
+                    .inner(false)
+                    .anonymous(false);
+        }
+
         public Builder staticModifier(boolean staticModifier) {
             this.staticModifier = Optional.of(staticModifier);
             return this;
