@@ -17,10 +17,12 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     public MethodLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                  Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                  String identifierName, Optional<String> returnType, Optional<Boolean> overridden,
+                                 Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
                                  Optional<Integer> parameterCount, List<Parameter> parameters,
                                  List<String> thrownExceptions, List<String> superClasses) {
         super(Type.METHOD, identifierName);
-        this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier);
+        this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
+                abstractModifier, strictfpModifier);
         this.returnType = returnType;
         this.overridden = overridden;
         this.parameterCount = parameterCount;
@@ -74,7 +76,8 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), commonModifiers, returnType, overridden, parameterCount, parameters, thrownExceptions, superClasses);
+        return Objects.hash(super.hashCode(), commonModifiers, returnType, overridden, parameterCount, parameters,
+                thrownExceptions, superClasses);
     }
 
     @Override
@@ -92,6 +95,8 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
+        private Optional<Boolean> abstractModifier = Optional.empty();
+        private Optional<Boolean> strictfpModifier = Optional.empty();
         private Optional<Boolean> overridden = Optional.empty();
         private Optional<Integer> parameterCount = Optional.empty();
         private List<Parameter> parameters = new ArrayList<>();
@@ -125,6 +130,16 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
 
         public Builder overridden(boolean overridden) {
             this.overridden = Optional.of(overridden);
+            return this;
+        }
+
+        public Builder abstractModifier(boolean abstractModifier) {
+            this.abstractModifier = Optional.of(abstractModifier);
+            return this;
+        }
+
+        public Builder strictfpModifier(boolean strictfpModifier) {
+            this.strictfpModifier = Optional.of(strictfpModifier);
             return this;
         }
 
@@ -165,7 +180,8 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
 
         public MethodLanguageElement build() {
             return new MethodLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
-                    identifierName, returnType, overridden, parameterCount, parameters, thrownExceptions, superClasses);
+                    identifierName, returnType, overridden, abstractModifier, strictfpModifier, parameterCount,
+                    parameters, thrownExceptions, superClasses);
         }
     }
 }

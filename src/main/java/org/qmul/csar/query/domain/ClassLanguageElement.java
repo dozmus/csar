@@ -8,8 +8,6 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
 
     private CommonModifiers commonModifiers;
     private Optional<Boolean> interfaceModifier = Optional.empty();
-    private Optional<Boolean> abstractModifier = Optional.empty();
-    private Optional<Boolean> strictfpModifier = Optional.empty();
     private Optional<Boolean> anonymous = Optional.empty();
     private Optional<Boolean> inner = Optional.empty();
     private List<String> superClasses = new ArrayList<>();
@@ -20,10 +18,9 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
                                 Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
                                 Optional<Boolean> anonymous, Optional<Boolean> inner, List<String> superClasses) {
         super(LanguageElement.Type.CLASS, identifierName);
-        this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier);
+        this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
+                abstractModifier, strictfpModifier);
         this.interfaceModifier = interfaceModifier;
-        this.abstractModifier = abstractModifier;
-        this.strictfpModifier = strictfpModifier;
         this.anonymous = anonymous;
         this.inner = inner;
         this.superClasses = superClasses;
@@ -31,14 +28,6 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
 
     public Optional<Boolean> getInterfaceModifier() {
         return interfaceModifier;
-    }
-
-    public Optional<Boolean> getAbstractModifier() {
-        return abstractModifier;
-    }
-
-    public Optional<Boolean> getStrictfpModifier() {
-        return strictfpModifier;
     }
 
     public Optional<Boolean> getAnonymous() {
@@ -65,8 +54,6 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         ClassLanguageElement that = (ClassLanguageElement) o;
         return Objects.equals(commonModifiers, that.commonModifiers) &&
                 Objects.equals(interfaceModifier, that.interfaceModifier) &&
-                Objects.equals(abstractModifier, that.abstractModifier) &&
-                Objects.equals(strictfpModifier, that.strictfpModifier) &&
                 Objects.equals(anonymous, that.anonymous) &&
                 Objects.equals(inner, that.inner) &&
                 Objects.equals(superClasses, that.superClasses);
@@ -74,14 +61,13 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner, superClasses);
+        return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, anonymous, inner, superClasses);
     }
 
     @Override
     public String toString() {
-        return String.format("ClassLanguageElement{commonModifiers=%s, interfaceModifier=%s, abstractModifier=%s, "
-                + "strictfpModifier=%s, anonymous=%s, inner=%s, superClasses=%s} %s", commonModifiers,
-                interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner, superClasses,
+        return String.format("ClassLanguageElement{commonModifiers=%s, interfaceModifier=%s, anonymous=%s, inner=%s, "
+                        + "superClasses=%s} %s", commonModifiers, interfaceModifier, anonymous, inner, superClasses,
                 super.toString());
     }
 

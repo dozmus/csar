@@ -93,16 +93,16 @@ public class JavaCodeTreeGenerator extends JavaParserBaseListener {
                             methodBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
                         } else if (otherMods.PROTECTED() != null) {
                             methodBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
-//                        } else if (otherMods.ABSTRACT() != null) {
-//                            methodBuilder = methodBuilder.abstractModifier(true);
+                        } else if (otherMods.ABSTRACT() != null) {
+                            methodBuilder = methodBuilder.abstractModifier(true);
                         } else if (otherMods.FINAL() != null) {
                             methodBuilder.finalModifier(true);
                         } else if (otherMods.STATIC() != null) {
                             methodBuilder.staticModifier(true);
                         }
-//                        else if (otherMods.STRICTFP() != null) {
-//                            methodBuilder = methodBuilder.strictfpModifier(true);
-//                        }
+                        else if (otherMods.STRICTFP() != null) {
+                            methodBuilder = methodBuilder.strictfpModifier(true);
+                        }
                     }
                 }
 

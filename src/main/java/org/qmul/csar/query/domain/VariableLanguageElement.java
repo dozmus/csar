@@ -102,7 +102,8 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
                                                Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                                String identifierName, Optional<String> identifierType) {
             super(searchType, VariableType.INSTANCE, finalModifier, identifierName, identifierType);
-            this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier);
+            this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
+                    Optional.empty(), Optional.empty());
         }
 
         public CommonModifiers getCommonModifiers() {

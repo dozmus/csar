@@ -11,13 +11,18 @@ public class CommonModifiers {
     private Optional<VisibilityModifier> visibilityModifier;
     private Optional<Boolean> staticModifier = Optional.empty();
     private Optional<Boolean> finalModifier = Optional.empty();
+    private final Optional<Boolean> abstractModifier;
+    private final Optional<Boolean> strictfpModifier;
 
     public CommonModifiers(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
-                           Optional<Boolean> staticModifier, Optional<Boolean> finalModifier) {
+                           Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
+                           Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier) {
         this.searchType = searchType;
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;
         this.finalModifier = finalModifier;
+        this.abstractModifier = abstractModifier;
+        this.strictfpModifier = strictfpModifier;
     }
 
     public CsarQuery.Type getSearchType() {
@@ -36,6 +41,14 @@ public class CommonModifiers {
         return finalModifier;
     }
 
+    public Optional<Boolean> getAbstractModifier() {
+        return abstractModifier;
+    }
+
+    public Optional<Boolean> getStrictfpModifier() {
+        return strictfpModifier;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,12 +57,21 @@ public class CommonModifiers {
         return searchType == that.searchType &&
                 Objects.equals(visibilityModifier, that.visibilityModifier) &&
                 Objects.equals(staticModifier, that.staticModifier) &&
-                Objects.equals(finalModifier, that.finalModifier);
+                Objects.equals(finalModifier, that.finalModifier) &&
+                Objects.equals(abstractModifier, that.abstractModifier) &&
+                Objects.equals(strictfpModifier, that.strictfpModifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(searchType, visibilityModifier, staticModifier, finalModifier, abstractModifier,
+                strictfpModifier);
     }
 
     @Override
     public String toString() {
         return String.format("CommonModifiers{searchType=%s, visibilityModifier=%s, staticModifier=%s, "
-                + "finalModifier=%s}", searchType, visibilityModifier, staticModifier, finalModifier);
+                + "finalModifier=%s, abstractModifier=%s, strictfpModifier=%s}", searchType, visibilityModifier,
+                staticModifier, finalModifier, abstractModifier, strictfpModifier);
     }
 }
