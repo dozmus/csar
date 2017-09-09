@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Iterates over files in a directory recursively to find accepted ones.
@@ -25,8 +26,8 @@ public class ProjectCodeIterator implements Iterator<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeIterator.class);
     private final CsarContext ctx;
-    private final List<Path> files = new ArrayList<>();
-    private int currentIdx = 0;
+    private final List<Path> files = new ArrayList<>(); // the element collection
+    private int cursor = 0; // the index of the next element to return
 
     public ProjectCodeIterator(CsarContext ctx) {
         this.ctx = ctx;
@@ -38,7 +39,7 @@ public class ProjectCodeIterator implements Iterator<Path> {
     public void init() {
         LOGGER.info("Scanning project directory: {}", ctx.getDirectory().toString());
         files.clear();
-        currentIdx = 0;
+        cursor = 0;
 
         // Find files
         if (ctx.isGitRepository()) {
@@ -120,11 +121,13 @@ public class ProjectCodeIterator implements Iterator<Path> {
 
     @Override
     public boolean hasNext() {
-        return currentIdx < files.size();
+        return cursor < files.size();
     }
 
     @Override
     public Path next() {
-        return files.get(currentIdx++);
+        if (!hasNext())
+            throw new NoSuchElementException();
+        return files.get(cursor++);
     }
 }
