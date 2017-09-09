@@ -101,11 +101,12 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
     private static void applyMethodModifiers(MethodLanguageElement.Builder methodBuilder,
                                              JavaParser.ModifierContext ctx) {
-        // TODO impl native/synchronized?
         if (ctx.NATIVE() != null) {
+            methodBuilder.nativeModifier(true);
         }
 
         if (ctx.SYNCHRONIZED() != null) {
+            methodBuilder.synchronizedModifier(true);
         }
         JavaParser.ClassOrInterfaceModifierContext mods = ctx.classOrInterfaceModifier();
 
@@ -247,7 +248,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     } else if (mods.STRICTFP() != null) {
                         methodBuilder.strictfpModifier(true);
                     } else if (mods.DEFAULT() != null) {
-                        // TODO set
+                        methodBuilder.defaultModifier(true);
                     }
                 }
 

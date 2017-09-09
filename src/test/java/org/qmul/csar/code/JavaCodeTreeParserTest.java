@@ -74,8 +74,9 @@ public final class JavaCodeTreeParserTest {
                 .superClasses("Runnable")
                 .build();
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
-                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .visibilityModifier(VisibilityModifier.PUBLIC)
                 .returnType("void")
+                .defaultModifier(true)
                 .parameters(new Parameter("String", Optional.of("s"), Optional.of(false)))
                 .parameterCount(1)
                 .build();

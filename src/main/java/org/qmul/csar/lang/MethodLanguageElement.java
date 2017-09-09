@@ -8,6 +8,9 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
 
     private final CommonModifiers commonModifiers;
     private final Optional<String> returnType;
+    private final Optional<Boolean> synchronizedModifier;
+    private final Optional<Boolean> nativeModifier;
+    private final Optional<Boolean> defaultModifier;
     private final Optional<Boolean> overridden;
     private final Optional<Integer> parameterCount;
     private final List<Parameter> parameters;
@@ -18,12 +21,16 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
                                  Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                  String identifierName, Optional<String> returnType, Optional<Boolean> overridden,
                                  Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
-                                 Optional<Integer> parameterCount, List<Parameter> parameters,
-                                 List<String> thrownExceptions, List<String> superClasses) {
+                                 Optional<Boolean> synchronizedModifier, Optional<Boolean> nativeModifier,
+                                 Optional<Boolean> defaultModifier, Optional<Integer> parameterCount,
+                                 List<Parameter> parameters, List<String> thrownExceptions, List<String> superClasses) {
         super(Type.METHOD, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                 abstractModifier, strictfpModifier);
         this.returnType = returnType;
+        this.synchronizedModifier = synchronizedModifier;
+        this.nativeModifier = nativeModifier;
+        this.defaultModifier = defaultModifier;
         this.overridden = overridden;
         this.parameterCount = parameterCount;
         this.parameters = parameters;
@@ -67,6 +74,9 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         MethodLanguageElement that = (MethodLanguageElement) o;
         return Objects.equals(commonModifiers, that.commonModifiers) &&
                 Objects.equals(returnType, that.returnType) &&
+                Objects.equals(synchronizedModifier, that.synchronizedModifier) &&
+                Objects.equals(nativeModifier, that.nativeModifier) &&
+                Objects.equals(defaultModifier, that.defaultModifier) &&
                 Objects.equals(overridden, that.overridden) &&
                 Objects.equals(parameterCount, that.parameterCount) &&
                 Objects.equals(parameters, that.parameters) &&
@@ -76,15 +86,17 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), commonModifiers, returnType, overridden, parameterCount, parameters,
-                thrownExceptions, superClasses);
+        return Objects.hash(super.hashCode(), commonModifiers, returnType, synchronizedModifier, nativeModifier,
+                defaultModifier, overridden, parameterCount, parameters, thrownExceptions, superClasses);
     }
 
     @Override
     public String toString() {
-        return String.format("MethodLanguageElement{commonModifiers=%s, returnType=%s, overridden=%s, "
-                + "parameterCount=%s, parameters=%s, thrownExceptions=%s, superClasses=%s} %s", commonModifiers,
-                returnType, overridden, parameterCount, parameters, thrownExceptions, superClasses, super.toString());
+        return String.format("MethodLanguageElement{commonModifiers=%s, returnType=%s, synchronizedModifier=%s, "
+                + "nativeModifier=%s, defaultModifier=%s, overridden=%s, parameterCount=%s, parameters=%s, "
+                + "thrownExceptions=%s, superClasses=%s} %s", commonModifiers, returnType, synchronizedModifier,
+                nativeModifier, defaultModifier, overridden, parameterCount, parameters, thrownExceptions, superClasses,
+                super.toString());
     }
 
     public static class Builder {
@@ -97,6 +109,9 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         private Optional<Boolean> finalModifier = Optional.empty();
         private Optional<Boolean> abstractModifier = Optional.empty();
         private Optional<Boolean> strictfpModifier = Optional.empty();
+        private Optional<Boolean> synchronizedModifier = Optional.empty();
+        private Optional<Boolean> nativeModifier = Optional.empty();
+        private Optional<Boolean> defaultModifier = Optional.empty();
         private Optional<Boolean> overridden = Optional.empty();
         private Optional<Integer> parameterCount = Optional.empty();
         private List<Parameter> parameters = new ArrayList<>();
@@ -119,6 +134,9 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
                     .finalModifier(false)
                     .abstractModifier(false)
                     .strictfpModifier(false)
+                    .synchronizedModifier(false)
+                    .nativeModifier(false)
+                    .defaultModifier(false)
                     .overridden(false);
         }
 
@@ -154,6 +172,21 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
 
         public Builder strictfpModifier(boolean strictfpModifier) {
             this.strictfpModifier = Optional.of(strictfpModifier);
+            return this;
+        }
+
+        public Builder synchronizedModifier(boolean synchronizedModifier) {
+            this.synchronizedModifier = Optional.of(synchronizedModifier);
+            return this;
+        }
+
+        public Builder nativeModifier(boolean nativeModifier) {
+            this.nativeModifier = Optional.of(nativeModifier);
+            return this;
+        }
+
+        public Builder defaultModifier(boolean defaultModifier) {
+            this.defaultModifier = Optional.of(defaultModifier);
             return this;
         }
 
@@ -194,8 +227,8 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
 
         public MethodLanguageElement build() {
             return new MethodLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
-                    identifierName, returnType, overridden, abstractModifier, strictfpModifier, parameterCount,
-                    parameters, thrownExceptions, superClasses);
+                    identifierName, returnType, overridden, abstractModifier, strictfpModifier, synchronizedModifier,
+                    nativeModifier, defaultModifier, parameterCount, parameters, thrownExceptions, superClasses);
         }
     }
 }

@@ -4,7 +4,9 @@ import java.lang.Runnable;
 
 public interface Sample2 extends Runnable {
 
-    void print(String s);
+    public default void print(String s) {
+        System.out.println(s);
+    }
 
     void print(int level, String... s);
 
