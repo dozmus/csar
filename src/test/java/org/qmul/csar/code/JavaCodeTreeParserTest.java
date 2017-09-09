@@ -102,6 +102,21 @@ public final class JavaCodeTreeParserTest {
         return root;
     }
 
+    /**
+     * A node representing the contents of src/test/resources/grammars/java8pt/Sample3.java
+     * @return
+     */
+    private static Node sample3() {
+        // Construct language elements
+        ClassLanguageElement clazz = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Sample3")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .typeParameters("List extends Collection<String>", "T")
+                .build();
+
+        // Build node tree
+        return new Node(clazz);
+    }
+
     @Test
     public void testSample1() throws IOException {
         assertEquals(sample1(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample1.java")));
@@ -110,5 +125,10 @@ public final class JavaCodeTreeParserTest {
     @Test
     public void testSample2() throws IOException {
         assertEquals(sample2(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample2.java")));
+    }
+
+    @Test
+    public void testSample3() throws IOException {
+        assertEquals(sample3(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample3.java")));
     }
 }

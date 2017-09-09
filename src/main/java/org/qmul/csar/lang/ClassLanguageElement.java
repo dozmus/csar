@@ -10,20 +10,27 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
     private Optional<Boolean> interfaceModifier = Optional.empty();
     private Optional<Boolean> anonymous = Optional.empty();
     private Optional<Boolean> inner = Optional.empty();
+    private List<String> typeParameters = new ArrayList<>();
     private List<String> superClasses = new ArrayList<>();
 
     public ClassLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                 Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                 String identifierName, Optional<Boolean> interfaceModifier,
                                 Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
-                                Optional<Boolean> anonymous, Optional<Boolean> inner, List<String> superClasses) {
+                                Optional<Boolean> anonymous, Optional<Boolean> inner, List<String> typeParameters,
+                                List<String> superClasses) {
         super(LanguageElement.Type.CLASS, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                 abstractModifier, strictfpModifier);
         this.interfaceModifier = interfaceModifier;
         this.anonymous = anonymous;
         this.inner = inner;
+        this.typeParameters = typeParameters;
         this.superClasses = superClasses;
+    }
+
+    public CommonModifiers getCommonModifiers() {
+        return commonModifiers;
     }
 
     public Optional<Boolean> getInterfaceModifier() {
@@ -38,12 +45,12 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         return inner;
     }
 
-    public List<String> getSuperClasses() {
-        return superClasses;
+    public List<String> getTypeParameters() {
+        return typeParameters;
     }
 
-    public CommonModifiers getCommonModifiers() {
-        return commonModifiers;
+    public List<String> getSuperClasses() {
+        return superClasses;
     }
 
     @Override
@@ -56,19 +63,21 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
                 Objects.equals(interfaceModifier, that.interfaceModifier) &&
                 Objects.equals(anonymous, that.anonymous) &&
                 Objects.equals(inner, that.inner) &&
+                Objects.equals(typeParameters, that.typeParameters) &&
                 Objects.equals(superClasses, that.superClasses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, anonymous, inner, superClasses);
+        return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, anonymous, inner, typeParameters,
+                superClasses);
     }
 
     @Override
     public String toString() {
         return String.format("ClassLanguageElement{commonModifiers=%s, interfaceModifier=%s, anonymous=%s, inner=%s, "
-                        + "superClasses=%s} %s", commonModifiers, interfaceModifier, anonymous, inner, superClasses,
-                super.toString());
+                + "typeParameters=%s, superClasses=%s} %s", commonModifiers, interfaceModifier, anonymous, inner,
+                typeParameters, superClasses, super.toString());
     }
 
     public static class Builder {
@@ -83,6 +92,7 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         private Optional<Boolean> strictfpModifier = Optional.empty();
         private Optional<Boolean> anonymous = Optional.empty();
         private Optional<Boolean> inner = Optional.empty();
+        private List<String> typeParameters = new ArrayList<>();
         private List<String> superClasses = new ArrayList<>();
 
         public Builder(CsarQuery.Type searchType, String identifierName) {
@@ -156,10 +166,20 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
+        public Builder typeParameters(List<String> typeParameters) {
+            this.typeParameters = typeParameters;
+            return this;
+        }
+
+        public Builder typeParameters(String... typeParameters) {
+            this.typeParameters = Arrays.asList(typeParameters);
+            return this;
+        }
+
         public ClassLanguageElement build() {
             return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
                     identifierName, interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner,
-                    superClasses);
+                    typeParameters, superClasses);
         }
     }
 }

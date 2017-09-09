@@ -89,7 +89,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
             }
         }
         return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier, identifierName,
-                interfaceModifier, abstractModifier, strictfpModifier, anonymousModifier, innerModifier, superClasses);
+                interfaceModifier, abstractModifier, strictfpModifier, anonymousModifier, innerModifier,
+                new ArrayList<>(), superClasses);
     }
 
     private static LanguageElement parseMethod(CsarParser.MethodContext ctx) {
