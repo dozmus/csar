@@ -256,8 +256,34 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                         // TODO finish (incl. parse method body)
                         topLevelElements.add(methodBuilder.build());
                     } else if (field != null) {
-                        // TODO impl
-                    }
+                        String identifierType = field.typeType().getText();
+
+                        for (JavaParser.VariableDeclaratorContext decl
+                                : field.variableDeclarators().variableDeclarator()) {
+                            JavaParser.VariableDeclaratorIdContext identifierCtx = decl.variableDeclaratorId();
+                            String identifier = identifierCtx.IDENTIFIER().getText();
+
+                            for (int i = 0; i < identifierCtx.LBRACK().size(); i++) { // XXX what is this even for?
+                                identifier += "[][]";
+                            }
+
+                            VariableLanguageElement.InstanceVariableLanguageElement.Builder variableBuilder
+                                    = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+                                    .allFalse(DEF, identifier)
+                                    .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                                    .identifierType(identifierType);
+
+                            if (decl.variableInitializer() != null) {
+                                variableBuilder.valueExpression(decl.variableInitializer().getText());
+                            }
+
+                            for (JavaParser.ModifierContext mods : classBody.modifier()) {
+                                applyInstanceVariableModifiers(variableBuilder, mods);
+                            }
+                            topLevelElements.add(variableBuilder.build());
+
+                    }}
+                    // TODO finish
                 }
             }
         } else if (ctx.interfaceDeclaration() != null) { // interface

@@ -29,6 +29,18 @@ public final class JavaCodeTreeParserTest {
                 .abstractModifier(true)
                 .superClasses("AbstractSample")
                 .build();
+        VariableLanguageElement variable1 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+                .allFalse(CsarQuery.Type.DEF, "className")
+                .visibilityModifier(VisibilityModifier.PRIVATE)
+                .finalModifier(true)
+                .identifierType("String")
+                .valueExpression("\"Sample1\"")
+                .build();
+        VariableLanguageElement variable2 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+                .allFalse(CsarQuery.Type.DEF, "str")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .identifierType("String")
+                .build();
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "add")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .abstractModifier(true)
@@ -53,6 +65,8 @@ public final class JavaCodeTreeParserTest {
 
         // Build node tree
         Node root = new Node(clazz);
+        root.addNode(new Node(variable1));
+        root.addNode(new Node(variable2));
         root.addNode(new Node(method1));
         root.addNode(new Node(method2));
         root.addNode(new Node(method3));
