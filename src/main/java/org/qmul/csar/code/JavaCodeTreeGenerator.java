@@ -144,6 +144,28 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         }
     }
 
+    private static void applyInstanceVariableModifiers(
+            VariableLanguageElement.InstanceVariableLanguageElement.Builder variableBuilder,
+            JavaParser.ModifierContext ctx) {
+        // Ignored modifiers: NATIVE, SYNCHRONIZED
+        JavaParser.ClassOrInterfaceModifierContext mods = ctx.classOrInterfaceModifier();
+
+        if (mods != null) {
+            if (mods.PUBLIC() != null) {
+                variableBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+            } else if (mods.PRIVATE() != null) {
+                variableBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
+            } else if (mods.PROTECTED() != null) {
+                variableBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
+            } else if (mods.FINAL() != null) {
+                variableBuilder.finalModifier(true);
+            } else if (mods.STATIC() != null) {
+                variableBuilder.staticModifier(true);
+            }
+            // Ignored modifiers: STRICTFP, ABSTRACT
+        }
+    }
+
     private static MethodLanguageElement.Builder parseMethodSkeleton(TerminalNode identifier,
                                                                      JavaParser.TypeTypeOrVoidContext type,
                                                                      List<JavaParser.ModifierContext> modifiers,
@@ -196,7 +218,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
         ClassLanguageElement.Builder builder = null;
         List<String> superClasses = new ArrayList<>();
-        List<MethodLanguageElement> methods = new ArrayList<>();
+        List<LanguageElement> topLevelElements = new ArrayList<>();
 
         // Generate node
         if (ctx.classDeclaration() != null) { // class
@@ -223,16 +245,19 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             // Methods
             if (dec.classBody() != null) {
                 for (JavaParser.ClassBodyDeclarationContext classBody : dec.classBody().classBodyDeclaration()) {
-                    if (classBody.memberDeclaration() == null
-                            || classBody.memberDeclaration().methodDeclaration() == null)
-                        continue;
+                    JavaParser.MemberDeclarationContext memberDec = classBody.memberDeclaration();
+                    JavaParser.MethodDeclarationContext method = memberDec.methodDeclaration();
+                    JavaParser.FieldDeclarationContext field = memberDec.fieldDeclaration();
 
-                    JavaParser.MethodDeclarationContext method = classBody.memberDeclaration().methodDeclaration();
-                    MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                            method.typeTypeOrVoid(), classBody.modifier(),
-                            method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
-                    // TODO finish (incl. parse method body)
-                    methods.add(methodBuilder.build());
+                    if (method != null) {
+                        MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                                method.typeTypeOrVoid(), classBody.modifier(),
+                                method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
+                        // TODO finish (incl. parse method body)
+                        topLevelElements.add(methodBuilder.build());
+                    } else if (field != null) {
+                        // TODO impl
+                    }
                 }
             }
         } else if (ctx.interfaceDeclaration() != null) { // interface
@@ -253,32 +278,54 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
             // Methods
             for (JavaParser.InterfaceBodyDeclarationContext intBody : dec.interfaceBody().interfaceBodyDeclaration()) {
-                JavaParser.InterfaceMethodDeclarationContext method = intBody.interfaceMemberDeclaration()
-                        .interfaceMethodDeclaration();
+                JavaParser.InterfaceMemberDeclarationContext memberDec = intBody.interfaceMemberDeclaration();
+                JavaParser.InterfaceMethodDeclarationContext method = memberDec.interfaceMethodDeclaration();
+                JavaParser.ConstDeclarationContext constDecl = memberDec.constDeclaration();
 
-                if (method == null || method.interfaceMethodModifier() == null)
-                    continue;
+                if (method != null) { // method
+                    MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                            method.typeTypeOrVoid(), intBody.modifier(),
+                            method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
 
-                MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                        method.typeTypeOrVoid(), intBody.modifier(), method.formalParameters().formalParameterList(),
-                        method.qualifiedNameList(), false);
+                    for (JavaParser.InterfaceMethodModifierContext mods : method.interfaceMethodModifier()) {
+                        if (mods.PUBLIC() != null) {
+                            methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+                        } else if (mods.ABSTRACT() != null) {
+                            methodBuilder.abstractModifier(true);
+                        } else if (mods.STATIC() != null) {
+                            methodBuilder.staticModifier(true);
+                        } else if (mods.STRICTFP() != null) {
+                            methodBuilder.strictfpModifier(true);
+                        } else if (mods.DEFAULT() != null) {
+                            methodBuilder.defaultModifier(true);
+                        }
+                    }
+                    topLevelElements.add(methodBuilder.build());
+                } else if (constDecl != null) { // const decl
+                    String identifierType = constDecl.typeType().getText();
 
-                for (JavaParser.InterfaceMethodModifierContext mods : method.interfaceMethodModifier()) {
-                    if (mods.PUBLIC() != null) {
-                        methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
-                    } else if (mods.ABSTRACT() != null) {
-                        methodBuilder.abstractModifier(true);
-                    } else if (mods.STATIC() != null) {
-                        methodBuilder.staticModifier(true);
-                    } else if (mods.STRICTFP() != null) {
-                        methodBuilder.strictfpModifier(true);
-                    } else if (mods.DEFAULT() != null) {
-                        methodBuilder.defaultModifier(true);
+                    for (JavaParser.ConstantDeclaratorContext decl : constDecl.constantDeclarator()) {
+                        String identifier = decl.IDENTIFIER().getText();
+
+                        for (int i = 0; i < decl.LBRACK().size(); i++) { // XXX what is this even for?
+                            identifier += "[][]";
+                        }
+                        String valueExpression = decl.variableInitializer().getText();
+
+                        VariableLanguageElement.InstanceVariableLanguageElement.Builder variableBuilder
+                                = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+                                .allFalse(DEF, identifier)
+                                .identifierType(identifierType)
+                                .valueExpression(valueExpression);
+
+                        for (JavaParser.ModifierContext mods : intBody.modifier()) {
+                            applyInstanceVariableModifiers(variableBuilder, mods);
+                        }
+                        topLevelElements.add(variableBuilder.build());
                     }
                 }
 
                 // TODO finish
-                methods.add(methodBuilder.build());
             }
         }
 
@@ -287,7 +334,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         root = new Node(builder.build());
 
         // Append methods to root
-        for (MethodLanguageElement method : methods) {
+        for (LanguageElement method : topLevelElements) {
             root.addNode(new Node(method));
         }
     }

@@ -10,32 +10,38 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
     private final CsarQuery.Type searchType;
     private final VariableType variableType;
     private final Optional<String> identifierType;
+    private final Optional<String> valueExpression;
     private final Optional<Boolean> finalModifier;
 
     public VariableLanguageElement(CsarQuery.Type searchType, VariableType variableType,
                                    Optional<Boolean> finalModifier, String identifierName,
-                                   Optional<String> identifierType) {
+                                   Optional<String> valueExpression, Optional<String> identifierType) {
         super(Type.VARIABLE, identifierName);
         this.searchType = searchType;
-        this.identifierType = identifierType;
         this.variableType = variableType;
+        this.identifierType = identifierType;
+        this.valueExpression = valueExpression;
         this.finalModifier = finalModifier;
-    }
-
-    public VariableType getVariableType() {
-        return variableType;
-    }
-
-    public Optional<Boolean> getFinalModifier() {
-        return finalModifier;
     }
 
     public CsarQuery.Type getSearchType() {
         return searchType;
     }
 
+    public VariableType getVariableType() {
+        return variableType;
+    }
+
     public Optional<String> getIdentifierType() {
         return identifierType;
+    }
+
+    public Optional<String> getValueExpression() {
+        return valueExpression;
+    }
+
+    public Optional<Boolean> getFinalModifier() {
+        return finalModifier;
     }
 
     @Override
@@ -47,18 +53,20 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         return searchType == that.searchType &&
                 variableType == that.variableType &&
                 Objects.equals(identifierType, that.identifierType) &&
+                Objects.equals(valueExpression, that.valueExpression) &&
                 Objects.equals(finalModifier, that.finalModifier);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), searchType, variableType, identifierType, finalModifier);
+        return Objects.hash(super.hashCode(), searchType, variableType, identifierType, valueExpression, finalModifier);
     }
 
     @Override
     public String toString() {
         return String.format("VariableLanguageElement{searchType=%s, variableType=%s, identifierType=%s, "
-                + "finalModifier=%s} %s", searchType, variableType, identifierType, finalModifier, super.toString());
+                + "valueExpression=%s, finalModifier=%s} %s", searchType, variableType, identifierType, valueExpression,
+                finalModifier, super.toString());
     }
 
     public static class Builder {
@@ -67,6 +75,7 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         private VariableType variableType;
         private String identifierName;
         private Optional<String> identifierType = Optional.empty();
+        private Optional<String> valueExpression = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
 
         public Builder(CsarQuery.Type searchType, VariableType variableType, String identifierName) {
@@ -83,13 +92,19 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
+        public Builder valueExpression(String valueExpression) {
+            this.valueExpression = Optional.of(valueExpression);
+            return this;
+        }
+
         public Builder finalModifier(boolean finalModifier) {
             this.finalModifier = Optional.of(finalModifier);
             return this;
         }
 
         public VariableLanguageElement build() {
-            return new VariableLanguageElement(searchType, variableType, finalModifier, identifierName, identifierType);
+            return new VariableLanguageElement(searchType, variableType, finalModifier, identifierName, valueExpression,
+                    identifierType);
         }
     }
 
@@ -97,11 +112,14 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
 
         private CommonModifiers commonModifiers;
 
+        // TODO remove abstract and strictfp from this (i.e. CommonModifiers
+
         public InstanceVariableLanguageElement(CsarQuery.Type searchType,
                                                Optional<VisibilityModifier> visibilityModifier,
                                                Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
-                                               String identifierName, Optional<String> identifierType) {
-            super(searchType, VariableType.INSTANCE, finalModifier, identifierName, identifierType);
+                                               String identifierName, Optional<String> valueExpression,
+                                               Optional<String> identifierType) {
+            super(searchType, VariableType.INSTANCE, finalModifier, identifierName, valueExpression, identifierType);
             this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                     Optional.empty(), Optional.empty());
         }
@@ -136,8 +154,15 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
             private String identifierName;
             private Optional<String> identifierType = Optional.empty();
             private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
+            private Optional<String> valueExpression = Optional.empty();
             private Optional<Boolean> staticModifier = Optional.empty();
             private Optional<Boolean> finalModifier = Optional.empty();
+
+            public static Builder allFalse(CsarQuery.Type searchType, String identifierName) {
+                return new Builder(searchType, identifierName)
+                        .staticModifier(false)
+                        .finalModifier(false);
+            }
 
             public Builder(CsarQuery.Type searchType, String identifierName) {
                 this.searchType = searchType;
@@ -159,6 +184,11 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
                 return this;
             }
 
+            public Builder valueExpression(String valueExpression) {
+                this.valueExpression = Optional.of(valueExpression);
+                return this;
+            }
+
             public Builder finalModifier(boolean finalModifier) {
                 this.finalModifier = Optional.of(finalModifier);
                 return this;
@@ -166,7 +196,7 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
 
             public InstanceVariableLanguageElement build() {
                 return new InstanceVariableLanguageElement(searchType, visibilityModifier, staticModifier,
-                        finalModifier, identifierName, identifierType);
+                        finalModifier, identifierName, valueExpression, identifierType);
             }
         }
     }

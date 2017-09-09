@@ -176,6 +176,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     parseOptionalTrueOrEmpty(common.STATIC()),
                     parseOptionalTrueOrEmpty(common.FINAL()),
                     ictx.identifierName().getText(),
+                    Optional.empty(),
                     parseTextOrEmpty(ictx.type())
             );
         } else if (ctx.localVariable() != null) {
@@ -184,6 +185,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     VariableType.LOCAL,
                     parseOptionalTrueOrEmpty(lctx.FINAL()),
                     lctx.identifierName().getText(),
+                    Optional.empty(),
                     parseTextOrEmpty(lctx.type())
             );
         } else { // param
@@ -192,6 +194,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     VariableType.PARAM,
                     parseOptionalTrueOrEmpty(pctx.FINAL()),
                     pctx.identifierName().getText(),
+                    Optional.empty(),
                     parseTextOrEmpty(pctx.type())
             );
         }

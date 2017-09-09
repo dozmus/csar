@@ -1,10 +1,7 @@
 package org.qmul.csar.code;
 
 import org.junit.Test;
-import org.qmul.csar.lang.ClassLanguageElement;
-import org.qmul.csar.lang.MethodLanguageElement;
-import org.qmul.csar.lang.Parameter;
-import org.qmul.csar.lang.VisibilityModifier;
+import org.qmul.csar.lang.*;
 import org.qmul.csar.query.CsarQuery;
 
 import java.io.IOException;
@@ -73,6 +70,13 @@ public final class JavaCodeTreeParserTest {
                 .interfaceModifier(true)
                 .superClasses("Runnable")
                 .build();
+        VariableLanguageElement const1 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+                .allFalse(CsarQuery.Type.DEF, "ITERATIONS")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .staticModifier(true)
+                .identifierType("int")
+                .valueExpression("1000")
+                .build();
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .returnType("void")
@@ -87,6 +91,11 @@ public final class JavaCodeTreeParserTest {
                         new Parameter("String...", Optional.of("s"), Optional.of(false)))
                 .parameterCount(2)
                 .build();
+        VariableLanguageElement const2 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+                .allFalse(CsarQuery.Type.DEF, "name")
+                .identifierType("String[]")
+                .valueExpression("generateName(Sample2.class)")
+                .build();
         MethodLanguageElement method3 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
@@ -96,8 +105,10 @@ public final class JavaCodeTreeParserTest {
 
         // Build node tree
         Node root = new Node(clazz);
+        root.addNode(new Node(const1));
         root.addNode(new Node(method1));
         root.addNode(new Node(method2));
+        root.addNode(new Node(const2));
         root.addNode(new Node(method3));
         return root;
     }
