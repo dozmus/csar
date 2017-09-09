@@ -10,7 +10,7 @@ public interface Sample2 extends Runnable {
         System.out.println(s);
     }
 
-    void print(int level, String... s);
+    <E> void print(E level, String... s);
 
     String[] name = generateName(Sample2.class);
 

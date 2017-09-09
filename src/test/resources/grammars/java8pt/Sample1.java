@@ -11,7 +11,7 @@ public strictfp abstract class Sample1 extends AbstractSample {
         return result;
     }
 
-    final void setResult(int result) {
+    final <E extends AbstractSample> void setResult(int result) {
         this.result = result;
     }
 }

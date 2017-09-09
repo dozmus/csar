@@ -16,6 +16,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     private final List<Parameter> parameters;
     private final List<String> thrownExceptions;
     private final List<String> superClasses;
+    private final List<String> typeParameters;
 
     public MethodLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                  Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
@@ -23,7 +24,8 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
                                  Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
                                  Optional<Boolean> synchronizedModifier, Optional<Boolean> nativeModifier,
                                  Optional<Boolean> defaultModifier, Optional<Integer> parameterCount,
-                                 List<Parameter> parameters, List<String> thrownExceptions, List<String> superClasses) {
+                                 List<Parameter> parameters, List<String> thrownExceptions, List<String> superClasses,
+                                 List<String> typeParameters) {
         super(Type.METHOD, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                 abstractModifier, strictfpModifier);
@@ -36,6 +38,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         this.parameters = parameters;
         this.thrownExceptions = thrownExceptions;
         this.superClasses = superClasses;
+        this.typeParameters = typeParameters;
     }
 
     public Optional<Boolean> getOverridden() {
@@ -66,6 +69,22 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         return commonModifiers;
     }
 
+    public Optional<Boolean> getSynchronizedModifier() {
+        return synchronizedModifier;
+    }
+
+    public Optional<Boolean> getNativeModifier() {
+        return nativeModifier;
+    }
+
+    public Optional<Boolean> getDefaultModifier() {
+        return defaultModifier;
+    }
+
+    public List<String> getTypeParameters() {
+        return typeParameters;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -81,22 +100,24 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
                 Objects.equals(parameterCount, that.parameterCount) &&
                 Objects.equals(parameters, that.parameters) &&
                 Objects.equals(thrownExceptions, that.thrownExceptions) &&
-                Objects.equals(superClasses, that.superClasses);
+                Objects.equals(superClasses, that.superClasses) &&
+                Objects.equals(typeParameters, that.typeParameters);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), commonModifiers, returnType, synchronizedModifier, nativeModifier,
-                defaultModifier, overridden, parameterCount, parameters, thrownExceptions, superClasses);
+                defaultModifier, overridden, parameterCount, parameters, thrownExceptions, superClasses,
+                typeParameters);
     }
 
     @Override
     public String toString() {
         return String.format("MethodLanguageElement{commonModifiers=%s, returnType=%s, synchronizedModifier=%s, "
                 + "nativeModifier=%s, defaultModifier=%s, overridden=%s, parameterCount=%s, parameters=%s, "
-                + "thrownExceptions=%s, superClasses=%s} %s", commonModifiers, returnType, synchronizedModifier,
-                nativeModifier, defaultModifier, overridden, parameterCount, parameters, thrownExceptions, superClasses,
-                super.toString());
+                + "thrownExceptions=%s, superClasses=%s, typeParameters=%s} %s", commonModifiers, returnType,
+                synchronizedModifier, nativeModifier, defaultModifier, overridden, parameterCount, parameters,
+                thrownExceptions, superClasses, typeParameters, super.toString());
     }
 
     public static class Builder {
@@ -117,6 +138,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         private List<Parameter> parameters = new ArrayList<>();
         private List<String> thrownExceptions = new ArrayList<>();
         private List<String> superClasses = new ArrayList<>();
+        private List<String> typeParameters = new ArrayList<>();
 
         public Builder(CsarQuery.Type searchType, String identifierName) {
             this.searchType = searchType;
@@ -225,10 +247,21 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
+        public Builder typeParameters(List<String> typeParameters) {
+            this.typeParameters = typeParameters;
+            return this;
+        }
+
+        public Builder typeParameters(String... typeParameters) {
+            this.typeParameters = Arrays.asList(typeParameters);
+            return this;
+        }
+
         public MethodLanguageElement build() {
             return new MethodLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
                     identifierName, returnType, overridden, abstractModifier, strictfpModifier, synchronizedModifier,
-                    nativeModifier, defaultModifier, parameterCount, parameters, thrownExceptions, superClasses);
+                    nativeModifier, defaultModifier, parameterCount, parameters, thrownExceptions, superClasses,
+                    typeParameters);
         }
     }
 }

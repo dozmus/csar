@@ -61,6 +61,7 @@ public final class JavaCodeTreeParserTest {
                 .returnType("void")
                 .parameters(new Parameter("int", Optional.of("result"), Optional.of(false)))
                 .parameterCount(1)
+                .typeParameters("E extends AbstractSample")
                 .build();
 
         // Build node tree
@@ -101,9 +102,10 @@ public final class JavaCodeTreeParserTest {
         MethodLanguageElement method2 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
-                .parameters(new Parameter("int", Optional.of("level"), Optional.of(false)),
+                .parameters(new Parameter("E", Optional.of("level"), Optional.of(false)),
                         new Parameter("String...", Optional.of("s"), Optional.of(false)))
                 .parameterCount(2)
+                .typeParameters("E")
                 .build();
         VariableLanguageElement const2 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "name")
