@@ -6,6 +6,10 @@ public strictfp abstract class Sample1 extends AbstractSample {
 
     }
 
+    public <E> Sample1(String... names) {
+
+    }
+
     private final String className = "Sample1";
     String str;
 

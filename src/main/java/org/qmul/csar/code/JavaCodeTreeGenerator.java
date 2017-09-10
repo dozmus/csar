@@ -114,6 +114,21 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         builder.typeParameters(typeParameters);
     }
 
+    private static void applyTypeParameters(ConstructorLanguageElement.Builder builder,
+                                            JavaParser.TypeParametersContext ctx) {
+        List<String> typeParameters = new ArrayList<>();
+
+        if (ctx != null) {
+            for (JavaParser.TypeParameterContext typeParam : ctx.typeParameter()) {
+                String identifier = typeParam.IDENTIFIER().getText();
+                String extendedByPostfix = (typeParam.typeBound() != null)
+                        ? " extends " + typeParam.typeBound().getText() : "";
+                typeParameters.add(identifier + extendedByPostfix);
+            }
+        }
+        builder.typeParameters(typeParameters);
+    }
+
     private static void applyTypeParameters(MethodLanguageElement.Builder builder,
                                             JavaParser.TypeParametersContext ctx) {
         List<String> typeParameters = new ArrayList<>();
@@ -238,11 +253,12 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         // Methods
         if (dec.classBody() != null) {
             for (JavaParser.ClassBodyDeclarationContext classBody : dec.classBody().classBodyDeclaration()) {
-                JavaParser.MemberDeclarationContext memberDec = classBody.memberDeclaration();
-                JavaParser.MethodDeclarationContext method = memberDec.methodDeclaration();
-                JavaParser.GenericMethodDeclarationContext genericMethod = memberDec.genericMethodDeclaration();
-                JavaParser.ConstructorDeclarationContext constructor = memberDec.constructorDeclaration();
-                JavaParser.FieldDeclarationContext field = memberDec.fieldDeclaration();
+                JavaParser.MemberDeclarationContext m = classBody.memberDeclaration();
+                JavaParser.MethodDeclarationContext method = m.methodDeclaration();
+                JavaParser.GenericMethodDeclarationContext genericMethod = m.genericMethodDeclaration();
+                JavaParser.ConstructorDeclarationContext constructor = m.constructorDeclaration();
+                JavaParser.GenericConstructorDeclarationContext genericConstructor = m.genericConstructorDeclaration();
+                JavaParser.FieldDeclarationContext field = m.fieldDeclaration();
 
                 if (method != null) { // method
                     MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
@@ -313,6 +329,42 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     // Throws list
                     List<String> throwsList = (constructor.qualifiedNameList() == null)
                             ? new ArrayList<>() : parseThrows(constructor.qualifiedNameList());
+
+                    // TODO parse constructor body
+                    consBuilder.parameterCount(paramIdentifiers.size())
+                            .parameters(paramIdentifiers)
+                            .thrownExceptions(throwsList);
+                    topLevelElements.add(consBuilder.build());
+                } else if (genericConstructor != null) { // generic constructor
+                    JavaParser.ConstructorDeclarationContext cons = genericConstructor.constructorDeclaration();
+                    ConstructorLanguageElement.Builder consBuilder = new ConstructorLanguageElement.Builder(DEF,
+                            cons.IDENTIFIER().getText());
+
+                    // Modifiers
+                    for (JavaParser.ModifierContext modifier : classBody.modifier()) {
+                        JavaParser.ClassOrInterfaceModifierContext mod = modifier.classOrInterfaceModifier();
+
+                        if (mod == null)
+                            continue;
+
+                        if (mod.PUBLIC() != null) {
+                            consBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+                        } else if (mod.PRIVATE() != null) {
+                            consBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
+                        } else if (mod.PROTECTED() != null) {
+                            consBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
+                        }
+                    }
+
+                    // Parameters
+                    List<Parameter> paramIdentifiers = new ArrayList<>();
+                    List<VariableLanguageElement> params = new ArrayList<>();
+                    parseParameters(cons.formalParameters().formalParameterList(), paramIdentifiers, params);
+
+                    // Throws list
+                    List<String> throwsList = (cons.qualifiedNameList() == null)
+                            ? new ArrayList<>() : parseThrows(cons.qualifiedNameList());
+                    applyTypeParameters(consBuilder, genericConstructor.typeParameters());
 
                     // TODO parse constructor body
                     consBuilder.parameterCount(paramIdentifiers.size())
