@@ -2,10 +2,7 @@ package org.qmul.csar.code;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.qmul.csar.lang.ClassLanguageElement;
-import org.qmul.csar.lang.MethodLanguageElement;
-import org.qmul.csar.lang.Parameter;
-import org.qmul.csar.lang.VisibilityModifier;
+import org.qmul.csar.lang.*;
 import org.qmul.csar.query.CsarQuery;
 
 import java.util.Optional;
@@ -25,9 +22,10 @@ public final class NodeHelperTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .strictfpModifier(true)
                 .abstractModifier(true)
+                .typeParameters("T0")
                 .superClasses("AbstractSample")
                 .build();
-        assertEquals("DEF:public strictfp abstract class Sample1(AbstractSample)", new Node(clazz1));
+        assertEquals("DEF:public strictfp abstract class Sample1<T0>(AbstractSample)", new Node(clazz1));
 
         // Test #2: single method element
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "add")
@@ -40,24 +38,50 @@ public final class NodeHelperTest {
                 .build();
         assertEquals("DEF:public abstract void add(final int a, int b)", new Node(method1));
 
-        // Test #3: class element containing two methods and a class
-        MethodLanguageElement method2 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "getResult")
+        // Test #3: class element containing a field, two methods and a class
+        Node field1Node = new Node(InstanceVariableLanguageElement.Builder
+                .allFalse(CsarQuery.Type.DEF, "str")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .identifierType("String")
+                .build());
+        Node method2Node = new Node(MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "getResult")
                 .visibilityModifier(VisibilityModifier.PROTECTED)
                 .finalModifier(true)
                 .returnType("int")
                 .parameterCount(0)
-                .build();
+                .typeParameters("E", "K extends Sample")
+                .build()
+        );
+        method2Node.addNode(new Node(
+                new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "s")
+                        .finalModifier(false)
+                        .identifierType("String[]")
+                        .build())
+        );
+        method2Node.addNode(new Node(
+                new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "x")
+                        .finalModifier(true)
+                        .identifierType("int")
+                        .valueExpression("40")
+                        .build())
+        );
         ClassLanguageElement clazz2 = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Sample2")
                 .visibilityModifier(VisibilityModifier.PRIVATE)
                 .staticModifier(true)
                 .build();
-        Node node = new Node(clazz1);
-        node.addNode(new Node(method1));
-        node.addNode(new Node(method2));
-        node.addNode(new Node(clazz2));
-        assertEquals("DEF:public strictfp abstract class Sample1(AbstractSample)" + NEW_LINE
+
+        Node root = new Node(clazz1);
+        root.addNode(field1Node);
+        root.addNode(new Node(method1));
+        root.addNode(method2Node);
+        root.addNode(new Node(clazz2));
+
+        assertEquals("DEF:public strictfp abstract class Sample1<T0>(AbstractSample)" + NEW_LINE
+                + "  DEF:package_private String str" + NEW_LINE
                 + "  DEF:public abstract void add(final int a, int b)" + NEW_LINE
-                + "  DEF:protected final int getResult()" + NEW_LINE
-                + "  DEF:private static class Sample2", node);
+                + "  DEF:protected final <E, K extends Sample> int getResult()" + NEW_LINE
+                + "    DEF:String[] s" + NEW_LINE
+                + "    DEF:final int x = 40" + NEW_LINE
+                + "  DEF:private static class Sample2", root);
     }
 }

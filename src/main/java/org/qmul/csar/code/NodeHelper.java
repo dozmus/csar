@@ -66,6 +66,19 @@ public final class NodeHelper {
 
             builder.append("class ").append(clazz.getIdentifierName());
 
+            if (clazz.getTypeParameters().size() > 0) {
+                builder.append("<");
+
+                for (int i = 0; i < clazz.getTypeParameters().size(); i++) {
+                    builder.append(clazz.getTypeParameters().get(i));
+
+                    if (i + 1 < clazz.getTypeParameters().size())
+                        builder.append(", ");
+                }
+
+                builder.append(">");
+            }
+
             if (clazz.getSuperClasses().size() > 0) {
                 builder.append("(");
 
@@ -108,6 +121,19 @@ public final class NodeHelper {
 
             if (method.getOverridden().isPresent() && method.getOverridden().get()) {
                 builder.append("(overridden) ");
+            }
+
+            if (method.getTypeParameters().size() > 0) {
+                builder.append("<");
+
+                for (int i = 0; i < method.getTypeParameters().size(); i++) {
+                    builder.append(method.getTypeParameters().get(i));
+
+                    if (i + 1 < method.getTypeParameters().size())
+                        builder.append(", ");
+                }
+
+                builder.append("> ");
             }
 
             if (method.getReturnType().isPresent()) {
@@ -166,13 +192,103 @@ public final class NodeHelper {
                 builder.append(")");
             }
             return builder.toString();
+        } else if (e instanceof ConstructorLanguageElement) {
+            ConstructorLanguageElement constructor = ((ConstructorLanguageElement) e);
+            StringBuilder builder = new StringBuilder()
+                    .append(constructor.getSearchType())
+                    .append(":");
+
+            if (constructor.getVisibilityModifier().isPresent()) {
+                builder.append(constructor.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
+            }
+
+            if (constructor.getTypeParameters().size() > 0) {
+                builder.append("<");
+
+                for (int i = 0; i < constructor.getTypeParameters().size(); i++) {
+                    builder.append(constructor.getTypeParameters().get(i));
+
+                    if (i + 1 < constructor.getTypeParameters().size())
+                        builder.append(", ");
+                }
+
+                builder.append("> ");
+            }
+
+            builder.append(constructor.getIdentifierName());
+
+            if (constructor.getParameters().size() > 0) {
+                builder.append("(");
+
+                for (int i = 0; i < constructor.getParameters().size(); i++) {
+                    Parameter param = constructor.getParameters().get(i);
+
+                    if (param.getFinalModifier().isPresent() && param.getFinalModifier().get()) {
+                        builder.append("final ");
+                    }
+
+                    builder.append(param.getType());
+
+                    if (param.getName().isPresent()) {
+                        builder.append(" ").append(param.getName().get());
+                    }
+
+                    if (i + 1 < constructor.getParameters().size())
+                        builder.append(", ");
+                }
+                builder.append(")");
+            } else {
+                builder.append("()");
+            }
+
+            if (constructor.getThrownExceptions().size() > 0) {
+                builder.append(" throws(");
+
+                for (int i = 0; i < constructor.getThrownExceptions().size(); i++) {
+                    String thrownException = constructor.getThrownExceptions().get(i);
+                    builder.append(thrownException);
+
+                    if (i + 1 < constructor.getThrownExceptions().size())
+                        builder.append(", ");
+                }
+                builder.append(")");
+            }
+            return builder.toString();
         } else if (e instanceof VariableLanguageElement && !(e instanceof InstanceVariableLanguageElement)) {
             VariableLanguageElement variable = ((VariableLanguageElement) e);
             StringBuilder builder = new StringBuilder()
                     .append(variable.getSearchType())
                     .append(":");
 
-            if (variable.getFinalModifier().isPresent()) {
+            if (variable.getFinalModifier().isPresent() && variable.getFinalModifier().get()) {
+                builder.append("final ");
+            }
+
+            if (variable.getIdentifierType().isPresent()) {
+                builder.append(variable.getIdentifierType().get()).append(" ");
+            }
+            builder.append(variable.getIdentifierName());
+
+            if (variable.getValueExpression().isPresent()) {
+                builder.append(" = ").append(variable.getValueExpression().get());
+            }
+            return builder.toString();
+        } else if (e instanceof InstanceVariableLanguageElement) {
+            InstanceVariableLanguageElement variable = ((InstanceVariableLanguageElement) e);
+            CommonModifiers common = variable.getCommonModifiers();
+            StringBuilder builder = new StringBuilder()
+                    .append(variable.getSearchType())
+                    .append(":");
+
+            if (common.getVisibilityModifier().isPresent()) {
+                builder.append(common.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
+            }
+
+            if (common.getStaticModifier().isPresent() && common.getStaticModifier().get()) {
+                builder.append("static ");
+            }
+
+            if (common.getFinalModifier().isPresent() && common.getFinalModifier().get()) {
                 builder.append("final ");
             }
 
