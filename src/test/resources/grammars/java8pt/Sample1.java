@@ -2,6 +2,10 @@ package grammars.java8pt
 
 public strictfp abstract class Sample1 extends AbstractSample {
 
+    public Sample1() {
+
+    }
+
     private final String className = "Sample1";
     String str;
 

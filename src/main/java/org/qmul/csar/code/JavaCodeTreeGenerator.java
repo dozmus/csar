@@ -241,6 +241,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 JavaParser.MemberDeclarationContext memberDec = classBody.memberDeclaration();
                 JavaParser.MethodDeclarationContext method = memberDec.methodDeclaration();
                 JavaParser.GenericMethodDeclarationContext genericMethod = memberDec.genericMethodDeclaration();
+                JavaParser.ConstructorDeclarationContext constructor = memberDec.constructorDeclaration();
                 JavaParser.FieldDeclarationContext field = memberDec.fieldDeclaration();
 
                 if (method != null) { // method
@@ -283,8 +284,42 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                             applyInstanceVariableModifiers(variableBuilder, mods);
                         }
                         topLevelElements.add(variableBuilder.build());
+                    }
+                } else if (constructor != null) { // constructor
+                    ConstructorLanguageElement.Builder consBuilder = new ConstructorLanguageElement.Builder(DEF,
+                            constructor.IDENTIFIER().getText());
 
-                    }}
+                    // Modifiers
+                    for (JavaParser.ModifierContext modifier : classBody.modifier()) {
+                        JavaParser.ClassOrInterfaceModifierContext mod = modifier.classOrInterfaceModifier();
+
+                        if (mod == null)
+                            continue;
+
+                        if (mod.PUBLIC() != null) {
+                            consBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+                        } else if (mod.PRIVATE() != null) {
+                            consBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
+                        } else if (mod.PROTECTED() != null) {
+                            consBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
+                        }
+                    }
+
+                    // Parameters
+                    List<Parameter> paramIdentifiers = new ArrayList<>();
+                    List<VariableLanguageElement> params = new ArrayList<>();
+                    parseParameters(constructor.formalParameters().formalParameterList(), paramIdentifiers, params);
+
+                    // Throws list
+                    List<String> throwsList = (constructor.qualifiedNameList() == null)
+                            ? new ArrayList<>() : parseThrows(constructor.qualifiedNameList());
+
+                    // TODO parse constructor body
+                    consBuilder.parameterCount(paramIdentifiers.size())
+                            .parameters(paramIdentifiers)
+                            .thrownExceptions(throwsList);
+                    topLevelElements.add(consBuilder.build());
+                }
             }
         }
         // TODO finish

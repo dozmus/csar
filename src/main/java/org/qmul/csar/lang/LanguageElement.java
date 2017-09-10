@@ -33,6 +33,6 @@ public class LanguageElement {
     }
 
     public enum Type {
-        CLASS, METHOD, VARIABLE, CONTROL_FLOW, COMMENT
+        CLASS, METHOD, VARIABLE, CONTROL_FLOW, COMMENT, CONSTRUCTOR
     }
 }

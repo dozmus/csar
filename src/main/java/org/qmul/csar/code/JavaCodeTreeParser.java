@@ -20,7 +20,7 @@ public final class JavaCodeTreeParser implements CodeTreeParser {
         ParseTreeWalker walker = new ParseTreeWalker();
         JavaCodeTreeGenerator gen = new JavaCodeTreeGenerator();
         walker.walk(gen, parser.compilationUnit());
-        return gen.getRoot();
+        return gen.getRootNode();
     }
 
     @Override
