@@ -144,53 +144,51 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         builder.typeParameters(typeParameters);
     }
 
-    private static void applyMethodModifiers(MethodLanguageElement.Builder methodBuilder,
-                                             JavaParser.ModifierContext ctx) {
+    private static void applyMethodModifiers(MethodLanguageElement.Builder builder, JavaParser.ModifierContext ctx) {
         if (ctx.NATIVE() != null) {
-            methodBuilder.nativeModifier(true);
+            builder.nativeModifier(true);
         }
 
         if (ctx.SYNCHRONIZED() != null) {
-            methodBuilder.synchronizedModifier(true);
+            builder.synchronizedModifier(true);
         }
         JavaParser.ClassOrInterfaceModifierContext mods = ctx.classOrInterfaceModifier();
 
         if (mods != null) {
             if (mods.PUBLIC() != null) {
-                methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+                builder.visibilityModifier(VisibilityModifier.PUBLIC);
             } else if (mods.PRIVATE() != null) {
-                methodBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
+                builder.visibilityModifier(VisibilityModifier.PRIVATE);
             } else if (mods.PROTECTED() != null) {
-                methodBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
+                builder.visibilityModifier(VisibilityModifier.PROTECTED);
             } else if (mods.ABSTRACT() != null) {
-                methodBuilder.abstractModifier(true);
+                builder.abstractModifier(true);
             } else if (mods.FINAL() != null) {
-                methodBuilder.finalModifier(true);
+                builder.finalModifier(true);
             } else if (mods.STATIC() != null) {
-                methodBuilder.staticModifier(true);
+                builder.staticModifier(true);
             }  else if (mods.STRICTFP() != null) {
-                methodBuilder.strictfpModifier(true);
+                builder.strictfpModifier(true);
             }
         }
     }
 
-    private static void applyInstanceVariableModifiers(
-            InstanceVariableLanguageElement.Builder variableBuilder,
-            JavaParser.ModifierContext ctx) {
+    private static void applyInstanceVariableModifiers(InstanceVariableLanguageElement.Builder builder,
+                                                       JavaParser.ModifierContext ctx) {
         // Ignored modifiers: NATIVE, SYNCHRONIZED
         JavaParser.ClassOrInterfaceModifierContext mods = ctx.classOrInterfaceModifier();
 
         if (mods != null) {
             if (mods.PUBLIC() != null) {
-                variableBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+                builder.visibilityModifier(VisibilityModifier.PUBLIC);
             } else if (mods.PRIVATE() != null) {
-                variableBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
+                builder.visibilityModifier(VisibilityModifier.PRIVATE);
             } else if (mods.PROTECTED() != null) {
-                variableBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
+                builder.visibilityModifier(VisibilityModifier.PROTECTED);
             } else if (mods.FINAL() != null) {
-                variableBuilder.finalModifier(true);
+                builder.finalModifier(true);
             } else if (mods.STATIC() != null) {
-                variableBuilder.staticModifier(true);
+                builder.staticModifier(true);
             }
             // Ignored modifiers: STRICTFP, ABSTRACT
         }
@@ -203,13 +201,13 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                                                                      JavaParser.QualifiedNameListContext throwsCtx,
                                                                      boolean overridden) {
         String identifierName = identifier.getText();
-        MethodLanguageElement.Builder methodBuilder = MethodLanguageElement.Builder.allFalse(DEF, identifierName)
+        MethodLanguageElement.Builder builder = MethodLanguageElement.Builder.allFalse(DEF, identifierName)
                 .overridden(overridden)
                 .returnType(type.getText());
 
         // Modifiers
         for (JavaParser.ModifierContext modifier : modifiers) {
-            applyMethodModifiers(methodBuilder, modifier);
+            applyMethodModifiers(builder, modifier);
         }
 
         // Parameters
@@ -219,9 +217,43 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
         // Throws list
         List<String> throwsList = (throwsCtx == null) ? new ArrayList<>() : parseThrows(throwsCtx);
-
-        return methodBuilder
+        return builder
                 .parameterCount(paramIdentifiers.size())
+                .parameters(paramIdentifiers)
+                .thrownExceptions(throwsList);
+    }
+
+    private static ConstructorLanguageElement.Builder parseConstructorSkeleton(TerminalNode identifier,
+                                                                               List<JavaParser.ModifierContext> modifiers,
+                                                                               JavaParser.FormalParameterListContext parameterCtx,
+                                                                               JavaParser.QualifiedNameListContext throwsCtx) {
+        ConstructorLanguageElement.Builder builder = new ConstructorLanguageElement
+                .Builder(DEF, identifier.getText());
+
+        // Modifiers
+        for (JavaParser.ModifierContext modifier : modifiers) {
+            JavaParser.ClassOrInterfaceModifierContext mod = modifier.classOrInterfaceModifier();
+
+            if (mod == null)
+                continue;
+
+            if (mod.PUBLIC() != null) {
+                builder.visibilityModifier(VisibilityModifier.PUBLIC);
+            } else if (mod.PRIVATE() != null) {
+                builder.visibilityModifier(VisibilityModifier.PRIVATE);
+            } else if (mod.PROTECTED() != null) {
+                builder.visibilityModifier(VisibilityModifier.PROTECTED);
+            }
+        }
+
+        // Parameters
+        List<Parameter> paramIdentifiers = new ArrayList<>();
+        List<VariableLanguageElement> params = new ArrayList<>();
+        parseParameters(parameterCtx, paramIdentifiers, params);
+
+        // Throws list
+        List<String> throwsList = (throwsCtx == null) ? new ArrayList<>() : parseThrows(throwsCtx);
+        return builder.parameterCount(paramIdentifiers.size())
                 .parameters(paramIdentifiers)
                 .thrownExceptions(throwsList);
     }
@@ -302,74 +334,21 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                         topLevelElements.add(variableBuilder.build());
                     }
                 } else if (constructor != null) { // constructor
-                    ConstructorLanguageElement.Builder consBuilder = new ConstructorLanguageElement.Builder(DEF,
-                            constructor.IDENTIFIER().getText());
-
-                    // Modifiers
-                    for (JavaParser.ModifierContext modifier : classBody.modifier()) {
-                        JavaParser.ClassOrInterfaceModifierContext mod = modifier.classOrInterfaceModifier();
-
-                        if (mod == null)
-                            continue;
-
-                        if (mod.PUBLIC() != null) {
-                            consBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
-                        } else if (mod.PRIVATE() != null) {
-                            consBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
-                        } else if (mod.PROTECTED() != null) {
-                            consBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
-                        }
-                    }
-
-                    // Parameters
-                    List<Parameter> paramIdentifiers = new ArrayList<>();
-                    List<VariableLanguageElement> params = new ArrayList<>();
-                    parseParameters(constructor.formalParameters().formalParameterList(), paramIdentifiers, params);
-
-                    // Throws list
-                    List<String> throwsList = (constructor.qualifiedNameList() == null)
-                            ? new ArrayList<>() : parseThrows(constructor.qualifiedNameList());
-
+                    ConstructorLanguageElement.Builder consBuilder = parseConstructorSkeleton(
+                            constructor.IDENTIFIER(), classBody.modifier(),
+                            constructor.formalParameters().formalParameterList(), constructor.qualifiedNameList());
                     // TODO parse constructor body
-                    consBuilder.parameterCount(paramIdentifiers.size())
-                            .parameters(paramIdentifiers)
-                            .thrownExceptions(throwsList);
                     topLevelElements.add(consBuilder.build());
                 } else if (genericConstructor != null) { // generic constructor
                     JavaParser.ConstructorDeclarationContext cons = genericConstructor.constructorDeclaration();
-                    ConstructorLanguageElement.Builder consBuilder = new ConstructorLanguageElement.Builder(DEF,
-                            cons.IDENTIFIER().getText());
+                    ConstructorLanguageElement.Builder consBuilder = parseConstructorSkeleton(cons.IDENTIFIER(),
+                            classBody.modifier(),
+                            cons.formalParameters().formalParameterList(), cons.qualifiedNameList());
 
-                    // Modifiers
-                    for (JavaParser.ModifierContext modifier : classBody.modifier()) {
-                        JavaParser.ClassOrInterfaceModifierContext mod = modifier.classOrInterfaceModifier();
-
-                        if (mod == null)
-                            continue;
-
-                        if (mod.PUBLIC() != null) {
-                            consBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
-                        } else if (mod.PRIVATE() != null) {
-                            consBuilder.visibilityModifier(VisibilityModifier.PRIVATE);
-                        } else if (mod.PROTECTED() != null) {
-                            consBuilder.visibilityModifier(VisibilityModifier.PROTECTED);
-                        }
-                    }
-
-                    // Parameters
-                    List<Parameter> paramIdentifiers = new ArrayList<>();
-                    List<VariableLanguageElement> params = new ArrayList<>();
-                    parseParameters(cons.formalParameters().formalParameterList(), paramIdentifiers, params);
-
-                    // Throws list
-                    List<String> throwsList = (cons.qualifiedNameList() == null)
-                            ? new ArrayList<>() : parseThrows(cons.qualifiedNameList());
+                    // Type parameters
                     applyTypeParameters(consBuilder, genericConstructor.typeParameters());
 
                     // TODO parse constructor body
-                    consBuilder.parameterCount(paramIdentifiers.size())
-                            .parameters(paramIdentifiers)
-                            .thrownExceptions(throwsList);
                     topLevelElements.add(consBuilder.build());
                 }
             }
