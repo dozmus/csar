@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * A JSON formatter of a {@link Result}.
  */
-public final class JsonResultFormatter extends ResultFormatter {
+public final class JsonResultFormatter implements ResultFormatter {
 
     @Override
     public String format(List<Result> results) throws Exception {

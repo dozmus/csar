@@ -170,7 +170,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         if (ctx.instanceVariable() != null) {
             CsarParser.InstanceVariableContext ictx = ctx.instanceVariable();
             CsarParser.CommonModifiersContext common = ictx.commonModifiers();
-            return new VariableLanguageElement.InstanceVariableLanguageElement(
+            return new InstanceVariableLanguageElement(
                     parseType(ictx.commonModifiers().DEF(), ictx.commonModifiers().USE()),
                     visibilityModifier(common.visibilityModifier()),
                     parseOptionalTrueOrEmpty(common.STATIC()),

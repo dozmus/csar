@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public final class JavaCodeTreeParser extends AbstractCodeTreeParser {
+public final class JavaCodeTreeParser implements CodeTreeParser {
 
     @Override
     public Node parse(Path file) throws IOException {

@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -22,7 +21,7 @@ import java.util.NoSuchElementException;
  * @see CodeTreeParserFactory#accepts(Path)
  * @see #scanGitDir()
  */
-public class ProjectCodeIterator implements Iterator<Path> {
+public class ProjectCodeIterator implements PathIterator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeIterator.class);
     private final CsarContext ctx;

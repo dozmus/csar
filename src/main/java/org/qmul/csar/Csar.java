@@ -2,6 +2,7 @@ package org.qmul.csar;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import org.qmul.csar.io.PathIterator;
 import org.qmul.csar.io.ProjectCodeIterator;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
@@ -19,7 +20,7 @@ public final class Csar {
     private static String PROJECT_URL = "https://github.research.its.qmul.ac.uk/ec15116/csar";
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
-    private final ProjectCodeIterator it;
+    private final PathIterator it;
 
     /**
      * Constructs a new Csar, with a standard {@link ProjectCodeIterator}.
@@ -80,7 +81,10 @@ public final class Csar {
 
     private void init() {
         LOGGER.info("Initializing");
-        it.init();
+
+        if (it instanceof ProjectCodeIterator) {
+            ((ProjectCodeIterator)it).init();
+        }
 
         if (!it.hasNext()) {
             LOGGER.error("No code files found");

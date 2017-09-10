@@ -3,7 +3,7 @@ package org.qmul.csar;
 import org.qmul.csar.code.CodeTreeParserFactory;
 import org.qmul.csar.code.Node;
 import org.qmul.csar.code.NodeHelper;
-import org.qmul.csar.io.ProjectCodeIterator;
+import org.qmul.csar.io.PathIterator;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +21,16 @@ public final class CodeParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeParser.class);
     private final ExecutorService executor;
-    private final ProjectCodeIterator it;
+    private final PathIterator it;
     private final int threads;
     private final CountDownLatch finishedLatch;
     private boolean running = false;
 
-    public CodeParser(ProjectCodeIterator it) {
+    public CodeParser(PathIterator it) {
         this(it, 1);
     }
 
-    public CodeParser(ProjectCodeIterator it, int threads) {
+    public CodeParser(PathIterator it, int threads) {
         if (threads <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
         this.it = it;

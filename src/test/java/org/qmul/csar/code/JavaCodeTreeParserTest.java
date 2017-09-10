@@ -29,14 +29,14 @@ public final class JavaCodeTreeParserTest {
                 .abstractModifier(true)
                 .superClasses("AbstractSample")
                 .build();
-        VariableLanguageElement variable1 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+        VariableLanguageElement variable1 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "className")
                 .visibilityModifier(VisibilityModifier.PRIVATE)
                 .finalModifier(true)
                 .identifierType("String")
                 .valueExpression("\"Sample1\"")
                 .build();
-        VariableLanguageElement variable2 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+        VariableLanguageElement variable2 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "str")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .identifierType("String")
@@ -45,7 +45,7 @@ public final class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .abstractModifier(true)
                 .returnType("void")
-                .parameters(new Parameter("int", Optional.of("a"), Optional.of(true)),
+                .parameters(new Parameter("int[]", Optional.of("a"), Optional.of(true)),
                         new Parameter("int", Optional.of("b"), Optional.of(false)))
                 .parameterCount(2)
                 .build();
@@ -85,7 +85,7 @@ public final class JavaCodeTreeParserTest {
                 .interfaceModifier(true)
                 .superClasses("Runnable")
                 .build();
-        VariableLanguageElement const1 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+        VariableLanguageElement const1 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "ITERATIONS")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .staticModifier(true)
@@ -107,7 +107,7 @@ public final class JavaCodeTreeParserTest {
                 .parameterCount(2)
                 .typeParameters("E")
                 .build();
-        VariableLanguageElement const2 = VariableLanguageElement.InstanceVariableLanguageElement.Builder
+        VariableLanguageElement const2 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "name")
                 .identifierType("String[]")
                 .valueExpression("generateName(Sample2.class)")

@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * A plain-text formatter of a {@link Result}.
  */
-public final class PlainTextResultFormatter extends ResultFormatter {
+public final class PlainTextResultFormatter implements ResultFormatter {
 
     @Override
     public String format(List<Result> results) throws Exception {

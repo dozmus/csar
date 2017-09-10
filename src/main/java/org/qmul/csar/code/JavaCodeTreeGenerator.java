@@ -15,7 +15,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
     // TODO class/method LE may need to be extended to be given more information - could just be bad parser code tho
 
-    private Node root;
+    private Node rootNode;
 
     private static void parseParameters(JavaParser.FormalParameterListContext ctx, List<Parameter> paramIdentifiers,
                                         List<VariableLanguageElement> params) {
@@ -160,7 +160,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
     }
 
     private static void applyInstanceVariableModifiers(
-            VariableLanguageElement.InstanceVariableLanguageElement.Builder variableBuilder,
+            InstanceVariableLanguageElement.Builder variableBuilder,
             JavaParser.ModifierContext ctx) {
         // Ignored modifiers: NATIVE, SYNCHRONIZED
         JavaParser.ClassOrInterfaceModifierContext mods = ctx.classOrInterfaceModifier();
@@ -211,6 +211,166 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 .thrownExceptions(throwsList);
     }
 
+    private static ClassLanguageElement parseClass(JavaParser.TypeDeclarationContext ctx,
+                                                   List<LanguageElement> topLevelElements) {
+        List<String> superClasses = new ArrayList<>();
+        JavaParser.ClassDeclarationContext dec = ctx.classDeclaration();
+        String identifierName = dec.IDENTIFIER().getText();
+        ClassLanguageElement.Builder builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName);
+
+        // Class modifiers
+        applyClassModifiers(builder, ctx.classOrInterfaceModifier());
+
+        // Type parameters
+        applyTypeParameters(builder, dec.typeParameters());
+
+        // Implemented interfaces
+        parseImplemented(superClasses, dec.typeList());
+
+        // Extended class
+        JavaParser.TypeTypeContext extendedClass = dec.typeType();
+
+        if (extendedClass != null) {
+            superClasses.add(extendedClass.getText());
+        }
+        builder.superClasses(superClasses);
+
+        // Methods
+        if (dec.classBody() != null) {
+            for (JavaParser.ClassBodyDeclarationContext classBody : dec.classBody().classBodyDeclaration()) {
+                JavaParser.MemberDeclarationContext memberDec = classBody.memberDeclaration();
+                JavaParser.MethodDeclarationContext method = memberDec.methodDeclaration();
+                JavaParser.GenericMethodDeclarationContext genericMethod = memberDec.genericMethodDeclaration();
+                JavaParser.FieldDeclarationContext field = memberDec.fieldDeclaration();
+
+                if (method != null) { // method
+                    MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                            method.typeTypeOrVoid(), classBody.modifier(),
+                            method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
+                    // TODO finish (incl. parse method body)
+                    topLevelElements.add(methodBuilder.build());
+                } else if (genericMethod != null) { // generic method
+                    method = genericMethod.methodDeclaration();
+                    MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                            method.typeTypeOrVoid(), classBody.modifier(),
+                            method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
+                    // TODO finish (incl. parse method body)
+                    applyTypeParameters(methodBuilder, genericMethod.typeParameters());
+                    topLevelElements.add(methodBuilder.build());
+                } else if (field != null) { // field
+                    String identifierType = field.typeType().getText();
+
+                    for (JavaParser.VariableDeclaratorContext decl
+                            : field.variableDeclarators().variableDeclarator()) {
+                        JavaParser.VariableDeclaratorIdContext identifierCtx = decl.variableDeclaratorId();
+                        String identifier = identifierCtx.IDENTIFIER().getText();
+
+                        for (int i = 0; i < identifierCtx.LBRACK().size(); i++) { // XXX what is this even for?
+                            identifier += "[]";
+                        }
+
+                        InstanceVariableLanguageElement.Builder variableBuilder
+                                = InstanceVariableLanguageElement.Builder
+                                .allFalse(DEF, identifier)
+                                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                                .identifierType(identifierType);
+
+                        if (decl.variableInitializer() != null) {
+                            variableBuilder.valueExpression(decl.variableInitializer().getText());
+                        }
+
+                        for (JavaParser.ModifierContext mods : classBody.modifier()) {
+                            applyInstanceVariableModifiers(variableBuilder, mods);
+                        }
+                        topLevelElements.add(variableBuilder.build());
+
+                    }}
+            }
+        }
+        // TODO finish
+        return builder.build();
+    }
+
+    private static ClassLanguageElement parseInterface(JavaParser.TypeDeclarationContext ctx,
+                                                       List<LanguageElement> topLevelElements) {
+        List<String> superClasses = new ArrayList<>();
+        JavaParser.InterfaceDeclarationContext dec = ctx.interfaceDeclaration();
+        String identifierName = dec.IDENTIFIER().getText();
+        ClassLanguageElement.Builder builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName)
+                .interfaceModifier(true);
+
+        // Class modifiers
+        applyClassModifiers(builder, ctx.classOrInterfaceModifier());
+
+        // Type parameters
+        applyTypeParameters(builder, dec.typeParameters());
+
+        // Extended interfaces
+        parseImplemented(superClasses, dec.typeList());
+        builder.superClasses(superClasses);
+
+        // Methods
+        for (JavaParser.InterfaceBodyDeclarationContext intBody : dec.interfaceBody().interfaceBodyDeclaration()) {
+            JavaParser.InterfaceMemberDeclarationContext memberDec = intBody.interfaceMemberDeclaration();
+            JavaParser.InterfaceMethodDeclarationContext method = memberDec.interfaceMethodDeclaration();
+            JavaParser.GenericInterfaceMethodDeclarationContext genericMethod
+                    = memberDec.genericInterfaceMethodDeclaration();
+            JavaParser.ConstDeclarationContext constDecl = memberDec.constDeclaration();
+
+            if (method != null) { // method
+                MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                        method.typeTypeOrVoid(), intBody.modifier(),
+                        method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
+
+                for (JavaParser.InterfaceMethodModifierContext mods : method.interfaceMethodModifier()) {
+                    if (mods.PUBLIC() != null) {
+                        methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
+                    } else if (mods.ABSTRACT() != null) {
+                        methodBuilder.abstractModifier(true);
+                    } else if (mods.STATIC() != null) {
+                        methodBuilder.staticModifier(true);
+                    } else if (mods.STRICTFP() != null) {
+                        methodBuilder.strictfpModifier(true);
+                    } else if (mods.DEFAULT() != null) {
+                        methodBuilder.defaultModifier(true);
+                    }
+                }
+                topLevelElements.add(methodBuilder.build());
+            } else if (genericMethod != null) { // generic method
+                method = genericMethod.interfaceMethodDeclaration();
+                MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
+                        method.typeTypeOrVoid(), intBody.modifier(),
+                        method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
+                applyTypeParameters(methodBuilder, genericMethod.typeParameters());
+                topLevelElements.add(methodBuilder.build());
+            } else if (constDecl != null) { // constant
+                String identifierType = constDecl.typeType().getText();
+
+                for (JavaParser.ConstantDeclaratorContext decl : constDecl.constantDeclarator()) {
+                    String identifier = decl.IDENTIFIER().getText();
+
+                    for (int i = 0; i < decl.LBRACK().size(); i++) { // XXX what is this even for?
+                        identifier += "[]";
+                    }
+                    String valueExpression = decl.variableInitializer().getText();
+
+                    InstanceVariableLanguageElement.Builder variableBuilder
+                            = InstanceVariableLanguageElement.Builder
+                            .allFalse(DEF, identifier)
+                            .identifierType(identifierType)
+                            .valueExpression(valueExpression);
+
+                    for (JavaParser.ModifierContext mods : intBody.modifier()) {
+                        applyInstanceVariableModifiers(variableBuilder, mods);
+                    }
+                    topLevelElements.add(variableBuilder.build());
+                }
+            }
+        }
+        // TODO finish
+        return builder.build();
+    }
+
     @Override
     public void enterPackageDeclaration(JavaParser.PackageDeclarationContext ctx) {
         // TODO impl
@@ -231,173 +391,26 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             return;
         }
 
-        ClassLanguageElement.Builder builder = null;
-        List<String> superClasses = new ArrayList<>();
-        List<LanguageElement> topLevelElements = new ArrayList<>();
+        LanguageElement rootElement = null;
+        List<LanguageElement> rootsChildrenElements = new ArrayList<>();
 
         // Generate node
         if (ctx.classDeclaration() != null) { // class
-            JavaParser.ClassDeclarationContext dec = ctx.classDeclaration();
-            String identifierName = dec.IDENTIFIER().getText();
-            builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName);
-
-            // Class modifiers
-            applyClassModifiers(builder, ctx.classOrInterfaceModifier());
-
-            // Type parameters
-            applyTypeParameters(builder, dec.typeParameters());
-
-            // Implemented interfaces
-            parseImplemented(superClasses, dec.typeList());
-
-            // Extended class
-            JavaParser.TypeTypeContext extendedClass = dec.typeType();
-
-            if (extendedClass != null) {
-                superClasses.add(extendedClass.getText());
-            }
-
-            // Methods
-            if (dec.classBody() != null) {
-                for (JavaParser.ClassBodyDeclarationContext classBody : dec.classBody().classBodyDeclaration()) {
-                    JavaParser.MemberDeclarationContext memberDec = classBody.memberDeclaration();
-                    JavaParser.MethodDeclarationContext method = memberDec.methodDeclaration();
-                    JavaParser.GenericMethodDeclarationContext genericMethod = memberDec.genericMethodDeclaration();
-                    JavaParser.FieldDeclarationContext field = memberDec.fieldDeclaration();
-
-                    if (method != null) { // method
-                        MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                                method.typeTypeOrVoid(), classBody.modifier(),
-                                method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
-                        // TODO finish (incl. parse method body)
-                        topLevelElements.add(methodBuilder.build());
-                    } else if (genericMethod != null) { // generic method
-                        method = genericMethod.methodDeclaration();
-                        MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                                method.typeTypeOrVoid(), classBody.modifier(),
-                                method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
-                        // TODO finish (incl. parse method body)
-                        applyTypeParameters(methodBuilder, genericMethod.typeParameters());
-                        topLevelElements.add(methodBuilder.build());
-                    } else if (field != null) { // field
-                        String identifierType = field.typeType().getText();
-
-                        for (JavaParser.VariableDeclaratorContext decl
-                                : field.variableDeclarators().variableDeclarator()) {
-                            JavaParser.VariableDeclaratorIdContext identifierCtx = decl.variableDeclaratorId();
-                            String identifier = identifierCtx.IDENTIFIER().getText();
-
-                            for (int i = 0; i < identifierCtx.LBRACK().size(); i++) { // XXX what is this even for?
-                                identifier += "[][]";
-                            }
-
-                            VariableLanguageElement.InstanceVariableLanguageElement.Builder variableBuilder
-                                    = VariableLanguageElement.InstanceVariableLanguageElement.Builder
-                                    .allFalse(DEF, identifier)
-                                    .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
-                                    .identifierType(identifierType);
-
-                            if (decl.variableInitializer() != null) {
-                                variableBuilder.valueExpression(decl.variableInitializer().getText());
-                            }
-
-                            for (JavaParser.ModifierContext mods : classBody.modifier()) {
-                                applyInstanceVariableModifiers(variableBuilder, mods);
-                            }
-                            topLevelElements.add(variableBuilder.build());
-
-                    }}
-                    // TODO finish
-                }
-            }
+            rootElement = parseClass(ctx, rootsChildrenElements);
         } else if (ctx.interfaceDeclaration() != null) { // interface
-            JavaParser.InterfaceDeclarationContext dec = ctx.interfaceDeclaration();
-            String identifierName = dec.IDENTIFIER().getText();
-            builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName)
-                    .interfaceModifier(true);
-
-            // Class modifiers
-            applyClassModifiers(builder, ctx.classOrInterfaceModifier());
-
-            // Type parameters
-            applyTypeParameters(builder, dec.typeParameters());
-
-            // Extended interfaces
-            parseImplemented(superClasses, dec.typeList());
-
-            // Methods
-            for (JavaParser.InterfaceBodyDeclarationContext intBody : dec.interfaceBody().interfaceBodyDeclaration()) {
-                JavaParser.InterfaceMemberDeclarationContext memberDec = intBody.interfaceMemberDeclaration();
-                JavaParser.InterfaceMethodDeclarationContext method = memberDec.interfaceMethodDeclaration();
-                JavaParser.GenericInterfaceMethodDeclarationContext genericMethod
-                        = memberDec.genericInterfaceMethodDeclaration();
-                JavaParser.ConstDeclarationContext constDecl = memberDec.constDeclaration();
-
-                if (method != null) { // method
-                    MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                            method.typeTypeOrVoid(), intBody.modifier(),
-                            method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
-
-                    for (JavaParser.InterfaceMethodModifierContext mods : method.interfaceMethodModifier()) {
-                        if (mods.PUBLIC() != null) {
-                            methodBuilder.visibilityModifier(VisibilityModifier.PUBLIC);
-                        } else if (mods.ABSTRACT() != null) {
-                            methodBuilder.abstractModifier(true);
-                        } else if (mods.STATIC() != null) {
-                            methodBuilder.staticModifier(true);
-                        } else if (mods.STRICTFP() != null) {
-                            methodBuilder.strictfpModifier(true);
-                        } else if (mods.DEFAULT() != null) {
-                            methodBuilder.defaultModifier(true);
-                        }
-                    }
-                    topLevelElements.add(methodBuilder.build());
-                } else if (genericMethod != null) { // generic method
-                    method = genericMethod.interfaceMethodDeclaration();
-                    MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                            method.typeTypeOrVoid(), intBody.modifier(),
-                            method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
-                    applyTypeParameters(methodBuilder, genericMethod.typeParameters());
-                    topLevelElements.add(methodBuilder.build());
-                } else if (constDecl != null) { // constant
-                    String identifierType = constDecl.typeType().getText();
-
-                    for (JavaParser.ConstantDeclaratorContext decl : constDecl.constantDeclarator()) {
-                        String identifier = decl.IDENTIFIER().getText();
-
-                        for (int i = 0; i < decl.LBRACK().size(); i++) { // XXX what is this even for?
-                            identifier += "[][]";
-                        }
-                        String valueExpression = decl.variableInitializer().getText();
-
-                        VariableLanguageElement.InstanceVariableLanguageElement.Builder variableBuilder
-                                = VariableLanguageElement.InstanceVariableLanguageElement.Builder
-                                .allFalse(DEF, identifier)
-                                .identifierType(identifierType)
-                                .valueExpression(valueExpression);
-
-                        for (JavaParser.ModifierContext mods : intBody.modifier()) {
-                            applyInstanceVariableModifiers(variableBuilder, mods);
-                        }
-                        topLevelElements.add(variableBuilder.build());
-                    }
-                }
-
-                // TODO finish
-            }
+            rootElement = parseInterface(ctx, rootsChildrenElements);
         }
 
         // Create root
-        builder.superClasses(superClasses);
-        root = new Node(builder.build());
+        rootNode = new Node(rootElement);
 
         // Append methods to root
-        for (LanguageElement method : topLevelElements) {
-            root.addNode(new Node(method));
+        for (LanguageElement method : rootsChildrenElements) {
+            rootNode.addNode(new Node(method));
         }
     }
 
-    public Node getRoot() {
-        return root;
+    public Node getRootNode() {
+        return rootNode;
     }
 }
