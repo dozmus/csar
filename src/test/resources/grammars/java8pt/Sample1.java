@@ -7,7 +7,7 @@ public strictfp abstract class Sample1 extends AbstractSample {
     }
 
     public <E> Sample1(String... names) {
-
+        String[] s;
     }
 
     private final String className = "Sample1";
@@ -20,6 +20,7 @@ public strictfp abstract class Sample1 extends AbstractSample {
     }
 
     final <E extends AbstractSample> void setResult(int result) {
+        final int k = 3;
         this.result = result;
     }
 }

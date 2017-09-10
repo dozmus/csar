@@ -5,7 +5,7 @@ import org.qmul.csar.query.CsarQuery;
 import java.util.Objects;
 import java.util.Optional;
 
-public class VariableLanguageElement extends IdentifiableLanguageElement {
+public class VariableLanguageElement extends IdentifiableLanguageElement implements Statement {
 
     private final CsarQuery.Type searchType;
     private final VariableType variableType;
@@ -107,5 +107,4 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
                     identifierType);
         }
     }
-
 }

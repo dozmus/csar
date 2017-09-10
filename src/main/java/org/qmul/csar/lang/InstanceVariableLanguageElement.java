@@ -9,7 +9,7 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
 
     private final CommonModifiers commonModifiers;
 
-    // TODO remove abstract and strictfp from this (i.e. CommonModifiers
+    // TODO remove abstract and strictfp from this (i.e. CommonModifiers)
 
     public InstanceVariableLanguageElement(CsarQuery.Type searchType,
                                            Optional<VisibilityModifier> visibilityModifier,

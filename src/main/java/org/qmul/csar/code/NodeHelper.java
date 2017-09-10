@@ -80,7 +80,7 @@ public final class NodeHelper {
             }
             return builder.toString();
         } else if (e instanceof MethodLanguageElement) {
-            MethodLanguageElement method = ((MethodLanguageElement)e);
+            MethodLanguageElement method = ((MethodLanguageElement) e);
             CommonModifiers common = method.getCommonModifiers();
             StringBuilder builder = new StringBuilder()
                     .append(method.getCommonModifiers().getSearchType())
@@ -166,8 +166,27 @@ public final class NodeHelper {
                 builder.append(")");
             }
             return builder.toString();
+        } else if (e instanceof VariableLanguageElement && !(e instanceof InstanceVariableLanguageElement)) {
+            VariableLanguageElement variable = ((VariableLanguageElement) e);
+            StringBuilder builder = new StringBuilder()
+                    .append(variable.getSearchType())
+                    .append(":");
+
+            if (variable.getFinalModifier().isPresent()) {
+                builder.append("final ");
+            }
+
+            if (variable.getIdentifierType().isPresent()) {
+                builder.append(variable.getIdentifierType().get()).append(" ");
+            }
+            builder.append(variable.getIdentifierName());
+
+            if (variable.getValueExpression().isPresent()) {
+                builder.append(" = ").append(variable.getValueExpression().get());
+            }
+            return builder.toString();
         } else {
-            return "UNHANDLED";
+            return "UNHANDLED: " + e.toString();
         }
     }
 }

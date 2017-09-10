@@ -12,6 +12,8 @@ import static org.junit.Assert.assertEquals;
 
 public final class JavaCodeTreeParserTest {
 
+    // TODO test local variable parsing
+
     /**
      * Directory of the java code files.
      */
@@ -41,6 +43,13 @@ public final class JavaCodeTreeParserTest {
                 .parameters(new Parameter("String...", Optional.of("names"), Optional.of(false)))
                 .typeParameters("E")
                 .build();
+        Node constructor2Node = new Node(constructor2);
+        constructor2Node.addNode(new Node(
+                new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "s")
+                        .finalModifier(false)
+                        .identifierType("String[]")
+                        .build())
+        );
         VariableLanguageElement variable1 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "className")
                 .visibilityModifier(VisibilityModifier.PRIVATE)
@@ -75,16 +84,24 @@ public final class JavaCodeTreeParserTest {
                 .parameterCount(1)
                 .typeParameters("E extends AbstractSample")
                 .build();
+        Node method3Node = new Node(method3);
+        method3Node.addNode(new Node(
+                new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "k")
+                        .finalModifier(true)
+                        .identifierType("int")
+                        .valueExpression("3")
+                        .build())
+        );
 
         // Build node tree
         Node root = new Node(clazz);
         root.addNode(new Node(constructor1));
-        root.addNode(new Node(constructor2));
+        root.addNode(constructor2Node);
         root.addNode(new Node(variable1));
         root.addNode(new Node(variable2));
         root.addNode(new Node(method1));
         root.addNode(new Node(method2));
-        root.addNode(new Node(method3));
+        root.addNode(method3Node);
         return root;
     }
 
