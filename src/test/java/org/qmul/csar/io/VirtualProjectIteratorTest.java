@@ -8,13 +8,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 
-public final class VirtualProjectCodeIteratorTest {
+public final class VirtualProjectIteratorTest {
 
-    private VirtualProjectCodeIterator iterator;
+    private VirtualProjectIterator iterator;
 
     @Before
     public void setUp() throws Exception {
-        iterator = new VirtualProjectCodeIterator();
+        iterator = new VirtualProjectIterator();
     }
 
     @Test

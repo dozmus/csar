@@ -3,7 +3,7 @@ package org.qmul.csar;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.qmul.csar.io.PathIterator;
-import org.qmul.csar.io.ProjectCodeIterator;
+import org.qmul.csar.io.ProjectIterator;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
 import org.slf4j.Logger;
@@ -23,11 +23,11 @@ public final class Csar {
     private final PathIterator it;
 
     /**
-     * Constructs a new Csar, with a standard {@link ProjectCodeIterator}.
-     * @param ctx the details of what it should perform
+     * Constructs a new Csar, with a standard {@link ProjectIterator}.
+     * @param ctx the details of should be performed
      */
     public Csar(CsarContext ctx) {
-        this(ctx, new ProjectCodeIterator(ctx));
+        this(ctx, new ProjectIterator(ctx.getDirectory()));
     }
 
     /**
@@ -35,7 +35,7 @@ public final class Csar {
      * @param ctx the details of what it should perform
      * @param it the project code iterator to use
      */
-    public Csar(CsarContext ctx, ProjectCodeIterator it) {
+    public Csar(CsarContext ctx, ProjectIterator it) {
         this.ctx = ctx;
         this.it = it;
     }
@@ -82,8 +82,8 @@ public final class Csar {
     private void init() {
         LOGGER.info("Initializing");
 
-        if (it instanceof ProjectCodeIterator) {
-            ((ProjectCodeIterator)it).init();
+        if (it instanceof ProjectIterator) {
+            ((ProjectIterator)it).init();
         }
 
         if (!it.hasNext()) {

@@ -6,7 +6,6 @@ import org.qmul.csar.result.PlainTextResultFormatter;
 import org.qmul.csar.result.ResultFormatter;
 import org.qmul.csar.util.ResultFormatterConverter;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -69,9 +68,5 @@ public class CsarContext {
 
     public Path getDirectory() {
         return Paths.get(".");
-    }
-
-    public boolean isGitRepository() {
-        return Files.isDirectory(Paths.get(".git"));
     }
 }

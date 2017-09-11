@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Iterates over specified code files. You can add files even after partially iterating.
+ * Iterates over specified code files. You can add files after partially iterating.
  */
-public class VirtualProjectCodeIterator implements PathIterator {
+public class VirtualProjectIterator implements PathIterator {
 
     private final List<Path> files = new ArrayList<>(); // the element collection
     private int cursor = 0; // the index of the next element to return

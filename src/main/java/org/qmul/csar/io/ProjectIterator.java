@@ -1,6 +1,5 @@
 package org.qmul.csar.io;
 
-import org.qmul.csar.CsarContext;
 import org.qmul.csar.code.CodeTreeParserFactory;
 import org.qmul.csar.util.ProcessHelper;
 import org.slf4j.Logger;
@@ -16,32 +15,49 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Iterates over files in a directory recursively to find accepted ones.
+ * Iterates over files in the specified directory recursively to find accepted ones.
  * The code files may be narrowed down further if the folder is a git repository (if no error occurs).
  * @see CodeTreeParserFactory#accepts(Path)
  * @see #scanGitDir()
  */
-public class ProjectCodeIterator implements PathIterator {
+public class ProjectIterator implements PathIterator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeIterator.class);
-    private final CsarContext ctx;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectIterator.class);
+    private final boolean narrowSearch;
+    private final Path directory;
     private final List<Path> files = new ArrayList<>(); // the element collection
     private int cursor = 0; // the index of the next element to return
 
-    public ProjectCodeIterator(CsarContext ctx) {
-        this.ctx = ctx;
+    /**
+     * Creates a new instance with the argument directory and <tt>narrowSearch</tt> set to <tt>true</tt>.
+     * @param directory the directory to search for files in
+     */
+    public ProjectIterator(Path directory) {
+        this(directory, true);
+    }
+
+    /**
+     * Creates a new instance.
+     * @param directory the directory to search for files in
+     * @param narrowSearch if the directory is home to a git repository, then if only files in the git repository
+     *                     should be searched
+     */
+    public ProjectIterator(Path directory, boolean narrowSearch) {
+        this.directory = directory;
+        this.narrowSearch = narrowSearch;
     }
 
     /**
      * Finds the code files in the working directory and stores them in {@link #files}.
      */
     public void init() {
-        LOGGER.info("Scanning project directory: {}", ctx.getDirectory().toString());
+        LOGGER.info("Scanning project directory: {}", directory.toString());
         files.clear();
         cursor = 0;
+        boolean gitRepository = Files.isDirectory(Paths.get(directory.toString(), ".git"));
 
         // Find files
-        if (ctx.isGitRepository()) {
+        if (gitRepository && narrowSearch) {
             scanGitDir();
         } else {
             scanDir();
@@ -55,7 +71,7 @@ public class ProjectCodeIterator implements PathIterator {
      * @see CodeTreeParserFactory#accepts(Path)
      */
     private void scanGitDir() {
-        LOGGER.trace("Git repository detected");
+        LOGGER.trace("Scanning git repository");
         List<String> output;
 
         try {
@@ -87,7 +103,7 @@ public class ProjectCodeIterator implements PathIterator {
     }
 
     private void scanDir() {
-        scanDir(ctx.getDirectory(), false);
+        scanDir(directory, false);
     }
 
     /**
