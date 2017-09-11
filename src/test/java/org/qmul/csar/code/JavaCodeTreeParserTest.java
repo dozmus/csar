@@ -190,7 +190,7 @@ public final class JavaCodeTreeParserTest {
                 .parameterCount(0)
                 .build();
 
-        ClassLanguageElement innerInterface = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Runnable")
+        ClassLanguageElement localInterface = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Runnable")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .local(true)
                 .interfaceModifier(true)
@@ -199,10 +199,10 @@ public final class JavaCodeTreeParserTest {
                 .returnType("void")
                 .parameterCount(0)
                 .build();
-        Node interfaceNode = new Node(innerInterface);
+        Node interfaceNode = new Node(localInterface);
         interfaceNode.addNode(new Node(method2));
 
-        ClassLanguageElement innerClass = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "A")
+        ClassLanguageElement localClass = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "A")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .local(true)
                 .superClasses("Runnable")
@@ -218,10 +218,10 @@ public final class JavaCodeTreeParserTest {
                 .identifierType("int")
                 .valueExpression("30")
                 .build();
-        Node innerMethodNode = new Node(method3);
-        innerMethodNode.addNode(new Node(local1));
-        Node classNode = new Node(innerClass);
-        classNode.addNode(innerMethodNode);
+        Node localClassMethodNode = new Node(method3);
+        localClassMethodNode.addNode(new Node(local1));
+        Node classNode = new Node(localClass);
+        classNode.addNode(localClassMethodNode);
 
         VariableLanguageElement local2 = new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL,
                 "worker")
