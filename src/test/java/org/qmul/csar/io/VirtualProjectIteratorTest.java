@@ -1,7 +1,6 @@
 package org.qmul.csar.io;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -10,45 +9,39 @@ import java.util.NoSuchElementException;
 
 public final class VirtualProjectIteratorTest {
 
-    private VirtualProjectIterator iterator;
-
-    @Before
-    public void setUp() throws Exception {
-        iterator = new VirtualProjectIterator();
-    }
-
     @Test
     public void test() throws Exception {
-        Assert.assertEquals(false, iterator.hasNext());
+        VirtualProjectIterator it = new VirtualProjectIterator();
+        Assert.assertEquals(false, it.hasNext());
 
         // Add file #1
         Path path1 = Paths.get("file1.txt");
-        iterator.addFile(path1);
-        Assert.assertEquals(true, iterator.hasNext());
-        Assert.assertEquals(path1, iterator.next());
-        Assert.assertEquals(false, iterator.hasNext());
+        it.addFile(path1);
+        Assert.assertEquals(true, it.hasNext());
+        Assert.assertEquals(path1, it.next());
+        Assert.assertEquals(false, it.hasNext());
 
         // Try to take non-existent element
         try {
-            iterator.next();
+            it.next();
         } catch (NoSuchElementException ignored) {
         }
 
         // Add file #2
         Path path2 = Paths.get("docs/file1.txt");
-        iterator.addFile(path2);
-        Assert.assertEquals(true, iterator.hasNext());
-        Assert.assertEquals(path2, iterator.next());
-        Assert.assertEquals(false, iterator.hasNext());
+        it.addFile(path2);
+        Assert.assertEquals(true, it.hasNext());
+        Assert.assertEquals(path2, it.next());
+        Assert.assertEquals(false, it.hasNext());
 
         // Try to take non-existent elements
         try {
-            iterator.next();
+            it.next();
         } catch (NoSuchElementException ignored) {
         }
 
         try {
-            iterator.next();
+            it.next();
         } catch (NoSuchElementException ignored) {
         }
     }

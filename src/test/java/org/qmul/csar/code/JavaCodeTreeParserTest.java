@@ -1,23 +1,33 @@
 package org.qmul.csar.code;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.qmul.csar.lang.*;
 import org.qmul.csar.query.CsarQuery;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(value = Parameterized.class)
 public final class JavaCodeTreeParserTest {
-
-    // TODO parameterize this test
 
     /**
      * Directory of the java code files.
      */
     private static final String SAMPLES_DIRECTORY = "src/test/resources/grammars/java8pt/";
+    private final Node sampleNode;
+    private final String sampleFileName;
+
+    public JavaCodeTreeParserTest(Node sampleNode, String sampleFileName) {
+        this.sampleNode = sampleNode;
+        this.sampleFileName = sampleFileName;
+    }
 
     /**
      * A node representing the contents of src/test/resources/grammars/java8pt/Sample1.java
@@ -277,28 +287,19 @@ public final class JavaCodeTreeParserTest {
         return root;
     }
 
-    @Test
-    public void testSample1() throws IOException {
-        assertEquals(sample1(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample1.java")));
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                {sample1(), "Sample1.java"},
+                {sample2(), "Sample2.java"},
+                {sample3(), "Sample3.java"},
+                {sample4(), "Sample4.java"},
+                {sample5(), "Sample5.java"}
+        });
     }
 
     @Test
-    public void testSample2() throws IOException {
-        assertEquals(sample2(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample2.java")));
-    }
-
-    @Test
-    public void testSample3() throws IOException {
-        assertEquals(sample3(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample3.java")));
-    }
-
-    @Test
-    public void testSample4() throws IOException {
-        assertEquals(sample4(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample4.java")));
-    }
-
-    @Test
-    public void testSample5() throws IOException {
-        assertEquals(sample5(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample5.java")));
+    public void testSample() throws IOException {
+        assertEquals(sampleNode, CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + sampleFileName)));
     }
 }
