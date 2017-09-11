@@ -17,6 +17,11 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
     // TODO class/method LE may need to be extended to be given more information - could just be bad parser code tho
 
     private Node rootNode;
+    /**
+     * This is used to make sure {@link #enterTypeDeclaration(JavaParser.TypeDeclarationContext)} is only called once,
+     * since it sets the {@link #rootNode} property. Other type declarations are parsed elsewhere.
+     */
+    private boolean processedMainTypeDecl = false;
 
     private static void parseParameters(JavaParser.FormalParameterListContext ctx, List<Parameter> paramIdentifiers,
                                         List<VariableLanguageElement> params) {
@@ -266,19 +271,56 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
         // statement
         JavaParser.StatementContext statement = st.statement();
-        // TODO impl
+
+        if (statement != null) {
+            // TODO impl
+        }
 
         // type declaration
         JavaParser.TypeDeclarationContext typeDeclaration = st.typeDeclaration();
-        // TODO impl
+
+        if (typeDeclaration != null) { // TODO test
+            // NOTE this is unfinished
+            // Check if node type is handled
+            if (typeDeclaration.classDeclaration() == null && typeDeclaration.interfaceDeclaration() == null) {
+                // TODO error: stop generating and tell the codeparser to skip the file
+                System.err.println("Unhandled file type");
+                return;
+            }
+
+            ClassLanguageElement element = null;
+            List<Node> childrenNodes = new ArrayList<>();
+
+            // Generate node
+            if (typeDeclaration.classDeclaration() != null) { // class
+                element = parseClass(typeDeclaration, childrenNodes, true);
+            } else if (typeDeclaration.interfaceDeclaration() != null) { // interface
+                element = parseInterface(typeDeclaration, childrenNodes, true);
+            }
+
+            // Add to statements
+            Node currentNode = new Node(element);
+            parent.addNode(currentNode);
+
+            // Append methods to root
+            for (Node child : childrenNodes) {
+                currentNode.addNode(child);
+            }
+        }
     }
 
     private static ClassLanguageElement parseClass(JavaParser.TypeDeclarationContext ctx,
                                                    List<Node> topLevelElements) {
+        return parseClass(ctx, topLevelElements, false);
+    }
+
+    private static ClassLanguageElement parseClass(JavaParser.TypeDeclarationContext ctx,
+                                                   List<Node> topLevelElements, boolean local) {
         List<String> superClasses = new ArrayList<>();
         JavaParser.ClassDeclarationContext dec = ctx.classDeclaration();
         String identifierName = dec.IDENTIFIER().getText();
-        ClassLanguageElement.Builder builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName);
+        ClassLanguageElement.Builder builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName)
+                .local(local);
 
         // Class modifiers
         applyClassModifiers(builder, ctx.classOrInterfaceModifier());
@@ -411,11 +453,17 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
     private static ClassLanguageElement parseInterface(JavaParser.TypeDeclarationContext ctx,
                                                        List<Node> topLevelElements) {
+        return parseInterface(ctx, topLevelElements, false);
+    }
+
+    private static ClassLanguageElement parseInterface(JavaParser.TypeDeclarationContext ctx,
+                                                       List<Node> topLevelElements, boolean local) {
         List<String> superClasses = new ArrayList<>();
         JavaParser.InterfaceDeclarationContext dec = ctx.interfaceDeclaration();
         String identifierName = dec.IDENTIFIER().getText();
         ClassLanguageElement.Builder builder = ClassLanguageElement.Builder.allFalse(DEF, identifierName)
-                .interfaceModifier(true);
+                .interfaceModifier(true)
+                .local(local);
 
         // Class modifiers
         applyClassModifiers(builder, ctx.classOrInterfaceModifier());
@@ -502,6 +550,12 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
     @Override
     public void enterTypeDeclaration(JavaParser.TypeDeclarationContext ctx) {
+        if (!processedMainTypeDecl) {
+            processedMainTypeDecl = true;
+        } else {
+            return;
+        }
+
         // NOTE this method is unfinished
         // Check if node type is handled
         if (ctx.classDeclaration() == null && ctx.interfaceDeclaration() == null) {

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 public final class JavaCodeTreeParserTest {
 
-    // TODO test local variable parsing
+    // TODO parameterize this test
 
     /**
      * Directory of the java code files.
@@ -175,6 +175,72 @@ public final class JavaCodeTreeParserTest {
         return new Node(clazz);
     }
 
+    /**
+     * A node representing the contents of src/test/resources/grammars/java8pt/Sample4.java
+     * @return
+     */
+    private static Node sample4() {
+        // Construct language elements
+        ClassLanguageElement parentClass = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Sample4")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .build();
+
+        MethodLanguageElement parentClassMethod = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "work")
+                .returnType("void")
+                .parameterCount(0)
+                .build();
+
+        ClassLanguageElement innerInterface = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Runnable")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .local(true)
+                .interfaceModifier(true)
+                .build();
+        MethodLanguageElement method2 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "run")
+                .returnType("void")
+                .parameterCount(0)
+                .build();
+        Node interfaceNode = new Node(innerInterface);
+        interfaceNode.addNode(new Node(method2));
+
+        ClassLanguageElement innerClass = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "A")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .local(true)
+                .superClasses("Runnable")
+                .build();
+        MethodLanguageElement method3 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "run")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .returnType("void")
+                .parameterCount(0)
+                .build();
+        VariableLanguageElement local1 = new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL,
+                "x")
+                .finalModifier(false)
+                .identifierType("int")
+                .valueExpression("30")
+                .build();
+        Node innerMethodNode = new Node(method3);
+        innerMethodNode.addNode(new Node(local1));
+        Node classNode = new Node(innerClass);
+        classNode.addNode(innerMethodNode);
+
+        VariableLanguageElement local2 = new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL,
+                "worker")
+                .finalModifier(false)
+                .identifierType("A")
+                .valueExpression("newA()")
+                .build();
+
+        // Build node tree
+        Node methodNode = new Node(parentClassMethod);
+        methodNode.addNode(interfaceNode);
+        methodNode.addNode(classNode);
+        methodNode.addNode(new Node(local2));
+
+        Node root = new Node(parentClass);
+        root.addNode(methodNode);
+        return root;
+    }
+
     @Test
     public void testSample1() throws IOException {
         assertEquals(sample1(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample1.java")));
@@ -188,5 +254,10 @@ public final class JavaCodeTreeParserTest {
     @Test
     public void testSample3() throws IOException {
         assertEquals(sample3(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample3.java")));
+    }
+
+    @Test
+    public void testSample4() throws IOException {
+        assertEquals(sample4(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample4.java")));
     }
 }

@@ -4,12 +4,13 @@ import org.qmul.csar.query.CsarQuery;
 
 import java.util.*;
 
-public class ClassLanguageElement extends IdentifiableLanguageElement {
+public class ClassLanguageElement extends IdentifiableLanguageElement implements Statement {
 
     private CommonModifiers commonModifiers;
     private Optional<Boolean> interfaceModifier = Optional.empty();
     private Optional<Boolean> anonymous = Optional.empty();
     private Optional<Boolean> inner = Optional.empty();
+    private Optional<Boolean> local = Optional.empty();
     private List<String> typeParameters = new ArrayList<>();
     private List<String> superClasses = new ArrayList<>();
 
@@ -17,14 +18,15 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
                                 Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                 String identifierName, Optional<Boolean> interfaceModifier,
                                 Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
-                                Optional<Boolean> anonymous, Optional<Boolean> inner, List<String> typeParameters,
-                                List<String> superClasses) {
+                                Optional<Boolean> anonymous, Optional<Boolean> inner, Optional<Boolean> local,
+                                List<String> typeParameters, List<String> superClasses) {
         super(LanguageElement.Type.CLASS, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                 abstractModifier, strictfpModifier);
         this.interfaceModifier = interfaceModifier;
         this.anonymous = anonymous;
         this.inner = inner;
+        this.local = local;
         this.typeParameters = typeParameters;
         this.superClasses = superClasses;
     }
@@ -45,6 +47,10 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         return inner;
     }
 
+    public Optional<Boolean> getLocal() {
+        return local;
+    }
+
     public List<String> getTypeParameters() {
         return typeParameters;
     }
@@ -63,21 +69,22 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
                 Objects.equals(interfaceModifier, that.interfaceModifier) &&
                 Objects.equals(anonymous, that.anonymous) &&
                 Objects.equals(inner, that.inner) &&
+                Objects.equals(local, that.local) &&
                 Objects.equals(typeParameters, that.typeParameters) &&
                 Objects.equals(superClasses, that.superClasses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, anonymous, inner, typeParameters,
-                superClasses);
+        return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, anonymous, inner, local,
+                typeParameters, superClasses);
     }
 
     @Override
     public String toString() {
         return String.format("ClassLanguageElement{commonModifiers=%s, interfaceModifier=%s, anonymous=%s, inner=%s, "
-                + "typeParameters=%s, superClasses=%s} %s", commonModifiers, interfaceModifier, anonymous, inner,
-                typeParameters, superClasses, super.toString());
+                + "local=%s, typeParameters=%s, superClasses=%s} %s", commonModifiers, interfaceModifier, anonymous,
+                inner, local, typeParameters, superClasses, super.toString());
     }
 
     public static class Builder {
@@ -92,6 +99,7 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         private Optional<Boolean> strictfpModifier = Optional.empty();
         private Optional<Boolean> anonymous = Optional.empty();
         private Optional<Boolean> inner = Optional.empty();
+        private Optional<Boolean> local = Optional.empty();
         private List<String> typeParameters = new ArrayList<>();
         private List<String> superClasses = new ArrayList<>();
 
@@ -113,7 +121,8 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
                     .strictfpModifier(false)
                     .interfaceModifier(false)
                     .inner(false)
-                    .anonymous(false);
+                    .anonymous(false)
+                    .local(false);
         }
 
         public Builder staticModifier(boolean staticModifier) {
@@ -151,6 +160,11 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
+        public Builder local(boolean local) {
+            this.local = Optional.of(local);
+            return this;
+        }
+
         public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
             this.visibilityModifier = Optional.of(visibilityModifier);
             return this;
@@ -178,7 +192,7 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
 
         public ClassLanguageElement build() {
             return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
-                    identifierName, interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner,
+                    identifierName, interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner, local,
                     typeParameters, superClasses);
         }
     }

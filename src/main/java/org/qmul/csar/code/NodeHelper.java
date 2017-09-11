@@ -61,6 +61,10 @@ public final class NodeHelper {
             }
 
 
+            if (clazz.getLocal().isPresent() && clazz.getLocal().get()) {
+                builder.append("(local) ");
+            }
+
             if (clazz.getInterfaceModifier().isPresent() && clazz.getInterfaceModifier().get()) {
                 builder.append("interface ");
             } else {

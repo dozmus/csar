@@ -90,7 +90,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
         return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier, identifierName,
                 interfaceModifier, abstractModifier, strictfpModifier, anonymousModifier, innerModifier,
-                new ArrayList<>(), superClasses);
+                Optional.empty(), new ArrayList<>(), superClasses);
     }
 
     private static LanguageElement parseMethod(CsarParser.MethodContext ctx) {
