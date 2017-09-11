@@ -287,6 +287,29 @@ public final class JavaCodeTreeParserTest {
         return root;
     }
 
+    /**
+     * A node representing the contents of src/test/resources/grammars/java8pt/Sample6.java
+     * @return
+     */
+    private static Node sample6() {
+        // Construct language elements
+        ClassLanguageElement interfaceElement = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Sample6")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .interfaceModifier(true)
+                .build();
+        ClassLanguageElement innerClass = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "A")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .superClasses("Sample6")
+                .inner(true)
+                .typeParameters("T0")
+                .build();
+
+        // Build node tree
+        Node root = new Node(interfaceElement);
+        root.addNode(new Node(innerClass));
+        return root;
+    }
+
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
@@ -294,7 +317,8 @@ public final class JavaCodeTreeParserTest {
                 {sample2(), "Sample2.java"},
                 {sample3(), "Sample3.java"},
                 {sample4(), "Sample4.java"},
-                {sample5(), "Sample5.java"}
+                {sample5(), "Sample5.java"},
+                {sample6(), "Sample6.java"}
         });
     }
 

@@ -507,12 +507,13 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         applyImplemented(superClasses, dec.typeList());
         builder.superClasses(superClasses);
 
-        // Methods
+        // Body
         for (JavaParser.InterfaceBodyDeclarationContext intBody : dec.interfaceBody().interfaceBodyDeclaration()) {
             JavaParser.InterfaceMemberDeclarationContext memberDec = intBody.interfaceMemberDeclaration();
             JavaParser.InterfaceMethodDeclarationContext method = memberDec.interfaceMethodDeclaration();
             JavaParser.GenericInterfaceMethodDeclarationContext genericMethod
                     = memberDec.genericInterfaceMethodDeclaration();
+            JavaParser.ClassDeclarationContext classDec = memberDec.classDeclaration();
             JavaParser.ConstDeclarationContext constDecl = memberDec.constDeclaration();
 
             if (method != null) { // method
@@ -564,6 +565,9 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     }
                     children.add(new Node(variableBuilder.build()));
                 }
+            } else if (classDec != null) { // inner class
+                Node node = parseClass(toClassOrInterfaceModifierContexts(intBody.modifier()), classDec, false, true);
+                children.add(node);
             }
         }
         // TODO finish
