@@ -18,14 +18,14 @@ public final class NodeHelperTest {
     @Test
     public void toStringRecursively() throws Exception {
         // Test #1: single class element
-        ClassLanguageElement clazz1 = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Sample1")
+        ClassLanguageElement clazz1 = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "MainClass")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .strictfpModifier(true)
                 .abstractModifier(true)
                 .typeParameters("T0")
                 .superClasses("AbstractSample")
                 .build();
-        assertEquals("DEF:public strictfp abstract class Sample1<T0>(AbstractSample)", new Node(clazz1));
+        assertEquals("DEF:public strictfp abstract class MainClass<T0>(AbstractSample)", new Node(clazz1));
 
         // Test #2: single method element
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "add")
@@ -65,9 +65,11 @@ public final class NodeHelperTest {
                         .valueExpression("40")
                         .build())
         );
-        ClassLanguageElement clazz2 = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Sample2")
+        ClassLanguageElement clazz2 = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "SerializeContract")
                 .visibilityModifier(VisibilityModifier.PRIVATE)
-                .staticModifier(true)
+                .interfaceModifier(true)
+                .inner(true)
+                .anonymous(true)
                 .build();
 
         Node root = new Node(clazz1);
@@ -76,12 +78,12 @@ public final class NodeHelperTest {
         root.addNode(method2Node);
         root.addNode(new Node(clazz2));
 
-        assertEquals("DEF:public strictfp abstract class Sample1<T0>(AbstractSample)" + NEW_LINE
+        assertEquals("DEF:public strictfp abstract class MainClass<T0>(AbstractSample)" + NEW_LINE
                 + "  DEF:package_private String str" + NEW_LINE
                 + "  DEF:public abstract void add(final int a, int b)" + NEW_LINE
                 + "  DEF:protected final <E, K extends Sample> int getResult()" + NEW_LINE
                 + "    DEF:String[] s" + NEW_LINE
                 + "    DEF:final int x = 40" + NEW_LINE
-                + "  DEF:private static class Sample2", root);
+                + "  DEF:private (anonymous) (inner) interface SerializeContract", root);
     }
 }

@@ -48,10 +48,6 @@ public final class NodeHelper {
                 builder.append("strictfp ");
             }
 
-            if (clazz.getInterfaceModifier().isPresent() && clazz.getInterfaceModifier().get()) {
-                builder.append("interface ");
-            }
-
             if (common.getAbstractModifier().isPresent() && common.getAbstractModifier().get()) {
                 builder.append("abstract ");
             }
@@ -64,7 +60,13 @@ public final class NodeHelper {
                 builder.append("(inner) ");
             }
 
-            builder.append("class ").append(clazz.getIdentifierName());
+
+            if (clazz.getInterfaceModifier().isPresent() && clazz.getInterfaceModifier().get()) {
+                builder.append("interface ");
+            } else {
+                builder.append("class ");
+            }
+            builder.append(clazz.getIdentifierName());
 
             if (clazz.getTypeParameters().size() > 0) {
                 builder.append("<");
