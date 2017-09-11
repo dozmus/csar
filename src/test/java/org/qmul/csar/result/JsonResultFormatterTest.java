@@ -1,7 +1,6 @@
 package org.qmul.csar.result;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -10,12 +9,7 @@ import java.util.Arrays;
 
 public final class JsonResultFormatterTest {
 
-    private ResultFormatter formatter;
-
-    @Before
-    public void setUp() throws Exception {
-        formatter = new JsonResultFormatter();
-    }
+    private final ResultFormatter formatter = new JsonResultFormatter();
 
     private void assertEquals(String expected, Result... results) throws Exception {
         Assert.assertEquals(expected, formatter.format(Arrays.asList(results)));

@@ -11,6 +11,7 @@ public final class PathHelper {
 
     /**
      * Writes the <tt>String</tt> argument to the given <tt>Path</tt> argument.
+     *
      * @param path the path to the file
      * @param text the text to write to the file
      * @throws IOException if an I/O error occurs

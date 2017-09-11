@@ -27,6 +27,7 @@ public final class CodeTreeParserFactory {
 
     /**
      * Returns if the argument is a code file for which a parser exists.
+     *
      * @param path the path to check is accepted
      * @return if the given file has a defined parser
      * @see #HANDLED_CODE_FILE_EXTENSIONS

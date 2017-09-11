@@ -18,7 +18,7 @@ public class ThrowRuntimeExceptionErrorListener extends DummyANTLRErrorListener 
 
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object badSymbol, int line, int charPosInLine, String msg,
-                            RecognitionException e) {
+            RecognitionException e) {
         String pos = line + ":" + charPosInLine;
         throw new RuntimeException("syntax error parsing " + name + " for symbol `" + badSymbol + "` at " + pos);
     }

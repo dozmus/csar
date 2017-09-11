@@ -35,7 +35,7 @@ public final class CsarQueryFactoryTest {
                 .refactor(new RefactorElement.RenameRefactorElement("addInt"))
                 .build();
         assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass "
-                        + "FROM Helpers REFACTOR rename:addInt", expected);
+                + "FROM Helpers REFACTOR rename:addInt", expected);
     }
 
     @Test

@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 /**
  * Iterates over files in the specified directory recursively to find accepted ones.
  * The code files may be narrowed down further if the folder is a git repository (if no error occurs).
+ *
  * @see CodeTreeParserFactory#accepts(Path)
  * @see #scanGitDir()
  */
@@ -30,6 +31,7 @@ public class ProjectIterator implements PathIterator {
 
     /**
      * Creates a new instance with the argument directory and <tt>narrowSearch</tt> set to <tt>true</tt>.
+     *
      * @param directory the directory to search for files in
      */
     public ProjectIterator(Path directory) {
@@ -38,7 +40,8 @@ public class ProjectIterator implements PathIterator {
 
     /**
      * Creates a new instance.
-     * @param directory the directory to search for files in
+     *
+     * @param directory    the directory to search for files in
      * @param narrowSearch if the directory is home to a git repository, then if only files in the git repository
      *                     should be searched
      */
@@ -67,6 +70,7 @@ public class ProjectIterator implements PathIterator {
     /**
      * Finds code files in a git repository, which are in the staging area or have been committed. This is done by
      * creating an instance of the git program. Failure will result in {@link #scanDir()} being called instead.
+     *
      * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
      * @see CodeTreeParserFactory#accepts(Path)
      */
@@ -108,6 +112,7 @@ public class ProjectIterator implements PathIterator {
 
     /**
      * Scans the specified directory recursively, calling {@link #addFile(Path)} with files which are accepted.
+     *
      * @param path The directory to be searched.
      * @see CodeTreeParserFactory#accepts(Path)
      */

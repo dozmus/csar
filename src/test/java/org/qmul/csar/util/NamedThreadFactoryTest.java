@@ -25,7 +25,7 @@ public final class NamedThreadFactoryTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
+        return Arrays.asList(new Object[][]{
                 {"thread-%d", "thread-1", "thread-2"},
                 {"thread-%d-%d", "thread-1-1", "thread-2-2"}
         });
@@ -33,7 +33,7 @@ public final class NamedThreadFactoryTest {
 
     @Test
     public void newThread() throws Exception {
-        assertEquals(expected1, threadFactory.newThread(() -> { }).getName());
-        assertEquals(expected2, threadFactory.newThread(() -> { }).getName());
+        assertEquals(expected1, threadFactory.newThread(() -> {}).getName());
+        assertEquals(expected2, threadFactory.newThread(() -> {}).getName());
     }
 }

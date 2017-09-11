@@ -31,6 +31,7 @@ public final class JavaCodeTreeParserTest {
 
     /**
      * A node representing the contents of src/test/resources/grammars/java8pt/Sample1.java
+     *
      * @return
      */
     private static Node sample1() {
@@ -117,6 +118,7 @@ public final class JavaCodeTreeParserTest {
 
     /**
      * A node representing the contents of src/test/resources/grammars/java8pt/Sample2.java
+     *
      * @return
      */
     private static Node sample2() {
@@ -172,6 +174,7 @@ public final class JavaCodeTreeParserTest {
 
     /**
      * A node representing the contents of src/test/resources/grammars/java8pt/Sample3.java
+     *
      * @return
      */
     private static Node sample3() {
@@ -187,6 +190,7 @@ public final class JavaCodeTreeParserTest {
 
     /**
      * A node representing the contents of src/test/resources/grammars/java8pt/Sample4.java
+     *
      * @return
      */
     private static Node sample4() {
@@ -253,6 +257,7 @@ public final class JavaCodeTreeParserTest {
 
     /**
      * A node representing the contents of src/test/resources/grammars/java8pt/Sample5.java
+     *
      * @return
      */
     private static Node sample5() {
@@ -289,6 +294,7 @@ public final class JavaCodeTreeParserTest {
 
     /**
      * A node representing the contents of src/test/resources/grammars/java8pt/Sample6.java
+     *
      * @return
      */
     private static Node sample6() {
@@ -312,7 +318,7 @@ public final class JavaCodeTreeParserTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
+        return Arrays.asList(new Object[][]{
                 {sample1(), "Sample1.java"},
                 {sample2(), "Sample2.java"},
                 {sample3(), "Sample3.java"},
