@@ -241,6 +241,42 @@ public final class JavaCodeTreeParserTest {
         return root;
     }
 
+    /**
+     * A node representing the contents of src/test/resources/grammars/java8pt/Sample5.java
+     * @return
+     */
+    private static Node sample5() {
+        // Construct language elements
+        ClassLanguageElement clazz = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "Sample5")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .build();
+        ClassLanguageElement innerInterface = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "A")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .interfaceModifier(true)
+                .inner(true)
+                .build();
+
+        ClassLanguageElement innerClass = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "B")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .superClasses("A")
+                .inner(true)
+                .build();
+        MethodLanguageElement method = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "work")
+                .returnType("void")
+                .parameters(new Parameter("int", Optional.of("threads"), Optional.of(false)))
+                .parameterCount(1)
+                .build();
+
+        // Build node tree
+        Node innerClassNode = new Node(innerClass);
+        innerClassNode.addNode(new Node(method));
+
+        Node root = new Node(clazz);
+        root.addNode(new Node(innerInterface));
+        root.addNode(innerClassNode);
+        return root;
+    }
+
     @Test
     public void testSample1() throws IOException {
         assertEquals(sample1(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample1.java")));
@@ -259,5 +295,10 @@ public final class JavaCodeTreeParserTest {
     @Test
     public void testSample4() throws IOException {
         assertEquals(sample4(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample4.java")));
+    }
+
+    @Test
+    public void testSample5() throws IOException {
+        assertEquals(sample5(), CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + "Sample5.java")));
     }
 }
