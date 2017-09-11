@@ -81,7 +81,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static void parseImplemented(List<String> superClasses, JavaParser.TypeListContext ctx) {
+    private static void applyImplemented(List<String> superClasses, JavaParser.TypeListContext ctx) {
         if (ctx == null)
             return;
         for (JavaParser.TypeTypeContext t : ctx.typeType()) {
@@ -100,49 +100,18 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         return throwsList;
     }
 
-    private static void applyTypeParameters(ClassLanguageElement.Builder builder,
-                                            JavaParser.TypeParametersContext ctx) {
+    private static List<String> parseTypeParameters(JavaParser.TypeParametersContext ctx) {
         List<String> typeParameters = new ArrayList<>();
 
         if (ctx != null) {
             for (JavaParser.TypeParameterContext typeParam : ctx.typeParameter()) {
                 String identifier = typeParam.IDENTIFIER().getText();
-                String extendedByPostfix = (typeParam.typeBound() != null)
+                String typeParamPostfix = (typeParam.typeBound() != null)
                         ? " extends " + typeParam.typeBound().getText() : "";
-                typeParameters.add(identifier + extendedByPostfix);
+                typeParameters.add(identifier + typeParamPostfix);
             }
         }
-        builder.typeParameters(typeParameters);
-    }
-
-    private static void applyTypeParameters(ConstructorLanguageElement.Builder builder,
-                                            JavaParser.TypeParametersContext ctx) {
-        List<String> typeParameters = new ArrayList<>();
-
-        if (ctx != null) {
-            for (JavaParser.TypeParameterContext typeParam : ctx.typeParameter()) {
-                String identifier = typeParam.IDENTIFIER().getText();
-                String extendedByPostfix = (typeParam.typeBound() != null)
-                        ? " extends " + typeParam.typeBound().getText() : "";
-                typeParameters.add(identifier + extendedByPostfix);
-            }
-        }
-        builder.typeParameters(typeParameters);
-    }
-
-    private static void applyTypeParameters(MethodLanguageElement.Builder builder,
-                                            JavaParser.TypeParametersContext ctx) {
-        List<String> typeParameters = new ArrayList<>();
-
-        if (ctx != null) {
-            for (JavaParser.TypeParameterContext typeParam : ctx.typeParameter()) {
-                String identifier = typeParam.IDENTIFIER().getText();
-                String extendedByPostfix = (typeParam.typeBound() != null)
-                        ? " extends " + typeParam.typeBound().getText() : "";
-                typeParameters.add(identifier + extendedByPostfix);
-            }
-        }
-        builder.typeParameters(typeParameters);
+        return typeParameters;
     }
 
     private static void applyMethodModifiers(MethodLanguageElement.Builder builder, JavaParser.ModifierContext ctx) {
@@ -168,7 +137,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 builder.finalModifier(true);
             } else if (mods.STATIC() != null) {
                 builder.staticModifier(true);
-            }  else if (mods.STRICTFP() != null) {
+            } else if (mods.STRICTFP() != null) {
                 builder.strictfpModifier(true);
             }
         }
@@ -259,7 +228,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 .thrownExceptions(throwsList);
     }
 
-    private static void parseBodyStatement(Node parent, JavaParser.BlockStatementContext st) {
+    private static void applyBodyStatement(Node parent, JavaParser.BlockStatementContext st) {
         // local variable declaration
         JavaParser.LocalVariableDeclarationContext local = st.localVariableDeclaration();
 
@@ -315,10 +284,10 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         applyClassModifiers(builder, ctx.classOrInterfaceModifier());
 
         // Type parameters
-        applyTypeParameters(builder, dec.typeParameters());
+        builder.typeParameters(parseTypeParameters(dec.typeParameters()));
 
         // Implemented interfaces
-        parseImplemented(superClasses, dec.typeList());
+        applyImplemented(superClasses, dec.typeList());
 
         // Extended class
         JavaParser.TypeTypeContext extendedClass = dec.typeType();
@@ -351,7 +320,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                     if (method.methodBody().block() != null) {
                         for (JavaParser.BlockStatementContext st : method.methodBody().block().blockStatement()) {
-                            parseBodyStatement(methodNode, st);
+                            applyBodyStatement(methodNode, st);
                         }
                     }
                     topLevelElements.add(methodNode);
@@ -362,14 +331,14 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                             method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
 
                     // Type parameters
-                    applyTypeParameters(methodBuilder, genericMethod.typeParameters());
+                    methodBuilder.typeParameters(parseTypeParameters(genericMethod.typeParameters()));
 
                     // Parse body
                     Node methodNode = new Node(methodBuilder.build());
 
                     if (method.methodBody().block() != null) {
                         for (JavaParser.BlockStatementContext st : method.methodBody().block().blockStatement()) {
-                            parseBodyStatement(methodNode, st);
+                            applyBodyStatement(methodNode, st);
                         }
                     }
                     topLevelElements.add(methodNode);
@@ -410,7 +379,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                     if (constructor.block() != null) {
                         for (JavaParser.BlockStatementContext st : constructor.block().blockStatement()) {
-                            parseBodyStatement(constructorNode, st);
+                            applyBodyStatement(constructorNode, st);
                         }
                     }
                     topLevelElements.add(constructorNode);
@@ -421,7 +390,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                             cons.formalParameters().formalParameterList(), cons.qualifiedNameList());
 
                     // Type parameters
-                    applyTypeParameters(consBuilder, genericConstructor.typeParameters());
+                    consBuilder.typeParameters(parseTypeParameters(genericConstructor.typeParameters()));
 
                     // Parse body
                     Node constructorNode = new Node(consBuilder.build());
@@ -429,7 +398,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     if (genericConstructor.constructorDeclaration().block() != null) {
                         for (JavaParser.BlockStatementContext st
                                 : genericConstructor.constructorDeclaration().block().blockStatement()) {
-                            parseBodyStatement(constructorNode, st);
+                            applyBodyStatement(constructorNode, st);
                         }
                     }
                     topLevelElements.add(constructorNode);
@@ -452,10 +421,10 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         applyClassModifiers(builder, ctx.classOrInterfaceModifier());
 
         // Type parameters
-        applyTypeParameters(builder, dec.typeParameters());
+        builder.typeParameters(parseTypeParameters(dec.typeParameters()));
 
         // Extended interfaces
-        parseImplemented(superClasses, dec.typeList());
+        applyImplemented(superClasses, dec.typeList());
         builder.superClasses(superClasses);
 
         // Methods
@@ -491,7 +460,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
                         method.typeTypeOrVoid(), intBody.modifier(),
                         method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
-                applyTypeParameters(methodBuilder, genericMethod.typeParameters());
+                methodBuilder.typeParameters(parseTypeParameters(genericMethod.typeParameters()));
                 topLevelElements.add(new Node(methodBuilder.build()));
             } else if (constDecl != null) { // constant
                 String identifierType = constDecl.typeType().getText();
