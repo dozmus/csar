@@ -39,7 +39,7 @@ options {
 }
 
 compilationUnit
-    : packageDeclaration? importDeclaration* typeDeclaration* EOF
+    : packageDeclaration? importDeclaration* typeDeclaration? EOF
     ;
 
 packageDeclaration
