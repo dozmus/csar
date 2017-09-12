@@ -88,6 +88,12 @@ public class ProjectIterator implements PathIterator {
         }
 
         // Check if git repository found
+        if (output.size() == 0) {
+            LOGGER.error("Error running git ls-files: no output");
+            scanDir();
+            return;
+        }
+
         String output1 = output.get(0);
 
         if (output1.startsWith("fatal: Not a git repository")
