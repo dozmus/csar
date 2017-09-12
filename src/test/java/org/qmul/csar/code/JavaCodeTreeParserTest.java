@@ -20,7 +20,7 @@ public final class JavaCodeTreeParserTest {
     /**
      * Directory of the java code files.
      */
-    private static final String SAMPLES_DIRECTORY = "src/test/resources/grammars/java8pt/";
+    private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/code/";
     private final Node sampleNode;
     private final String sampleFileName;
 
@@ -30,7 +30,7 @@ public final class JavaCodeTreeParserTest {
     }
 
     /**
-     * A node representing the contents of src/test/resources/grammars/java8pt/Sample1.java
+     * A node representing the contents of 'Sample1.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      *
      * @return
      */
@@ -117,7 +117,7 @@ public final class JavaCodeTreeParserTest {
     }
 
     /**
-     * A node representing the contents of src/test/resources/grammars/java8pt/Sample2.java
+     * A node representing the contents of 'Sample2.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      *
      * @return
      */
@@ -173,7 +173,7 @@ public final class JavaCodeTreeParserTest {
     }
 
     /**
-     * A node representing the contents of src/test/resources/grammars/java8pt/Sample3.java
+     * A node representing the contents of 'Sample3.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      *
      * @return
      */
@@ -189,7 +189,7 @@ public final class JavaCodeTreeParserTest {
     }
 
     /**
-     * A node representing the contents of src/test/resources/grammars/java8pt/Sample4.java
+     * A node representing the contents of 'Sample4.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      *
      * @return
      */
@@ -256,7 +256,7 @@ public final class JavaCodeTreeParserTest {
     }
 
     /**
-     * A node representing the contents of src/test/resources/grammars/java8pt/Sample5.java
+     * A node representing the contents of 'Sample5.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      *
      * @return
      */
@@ -293,7 +293,7 @@ public final class JavaCodeTreeParserTest {
     }
 
     /**
-     * A node representing the contents of src/test/resources/grammars/java8pt/Sample6.java
+     * A node representing the contents of 'Sample6.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      *
      * @return
      */
