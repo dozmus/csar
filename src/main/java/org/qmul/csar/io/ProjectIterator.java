@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -21,13 +22,14 @@ import java.util.NoSuchElementException;
  * @see CodeTreeParserFactory#accepts(Path)
  * @see #scanGitDir()
  */
-public class ProjectIterator implements PathIterator {
+public class ProjectIterator implements Iterator<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectIterator.class);
     private final boolean narrowSearch;
     private final Path directory;
     private final List<Path> files = new ArrayList<>(); // the element collection
     private int cursor = 0; // the index of the next element to return
+    private boolean initialized;
 
     /**
      * Creates a new instance with the argument directory and <tt>narrowSearch</tt> set to <tt>true</tt>.
@@ -53,10 +55,8 @@ public class ProjectIterator implements PathIterator {
     /**
      * Finds the code files in the working directory and stores them in {@link #files}.
      */
-    public void init() {
+    private void init() {
         LOGGER.info("Scanning project directory: {}", directory.toString());
-        files.clear();
-        cursor = 0;
         boolean gitRepository = Files.isDirectory(Paths.get(directory.toString(), ".git"));
 
         // Find files
@@ -65,6 +65,7 @@ public class ProjectIterator implements PathIterator {
         } else {
             scanDir();
         }
+        initialized = true;
     }
 
     /**
@@ -147,6 +148,8 @@ public class ProjectIterator implements PathIterator {
 
     @Override
     public boolean hasNext() {
+        if (!initialized)
+            init();
         return cursor < files.size();
     }
 

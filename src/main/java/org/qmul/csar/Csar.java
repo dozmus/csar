@@ -2,12 +2,14 @@ package org.qmul.csar;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import org.qmul.csar.io.PathIterator;
 import org.qmul.csar.io.ProjectIterator;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
+import java.util.Iterator;
 
 /**
  * A code search and refactorer.
@@ -20,7 +22,7 @@ public final class Csar {
     private static String PROJECT_URL = "https://github.research.its.qmul.ac.uk/ec15116/csar";
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
-    private final PathIterator it;
+    private final Iterator<Path> it;
 
     /**
      * Constructs a new Csar, with a standard {@link ProjectIterator}.
@@ -35,7 +37,7 @@ public final class Csar {
      * @param ctx the details of what it should perform
      * @param it the project code iterator to use
      */
-    public Csar(CsarContext ctx, ProjectIterator it) {
+    public Csar(CsarContext ctx, Iterator<Path> it) {
         this.ctx = ctx;
         this.it = it;
     }
@@ -82,10 +84,6 @@ public final class Csar {
     private void init() {
         LOGGER.info("Initializing");
 
-        if (it instanceof ProjectIterator) {
-            ((ProjectIterator)it).init();
-        }
-
         if (!it.hasNext()) {
             LOGGER.error("No code files found");
             System.exit(0);
@@ -114,7 +112,7 @@ public final class Csar {
             LOGGER.error("Failed to wait because {}", e.getMessage());
         }
 
-        // TODO impl
+        // TODO search, refactor, print results
         LOGGER.info("Finished");
     }
 }
