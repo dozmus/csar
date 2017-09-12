@@ -1,4 +1,6 @@
-package org.qmul.csar.lang;
+package org.qmul.csar.query;
+
+import org.qmul.csar.lang.Parameter;
 
 import java.util.List;
 import java.util.Objects;

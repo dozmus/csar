@@ -1,8 +1,11 @@
-package org.qmul.csar.lang;
+package org.qmul.csar.query;
+
+import org.qmul.csar.lang.LanguageElement;
+import org.qmul.csar.lang.LogicalOperator;
 
 import java.util.Objects;
 
-public class ContainsQueryElement {
+public abstract class ContainsQueryElement {
 
     public static class LogicalOperatorContainsQueryElement extends ContainsQueryElement {
 
