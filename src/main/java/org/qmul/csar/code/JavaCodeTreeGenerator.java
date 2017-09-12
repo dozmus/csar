@@ -574,11 +574,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         // NOTE this method is unfinished
         // Check if node type is handled
         if (ctx.classDeclaration() == null && ctx.interfaceDeclaration() == null) {
-            // TODO error: stop generating and tell the codeparser to skip the file
-            System.err.println("Unhandled file type");
-            return;
+            throw new RuntimeException("unhandled top level element");
         }
-
 
         // Generate node and add node
         if (ctx.classDeclaration() != null) { // class

@@ -77,6 +77,13 @@ public final class CodeParser {
                                 ex.printStackTrace();
                             }
                             continue;
+                        } catch (RuntimeException ex) {
+                            LOGGER.error("Failed to parsed file {} because {}", fileName, ex.getMessage());
+
+                            if (LOGGER.isTraceEnabled()) {
+                                ex.printStackTrace();
+                            }
+                            continue;
                         }
 
                         // Print code tree

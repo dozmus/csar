@@ -11,6 +11,14 @@ import java.nio.file.Path;
 
 public final class JavaCodeTreeParser implements CodeTreeParser {
 
+    /**
+     * Parses the argument into a {@link Node}.
+     *
+     * @param file the file to parse
+     * @return the file as a {@link Node}
+     * @throws RuntimeException if unhandled top-level element is encountered in the file
+     * @throws IOException if an I/O exception occurs
+     */
     @Override
     public Node parse(Path file) throws IOException {
         JavaLexer lexer = new JavaLexer(CharStreams.fromPath(file));
