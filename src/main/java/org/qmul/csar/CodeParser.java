@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,7 +23,7 @@ public final class CodeParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeParser.class);
     private final ExecutorService executor;
     private final Iterator<Path> it;
-    private final int threads;
+    private final int threadCount;
     private final CountDownLatch finishedLatch;
     private boolean running = false;
 
@@ -30,13 +31,14 @@ public final class CodeParser {
         this(it, 1);
     }
 
-    public CodeParser(Iterator<Path> it, int threads) {
-        if (threads <= 0)
+    public CodeParser(Iterator<Path> it, int threadCount) {
+        if (threadCount <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
+        Objects.requireNonNull(it);
         this.it = it;
-        this.threads = threads;
-        this.executor = Executors.newFixedThreadPool(threads, new NamedThreadFactory("csar-%d"));
-        this.finishedLatch = new CountDownLatch(threads);
+        this.threadCount = threadCount;
+        this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
+        this.finishedLatch = new CountDownLatch(threadCount);
     }
 
     /**
@@ -55,7 +57,7 @@ public final class CodeParser {
         running = true;
 
         // Submit tasks
-        for (int i = 0; i < threads; i++) {
+        for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 String fileName = "";
 

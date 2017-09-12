@@ -1,6 +1,7 @@
 package org.qmul.csar.util;
 
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A thread factory which names the threads, according to a name format.
@@ -8,7 +9,7 @@ import java.util.concurrent.ThreadFactory;
 public final class NamedThreadFactory implements ThreadFactory {
 
     private static final String DEFAULT_NAME_FORMAT = "thread-%d";
-    private int threadCount = 1;
+    private final AtomicInteger threadNumber = new AtomicInteger(0);
     private String nameFormat;
 
     /**
@@ -24,7 +25,7 @@ public final class NamedThreadFactory implements ThreadFactory {
     @Override
     public Thread newThread(Runnable r) {
         Thread thread = new Thread(r);
-        thread.setName(nameFormat.replace("%d", "" + (threadCount++)));
+        thread.setName(nameFormat.replace("%d", "" + (threadNumber.incrementAndGet())));
         return thread;
     }
 }
