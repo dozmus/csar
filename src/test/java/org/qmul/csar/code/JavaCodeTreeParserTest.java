@@ -66,7 +66,7 @@ public final class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PRIVATE)
                 .finalModifier(true)
                 .identifierType("String")
-                .valueExpression("\"Sample1\"")
+//                .valueExpression("\"Sample1\"")
                 .build();
         VariableLanguageElement variable2 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "str")
@@ -100,7 +100,7 @@ public final class JavaCodeTreeParserTest {
                 new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "k")
                         .finalModifier(true)
                         .identifierType("int")
-                        .valueExpression("3")
+//                        .valueExpression("3")
                         .build())
         );
 
@@ -133,7 +133,7 @@ public final class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .staticModifier(true)
                 .identifierType("int")
-                .valueExpression("1000")
+//                .valueExpression("1000")
                 .build();
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
@@ -153,7 +153,7 @@ public final class JavaCodeTreeParserTest {
         VariableLanguageElement const2 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "name")
                 .identifierType("String[]")
-                .valueExpression("generateName(Sample2.class)")
+//                .valueExpression("generateName(Sample2.class)")
                 .build();
         MethodLanguageElement method3 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
@@ -230,7 +230,7 @@ public final class JavaCodeTreeParserTest {
                 "x")
                 .finalModifier(false)
                 .identifierType("int")
-                .valueExpression("30")
+//                .valueExpression("30")
                 .build();
         Node localClassMethodNode = new Node(method3);
         localClassMethodNode.addNode(new Node(local1));
@@ -241,7 +241,7 @@ public final class JavaCodeTreeParserTest {
                 "worker")
                 .finalModifier(false)
                 .identifierType("A")
-                .valueExpression("newA()")
+//                .valueExpression("newA()")
                 .build();
 
         // Build node tree

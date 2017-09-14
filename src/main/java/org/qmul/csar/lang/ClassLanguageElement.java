@@ -4,7 +4,7 @@ import org.qmul.csar.query.CsarQuery;
 
 import java.util.*;
 
-public class ClassLanguageElement extends IdentifiableLanguageElement implements Statement {
+public class ClassLanguageElement extends IdentifiableLanguageElement {
 
     private CommonModifiers commonModifiers;
     private Optional<Boolean> interfaceModifier = Optional.empty();

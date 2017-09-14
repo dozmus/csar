@@ -2,7 +2,7 @@ package org.qmul.csar.lang;
 
 import java.util.Objects;
 
-public class LanguageElement {
+public class LanguageElement implements Statement {
 
     private final LanguageElement.Type type;
 
@@ -33,6 +33,6 @@ public class LanguageElement {
     }
 
     public enum Type {
-        CLASS, METHOD, VARIABLE, CONTROL_FLOW, COMMENT, STATIC_BLOCK, CONSTRUCTOR
+        CLASS, METHOD, VARIABLE, CONTROL_FLOW, COMMENT, STATIC_BLOCK, CONSTRUCTOR, BLOCK
     }
 }

@@ -78,7 +78,7 @@ public final class CodeParser {
                             }
                             continue;
                         } catch (RuntimeException ex) {
-                            LOGGER.error("Failed to parsed file {} because {}", fileName, ex.getMessage());
+                            LOGGER.error("Failed to parse file {} because {}", fileName, ex.getMessage());
 
                             if (LOGGER.isTraceEnabled()) {
                                 ex.printStackTrace();

@@ -62,7 +62,7 @@ public final class NodeHelperTest {
                 new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "x")
                         .finalModifier(true)
                         .identifierType("int")
-                        .valueExpression("40")
+//                        .valueExpression("40")
                         .build())
         );
         ClassLanguageElement clazz2 = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "SerializeContract")

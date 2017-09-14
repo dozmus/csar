@@ -541,7 +541,16 @@ innerCreator
     ;
 
 arrayCreatorRest
-    : LBRACK (RBRACK (LBRACK RBRACK)* arrayInitializer | expression RBRACK (LBRACK expression RBRACK)* (LBRACK RBRACK)*)
+    : squareBrackets squareBrackets* arrayInitializer
+    | squareBracketsExpression squareBracketsExpression* squareBrackets*
+    ;
+
+squareBrackets
+    : LBRACK RBRACK
+    ;
+
+squareBracketsExpression
+    : LBRACK expression RBRACK
     ;
 
 classCreatorRest

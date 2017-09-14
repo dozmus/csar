@@ -1,6 +1,6 @@
 package org.qmul.csar.code;
 
-import org.qmul.csar.lang.LanguageElement;
+import org.qmul.csar.lang.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +8,10 @@ import java.util.Objects;
 
 public final class Node {
 
-    private final LanguageElement data;
+    private final Statement data;
     private List<Node> nodes = new ArrayList<>();
 
-    public Node(LanguageElement data) {
+    public Node(Statement data) {
         this.data = data;
     }
 
@@ -19,7 +19,7 @@ public final class Node {
         nodes.add(node);
     }
 
-    public LanguageElement getData() {
+    public Statement getData() {
         return data;
     }
 

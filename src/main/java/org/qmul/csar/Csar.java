@@ -94,6 +94,7 @@ public final class Csar {
         LOGGER.info("Processing");
 
         // Parse query
+        LOGGER.trace("Parsing query...");
         CsarQuery csarQuery;
 
         try {
@@ -104,6 +105,7 @@ public final class Csar {
         }
 
         // Parse code
+        LOGGER.trace("Parsing code...");
         CodeParser parser = new CodeParser(it, ctx.getThreads());
 
         try {

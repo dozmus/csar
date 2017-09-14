@@ -14,7 +14,7 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
     public InstanceVariableLanguageElement(CsarQuery.Type searchType,
                                            Optional<VisibilityModifier> visibilityModifier,
                                            Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
-                                           String identifierName, Optional<String> valueExpression,
+                                           String identifierName, Optional<Expression> valueExpression,
                                            Optional<String> identifierType) {
         super(searchType, VariableType.INSTANCE, finalModifier, identifierName, valueExpression, identifierType);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
@@ -51,7 +51,7 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
         private String identifierName;
         private Optional<String> identifierType = Optional.empty();
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
-        private Optional<String> valueExpression = Optional.empty();
+        private Optional<Expression> valueExpression = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
 
@@ -81,7 +81,7 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
             return this;
         }
 
-        public Builder valueExpression(String valueExpression) {
+        public Builder valueExpression(Expression valueExpression) {
             this.valueExpression = Optional.of(valueExpression);
             return this;
         }

@@ -2,20 +2,21 @@ package org.qmul.csar.lang;
 
 import org.qmul.csar.query.CsarQuery;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class VariableLanguageElement extends IdentifiableLanguageElement implements Statement {
+public class VariableLanguageElement extends IdentifiableLanguageElement {
 
     private final CsarQuery.Type searchType;
     private final VariableType variableType;
     private final Optional<String> identifierType;
-    private final Optional<String> valueExpression;
+    private final Optional<Expression> valueExpression;
     private final Optional<Boolean> finalModifier;
 
     public VariableLanguageElement(CsarQuery.Type searchType, VariableType variableType,
                                    Optional<Boolean> finalModifier, String identifierName,
-                                   Optional<String> valueExpression, Optional<String> identifierType) {
+                                   Optional<Expression> valueExpression, Optional<String> identifierType) {
         super(Type.VARIABLE, identifierName);
         this.searchType = searchType;
         this.variableType = variableType;
@@ -36,7 +37,7 @@ public class VariableLanguageElement extends IdentifiableLanguageElement impleme
         return identifierType;
     }
 
-    public Optional<String> getValueExpression() {
+    public Optional<Expression> getValueExpression() {
         return valueExpression;
     }
 
@@ -69,13 +70,46 @@ public class VariableLanguageElement extends IdentifiableLanguageElement impleme
                 finalModifier, super.toString());
     }
 
+    public static class VariableLanguageElements extends LanguageElement {
+
+        private final List<VariableLanguageElement> variables;
+
+        public VariableLanguageElements(List<VariableLanguageElement> variables) {
+            super(Type.VARIABLE);
+            this.variables = variables;
+        }
+
+        public List<VariableLanguageElement> getVariables() {
+            return variables;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            VariableLanguageElements that = (VariableLanguageElements) o;
+            return Objects.equals(variables, that.variables);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), variables);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("VariableLanguageElements{variables=%s} %s", variables, super.toString());
+        }
+    }
+
     public static class Builder {
 
         private CsarQuery.Type searchType;
         private VariableType variableType;
         private String identifierName;
         private Optional<String> identifierType = Optional.empty();
-        private Optional<String> valueExpression = Optional.empty();
+        private Optional<Expression> valueExpression = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
 
         public Builder(CsarQuery.Type searchType, VariableType variableType, String identifierName) {
@@ -92,7 +126,7 @@ public class VariableLanguageElement extends IdentifiableLanguageElement impleme
             return this;
         }
 
-        public Builder valueExpression(String valueExpression) {
+        public Builder valueExpression(Expression valueExpression) {
             this.valueExpression = Optional.of(valueExpression);
             return this;
         }

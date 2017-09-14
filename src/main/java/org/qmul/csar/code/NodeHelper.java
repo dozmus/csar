@@ -23,7 +23,7 @@ public final class NodeHelper {
         return builder;
     }
 
-    private static String toString(LanguageElement e) {
+    private static String toString(Statement e) {
         if (e instanceof ClassLanguageElement) {
             ClassLanguageElement clazz = ((ClassLanguageElement)e);
             CommonModifiers common = clazz.getCommonModifiers();
