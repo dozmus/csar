@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,8 +14,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Iterates over files in the specified directory recursively to find accepted ones.
- * The code files may be narrowed down further if the folder is a git repository (if no error occurs).
+ * Iterates over files in the specified directory aggregating accepted ones. The code files may be narrowed down further
+ * if the folder is a git repository (if successful).
  *
  * @see CodeTreeParserFactory#accepts(Path)
  * @see #scanGitDir()
@@ -26,7 +25,7 @@ public class ProjectIterator implements Iterator<Path> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectIterator.class);
     private final boolean narrowSearch;
     private final Path directory;
-    private final List<Path> files = new ArrayList<>(); // the element collection
+    private List<Path> files = new ArrayList<>(); // the element collection
     private int cursor = 0; // the index of the next element to return
     private boolean initialized;
 
@@ -42,9 +41,9 @@ public class ProjectIterator implements Iterator<Path> {
     /**
      * Creates a new instance.
      *
-     * @param directory    the directory to search for files in
-     * @param narrowSearch if the directory is home to a git repository, then if only files in the git repository
-     *                     should be searched
+     * @param directory the directory to search for files in
+     * @param narrowSearch if the directory is home to a git repository, then if only files in the git
+     *         repository should be searched
      */
     public ProjectIterator(Path directory, boolean narrowSearch) {
         this.directory = directory;
@@ -92,30 +91,27 @@ public class ProjectIterator implements Iterator<Path> {
         }
     }
 
+    /**
+     * Calls {@link #scanDir(Path, boolean)} with arguments {@link #directory} and <tt>true</tt> respectively.
+     */
     private void scanDir() {
-        scanDir(directory, false);
+        scanDir(directory, true);
     }
 
     /**
-     * Scans the specified directory recursively, calling {@link #addFile(Path)} with files which are accepted.
+     * Scans the specified directory using {@link ProjectFileVisitor}. The results are then added to {@link #files}.
+     * Symbolic links are not followed.
      *
-     * @param path The directory to be searched.
+     * @param path the directory to be searched
+     * @param recursive if the directory should be searched recursively
      * @see CodeTreeParserFactory#accepts(Path)
+     * @see ProjectFileVisitor
      */
-    private void scanDir(Path path, boolean recursiveSearch) {
+    private void scanDir(Path path, boolean recursive) {
         try {
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-                for (Path entry : stream) {
-                    if (Files.isDirectory(entry) && recursiveSearch) {
-                        scanDir(entry, true);
-                        continue;
-                    }
-
-                    if (CodeTreeParserFactory.accepts(entry)) {
-                        addFile(entry);
-                    }
-                }
-            }
+            ProjectFileVisitor fileVisitor = new ProjectFileVisitor(recursive, CodeTreeParserFactory::accepts);
+            Files.walkFileTree(path, fileVisitor);
+            files.addAll(fileVisitor.getFiles());
         } catch (IOException e) {
             LOGGER.error("Error scanning directory: {}", e.getMessage());
         }
