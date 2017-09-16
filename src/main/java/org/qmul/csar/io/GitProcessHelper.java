@@ -1,7 +1,5 @@
 package org.qmul.csar.io;
 
-import org.qmul.csar.util.ProcessHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
