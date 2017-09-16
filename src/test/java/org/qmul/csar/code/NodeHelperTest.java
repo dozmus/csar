@@ -62,7 +62,7 @@ public final class NodeHelperTest {
                 new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "x")
                         .finalModifier(true)
                         .identifierType("int")
-//                        .valueExpression("40")
+                        .valueExpression(new Expression.UnitExpression(Expression.UnitExpression.Type.LITERAL, "40"))
                         .build())
         );
         ClassLanguageElement clazz2 = ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "SerializeContract")
@@ -83,7 +83,7 @@ public final class NodeHelperTest {
                 + "  DEF:public abstract void add(final int a, int b)" + NEW_LINE
                 + "  DEF:protected final <E, K extends Sample> int getResult()" + NEW_LINE
                 + "    DEF:String[] s" + NEW_LINE
-                + "    DEF:final int x = 40" + NEW_LINE
+                + "    DEF:final int x = UnitExpression{type=LITERAL, value='40'}" + NEW_LINE
                 + "  DEF:private (anonymous) (inner) interface SerializeContract", root);
     }
 }

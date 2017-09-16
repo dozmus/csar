@@ -497,7 +497,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         } else if (typeDeclaration.interfaceDeclaration() != null) { // interface
             currentNode = parseInterface(typeDeclaration, true, false);
         }
-        return currentNode.getData();
+        return currentNode;
     }
 
     private static SwitchControlFlowLanguageElement.SwitchLabel parseSwitchLabel(SwitchLabelContext ctx) {

@@ -2,6 +2,7 @@ package org.qmul.csar.lang;
 
 import org.qmul.csar.query.CsarQuery;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -77,6 +78,10 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         public VariableLanguageElements(List<VariableLanguageElement> variables) {
             super(Type.VARIABLE);
             this.variables = variables;
+        }
+
+        public VariableLanguageElements(VariableLanguageElement... variables) {
+            this(Arrays.asList(variables));
         }
 
         public List<VariableLanguageElement> getVariables() {

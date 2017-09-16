@@ -8,9 +8,7 @@ import org.qmul.csar.query.CsarQuery;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -55,18 +53,19 @@ public final class JavaCodeTreeParserTest {
                 .typeParameters("E")
                 .build();
         Node constructor2Node = new Node(constructor2);
-        constructor2Node.addNode(new Node(
+        constructor2Node.addNode(new Node(new VariableLanguageElement.VariableLanguageElements(
                 new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "s")
                         .finalModifier(false)
                         .identifierType("String[]")
                         .build())
+                )
         );
         VariableLanguageElement variable1 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "className")
                 .visibilityModifier(VisibilityModifier.PRIVATE)
                 .finalModifier(true)
                 .identifierType("String")
-//                .valueExpression("\"Sample1\"")
+                .valueExpression(new Expression.UnitExpression(Expression.UnitExpression.Type.LITERAL, "\"Sample1\""))
                 .build();
         VariableLanguageElement variable2 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "str")
@@ -81,12 +80,18 @@ public final class JavaCodeTreeParserTest {
                         new Parameter("int", Optional.of("b"), Optional.of(false)))
                 .parameterCount(2)
                 .build();
+
         MethodLanguageElement method2 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "getResult")
                 .visibilityModifier(VisibilityModifier.PROTECTED)
                 .finalModifier(true)
                 .returnType("int")
                 .parameterCount(0)
                 .build();
+        Node method2Node = new Node(method2);
+        Expression.UnitExpression resultIdentifier = new Expression.UnitExpression(
+                Expression.UnitExpression.Type.IDENTIFIER, "result");
+        method2Node.addNode(new Node(new ReturnControlFlowLanguageElement(Optional.of(resultIdentifier))));
+
         MethodLanguageElement method3 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "setResult")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .finalModifier(true)
@@ -97,12 +102,24 @@ public final class JavaCodeTreeParserTest {
                 .build();
         Node method3Node = new Node(method3);
         method3Node.addNode(new Node(
-                new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "k")
-                        .finalModifier(true)
-                        .identifierType("int")
-//                        .valueExpression("3")
-                        .build())
+                new VariableLanguageElement.VariableLanguageElements(
+                        new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL, "k")
+                                .finalModifier(true)
+                                .identifierType("int")
+                                .valueExpression(new Expression.UnitExpression(Expression.UnitExpression.Type.LITERAL,
+                                        "3"))
+                                .build()))
         );
+        Expression left = new Expression.BinaryExpression(
+                new Expression.UnitExpression(Expression.UnitExpression.Type.THIS, "this"),
+                Expression.BinaryOperation.DOT,
+                resultIdentifier
+        );
+        method3Node.addNode(new Node(
+                new Expression.SemiColonTerminatedExpression(
+                        Optional.of(new Expression.BinaryExpression(left, Expression.BinaryOperation.ASSIGN,
+                                resultIdentifier)))
+        ));
 
         // Build node tree
         Node root = new Node(clazz);
@@ -111,7 +128,7 @@ public final class JavaCodeTreeParserTest {
         root.addNode(new Node(variable1));
         root.addNode(new Node(variable2));
         root.addNode(new Node(method1));
-        root.addNode(new Node(method2));
+        root.addNode(method2Node);
         root.addNode(method3Node);
         return root;
     }
@@ -133,7 +150,7 @@ public final class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .staticModifier(true)
                 .identifierType("int")
-//                .valueExpression("1000")
+                .valueExpression(new Expression.UnitExpression(Expression.UnitExpression.Type.LITERAL, "1000"))
                 .build();
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
@@ -150,10 +167,14 @@ public final class JavaCodeTreeParserTest {
                 .parameterCount(2)
                 .typeParameters("E")
                 .build();
+        Expression methodName = new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER,
+                "generateName");
+        List<Expression> methodArgs = new ArrayList<>();
+        methodArgs.add(new Expression.UnitExpression(Expression.UnitExpression.Type.CLASS_REFERENCE, "Sample2.class"));
         VariableLanguageElement const2 = InstanceVariableLanguageElement.Builder
                 .allFalse(CsarQuery.Type.DEF, "name")
                 .identifierType("String[]")
-//                .valueExpression("generateName(Sample2.class)")
+                .valueExpression(new Expression.MethodCallExpression(methodName, methodArgs))
                 .build();
         MethodLanguageElement method3 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
@@ -230,25 +251,49 @@ public final class JavaCodeTreeParserTest {
                 "x")
                 .finalModifier(false)
                 .identifierType("int")
-//                .valueExpression("30")
+                .valueExpression(new Expression.UnitExpression(Expression.UnitExpression.Type.LITERAL, "30"))
                 .build();
         Node localClassMethodNode = new Node(method3);
-        localClassMethodNode.addNode(new Node(local1));
+        localClassMethodNode.addNode(new Node(new VariableLanguageElement.VariableLanguageElements(local1)));
+        Expression methodNameExpr = new Expression.BinaryExpression(
+                new Expression.BinaryExpression(
+                        new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "System"),
+                        Expression.BinaryOperation.DOT,
+                        new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "out")
+                ),
+                Expression.BinaryOperation.DOT,
+                new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "println"));
+        List<Expression> args = new ArrayList<>();
+        args.add(new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "x"));
+        Node methodCallNode = new Node(new Expression.SemiColonTerminatedExpression(Optional.of(
+                new Expression.MethodCallExpression(methodNameExpr, args))));
+        localClassMethodNode.addNode(methodCallNode);
         Node classNode = new Node(localClass);
         classNode.addNode(localClassMethodNode);
 
+        Expression instantiationExpr = new Expression.InstantiateClass(new ArrayList<>(),
+                new Node(ClassLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "A").local(true).build()),
+                new ArrayList<>(), false);
         VariableLanguageElement local2 = new VariableLanguageElement.Builder(CsarQuery.Type.DEF, VariableType.LOCAL,
                 "worker")
                 .finalModifier(false)
                 .identifierType("A")
-//                .valueExpression("newA()")
+                .valueExpression(instantiationExpr)
                 .build();
+        Expression methodName = new Expression.BinaryExpression(
+                new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "worker"),
+                Expression.BinaryOperation.DOT,
+                new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "run")
+        );
+        Node methodCall = new Node(new Expression.SemiColonTerminatedExpression(
+                Optional.of(new Expression.MethodCallExpression(methodName, new ArrayList<>()))));
 
         // Build node tree
         Node methodNode = new Node(parentClassMethod);
-        methodNode.addNode(interfaceNode);
-        methodNode.addNode(classNode);
-        methodNode.addNode(new Node(local2));
+        methodNode.addNode(new Node(interfaceNode));
+        methodNode.addNode(new Node(classNode));
+        methodNode.addNode(new Node(new VariableLanguageElement.VariableLanguageElements(local2)));
+        methodNode.addNode(methodCall);
 
         Node root = new Node(parentClass);
         root.addNode(methodNode);
@@ -330,6 +375,8 @@ public final class JavaCodeTreeParserTest {
 
     @Test
     public void testSample() throws IOException {
+        System.out.println(NodeHelper.toStringRecursively(sampleNode));
+        System.out.println(NodeHelper.toStringRecursively(CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + sampleFileName))));
         assertEquals(sampleNode, CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + sampleFileName)));
     }
 }

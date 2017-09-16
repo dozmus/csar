@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class Node {
+public final class Node implements Statement {
 
     private final Statement data;
     private List<Node> nodes = new ArrayList<>();
