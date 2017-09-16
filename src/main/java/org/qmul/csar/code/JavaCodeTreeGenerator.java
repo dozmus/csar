@@ -15,7 +15,6 @@ import static org.qmul.csar.query.CsarQuery.Type.DEF;
 
 public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
-    // TODO set variableExpression properly, its losing spaces between new and commas etc.
     // TODO class/method LE may need to be extended to be given more information - could just be bad parser code tho
 
     private Node rootNode;
