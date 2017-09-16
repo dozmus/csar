@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Iterates over files in the specified directory recursively to find accepted ones.
@@ -80,8 +81,10 @@ public class ProjectIterator implements Iterator<Path> {
         List<String> output;
 
         try {
-            Process p = ProcessHelper.runAndWait("git", "ls-files");
+            Process p = ProcessHelper.run("git", "ls-files");
             output = ProcessHelper.readOutput(p);
+            p.waitFor(5, TimeUnit.SECONDS);
+            p.destroy();
         } catch (InterruptedException | IOException e) {
             LOGGER.error("Error running git ls-files: {}", e.getMessage());
             scanDir();

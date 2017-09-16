@@ -13,18 +13,16 @@ import java.util.List;
 public final class ProcessHelper {
 
     /**
-     * Starts the process with the description in the argument, waits for it to terminate and then returns it.
+     * Starts a process with the description in the argument and then returns it.
      * @param command a string array containing the program and its arguments
      * @return the process started
      * @throws InterruptedException if the current thread is interrupted while waiting
      * @throws IOException if an I/O error occurs
      * @see ProcessBuilder
      */
-    public static Process runAndWait(String... command) throws InterruptedException, IOException {
+    public static Process run(String... command) throws InterruptedException, IOException {
         ProcessBuilder pb = new ProcessBuilder(command);
-        Process p = pb.start();
-        p.waitFor();
-        return p;
+        return pb.start();
     }
 
     /**
