@@ -1,7 +1,6 @@
 package org.qmul.csar.io;
 
 import org.qmul.csar.code.CodeTreeParserFactory;
-import org.qmul.csar.util.ProcessHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Iterates over files in the specified directory recursively to find accepted ones.
@@ -75,44 +73,22 @@ public class ProjectIterator implements Iterator<Path> {
      *
      * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
      * @see CodeTreeParserFactory#accepts(Path)
+     * @see GitProcessHelper#lsFiles()
      */
     private void scanGitDir() {
         LOGGER.trace("Scanning git repository");
-        List<String> output;
 
         try {
-            Process p = ProcessHelper.run("git", "ls-files");
-            output = ProcessHelper.readOutput(p);
-            p.waitFor(5, TimeUnit.SECONDS);
-            p.destroy();
-        } catch (InterruptedException | IOException e) {
-            LOGGER.error("Error running git ls-files: {}", e.getMessage());
-            scanDir();
-            return;
-        }
+            List<Path> output = GitProcessHelper.lsFiles();
 
-        // Check if git repository found
-        if (output.size() == 0) {
-            LOGGER.error("Error running git ls-files: no output");
-            scanDir();
-            return;
-        }
-
-        String output1 = output.get(0);
-
-        if (output1.startsWith("fatal: Not a git repository")
-                || output1.startsWith("'git' is not recognized as an internal or external command")) {
-            LOGGER.error("Error running git ls-files: {}", output1);
-            scanDir();
-            return;
-        }
-
-        for (String fileName : output) {
-            Path path = Paths.get(fileName);
-
-            if (CodeTreeParserFactory.accepts(path)) {
-                addFile(path);
+            for (Path path : output) {
+                if (CodeTreeParserFactory.accepts(path)) {
+                    addFile(path);
+                }
             }
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            scanDir();
         }
     }
 
