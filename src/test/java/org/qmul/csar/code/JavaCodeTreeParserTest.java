@@ -375,8 +375,6 @@ public final class JavaCodeTreeParserTest {
 
     @Test
     public void testSample() throws IOException {
-        System.out.println(NodeHelper.toStringRecursively(sampleNode));
-        System.out.println(NodeHelper.toStringRecursively(CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + sampleFileName))));
         assertEquals(sampleNode, CodeTreeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + sampleFileName)));
     }
 }
