@@ -849,10 +849,21 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
     }
 
     private static List<Node> parseClassBodyDeclaration(List<ClassBodyDeclarationContext> classBodyDeclarationContexts) {
-        // TODO finish
         List<Node> children = new ArrayList<>();
 
         for (ClassBodyDeclarationContext classBody : classBodyDeclarationContexts) {
+            // Static block
+            if (classBody.STATIC() != null) {
+                List<Statement> block = new ArrayList<>();
+
+                for (BlockStatementContext bsc : classBody.block().blockStatement()) {
+                    block.add(parseBlock(bsc));
+                }
+                children.add(new Node(new StaticStatementBlock(block)));
+                continue;
+            }
+
+            // Member declarations
             MemberDeclarationContext m = classBody.memberDeclaration();
 
             if (m == null)
@@ -867,8 +878,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
             if (method != null) { // method
                 MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                        method.typeTypeOrVoid(), classBody.modifier(),
-                        method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
+                        method.typeTypeOrVoid(), classBody.modifier(), method.formalParameters().formalParameterList(),
+                        method.qualifiedNameList(), false);
 
                 // Parse body
                 Node methodNode = new Node(methodBuilder.build());
@@ -885,8 +896,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             } else if (genericMethod != null) { // generic method
                 method = genericMethod.methodDeclaration();
                 MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
-                        method.typeTypeOrVoid(), classBody.modifier(),
-                        method.formalParameters().formalParameterList(), method.qualifiedNameList(), false);
+                        method.typeTypeOrVoid(), classBody.modifier(), method.formalParameters().formalParameterList(),
+                        method.qualifiedNameList(), false);
 
                 // Type parameters
                 methodBuilder.typeParameters(parseTypeParameters(genericMethod.typeParameters()));
@@ -906,8 +917,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             } else if (field != null) { // field
                 String identifierType = field.typeType().getText();
 
-                for (VariableDeclaratorContext decl
-                        : field.variableDeclarators().variableDeclarator()) {
+                for (VariableDeclaratorContext decl : field.variableDeclarators().variableDeclarator()) {
                     VariableDeclaratorIdContext identifierCtx = decl.variableDeclaratorId();
                     String identifier = identifierCtx.IDENTIFIER().getText();
 
