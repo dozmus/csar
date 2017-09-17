@@ -27,7 +27,8 @@ public final class NamedThreadFactoryTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {"thread-%d", "thread-1", "thread-2"},
-                {"thread-%d-%d", "thread-1-1", "thread-2-2"}
+                {"thread-%d-%dX", "thread-1-1X", "thread-2-2X"},
+                {null, "thread-1", "thread-2"}
         });
     }
 
