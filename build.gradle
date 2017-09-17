@@ -57,10 +57,9 @@ generateGrammarSource {
     arguments += ['-visitor', '-long-messages']
 }
 
-// Jacoco test report - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
+// JaCoCo test report - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
 jacocoTestReport {
     group = "Reporting"
     description = "Generate Jacoco coverage reports after running tests."
     additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
 }
-test.finalizedBy jacocoTestReport
