@@ -51,10 +51,14 @@ importDeclaration
     ;
 
 typeDeclaration
-    : classOrInterfaceModifier*
-      (classDeclaration | enumDeclaration | interfaceDeclaration | annotationTypeDeclaration)
+    : classOrInterfaceModifier* (classDeclaration | enumDeclaration | interfaceDeclaration | annotationTypeDeclaration)
     | SEMI
     ;
+
+innerTypeDeclaration
+     : classOrInterfaceModifier* (classDeclaration | interfaceDeclaration)
+     | SEMI
+     ;
 
 modifier
     : classOrInterfaceModifier
@@ -366,7 +370,7 @@ block
 blockStatement
     : localVariableDeclaration SEMI
     | statement
-    | typeDeclaration
+    | innerTypeDeclaration
     ;
 
 localVariableDeclaration

@@ -558,21 +558,16 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         }
 
         // Fall-back: type declaration
-        TypeDeclarationContext typeDeclaration = st.typeDeclaration();
+        InnerTypeDeclarationContext innerTypeDeclaration = st.innerTypeDeclaration();
 
         // Generate node and add node
-        Node currentNode = null;
-
-        if (typeDeclaration.classDeclaration() != null) { // class
-            currentNode = parseClass(typeDeclaration, true, false);
-        } else if (typeDeclaration.interfaceDeclaration() != null) { // interface
-            currentNode = parseInterface(typeDeclaration, true, false);
-        } else if (typeDeclaration.enumDeclaration() != null) { // enum
-            currentNode = parseEnum(typeDeclaration, true, false); // TODO make sure this is illegal in the grammar!
-        } else { // annotation
-            currentNode = parseAnnotationDefinition(new ArrayList<>(), typeDeclaration.annotationTypeDeclaration()); // TODO make sure this is illegal in the grammar!
+        if (innerTypeDeclaration.classDeclaration() != null) { // class
+            return parseClass(innerTypeDeclaration.classOrInterfaceModifier(),
+                    innerTypeDeclaration.classDeclaration(), true, false);
+        } else { // interface
+            return parseInterface(innerTypeDeclaration.classOrInterfaceModifier(),
+                    innerTypeDeclaration.interfaceDeclaration(), true, false);
         }
-        return currentNode;
     }
 
     private static SwitchControlFlowLanguageElement.SwitchLabel parseSwitchLabel(SwitchLabelContext ctx) {
