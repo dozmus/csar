@@ -15,8 +15,6 @@ import static org.qmul.csar.query.CsarQuery.Type.DEF;
 
 public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
-    // TODO class/method LE may need to be extended to be given more information - could just be bad parser code tho
-
     private Node rootNode;
     /**
      * This is used to make sure {@link #enterTypeDeclaration(TypeDeclarationContext)} is only called once,
@@ -543,7 +541,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             VariableDeclaratorIdContext identifierCtx = decl.variableDeclaratorId();
             String identifier = identifierCtx.IDENTIFIER().getText();
 
-            for (int i = 0; i < identifierCtx.LBRACK().size(); i++) { // XXX what is this even for?
+            for (int i = 0; i < identifierCtx.LBRACK().size(); i++) {
                 identifier += "[]";
             }
 
@@ -609,7 +607,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     VariableDeclaratorIdContext identifierCtx = en.variableDeclaratorId();
                     String identifierName = identifierCtx.IDENTIFIER().getText();
 
-                    for (int i = 0; i < identifierCtx.LBRACK().size(); i++) { // XXX what is this even for?
+                    for (int i = 0; i < identifierCtx.LBRACK().size(); i++) {
                         identifierName += "[]";
                     }
 
@@ -680,7 +678,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                         VariableDeclaratorIdContext identifierCtx = res.variableDeclaratorId();
                         String identifierName = identifierCtx.IDENTIFIER().getText();
 
-                        for (int i = 0; i < identifierCtx.LBRACK().size(); i++) { // XXX what is this even for?
+                        for (int i = 0; i < identifierCtx.LBRACK().size(); i++) {
                             identifierName += "[]";
                         }
                         Expression value = parseExpression(res.expression());
@@ -1013,7 +1011,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     VariableDeclaratorIdContext identifierCtx = decl.variableDeclaratorId();
                     String identifier = identifierCtx.IDENTIFIER().getText();
 
-                    for (int i = 0; i < identifierCtx.LBRACK().size(); i++) { // XXX what is this even for?
+                    for (int i = 0; i < identifierCtx.LBRACK().size(); i++) {
                         identifier += "[]";
                     }
                     InstanceVariableLanguageElement.Builder variableBuilder
@@ -1093,6 +1091,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
     private static Node parseInterface(
             List<JavaParser.ClassOrInterfaceModifierContext> classOrInterfaceModifierContexts,
             InterfaceDeclarationContext dec, boolean local, boolean inner) {
+        // TODO handle annotation type declaration
         List<Node> children = new ArrayList<>();
         List<String> superClasses = new ArrayList<>();
 
@@ -1167,7 +1166,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 for (ConstantDeclaratorContext decl : constDecl.constantDeclarator()) {
                     String identifier = decl.IDENTIFIER().getText();
 
-                    for (int i = 0; i < decl.LBRACK().size(); i++) { // XXX what is this even for?
+                    for (int i = 0; i < decl.LBRACK().size(); i++) {
                         identifier += "[]";
                     }
 
@@ -1186,7 +1185,6 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 children.add(node);
             }
         }
-        // TODO finish
 
         // Create and return node
         Node root = new Node(builder.build());
@@ -1213,7 +1211,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             return;
         }
 
-        // TODO implement annotation
+        // TODO handle annotation type declaration
         // Check if node type is handled
         if (ctx.classDeclaration() == null && ctx.interfaceDeclaration() == null && ctx.enumDeclaration() == null) {
             throw new RuntimeException("unhandled top level element");
