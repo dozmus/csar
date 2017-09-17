@@ -186,9 +186,19 @@ expr: content;
 * Cannot represent lambdas
 * Cannot represent goto
 * Cannot represent try-catch blocks
+* Cannot represent enums
+* Cannot represent annotations (definitions and usages)
 * Cannot represent throw (i.e. throwing an exception)
-* Cannot represent generics
+* Cannot represent type parameters (generics) for classes/interfaces/methods
+* Cannot represent annotations
+* Cannot represent default methods
+* Cannot represent constructors
+* Cannot represent static constructors
+* Cannot represent varargs in method parameters
+* Cannot represent identifiers with generic types, i.e. `List<String>`
+* Cannot have methods which are abstract or strictfp
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
+* Cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
   However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error. One solution is to print an error message and terminate.
 
