@@ -607,13 +607,15 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     Optional<VariableLanguageElement.VariableLanguageElements> initVariables = Optional.empty();
                     List<Expression> initExpressions = new ArrayList<>();
 
-                    if (init.localVariableDeclaration() != null) {
-                        initVariables = Optional.of(parseLocalVariables(init.localVariableDeclaration()));
-                    } else {
-                        for (ExpressionContext ectx : init.expressionList().expression()) {
-                            try {
-                                initExpressions.add(parseExpression(ectx));
-                            } catch (IllegalArgumentException ignored) {
+                    if (init != null) {
+                        if (init.localVariableDeclaration() != null) {
+                            initVariables = Optional.of(parseLocalVariables(init.localVariableDeclaration()));
+                        } else {
+                            for (ExpressionContext ectx : init.expressionList().expression()) {
+                                try {
+                                    initExpressions.add(parseExpression(ectx));
+                                } catch (IllegalArgumentException ignored) {
+                                }
                             }
                         }
                     }
