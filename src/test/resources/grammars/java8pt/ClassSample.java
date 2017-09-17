@@ -1,0 +1,3 @@
+class ClassSample {
+    // Class members
+}

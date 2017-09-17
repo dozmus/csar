@@ -1,0 +1,2 @@
+@interface BlockingOperations2 {
+}

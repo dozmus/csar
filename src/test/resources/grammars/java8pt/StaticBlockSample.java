@@ -1,0 +1,5 @@
+class StaticBlockSample {
+    static {
+        // Initialization
+    }
+}

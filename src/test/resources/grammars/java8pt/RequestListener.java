@@ -1,0 +1,3 @@
+interface RequestListener {
+    int requestReceived();
+}
