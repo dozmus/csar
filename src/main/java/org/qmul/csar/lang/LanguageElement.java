@@ -33,6 +33,6 @@ public class LanguageElement implements Statement {
     }
 
     public enum Type {
-        CLASS, METHOD, VARIABLE, CONTROL_FLOW, COMMENT, STATIC_BLOCK, CONSTRUCTOR, BLOCK
+        CLASS, METHOD, VARIABLE, CONTROL_FLOW, COMMENT, STATIC_BLOCK, CONSTRUCTOR, ENUM, ENUM_CONSTANT, BLOCK
     }
 }

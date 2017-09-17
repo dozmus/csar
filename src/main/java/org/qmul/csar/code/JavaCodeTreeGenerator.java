@@ -100,6 +100,25 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         }
     }
 
+    private static void applyEnumModifiers(EnumLanguageElement.Builder builder,
+            List<ClassOrInterfaceModifierContext> mods) {
+        for (ClassOrInterfaceModifierContext mod : mods) {
+            if (mod.PUBLIC() != null) {
+                builder.visibilityModifier(VisibilityModifier.PUBLIC);
+            } else if (mod.PRIVATE() != null) {
+                builder.visibilityModifier(VisibilityModifier.PRIVATE);
+            } else if (mod.PROTECTED() != null) {
+                builder.visibilityModifier(VisibilityModifier.PROTECTED);
+            } else if (mod.FINAL() != null) {
+                builder.finalModifier(true);
+            } else if (mod.STATIC() != null) {
+                builder.staticModifier(true);
+            } else if (mod.STRICTFP() != null) {
+                builder.strictfpModifier(true);
+            }
+        }
+    }
+
     private static void applyImplemented(List<String> superClasses, TypeListContext ctx) {
         if (ctx == null)
             return;
@@ -482,9 +501,10 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         // Fall-back: type declaration
         TypeDeclarationContext typeDeclaration = st.typeDeclaration();
 
-        // TODO implement enum, annotation
+        // TODO implement annotation
         // Check if node type is handled
-        if (typeDeclaration.classDeclaration() == null && typeDeclaration.interfaceDeclaration() == null) {
+        if (typeDeclaration.classDeclaration() == null && typeDeclaration.interfaceDeclaration() == null
+                && typeDeclaration.enumDeclaration() == null) {
             throw new RuntimeException("unhandled type declaration");
         }
 
@@ -495,6 +515,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             currentNode = parseClass(typeDeclaration, true, false);
         } else if (typeDeclaration.interfaceDeclaration() != null) { // interface
             currentNode = parseInterface(typeDeclaration, true, false);
+        } else if (typeDeclaration.enumDeclaration() != null) { // enum
+            currentNode = parseEnum(typeDeclaration, true, false); // TODO make sure this is illegal in the grammar!
         }
         return currentNode;
     }
@@ -806,6 +828,73 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         return node != null ? Optional.of(node.getText()) : Optional.empty();
     }
 
+    private static Node parseEnum(TypeDeclarationContext ctx) {
+        return parseEnum(ctx.classOrInterfaceModifier(), ctx.enumDeclaration(), false, false);
+    }
+
+    private static Node parseEnum(TypeDeclarationContext ctx, boolean local, boolean inner) { // TODO remove: enums cant be local
+        return parseEnum(ctx.classOrInterfaceModifier(), ctx.enumDeclaration(), local, inner);
+    }
+
+    private static Node parseEnum(List<JavaParser.ClassOrInterfaceModifierContext> classOrInterfaceModifierContexts,
+            EnumDeclarationContext dec, boolean local, boolean inner) {
+        List<String> superClasses = new ArrayList<>();
+
+        String identifierName = dec.IDENTIFIER().getText();
+        EnumLanguageElement.Builder builder = EnumLanguageElement.Builder.allFalse(DEF, identifierName)
+                .inner(inner);
+
+        // Class modifiers
+        applyEnumModifiers(builder, classOrInterfaceModifierContexts);
+
+        // Implemented interfaces
+        applyImplemented(superClasses, dec.typeList());
+
+        List<Node> children = new ArrayList<>();
+
+        // Enum constants
+        List<Node> constants = dec.enumConstants() != null
+                ? parseEnumConstantDeclaration(dec.enumConstants().enumConstant()) : new ArrayList<>();
+        children.addAll(constants);
+
+        // Enum body declarations
+        List<Node> body = dec.enumBodyDeclarations() != null
+                ? parseClassBodyDeclaration(dec.enumBodyDeclarations().classBodyDeclaration()) : new ArrayList<>();
+        children.addAll(body);
+
+        // Create and return node
+        Node root = new Node(builder.build());
+        children.forEach(root::addNode);
+        return root;
+    }
+
+    private static List<Node> parseEnumConstantDeclaration(List<EnumConstantContext> enumConstantContexts) {
+        List<Node> children = new ArrayList<>();
+
+        for (EnumConstantContext constant : enumConstantContexts) { // annotation* IDENTIFIER arguments? classBody?
+            // TODO parse annotation
+            String identifierName = constant.IDENTIFIER().getText();
+
+            // Arguments
+            List<Expression> arguments = new ArrayList<>();
+            ArgumentsContext args = constant.arguments();
+
+            if (args != null && args.expressionList() != null) {
+                for (ExpressionContext exprCtx : args.expressionList().expression()) {
+                    arguments.add(parseExpression(exprCtx));
+                }
+            }
+
+            // classBody
+            List<Node> body = constant.classBody() != null
+                    ? parseClassBodyDeclaration(constant.classBody().classBodyDeclaration()) : new ArrayList<>();
+            Node constantNode = new Node(new EnumConstantLanguageElement(identifierName, arguments, body));
+            body.forEach(constantNode::addNode);
+            children.add(constantNode);
+        }
+        return children;
+    }
+
     private static Node parseClass(TypeDeclarationContext ctx) {
         return parseClass(ctx.classOrInterfaceModifier(), ctx.classDeclaration(), false, false);
     }
@@ -876,6 +965,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             GenericConstructorDeclarationContext genericConstructor = m.genericConstructorDeclaration();
             ClassDeclarationContext innerClass = m.classDeclaration();
             InterfaceDeclarationContext innerInterface = m.interfaceDeclaration();
+            EnumDeclarationContext innerEnum = m.enumDeclaration();
             FieldDeclarationContext field = m.fieldDeclaration();
 
             if (method != null) { // method
@@ -984,6 +1074,9 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 Node node = parseInterface(toClassOrInterfaceModifierContexts(classBody.modifier()), innerInterface,
                         false, true);
                 children.add(node);
+            } else if (innerEnum != null) { // inner enum
+                Node node = parseEnum(toClassOrInterfaceModifierContexts(classBody.modifier()), innerEnum, false, true);
+                children.add(node);
             }
         }
         return children;
@@ -1027,6 +1120,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     = memberDec.genericInterfaceMethodDeclaration();
             ClassDeclarationContext classDec = memberDec.classDeclaration();
             ConstDeclarationContext constDecl = memberDec.constDeclaration();
+            EnumDeclarationContext enumDec = memberDec.enumDeclaration();
 
             if (method != null) { // method
                 MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
@@ -1075,6 +1169,9 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             } else if (classDec != null) { // inner class
                 Node node = parseClass(toClassOrInterfaceModifierContexts(intBody.modifier()), classDec, false, true);
                 children.add(node);
+            } else if (enumDec != null) { // inner enum
+                Node node = parseEnum(toClassOrInterfaceModifierContexts(intBody.modifier()), enumDec, false, true);
+                children.add(node);
             }
         }
         // TODO finish
@@ -1104,9 +1201,9 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             return;
         }
 
-        // TODO implement enum, annotation
+        // TODO implement annotation
         // Check if node type is handled
-        if (ctx.classDeclaration() == null && ctx.interfaceDeclaration() == null) {
+        if (ctx.classDeclaration() == null && ctx.interfaceDeclaration() == null && ctx.enumDeclaration() == null) {
             throw new RuntimeException("unhandled top level element");
         }
 
@@ -1115,6 +1212,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             rootNode = parseClass(ctx);
         } else if (ctx.interfaceDeclaration() != null) { // interface
             rootNode = parseInterface(ctx);
+        } else if (ctx.enumDeclaration() != null) { // enum
+            rootNode = parseEnum(ctx);
         }
     }
 
