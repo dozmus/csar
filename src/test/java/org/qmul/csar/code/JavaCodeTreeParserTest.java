@@ -152,6 +152,7 @@ public final class JavaCodeTreeParserTest {
                 .identifierType("int")
                 .valueExpression(new Expression.UnitExpression(Expression.UnitExpression.Type.LITERAL, "1000"))
                 .build();
+
         MethodLanguageElement method1 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .returnType("void")
@@ -159,6 +160,20 @@ public final class JavaCodeTreeParserTest {
                 .parameters(new Parameter("String", Optional.of("s"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(1)
                 .build();
+        Expression methodNameExpr = new Expression.BinaryExpression(
+                new Expression.BinaryExpression(
+                        new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "System"),
+                        Expression.BinaryOperation.DOT,
+                        new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "out")
+                ),
+                Expression.BinaryOperation.DOT,
+                new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "println"));
+        List<Expression> args = new ArrayList<>();
+        args.add(new Expression.UnitExpression(Expression.UnitExpression.Type.IDENTIFIER, "s"));
+        Node method1Node = new Node(method1);
+        method1Node.addNode(new Node(new Expression.SemiColonTerminatedExpression(Optional.of(
+                new Expression.MethodCallExpression(methodNameExpr, args)))));
+
         MethodLanguageElement method2 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
@@ -186,7 +201,7 @@ public final class JavaCodeTreeParserTest {
         // Build node tree
         Node root = new Node(clazz);
         root.addNode(new Node(const1));
-        root.addNode(new Node(method1));
+        root.addNode(method1Node);
         root.addNode(new Node(method2));
         root.addNode(new Node(const2));
         root.addNode(new Node(method3));
