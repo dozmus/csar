@@ -1140,8 +1140,20 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                         methodBuilder.defaultModifier(true);
                     }
                 }
-                // TODO parse body if a default method
-                children.add(new Node(methodBuilder.build()));
+
+                // Parse method body
+                MethodBodyContext methodBody = method.methodBody();
+                Node methodNode = new Node(methodBuilder.build());
+
+                if (methodBody.block() != null) {
+                    for (BlockStatementContext bsc : methodBody.block().blockStatement()) {
+                        try {
+                            methodNode.addNode(new Node(parseBlock(bsc)));
+                        } catch (UnsupportedOperationException ignored) {
+                        }
+                    }
+                }
+                children.add(methodNode);
             } else if (genericMethod != null) { // generic method
                 method = genericMethod.interfaceMethodDeclaration();
                 MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
