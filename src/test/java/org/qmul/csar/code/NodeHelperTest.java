@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.qmul.csar.lang.*;
 import org.qmul.csar.query.CsarQuery;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public final class NodeHelperTest {
@@ -32,8 +33,8 @@ public final class NodeHelperTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .abstractModifier(true)
                 .returnType("void")
-                .parameters(new Parameter("int", Optional.of("a"), Optional.of(true)),
-                        new Parameter("int", Optional.of("b"), Optional.of(false)))
+                .parameters(new Parameter("int", Optional.of("a"), Optional.of(true), new ArrayList<>()),
+                        new Parameter("int", Optional.of("b"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(2)
                 .build();
         assertEquals("DEF:public abstract void add(final int a, int b)", new Node(method1));

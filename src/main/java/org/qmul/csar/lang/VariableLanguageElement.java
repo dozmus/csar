@@ -1,11 +1,9 @@
 package org.qmul.csar.lang;
 
+import org.qmul.csar.code.Node;
 import org.qmul.csar.query.CsarQuery;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class VariableLanguageElement extends IdentifiableLanguageElement {
 
@@ -14,16 +12,18 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
     private final Optional<String> identifierType;
     private final Optional<Expression> valueExpression;
     private final Optional<Boolean> finalModifier;
+    private final List<Node> annotations;
 
     public VariableLanguageElement(CsarQuery.Type searchType, VariableType variableType,
-                                   Optional<Boolean> finalModifier, String identifierName,
-                                   Optional<Expression> valueExpression, Optional<String> identifierType) {
+            Optional<Boolean> finalModifier, String identifierName, Optional<Expression> valueExpression,
+            Optional<String> identifierType, List<Node> annotations) {
         super(Type.VARIABLE, identifierName);
         this.searchType = searchType;
         this.variableType = variableType;
         this.identifierType = identifierType;
         this.valueExpression = valueExpression;
         this.finalModifier = finalModifier;
+        this.annotations = annotations;
     }
 
     public CsarQuery.Type getSearchType() {
@@ -46,6 +46,10 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         return finalModifier;
     }
 
+    public List<Node> getAnnotations() {
+        return annotations;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,19 +60,21 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
                 variableType == that.variableType &&
                 Objects.equals(identifierType, that.identifierType) &&
                 Objects.equals(valueExpression, that.valueExpression) &&
-                Objects.equals(finalModifier, that.finalModifier);
+                Objects.equals(finalModifier, that.finalModifier) &&
+                Objects.equals(annotations, that.annotations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), searchType, variableType, identifierType, valueExpression, finalModifier);
+        return Objects.hash(super.hashCode(), searchType, variableType, identifierType, valueExpression, finalModifier,
+                annotations);
     }
 
     @Override
     public String toString() {
         return String.format("VariableLanguageElement{searchType=%s, variableType=%s, identifierType=%s, "
-                + "valueExpression=%s, finalModifier=%s} %s", searchType, variableType, identifierType, valueExpression,
-                finalModifier, super.toString());
+                        + "valueExpression=%s, finalModifier=%s, annotations=%s} %s", searchType, variableType,
+                identifierType, valueExpression, finalModifier, annotations, super.toString());
     }
 
     public static class VariableLanguageElements extends LanguageElement {
@@ -116,6 +122,7 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
         private Optional<String> identifierType = Optional.empty();
         private Optional<Expression> valueExpression = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
+        private List<Node> annotations = new ArrayList<>();
 
         public Builder(CsarQuery.Type searchType, VariableType variableType, String identifierName) {
             this.searchType = searchType;
@@ -141,9 +148,19 @@ public class VariableLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
+        public Builder annotation(Node node) {
+            this.annotations.add(node);
+            return this;
+        }
+
+        public Builder annotation(List<Node> list) {
+            this.annotations.addAll(list);
+            return this;
+        }
+
         public VariableLanguageElement build() {
             return new VariableLanguageElement(searchType, variableType, finalModifier, identifierName, valueExpression,
-                    identifierType);
+                    identifierType, annotations);
         }
     }
 }

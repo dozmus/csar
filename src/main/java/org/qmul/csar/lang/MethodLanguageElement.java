@@ -1,5 +1,6 @@
 package org.qmul.csar.lang;
 
+import org.qmul.csar.code.Node;
 import org.qmul.csar.query.CsarQuery;
 
 import java.util.*;
@@ -17,6 +18,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
     private final List<String> thrownExceptions;
     private final List<String> superClasses;
     private final List<String> typeParameters;
+    private final List<Node> annotations;
 
     public MethodLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                  Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
@@ -25,7 +27,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
                                  Optional<Boolean> synchronizedModifier, Optional<Boolean> nativeModifier,
                                  Optional<Boolean> defaultModifier, Optional<Integer> parameterCount,
                                  List<Parameter> parameters, List<String> thrownExceptions, List<String> superClasses,
-                                 List<String> typeParameters) {
+                                 List<String> typeParameters, List<Node> annotations) {
         super(Type.METHOD, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                 abstractModifier, strictfpModifier);
@@ -39,6 +41,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         this.thrownExceptions = thrownExceptions;
         this.superClasses = superClasses;
         this.typeParameters = typeParameters;
+        this.annotations = annotations;
     }
 
     public Optional<Boolean> getOverridden() {
@@ -85,6 +88,10 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         return typeParameters;
     }
 
+    public List<Node> getAnnotations() {
+        return annotations;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -101,23 +108,26 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
                 Objects.equals(parameters, that.parameters) &&
                 Objects.equals(thrownExceptions, that.thrownExceptions) &&
                 Objects.equals(superClasses, that.superClasses) &&
-                Objects.equals(typeParameters, that.typeParameters);
+                Objects.equals(typeParameters, that.typeParameters) &&
+                Objects.equals(annotations, that.annotations);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), commonModifiers, returnType, synchronizedModifier, nativeModifier,
                 defaultModifier, overridden, parameterCount, parameters, thrownExceptions, superClasses,
-                typeParameters);
+                typeParameters, annotations);
     }
 
     @Override
     public String toString() {
-        return String.format("MethodLanguageElement{commonModifiers=%s, returnType=%s, synchronizedModifier=%s, "
-                + "nativeModifier=%s, defaultModifier=%s, overridden=%s, parameterCount=%s, parameters=%s, "
-                + "thrownExceptions=%s, superClasses=%s, typeParameters=%s} %s", commonModifiers, returnType,
+        return String.format(
+                "MethodLanguageElement{commonModifiers=%s, returnType=%s, synchronizedModifier=%s, nativeModifier=%s, "
+                        + "defaultModifier=%s, overridden=%s, parameterCount=%s, parameters=%s, thrownExceptions=%s, "
+                        + "superClasses=%s, typeParameters=%s, annotations=%s} %s", commonModifiers, returnType,
                 synchronizedModifier, nativeModifier, defaultModifier, overridden, parameterCount, parameters,
-                thrownExceptions, superClasses, typeParameters, super.toString());
+                thrownExceptions, superClasses, typeParameters, annotations,
+                super.toString());
     }
 
     public static class Builder {
@@ -139,6 +149,7 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
         private List<String> thrownExceptions = new ArrayList<>();
         private List<String> superClasses = new ArrayList<>();
         private List<String> typeParameters = new ArrayList<>();
+        private List<Node> annotations = new ArrayList<>();
 
         public Builder(CsarQuery.Type searchType, String identifierName) {
             this.searchType = searchType;
@@ -257,11 +268,16 @@ public class MethodLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
+        public Builder annotation(Node node) {
+            this.annotations.add(node);
+            return this;
+        }
+
         public MethodLanguageElement build() {
             return new MethodLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
                     identifierName, returnType, overridden, abstractModifier, strictfpModifier, synchronizedModifier,
                     nativeModifier, defaultModifier, parameterCount, parameters, thrownExceptions, superClasses,
-                    typeParameters);
+                    typeParameters, annotations);
         }
     }
 }

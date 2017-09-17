@@ -127,7 +127,7 @@ public final class CsarQueryFactoryTest {
         MethodLanguageElement method5 = new MethodLanguageElement.Builder(CsarQuery.Type.DEF, "add")
                 .staticModifier(true)
                 .returnType("int")
-                .parameters(new Parameter("float[]", Optional.empty(), Optional.of(true)),
+                .parameters(new Parameter("float[]", Optional.empty(), Optional.of(true), new ArrayList<>()),
                         new Parameter("String", Optional.empty()))
                 .build();
         assertEquals("method:def:static int add(final float[], String)", new CsarQuery(method5));

@@ -3,26 +3,28 @@ package org.qmul.csar.lang;
 import org.qmul.csar.code.Node;
 import org.qmul.csar.query.CsarQuery;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
-public class EnumLanguageElement extends IdentifiableLanguageElement {
+public class AnnotationLanguageElement extends IdentifiableLanguageElement {
 
-    private CommonModifiers commonModifiers;
-    private Optional<Boolean> inner = Optional.empty();
-    private Optional<Boolean> local = Optional.empty();
-    private List<String> superClasses = new ArrayList<>();
+    private final CommonModifiers commonModifiers;
+    private final Optional<Boolean> inner;
+    private final Optional<Boolean> local;
     private final List<Node> annotations;
 
-    public EnumLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
-            Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, String identifierName,
+    public AnnotationLanguageElement(CsarQuery.Type searchType, String identifierName,
+            Optional<VisibilityModifier> visibilityModifier,
+            Optional<Boolean> staticModifier, Optional<Boolean> abstractModifier,
             Optional<Boolean> strictfpModifier, Optional<Boolean> inner, Optional<Boolean> local,
-            List<String> superClasses, List<Node> annotations) {
-        super(LanguageElement.Type.ENUM, identifierName);
-        this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
-                Optional.of(false), strictfpModifier);
+            List<Node> annotations) {
+        super(Type.ANNOTATION, identifierName);
         this.inner = inner;
         this.local = local;
-        this.superClasses = superClasses;
+        this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, Optional.of(false),
+                abstractModifier, strictfpModifier);
         this.annotations = annotations;
     }
 
@@ -38,10 +40,6 @@ public class EnumLanguageElement extends IdentifiableLanguageElement {
         return local;
     }
 
-    public List<String> getSuperClasses() {
-        return superClasses;
-    }
-
     public List<Node> getAnnotations() {
         return annotations;
     }
@@ -51,24 +49,22 @@ public class EnumLanguageElement extends IdentifiableLanguageElement {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        EnumLanguageElement that = (EnumLanguageElement) o;
+        AnnotationLanguageElement that = (AnnotationLanguageElement) o;
         return Objects.equals(commonModifiers, that.commonModifiers) &&
                 Objects.equals(inner, that.inner) &&
                 Objects.equals(local, that.local) &&
-                Objects.equals(superClasses, that.superClasses) &&
                 Objects.equals(annotations, that.annotations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), commonModifiers, inner, local, superClasses, annotations);
+        return Objects.hash(super.hashCode(), commonModifiers, inner, local, annotations);
     }
 
     @Override
     public String toString() {
-        return String.format(
-                "EnumLanguageElement{commonModifiers=%s, inner=%s, local=%s, superClasses=%s, annotations=%s} %s",
-                commonModifiers, inner, local, superClasses, annotations, super.toString());
+        return String.format("AnnotationLanguageElement{commonModifiers=%s, inner=%s, local=%s, annotations=%s} %s",
+                commonModifiers, inner, local, annotations, super.toString());
     }
 
     public static class Builder {
@@ -77,11 +73,10 @@ public class EnumLanguageElement extends IdentifiableLanguageElement {
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private String identifierName;
         private Optional<Boolean> staticModifier = Optional.empty();
-        private Optional<Boolean> finalModifier = Optional.empty();
+        private Optional<Boolean> abstractModifier = Optional.empty();
         private Optional<Boolean> strictfpModifier = Optional.empty();
-        private Optional<Boolean> anonymous = Optional.empty();
         private Optional<Boolean> inner = Optional.empty();
-        private List<String> superClasses = new ArrayList<>();
+        private Optional<Boolean> local = Optional.empty();
         private List<Node> annotations = new ArrayList<>();
 
         public Builder(CsarQuery.Type searchType, String identifierName) {
@@ -96,11 +91,11 @@ public class EnumLanguageElement extends IdentifiableLanguageElement {
         public static Builder allFalse(CsarQuery.Type type, String identifierName) {
             return new Builder(type, identifierName)
                     .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                    .abstractModifier(false)
                     .staticModifier(false)
-                    .finalModifier(false)
                     .strictfpModifier(false)
                     .inner(false)
-                    .anonymous(false);
+                    .local(false);
         }
 
         public Builder staticModifier(boolean staticModifier) {
@@ -108,8 +103,8 @@ public class EnumLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
-        public Builder finalModifier(boolean finalModifier) {
-            this.finalModifier = Optional.of(finalModifier);
+        public Builder abstractModifier(boolean abstractModifier) {
+            this.abstractModifier = Optional.of(abstractModifier);
             return this;
         }
 
@@ -118,13 +113,13 @@ public class EnumLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
-        public Builder anonymous(boolean anonymous) {
-            this.anonymous = Optional.of(anonymous);
+        public Builder inner(boolean inner) {
+            this.inner = Optional.of(inner);
             return this;
         }
 
-        public Builder inner(boolean inner) {
-            this.inner = Optional.of(inner);
+        public Builder local(boolean local) {
+            this.local = Optional.of(local);
             return this;
         }
 
@@ -133,24 +128,14 @@ public class EnumLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
-        public Builder superClasses(List<String> superClasses) {
-            this.superClasses = superClasses;
-            return this;
-        }
-
-        public Builder superClasses(String... superClasses) {
-            this.superClasses = Arrays.asList(superClasses);
-            return this;
-        }
-
         public Builder annotation(Node node) {
             this.annotations.add(node);
             return this;
         }
 
-        public EnumLanguageElement build() {
-            return new EnumLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
-                    identifierName, strictfpModifier, anonymous, inner, superClasses, annotations);
+        public AnnotationLanguageElement build() {
+            return new AnnotationLanguageElement(searchType, identifierName, visibilityModifier, staticModifier,
+                    abstractModifier, strictfpModifier, inner, local, annotations);
         }
     }
 }

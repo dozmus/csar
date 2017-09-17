@@ -49,7 +49,7 @@ public final class JavaCodeTreeParserTest {
                 .Builder(CsarQuery.Type.DEF, "Sample1")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .parameterCount(1)
-                .parameters(new Parameter("String...", Optional.of("names"), Optional.of(false)))
+                .parameters(new Parameter("String...", Optional.of("names"), Optional.of(false), new ArrayList<>()))
                 .typeParameters("E")
                 .build();
         Node constructor2Node = new Node(constructor2);
@@ -76,8 +76,8 @@ public final class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .abstractModifier(true)
                 .returnType("void")
-                .parameters(new Parameter("int[]", Optional.of("a"), Optional.of(true)),
-                        new Parameter("int", Optional.of("b"), Optional.of(false)))
+                .parameters(new Parameter("int[]", Optional.of("a"), Optional.of(true), new ArrayList<>()),
+                        new Parameter("int", Optional.of("b"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(2)
                 .build();
 
@@ -96,7 +96,7 @@ public final class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .finalModifier(true)
                 .returnType("void")
-                .parameters(new Parameter("int", Optional.of("result"), Optional.of(false)))
+                .parameters(new Parameter("int", Optional.of("result"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(1)
                 .typeParameters("E extends AbstractSample")
                 .build();
@@ -156,14 +156,14 @@ public final class JavaCodeTreeParserTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .returnType("void")
                 .defaultModifier(true)
-                .parameters(new Parameter("String", Optional.of("s"), Optional.of(false)))
+                .parameters(new Parameter("String", Optional.of("s"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(1)
                 .build();
         MethodLanguageElement method2 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
-                .parameters(new Parameter("E", Optional.of("level"), Optional.of(false)),
-                        new Parameter("String...", Optional.of("s"), Optional.of(false)))
+                .parameters(new Parameter("E", Optional.of("level"), Optional.of(false), new ArrayList<>()),
+                        new Parameter("String...", Optional.of("s"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(2)
                 .typeParameters("E")
                 .build();
@@ -179,7 +179,7 @@ public final class JavaCodeTreeParserTest {
         MethodLanguageElement method3 = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "print")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
-                .parameters(new Parameter("String[]", Optional.of("$"), Optional.of(false)))
+                .parameters(new Parameter("String[]", Optional.of("$"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(1)
                 .build();
 
@@ -323,7 +323,7 @@ public final class JavaCodeTreeParserTest {
                 .build();
         MethodLanguageElement method = MethodLanguageElement.Builder.allFalse(CsarQuery.Type.DEF, "work")
                 .returnType("void")
-                .parameters(new Parameter("int", Optional.of("threads"), Optional.of(false)))
+                .parameters(new Parameter("int", Optional.of("threads"), Optional.of(false), new ArrayList<>()))
                 .parameterCount(1)
                 .build();
 

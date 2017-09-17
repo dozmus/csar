@@ -1,7 +1,10 @@
 package org.qmul.csar.lang;
 
+import org.qmul.csar.code.Node;
 import org.qmul.csar.query.CsarQuery;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -11,12 +14,12 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
 
     // TODO remove abstract and strictfp from this (i.e. CommonModifiers)
 
-    public InstanceVariableLanguageElement(CsarQuery.Type searchType,
-                                           Optional<VisibilityModifier> visibilityModifier,
+    public InstanceVariableLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
                                            Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
                                            String identifierName, Optional<Expression> valueExpression,
-                                           Optional<String> identifierType) {
-        super(searchType, VariableType.INSTANCE, finalModifier, identifierName, valueExpression, identifierType);
+                                           Optional<String> identifierType, List<Node> annotations) {
+        super(searchType, VariableType.INSTANCE, finalModifier, identifierName, valueExpression, identifierType,
+                annotations);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                 Optional.empty(), Optional.empty());
     }
@@ -30,7 +33,7 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        org.qmul.csar.lang.InstanceVariableLanguageElement that = (org.qmul.csar.lang.InstanceVariableLanguageElement) o;
+        InstanceVariableLanguageElement that = (InstanceVariableLanguageElement) o;
         return Objects.equals(commonModifiers, that.commonModifiers);
     }
 
@@ -54,6 +57,7 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
         private Optional<Expression> valueExpression = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
+        private List<Node> annotations = new ArrayList<>();
 
         public static Builder allFalse(CsarQuery.Type searchType, String identifierName) {
             return new Builder(searchType, identifierName)
@@ -91,9 +95,14 @@ public class InstanceVariableLanguageElement extends VariableLanguageElement {
             return this;
         }
 
+        public Builder annotation(Node node) {
+            this.annotations.add(node);
+            return this;
+        }
+
         public org.qmul.csar.lang.InstanceVariableLanguageElement build() {
-            return new org.qmul.csar.lang.InstanceVariableLanguageElement(searchType, visibilityModifier, staticModifier,
-                    finalModifier, identifierName, valueExpression, identifierType);
+            return new org.qmul.csar.lang.InstanceVariableLanguageElement(searchType, visibilityModifier,
+                    staticModifier, finalModifier, identifierName, valueExpression, identifierType, annotations);
         }
     }
 }

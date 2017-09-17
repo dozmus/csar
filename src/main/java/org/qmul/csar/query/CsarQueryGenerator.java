@@ -90,7 +90,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
         return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier, identifierName,
                 interfaceModifier, abstractModifier, strictfpModifier, anonymousModifier, innerModifier,
-                Optional.empty(), new ArrayList<>(), superClasses);
+                Optional.empty(), new ArrayList<>(), superClasses, new ArrayList<>());
     }
 
     private static LanguageElement parseMethod(CsarParser.MethodContext ctx) {
@@ -124,22 +124,22 @@ class CsarQueryGenerator extends CsarParserBaseListener {
             } else if (mpt.paramTypeList() != null) {
                 CsarParser.ParamTypeListContext pnt = mpt.paramTypeList();
                 Optional<Boolean> paramFinal = pnt.FINAL() != null ? Optional.of(true) : Optional.empty();
-                parameters.add(new Parameter(pnt.type().getText(), Optional.empty(), paramFinal));
+                parameters.add(new Parameter(pnt.type().getText(), Optional.empty(), paramFinal, new ArrayList<>()));
 
                 for (CsarParser.ParamTypeListRestContext p : pnt.paramTypeListRest()) {
                     paramFinal = p.FINAL() != null ? Optional.of(true) : Optional.empty();
-                    parameters.add(new Parameter(p.type().getText(), Optional.empty(), paramFinal));
+                    parameters.add(new Parameter(p.type().getText(), Optional.empty(), paramFinal, new ArrayList<>()));
                 }
             } else if (mpt.paramNamedTypeList() != null) {
                 CsarParser.ParamNamedTypeListContext ntlc = mpt.paramNamedTypeList();
                 Optional<Boolean> paramFinal = ntlc.FINAL() != null ? Optional.of(true) : Optional.empty();
                 parameters.add(new Parameter(ntlc.type().getText(), Optional.of(ntlc.identifierName().getText()),
-                        paramFinal));
+                        paramFinal, new ArrayList<>()));
 
                 for (CsarParser.ParamNamedTypeListRestContext p : ntlc.paramNamedTypeListRest()) {
                     paramFinal = p.FINAL() != null ? Optional.of(true) : Optional.empty();
                     parameters.add(new Parameter(p.type().getText(), Optional.of(p.identifierName().getText()),
-                            paramFinal));
+                            paramFinal, new ArrayList<>()));
                 }
             }
         }
@@ -163,7 +163,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
         return new MethodLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier, identifierName,
                 returnType, overriddenModifier, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), parameterCount, parameters, thrownExceptions, superClasses, new ArrayList<>());
+                Optional.empty(), parameterCount, parameters, thrownExceptions, superClasses, new ArrayList<>(),
+                new ArrayList<>());
     }
 
     private static LanguageElement parseVariable(CsarParser.VariableContext ctx) {
@@ -177,7 +178,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     parseOptionalTrueOrEmpty(common.FINAL()),
                     ictx.identifierName().getText(),
                     Optional.empty(),
-                    parseTextOrEmpty(ictx.type())
+                    parseTextOrEmpty(ictx.type()),
+                    new ArrayList<>()
             );
         } else if (ctx.localVariable() != null) {
             CsarParser.LocalVariableContext lctx = ctx.localVariable();
@@ -186,8 +188,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     parseOptionalTrueOrEmpty(lctx.FINAL()),
                     lctx.identifierName().getText(),
                     Optional.empty(),
-                    parseTextOrEmpty(lctx.type())
-            );
+                    parseTextOrEmpty(lctx.type()),
+                    new ArrayList<>());
         } else { // param
             CsarParser.ParamVariableContext pctx = ctx.paramVariable();
             return new VariableLanguageElement(parseType(pctx.DEF(), pctx.USE()),
@@ -195,8 +197,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     parseOptionalTrueOrEmpty(pctx.FINAL()),
                     pctx.identifierName().getText(),
                     Optional.empty(),
-                    parseTextOrEmpty(pctx.type())
-            );
+                    parseTextOrEmpty(pctx.type()),
+                    new ArrayList<>());
         }
     }
 

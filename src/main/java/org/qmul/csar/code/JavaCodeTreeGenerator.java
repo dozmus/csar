@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static grammars.java8pt.JavaParser.*;
 import static org.qmul.csar.query.CsarQuery.Type.DEF;
+import static org.qmul.csar.query.CsarQuery.Type.USE;
 
 public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
@@ -40,6 +41,37 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         return output;
     }
 
+    private static List<Node> parseAnnotations(List<VariableModifierContext> mods) {
+        List<Node> annotations = new ArrayList<>();
+
+        for (VariableModifierContext vm : mods) {
+            if (vm.annotation() != null) {
+                annotations.add(parseAnnotationUse(vm.annotation()));
+            }
+        }
+        return annotations;
+    }
+
+    private static List<Node> parseAnnotations2(List<AnnotationContext> annotations) {
+        List<Node> out = new ArrayList<>();
+
+        for (AnnotationContext annotation : annotations) {
+            out.add(parseAnnotationUse(annotation));
+        }
+        return out;
+    }
+
+    private static List<Node> parseAnnotations3(List<ModifierContext> mods) {
+        List<Node> annotations = new ArrayList<>();
+
+        for (ModifierContext mod : mods) {
+            if (mod.classOrInterfaceModifier() != null && mod.classOrInterfaceModifier().annotation() != null) {
+                annotations.add(parseAnnotationUse(mod.classOrInterfaceModifier().annotation()));
+            }
+        }
+        return annotations;
+    }
+
     private static boolean containsFinal(List<VariableModifierContext> mods) {
         for (VariableModifierContext vm : mods) {
             if (vm.FINAL() != null) {
@@ -61,7 +93,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     .identifierType(type)
                     .finalModifier(finalModifier)
                     .build());
-            outParams.add(new Parameter(type, Optional.of(name), Optional.of(finalModifier)));
+            outParams.add(new Parameter(type, Optional.of(name), Optional.of(finalModifier),
+                    parseAnnotations(p.variableModifier())));
         }
 
         if (ctx.lastFormalParameter() != null) { // varargs
@@ -73,7 +106,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                     .identifierType(type + "...")
                     .finalModifier(finalModifier)
                     .build());
-            outParams.add(new Parameter(type + "...", Optional.of(name), Optional.of(finalModifier)));
+            outParams.add(new Parameter(type + "...", Optional.of(name), Optional.of(finalModifier),
+                    parseAnnotations(last.variableModifier())));
         }
     }
 
@@ -94,6 +128,29 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 builder.staticModifier(true);
             } else if (mod.STRICTFP() != null) {
                 builder.strictfpModifier(true);
+            } else if (mod.annotation() != null) {
+                builder.annotation(parseAnnotationUse(mod.annotation()));
+            }
+        }
+    }
+
+    private static void applyAnnotationModifiers(AnnotationLanguageElement.Builder builder,
+            List<ClassOrInterfaceModifierContext> mods) {
+        for (ClassOrInterfaceModifierContext mod : mods) {
+            if (mod.PUBLIC() != null) {
+                builder.visibilityModifier(VisibilityModifier.PUBLIC);
+            } else if (mod.PRIVATE() != null) {
+                builder.visibilityModifier(VisibilityModifier.PRIVATE);
+            } else if (mod.PROTECTED() != null) {
+                builder.visibilityModifier(VisibilityModifier.PROTECTED);
+            } else if (mod.ABSTRACT() != null) {
+                builder.abstractModifier(true);
+            } else if (mod.STATIC() != null) {
+                builder.staticModifier(true);
+            } else if (mod.STRICTFP() != null) {
+                builder.strictfpModifier(true);
+            } else if (mod.annotation() != null) {
+                builder.annotation(parseAnnotationUse(mod.annotation()));
             }
         }
     }
@@ -113,6 +170,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 builder.staticModifier(true);
             } else if (mod.STRICTFP() != null) {
                 builder.strictfpModifier(true);
+            } else if (mod.annotation() != null) {
+                builder.annotation(parseAnnotationUse(mod.annotation()));
             }
         }
     }
@@ -175,6 +234,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                 builder.staticModifier(true);
             } else if (mods.STRICTFP() != null) {
                 builder.strictfpModifier(true);
+            } else if (mods.annotation() != null) {
+                builder.annotation(parseAnnotationUse(mods.annotation()));
             }
         }
     }
@@ -499,13 +560,6 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         // Fall-back: type declaration
         TypeDeclarationContext typeDeclaration = st.typeDeclaration();
 
-        // TODO implement annotation
-        // Check if node type is handled
-        if (typeDeclaration.classDeclaration() == null && typeDeclaration.interfaceDeclaration() == null
-                && typeDeclaration.enumDeclaration() == null) {
-            throw new RuntimeException("unhandled type declaration");
-        }
-
         // Generate node and add node
         Node currentNode = null;
 
@@ -515,6 +569,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             currentNode = parseInterface(typeDeclaration, true, false);
         } else if (typeDeclaration.enumDeclaration() != null) { // enum
             currentNode = parseEnum(typeDeclaration, true, false); // TODO make sure this is illegal in the grammar!
+        } else { // annotation
+            currentNode = parseAnnotationDefinition(new ArrayList<>(), typeDeclaration.annotationTypeDeclaration()); // TODO make sure this is illegal in the grammar!
         }
         return currentNode;
     }
@@ -535,6 +591,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             LocalVariableDeclarationContext local) {
         List<VariableLanguageElement> elements = new ArrayList<>();
         boolean finalModifier = containsFinal(local.variableModifier());
+        List<Node> annotations = parseAnnotations(local.variableModifier());
         String identifierType = local.typeType().getText();
 
         for (VariableDeclaratorContext decl : local.variableDeclarators().variableDeclarator()) {
@@ -548,7 +605,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             VariableLanguageElement.Builder variableBuilder
                     = new VariableLanguageElement.Builder(DEF, VariableType.LOCAL, identifier)
                     .identifierType(identifierType)
-                    .finalModifier(finalModifier);
+                    .finalModifier(finalModifier)
+                    .annotation(annotations);
 
             if (decl.variableInitializer() != null) {
                 variableBuilder.valueExpression(parseVariableInitializerExpression(decl.variableInitializer()));
@@ -602,6 +660,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                     // Variable
                     boolean finalModifier = containsFinal(en.variableModifier());
+                    List<Node> annotations = parseAnnotations(en.variableModifier());
                     String identifierType = en.typeType().getText();
 
                     VariableDeclaratorIdContext identifierCtx = en.variableDeclaratorId();
@@ -615,6 +674,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                             = new VariableLanguageElement.Builder(DEF, VariableType.LOCAL, identifierName)
                             .finalModifier(finalModifier)
                             .identifierType(identifierType)
+                            .annotation(annotations)
                             .build();
                     // Collection
                     Expression collection = parseExpression(en.expression());
@@ -673,6 +733,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                     for (ResourceContext res : ctx.resourceSpecification().resources().resource()) {
                         boolean finalModifier = containsFinal(res.variableModifier());
+                        List<Node> annotations = parseAnnotations(res.variableModifier());
                         String identifierType = res.classOrInterfaceType().getText();
 
                         VariableDeclaratorIdContext identifierCtx = res.variableDeclaratorId();
@@ -688,6 +749,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                                 .finalModifier(finalModifier)
                                 .identifierType(identifierType)
                                 .valueExpression(value)
+                                .annotation(annotations)
                                 .build();
                         resources.add(variable);
                     }
@@ -703,12 +765,14 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                     for (CatchClauseContext catchClauseCtx : ctx.catchClause()) {
                         boolean finalModifier = containsFinal(catchClauseCtx.variableModifier());
+                        List<Node> annotations = parseAnnotations(catchClauseCtx.variableModifier());
                         String identifierName = catchClauseCtx.IDENTIFIER().getText();
                         String identifierType = catchClauseCtx.catchType().getText();
                         VariableLanguageElement variable
                                 = new VariableLanguageElement.Builder(DEF, VariableType.LOCAL, identifierName)
                                 .identifierType(identifierType)
                                 .finalModifier(finalModifier)
+                                .annotation(annotations)
                                 .build();
 
                         List<Statement> catchBlock = new ArrayList<>();
@@ -741,12 +805,14 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
 
                     for (CatchClauseContext catchClauseCtx : ctx.catchClause()) {
                         boolean finalModifier = containsFinal(catchClauseCtx.variableModifier());
+                        List<Node> annotations = parseAnnotations(catchClauseCtx.variableModifier());
                         String identifierName = catchClauseCtx.IDENTIFIER().getText();
                         String identifierType = catchClauseCtx.catchType().getText();
                         VariableLanguageElement variable
                                 = new VariableLanguageElement.Builder(DEF, VariableType.LOCAL, identifierName)
                                 .identifierType(identifierType)
                                 .finalModifier(finalModifier)
+                                .annotation(annotations)
                                 .build();
 
                         List<Statement> catchBlock = new ArrayList<>();
@@ -822,6 +888,120 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         throw new UnsupportedOperationException();
     }
 
+
+    private static Node parseAnnotationDefinition(List<ClassOrInterfaceModifierContext> modifiers,
+            AnnotationTypeDeclarationContext dec) {
+        return parseAnnotationDefinition(modifiers, dec, false);
+    }
+
+    private static Node parseAnnotationDefinition(List<ClassOrInterfaceModifierContext> modifiers,
+            AnnotationTypeDeclarationContext dec, boolean inner) {
+        String identifierName = dec.IDENTIFIER().getText();
+        AnnotationLanguageElement.Builder builder = AnnotationLanguageElement.Builder.allFalse(DEF, identifierName)
+                .inner(inner);
+        applyAnnotationModifiers(builder, modifiers);
+        Node node = new Node(builder.build());
+
+        for (AnnotationTypeElementDeclarationContext ctx
+                : dec.annotationTypeBody().annotationTypeElementDeclaration()) {
+            AnnotationTypeElementRestContext typeDecl = ctx.annotationTypeElementRest();
+            AnnotationMethodOrConstantRestContext multiDec = typeDecl.annotationMethodOrConstantRest();
+            ClassDeclarationContext clazzDec = typeDecl.classDeclaration();
+            InterfaceDeclarationContext intDec = typeDecl.interfaceDeclaration();
+            EnumDeclarationContext enumDec = typeDecl.enumDeclaration();
+            AnnotationTypeDeclarationContext anonType = typeDecl.annotationTypeDeclaration();
+
+            if (clazzDec != null) {
+                Node classNode = parseClass(toClassOrInterfaceModifierContexts(ctx.modifier()), clazzDec, false, true);
+                node.addNode(classNode);
+            } else if (intDec != null) {
+                Node interfaceNode = parseInterface(toClassOrInterfaceModifierContexts(ctx.modifier()), intDec, false,
+                        true);
+                node.addNode(interfaceNode);
+            } else if (enumDec != null) {
+                Node enumNode = parseEnum(toClassOrInterfaceModifierContexts(ctx.modifier()), enumDec, false, true);
+                node.addNode(enumNode);
+            } else if (anonType != null) {
+                Node anonDefNode = parseAnnotationDefinition(toClassOrInterfaceModifierContexts(ctx.modifier()),
+                        anonType);
+                node.addNode(anonDefNode);
+            } else { // multiDec
+                AnnotationMethodRestContext methodRest = multiDec.annotationMethodRest();
+                String identifierType = typeDecl.typeType().getText();
+
+                if (methodRest != null) {
+                    String variableIdentifierName = methodRest.IDENTIFIER().getText();
+
+                    if (methodRest.defaultValue() != null) {
+                        Node annotationNode = parseAnnotationElementValue(Optional.of(variableIdentifierName),
+                                Optional.of(identifierType), methodRest.defaultValue().elementValue());
+                        node.addNode(annotationNode);
+                    } else {
+                        List<Node> annotations = parseAnnotations3(ctx.modifier());
+                        node.addNode(new Node(new AnnotationElementValue(Optional.of(variableIdentifierName),
+                                Optional.of(identifierType), Optional.empty(), annotations)));
+                    }
+                } else { // annotationConstantRest
+                    VariableDeclaratorsContext decs = multiDec.annotationConstantRest().variableDeclarators();
+
+                    for (VariableDeclaratorContext decl : decs.variableDeclarator()) {
+                        VariableDeclaratorIdContext identifierCtx = decl.variableDeclaratorId();
+                        String identifier = identifierCtx.IDENTIFIER().getText();
+
+                        for (int i = 0; i < identifierCtx.LBRACK().size(); i++) {
+                            identifier += "[]";
+                        }
+                        InstanceVariableLanguageElement.Builder variableBuilder
+                                = InstanceVariableLanguageElement.Builder.allFalse(DEF, identifier)
+                                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                                .identifierType(identifierType);
+
+                        if (decl.variableInitializer() != null) {
+                            variableBuilder.valueExpression(parseVariableInitializerExpression(decl.variableInitializer()));
+                        }
+                        ctx.modifier().forEach(mod -> applyInstanceVariableModifiers(variableBuilder, mod));
+                        node.addNode(new Node(variableBuilder.build()));
+                    }
+                }
+            }
+        }
+        return node;
+    }
+
+    private static Node parseAnnotationUse(AnnotationContext ctx) {
+        String identifierName = ctx.qualifiedName().getText();
+        Node annotationNode = new Node(AnnotationLanguageElement.Builder.allFalse(USE, identifierName).build());
+
+        if (ctx.elementValuePairs() != null) {
+            for (ElementValuePairContext pair : ctx.elementValuePairs().elementValuePair()) {
+                annotationNode.addNode(parseAnnotationElementValue(Optional.of(pair.IDENTIFIER().getText()),
+                        Optional.empty(), pair.elementValue()));
+            }
+        } else if (ctx.elementValue() != null) {
+            annotationNode.addNode(parseAnnotationElementValue(Optional.empty(), Optional.empty(), ctx.elementValue()));
+        }
+        return annotationNode;
+    }
+
+    private static Node parseAnnotationElementValue(Optional<String> identifierName, Optional<String> identifierType,
+            ElementValueContext ctx) {
+        if (ctx.expression() != null) {
+            return new Node(new AnnotationElementValue(identifierName, identifierType,
+                    Optional.of(parseExpression(ctx.expression())), new ArrayList<>()));
+        } else if (ctx.annotation() != null) {
+            return parseAnnotationUse(ctx.annotation());
+        } else { // elementValueArrayInitializer
+            List<Expression> expressions = new ArrayList<>();
+
+            for (ElementValueContext valCtx : ctx.elementValueArrayInitializer().elementValue()) {
+                Node n = parseAnnotationElementValue(identifierName, Optional.empty(), valCtx);
+                expressions.add(((AnnotationElementValue)n.getData()).getValue().get());
+            }
+            return new Node(new AnnotationElementValue(identifierName, identifierType,
+                    Optional.of(new Expression.ArrayExpression(expressions)), new ArrayList<>()));
+        }
+    }
+
     private static Optional<String> getTextOrEmpty(TerminalNode node) {
         return node != null ? Optional.of(node.getText()) : Optional.empty();
     }
@@ -830,7 +1010,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         return parseEnum(ctx.classOrInterfaceModifier(), ctx.enumDeclaration(), false, false);
     }
 
-    private static Node parseEnum(TypeDeclarationContext ctx, boolean local, boolean inner) { // TODO remove: enums cant be local
+    private static Node parseEnum(TypeDeclarationContext ctx, boolean local, boolean inner) {
         return parseEnum(ctx.classOrInterfaceModifier(), ctx.enumDeclaration(), local, inner);
     }
 
@@ -870,7 +1050,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
         List<Node> children = new ArrayList<>();
 
         for (EnumConstantContext constant : enumConstantContexts) { // annotation* IDENTIFIER arguments? classBody?
-            // TODO parse annotation
+            List<Node> annotations = parseAnnotations2(constant.annotation());
             String identifierName = constant.IDENTIFIER().getText();
 
             // Arguments
@@ -886,7 +1066,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             // classBody
             List<Node> body = constant.classBody() != null
                     ? parseClassBodyDeclaration(constant.classBody().classBodyDeclaration()) : new ArrayList<>();
-            Node constantNode = new Node(new EnumConstantLanguageElement(identifierName, arguments, body));
+            Node constantNode = new Node(new EnumConstantLanguageElement(identifierName, arguments, body, annotations));
             body.forEach(constantNode::addNode);
             children.add(constantNode);
         }
@@ -1091,7 +1271,6 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
     private static Node parseInterface(
             List<JavaParser.ClassOrInterfaceModifierContext> classOrInterfaceModifierContexts,
             InterfaceDeclarationContext dec, boolean local, boolean inner) {
-        // TODO handle annotation type declaration
         List<Node> children = new ArrayList<>();
         List<String> superClasses = new ArrayList<>();
 
@@ -1120,6 +1299,7 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             ClassDeclarationContext classDec = memberDec.classDeclaration();
             ConstDeclarationContext constDecl = memberDec.constDeclaration();
             EnumDeclarationContext enumDec = memberDec.enumDeclaration();
+            AnnotationTypeDeclarationContext anonDecl = memberDec.annotationTypeDeclaration();
 
             if (method != null) { // method
                 MethodLanguageElement.Builder methodBuilder = parseMethodSkeleton(method.IDENTIFIER(),
@@ -1137,6 +1317,8 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
                         methodBuilder.strictfpModifier(true);
                     } else if (mods.DEFAULT() != null) {
                         methodBuilder.defaultModifier(true);
+                    } else if (mods.annotation() != null) {
+                        methodBuilder.annotation(parseAnnotationUse(mods.annotation()));
                     }
                 }
 
@@ -1183,6 +1365,10 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             } else if (enumDec != null) { // inner enum
                 Node node = parseEnum(toClassOrInterfaceModifierContexts(intBody.modifier()), enumDec, false, true);
                 children.add(node);
+            } else if (anonDecl != null) { // inner annotation def
+                Node node = parseAnnotationDefinition(toClassOrInterfaceModifierContexts(intBody.modifier()),
+                        anonDecl, true);
+                children.add(node);
             }
         }
 
@@ -1211,12 +1397,6 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             return;
         }
 
-        // TODO handle annotation type declaration
-        // Check if node type is handled
-        if (ctx.classDeclaration() == null && ctx.interfaceDeclaration() == null && ctx.enumDeclaration() == null) {
-            throw new RuntimeException("unhandled top level element");
-        }
-
         // Generate node and add node
         if (ctx.classDeclaration() != null) { // class
             rootNode = parseClass(ctx);
@@ -1224,6 +1404,9 @@ public final class JavaCodeTreeGenerator extends JavaParserBaseListener {
             rootNode = parseInterface(ctx);
         } else if (ctx.enumDeclaration() != null) { // enum
             rootNode = parseEnum(ctx);
+        } else { // annotation
+            rootNode = parseAnnotationDefinition(ctx.classOrInterfaceModifier(), ctx.annotationTypeDeclaration());
+
         }
     }
 

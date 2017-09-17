@@ -1,5 +1,6 @@
 package org.qmul.csar.lang;
 
+import org.qmul.csar.code.Node;
 import org.qmul.csar.query.CsarQuery;
 
 import java.util.*;
@@ -13,13 +14,14 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
     private Optional<Boolean> local = Optional.empty();
     private List<String> typeParameters = new ArrayList<>();
     private List<String> superClasses = new ArrayList<>();
+    private final List<Node> annotations;
 
     public ClassLanguageElement(CsarQuery.Type searchType, Optional<VisibilityModifier> visibilityModifier,
-                                Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
-                                String identifierName, Optional<Boolean> interfaceModifier,
-                                Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
-                                Optional<Boolean> anonymous, Optional<Boolean> inner, Optional<Boolean> local,
-                                List<String> typeParameters, List<String> superClasses) {
+            Optional<Boolean> staticModifier, Optional<Boolean> finalModifier,
+            String identifierName, Optional<Boolean> interfaceModifier,
+            Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier,
+            Optional<Boolean> anonymous, Optional<Boolean> inner, Optional<Boolean> local,
+            List<String> typeParameters, List<String> superClasses, List<Node> annotations) {
         super(LanguageElement.Type.CLASS, identifierName);
         this.commonModifiers = new CommonModifiers(searchType, visibilityModifier, staticModifier, finalModifier,
                 abstractModifier, strictfpModifier);
@@ -29,6 +31,7 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         this.local = local;
         this.typeParameters = typeParameters;
         this.superClasses = superClasses;
+        this.annotations = annotations;
     }
 
     public CommonModifiers getCommonModifiers() {
@@ -59,6 +62,10 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         return superClasses;
     }
 
+    public List<Node> getAnnotations() {
+        return annotations;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,20 +78,22 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
                 Objects.equals(inner, that.inner) &&
                 Objects.equals(local, that.local) &&
                 Objects.equals(typeParameters, that.typeParameters) &&
-                Objects.equals(superClasses, that.superClasses);
+                Objects.equals(superClasses, that.superClasses) &&
+                Objects.equals(annotations, that.annotations);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), commonModifiers, interfaceModifier, anonymous, inner, local,
-                typeParameters, superClasses);
+                typeParameters, superClasses, annotations);
     }
 
     @Override
     public String toString() {
         return String.format("ClassLanguageElement{commonModifiers=%s, interfaceModifier=%s, anonymous=%s, inner=%s, "
-                + "local=%s, typeParameters=%s, superClasses=%s} %s", commonModifiers, interfaceModifier, anonymous,
-                inner, local, typeParameters, superClasses, super.toString());
+                        + "local=%s, typeParameters=%s, superClasses=%s, annotations=%s} %s", commonModifiers,
+                interfaceModifier, anonymous, inner, local, typeParameters, superClasses, annotations,
+                super.toString());
     }
 
     public static class Builder {
@@ -102,6 +111,7 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
         private Optional<Boolean> local = Optional.empty();
         private List<String> typeParameters = new ArrayList<>();
         private List<String> superClasses = new ArrayList<>();
+        private List<Node> annotations = new ArrayList<>();
 
         public Builder(CsarQuery.Type searchType, String identifierName) {
             this.searchType = searchType;
@@ -190,10 +200,15 @@ public class ClassLanguageElement extends IdentifiableLanguageElement {
             return this;
         }
 
+        public Builder annotation(Node node) {
+            this.annotations.add(node);
+            return this;
+        }
+
         public ClassLanguageElement build() {
             return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier,
                     identifierName, interfaceModifier, abstractModifier, strictfpModifier, anonymous, inner, local,
-                    typeParameters, superClasses);
+                    typeParameters, superClasses, annotations);
         }
     }
 }
