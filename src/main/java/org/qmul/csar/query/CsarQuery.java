@@ -1,7 +1,5 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.lang.LanguageElement;
-
 import java.util.*;
 
 /**
@@ -18,12 +16,12 @@ import java.util.*;
  */
 public final class CsarQuery {
 
-    private final LanguageElement searchTarget;
+    private final TargetDescriptor searchTarget;
     private final Optional<ContainsQuery> containsQuery;
     private final List<String> fromTarget;
     private final Optional<RefactorElement> refactorElement;
 
-    public CsarQuery(LanguageElement searchTarget, Optional<ContainsQuery> containsQuery, List<String> fromTarget,
+    public CsarQuery(TargetDescriptor searchTarget, Optional<ContainsQuery> containsQuery, List<String> fromTarget,
                      Optional<RefactorElement> refactorElement) {
         this.searchTarget = searchTarget;
         this.fromTarget = Collections.unmodifiableList(fromTarget);
@@ -31,11 +29,11 @@ public final class CsarQuery {
         this.refactorElement = refactorElement;
     }
 
-    public CsarQuery(LanguageElement searchTarget) {
+    public CsarQuery(TargetDescriptor searchTarget) {
         this(searchTarget, Optional.empty(), new ArrayList<>(), Optional.empty());
     }
 
-    public LanguageElement getSearchTarget() {
+    public TargetDescriptor getSearchTarget() {
         return searchTarget;
     }
 
@@ -68,25 +66,14 @@ public final class CsarQuery {
                 searchTarget, containsQuery, fromTarget, refactorElement);
     }
 
-    public enum Type {
-        /**
-         * A definition of an element.
-         */
-        DEF,
-        /**
-         * A usage of a defined element.
-         */
-        USE
-    }
-
     public static final class Builder {
 
-        private final LanguageElement searchTarget;
+        private final TargetDescriptor searchTarget;
         private Optional<ContainsQuery> containsQuery = Optional.empty();
         private List<String> fromTarget = new ArrayList<>();
         private Optional<RefactorElement> refactorElement = Optional.empty();
 
-        public Builder(LanguageElement searchTarget) {
+        public Builder(TargetDescriptor searchTarget) {
             this.searchTarget = searchTarget;
         }
 

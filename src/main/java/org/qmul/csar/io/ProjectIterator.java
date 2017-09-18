@@ -1,6 +1,6 @@
 package org.qmul.csar.io;
 
-import org.qmul.csar.code.CodeTreeParserFactory;
+import org.qmul.csar.code.CodeParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
  * Iterates over files in the specified directory aggregating accepted ones. The code files may be narrowed down further
  * if the folder is a git repository (if successful).
  *
- * @see CodeTreeParserFactory#accepts(Path)
+ * @see CodeParserFactory#accepts(Path)
  * @see #scanGitDir()
  */
 public class ProjectIterator implements Iterator<Path> {
@@ -71,7 +71,7 @@ public class ProjectIterator implements Iterator<Path> {
      * creating an instance of the git program. Failure will result in {@link #scanDir()} being called instead.
      *
      * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
-     * @see CodeTreeParserFactory#accepts(Path)
+     * @see CodeParserFactory#accepts(Path)
      * @see GitProcessHelper#lsFiles()
      */
     private void scanGitDir() {
@@ -79,12 +79,7 @@ public class ProjectIterator implements Iterator<Path> {
 
         try {
             List<Path> output = GitProcessHelper.lsFiles();
-
-            for (Path path : output) {
-                if (CodeTreeParserFactory.accepts(path)) {
-                    addFile(path);
-                }
-            }
+            output.stream().filter(CodeParserFactory::accepts).forEach(this::addFile);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
             scanDir();
@@ -104,12 +99,12 @@ public class ProjectIterator implements Iterator<Path> {
      *
      * @param path the directory to be searched
      * @param recursive if the directory should be searched recursively
-     * @see CodeTreeParserFactory#accepts(Path)
+     * @see CodeParserFactory#accepts(Path)
      * @see ProjectFileVisitor
      */
     private void scanDir(Path path, boolean recursive) {
         try {
-            ProjectFileVisitor fileVisitor = new ProjectFileVisitor(recursive, CodeTreeParserFactory::accepts);
+            ProjectFileVisitor fileVisitor = new ProjectFileVisitor(recursive, CodeParserFactory::accepts);
             Files.walkFileTree(path, fileVisitor);
             files.addAll(fileVisitor.getFiles());
         } catch (IOException e) {

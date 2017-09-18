@@ -1,8 +1,5 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.lang.LanguageElement;
-import org.qmul.csar.lang.LogicalOperator;
-
 import java.util.Objects;
 
 public abstract class ContainsQueryElement {
@@ -38,34 +35,34 @@ public abstract class ContainsQueryElement {
         }
     }
 
-    public static class LanguageElementContainsQueryElement extends ContainsQueryElement {
+    public static class TargetDescriptorContainsQueryElement extends ContainsQueryElement {
 
-        private final LanguageElement element;
+        private final TargetDescriptor targetDescriptor;
 
-        public LanguageElementContainsQueryElement(LanguageElement element) {
-            this.element = element;
+        public TargetDescriptorContainsQueryElement(TargetDescriptor targetDescriptor) {
+            this.targetDescriptor = targetDescriptor;
         }
 
-        public LanguageElement getElement() {
-            return element;
+        public TargetDescriptor getTargetDescriptor() {
+            return targetDescriptor;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            LanguageElementContainsQueryElement that = (LanguageElementContainsQueryElement) o;
-            return Objects.equals(element, that.element);
+            TargetDescriptorContainsQueryElement that = (TargetDescriptorContainsQueryElement) o;
+            return Objects.equals(targetDescriptor, that.targetDescriptor);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(element);
+            return Objects.hash(targetDescriptor);
         }
 
         @Override
         public String toString() {
-            return String.format("LanguageElementDomainElement{element=%s}", element);
+            return String.format("LanguageElementDomainElement{targetDescriptor=%s}", targetDescriptor);
         }
     }
 }

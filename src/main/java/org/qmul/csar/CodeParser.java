@@ -1,8 +1,7 @@
 package org.qmul.csar;
 
-import org.qmul.csar.code.CodeTreeParserFactory;
-import org.qmul.csar.code.Node;
-import org.qmul.csar.code.NodeHelper;
+import org.qmul.csar.code.CodeParserFactory;
+import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,7 @@ public final class CodeParser {
     public CodeParser(Iterator<Path> it, int threadCount) {
         if (threadCount <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
-        Objects.requireNonNull(it);
-        this.it = it;
+        this.it = Objects.requireNonNull(it);
         this.threadCount = threadCount;
         this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
         this.finishedLatch = new CountDownLatch(threadCount);
@@ -66,19 +64,13 @@ public final class CodeParser {
                         // Get the next file
                         Path file = next();
                         fileName = file.getFileName().toString();
-                        Node root;
+                        Statement root;
 
                         try {
-                            root = CodeTreeParserFactory.parse(file);
-                        } catch (IOException ex) {
-                            LOGGER.error("Failed to read file {} because {}", fileName, ex.getMessage());
-
-                            if (LOGGER.isTraceEnabled()) {
-                                ex.printStackTrace();
-                            }
-                            continue;
-                        } catch (RuntimeException ex) {
-                            LOGGER.error("Failed to parse file {} because {}", fileName, ex.getMessage());
+                            root = CodeParserFactory.parse(file);
+                        } catch (IOException | RuntimeException ex) {
+                            String phrase = (ex instanceof IOException) ? "read" : "parse";
+                            LOGGER.error("Failed to {} file {} because {}", phrase, fileName, ex.getMessage());
 
                             if (LOGGER.isTraceEnabled()) {
                                 ex.printStackTrace();
@@ -88,7 +80,7 @@ public final class CodeParser {
 
                         // Print code tree
                         if (LOGGER.isTraceEnabled() && root != null) {
-                            LOGGER.trace("Tree for {}:\r\n{}", fileName, NodeHelper.toStringRecursively(root));
+                            LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                         }
 
                         // TODO finish?

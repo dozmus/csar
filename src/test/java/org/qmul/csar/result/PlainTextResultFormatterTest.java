@@ -2,6 +2,7 @@ package org.qmul.csar.result;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.qmul.csar.util.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +32,6 @@ public final class PlainTextResultFormatterTest {
         String codeFragment2 = "    for (int i = 0; i < 100; i++)  {";
         String expected2 = String.format("%s:%s %s", path2.toString(), lineNumber2, codeFragment2);
         Result result2 = new Result(path2, lineNumber2, codeFragment2);
-        assertEquals(expected1 + System.getProperty("line.separator") + expected2, result1, result2);
+        assertEquals(expected1 + StringUtils.LINE_SEPARATOR + expected2, result1, result2);
     }
 }

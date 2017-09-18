@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- *Miscellaneous utility methods for interacting with the git process.
+ * Miscellaneous utility methods for interacting with the git process.
  */
 public class GitProcessHelper {
 

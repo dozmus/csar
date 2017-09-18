@@ -1,12 +1,8 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.lang.LanguageElement;
-import org.qmul.csar.lang.LogicalOperator;
+import org.qmul.csar.lang.Descriptor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ContainsQuery {
 
@@ -46,8 +42,13 @@ public class ContainsQuery {
             return add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(operator));
         }
 
-        public Builder addLanguageElement(LanguageElement element) {
-            return add(new ContainsQueryElement.LanguageElementContainsQueryElement(element));
+        public Builder addTargetDescriptor(TargetDescriptor element) {
+            return add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(element));
+        }
+
+        public Builder addTargetDescriptor(SearchType type, Descriptor descriptor) {
+            TargetDescriptor td = new TargetDescriptor(Optional.of(type), descriptor);
+            return add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(td));
         }
 
         public Builder add(ContainsQueryElement element) {

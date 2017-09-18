@@ -78,7 +78,7 @@ RPAREN: ')';
 IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
 NUMBER: DIGIT+;
 
-// Fall-back
+// Fall-back rule
 CATCH_ALL: (.)+?;
 
 // Fragments
@@ -103,13 +103,13 @@ fragment JAVA_LETTER
 parser grammar CsarParser;
 
 // Csar query (top-level)
-csarQuery: (SELECT SPACE)? languageElement (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
-containsQuery: CONTAINS SPACE (NOT SPACE)? languageElement containsQueryRest*; // TODO allow parentheses
-containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? languageElement;
+csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
+containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*;
+containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
 fromQuery: FROM SPACE typeList;
 refactorQuery: REFACTOR SPACE refactorElement;
 
-languageElement: clazz | method | variable | controlFlow | comment;
+statementDescriptor: clazz | method | variable | conditional | comment;
 refactorElement: rename | changeParameters;
 
 // Class
@@ -122,17 +122,22 @@ method
     : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
      (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
     ;
-methodParameters: LPAREN SPACE* (NUMBER | typeList | namedTypeList) SPACE* RPAREN;
+methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
 methodThrownExceptions: THROWS SPACE* LPAREN SPACE* typeList SPACE* RPAREN;
+paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest*;
+paramTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type;
+paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest*;
+paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifierName;
 
 // Variable
 variable: instanceVariable | localVariable | paramVariable;
 instanceVariable: INSTANCE commonModifiers instanceVariableModifiers (type SPACE)? identifierName;
+instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
 localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 
-// Control-flow
-controlFlow: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
+// Conditional
+conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
 if0: IF (LPAREN expr RPAREN)?;
 switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
 while0: WHILE (LPAREN expr RPAREN)?;
@@ -153,11 +158,9 @@ changeParameters: CHANGE_PARAMETERS COLON SPACE* (typeList | namedTypeList);
 
 // Helpers
 commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPACE)? (FINAL SPACE)?;
-
 visibilityModifier: PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE;
-instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
 
-type: identifierName;
+type: identifierName (LBRACK RBRACK)*;
 typeList: type (SPACE* COMMA SPACE* type)*;
 namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ identifierName)*;
 identifierName
@@ -172,6 +175,7 @@ content
         | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
+        | LBRACK | RBRACK
       )*
     ;
 expr: content;
@@ -181,6 +185,7 @@ expr: content;
 * The `expr` rule is very lenient, this is because the definition of an expression depends on a target programming language. This is intended to be parsed further at a language-specific level.
 * Explicitly allowing the escaping of single quote in the comment rules would be optimal, but it works anyway.
 * Allow more usage of `NOT`for increased expressiveness, i.e. `not final`, `not static`.
+* Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
 
 ## Problems with the Syntax
 * Cannot represent lambdas

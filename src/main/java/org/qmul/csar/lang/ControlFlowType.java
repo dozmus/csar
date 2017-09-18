@@ -1,6 +1,0 @@
-package org.qmul.csar.lang;
-
-public enum ControlFlowType {
-    IF, SWITCH, WHILE, DO_WHILE, FOR, FOREACH, TERNARY, THROW, RETURN, BREAK, CONTINUE, ASSERT, LABEL, TRY, CATCH,
-    TRY_RESOURCES, SYNCHRONIZED
-}

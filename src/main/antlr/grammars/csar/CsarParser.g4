@@ -10,13 +10,13 @@ options {
 
 // Csar query (top-level)
 // TODO allow NOT in front of more elements, e.g. ABSTRACT
-csarQuery: (SELECT SPACE)? languageElement (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
-containsQuery: CONTAINS SPACE (NOT SPACE)? languageElement containsQueryRest*; // TODO allow parentheses
-containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? languageElement;
+csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
+containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*; // TODO allow parentheses
+containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
 fromQuery: FROM SPACE typeList;
 refactorQuery: REFACTOR SPACE refactorElement;
 
-languageElement: clazz | method | variable | controlFlow | comment;
+statementDescriptor: clazz | method | variable | conditional | comment;
 refactorElement: rename | changeParameters;
 
 // Class
@@ -39,11 +39,12 @@ paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifie
 // Variable
 variable: instanceVariable | localVariable | paramVariable;
 instanceVariable: INSTANCE commonModifiers instanceVariableModifiers (type SPACE)? identifierName;
+instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
 localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 
-// Control-flow
-controlFlow: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
+// Conditional
+conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
 if0: IF (LPAREN expr RPAREN)?;
 switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
 while0: WHILE (LPAREN expr RPAREN)?;
@@ -65,9 +66,7 @@ changeParameters: CHANGE_PARAMETERS COLON SPACE* (typeList | namedTypeList);
 
 // Helpers
 commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPACE)? (FINAL SPACE)?;
-
 visibilityModifier: PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE;
-instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
 
 type: identifierName (LBRACK RBRACK)*;
 typeList: type (SPACE* COMMA SPACE* type)*;

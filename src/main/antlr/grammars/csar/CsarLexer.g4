@@ -78,7 +78,7 @@ RBRACK: ']';
 IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
 NUMBER: DIGIT+;
 
-// Fall-back
+// Fall-back rule
 CATCH_ALL: (.)+?;
 
 // Fragments

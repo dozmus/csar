@@ -1,6 +1,6 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.lang.Parameter;
+import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,14 +40,14 @@ public class RefactorElement {
 
     public static class ChangeParametersRefactorElement extends RefactorElement {
 
-        private final List<Parameter> parameters;
+        private final List<ParameterVariableDescriptor> descriptors;
 
-        public ChangeParametersRefactorElement(List<Parameter> parameters) {
-            this.parameters = parameters;
+        public ChangeParametersRefactorElement(List<ParameterVariableDescriptor> descriptors) {
+            this.descriptors = descriptors;
         }
 
-        public List<Parameter> getParameters() {
-            return parameters;
+        public List<ParameterVariableDescriptor> getDescriptors() {
+            return descriptors;
         }
 
         @Override
@@ -55,17 +55,17 @@ public class RefactorElement {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ChangeParametersRefactorElement that = (ChangeParametersRefactorElement) o;
-            return Objects.equals(parameters, that.parameters);
+            return Objects.equals(descriptors, that.descriptors);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(parameters);
+            return Objects.hash(descriptors);
         }
 
         @Override
         public String toString() {
-            return String.format("ChangeParametersRefactorElement{parameters=%s} %s", parameters, super.toString());
+            return String.format("ChangeParametersRefactorElement{descriptors=%s} %s", descriptors, super.toString());
         }
     }
 }

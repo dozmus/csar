@@ -1,67 +1,69 @@
 package org.qmul.csar.query;
 
-import grammars.csar.CsarParser;
 import grammars.csar.CsarParserBaseListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.qmul.csar.lang.*;
+import org.qmul.csar.lang.descriptor.*;
+import org.qmul.csar.lang.Descriptor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static grammars.csar.CsarParser.*;
 
 /**
  * A {@link CsarQuery} generator.
  */
 class CsarQueryGenerator extends CsarParserBaseListener {
 
-    private LanguageElement searchTarget;
-    private List<String> fromTarget = new ArrayList<>();
+    private TargetDescriptor searchTarget;
+    private final List<String> fromTarget = new ArrayList<>();
     private Optional<ContainsQuery> containsQuery = Optional.empty();
     private Optional<RefactorElement> refactorElement = Optional.empty();
     private final List<ContainsQueryElement> containsQueryElements = new ArrayList<>();
 
-    private static CsarQuery.Type parseType(TerminalNode defNode, TerminalNode useNode) {
+    private static SearchType parseSearchType(TerminalNode defNode, TerminalNode useNode) {
         if (defNode != null && useNode == null) {
-            return CsarQuery.Type.DEF;
+            return SearchType.DEF;
         } else if (defNode == null && useNode != null) {
-            return CsarQuery.Type.USE;
+            return SearchType.USE;
         }
-        throw new RuntimeException("invalid defNode and useNode states");
+        throw new RuntimeException("invalid defNode and useNode");
     }
 
     /**
-     * @return {@code Optional.of(ctx.getText())} if ctx is not null, and <code>Optional.empty()} otherwise.
+     * @return {@code Optional.of(ctx.getText())} if ctx is not <tt>null</tt>, and <code>Optional.empty()} otherwise.
      */
     private static Optional<String> parseTextOrEmpty(ParserRuleContext ctx) {
         return ctx != null ? Optional.of(ctx.getText()) : Optional.empty();
     }
 
     /**
-     * @return {@code Optional.of(true)} if node is not null, and {@code Optional.empty()} otherwise.
+     * @return {@code Optional.of(true)} if node is not <tt>null</tt>, and {@code Optional.empty()} otherwise.
      */
     private static Optional<Boolean> parseOptionalTrueOrEmpty(TerminalNode node) {
         return node != null ? Optional.of(true) : Optional.empty();
     }
 
-    private static LanguageElement parseLanguageElement(CsarParser.LanguageElementContext ctx) {
+    private static TargetDescriptor parseTargetDescriptor(StatementDescriptorContext ctx) {
         if (ctx.clazz() != null) {
             return parseClazz(ctx.clazz());
         } else if (ctx.method() != null) {
             return parseMethod(ctx.method());
         } else if (ctx.variable() != null) {
             return parseVariable(ctx.variable());
-        } else if (ctx.controlFlow() != null) {
-            return parseControlflow(ctx.controlFlow());
-        } else { // comment
+        } else if (ctx.conditional() != null) {
+            return parseControlflow(ctx.conditional());
+        } else {
             return parseComment(ctx.comment());
         }
     }
 
-    private static LanguageElement parseClazz(CsarParser.ClazzContext ctx) {
-        // languageElementHeader
-        CsarParser.CommonModifiersContext commonModsCtx = ctx.commonModifiers();
-        CsarQuery.Type searchType = parseType(commonModsCtx.DEF(), commonModsCtx.USE());
+    private static TargetDescriptor parseClazz(ClazzContext ctx) {
+        // LanguageElementHeader
+        CommonModifiersContext commonModsCtx = ctx.commonModifiers();
+        SearchType searchType = parseSearchType(commonModsCtx.DEF(), commonModsCtx.USE());
         Optional<VisibilityModifier> visibilityModifier = commonModsCtx.visibilityModifier() != null
                 ? visibilityModifier(commonModsCtx.visibilityModifier()) : Optional.empty();
 
@@ -70,7 +72,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         Optional<Boolean> finalModifier = parseOptionalTrueOrEmpty(commonModsCtx.FINAL());
 
         // classModifiers
-        CsarParser.ClassModifiersContext classModsCtx = ctx.classModifiers();
+        ClassModifiersContext classModsCtx = ctx.classModifiers();
         Optional<Boolean> abstractModifier = parseOptionalTrueOrEmpty(classModsCtx.ABSTRACT());
         Optional<Boolean> interfaceModifier = parseOptionalTrueOrEmpty(classModsCtx.INTERFACE());
         Optional<Boolean> strictfpModifier = parseOptionalTrueOrEmpty(classModsCtx.STRICTFP());
@@ -84,19 +86,30 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         List<String> superClasses = new ArrayList<>();
 
         if (ctx.superClassList() != null) {
-            for (CsarParser.TypeContext tc : ctx.superClassList().typeList().type()) {
+            for (TypeContext tc : ctx.superClassList().typeList().type()) {
                 superClasses.add(tc.getText());
             }
         }
-        return new ClassLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier, identifierName,
-                interfaceModifier, abstractModifier, strictfpModifier, anonymousModifier, innerModifier,
-                Optional.empty(), new ArrayList<>(), superClasses, new ArrayList<>());
+
+        // Build and return
+        ClassDescriptor.Builder builder = new ClassDescriptor.Builder(identifierName)
+                .superClasses(superClasses);
+        staticModifier.ifPresent(builder::staticModifier);
+        finalModifier.ifPresent(builder::finalModifier);
+        visibilityModifier.ifPresent(builder::visibilityModifier);
+        abstractModifier.ifPresent(builder::abstractModifier);
+        strictfpModifier.ifPresent(builder::strictfpModifier);
+        interfaceModifier.ifPresent(builder::interfaceModifier);
+        strictfpModifier.ifPresent(builder::strictfpModifier);
+        innerModifier.ifPresent(builder::inner);
+        anonymousModifier.ifPresent(builder::anonymous);
+        return new TargetDescriptor(Optional.of(searchType), builder.build());
     }
 
-    private static LanguageElement parseMethod(CsarParser.MethodContext ctx) {
-        // languageElementHeader
-        CsarParser.CommonModifiersContext commonModsCtx = ctx.commonModifiers();
-        CsarQuery.Type searchType = parseType(commonModsCtx.DEF(), commonModsCtx.USE());
+    private static TargetDescriptor parseMethod(MethodContext ctx) {
+        // LanguageElementHeader
+        CommonModifiersContext commonModsCtx = ctx.commonModifiers();
+        SearchType searchType = parseSearchType(commonModsCtx.DEF(), commonModsCtx.USE());
         Optional<VisibilityModifier> visibilityModifier = commonModsCtx.visibilityModifier() != null
                 ? visibilityModifier(commonModsCtx.visibilityModifier()) : Optional.empty();
 
@@ -113,33 +126,27 @@ class CsarQueryGenerator extends CsarParserBaseListener {
 
         // methodParameters
         Optional<Integer> parameterCount = Optional.empty();
-        List<Parameter> parameters = new ArrayList<>();
+        List<ParameterVariableDescriptor> parameters = new ArrayList<>();
 
         if (ctx.methodParameters() != null) {
-            CsarParser.MethodParametersContext mpt = ctx.methodParameters();
+            MethodParametersContext paramsCtx = ctx.methodParameters();
 
-            if (mpt.NUMBER() != null) {
-                int count = Integer.parseInt(mpt.NUMBER().getText());
+            if (paramsCtx.NUMBER() != null) {
+                int count = Integer.parseInt(paramsCtx.NUMBER().getText());
                 parameterCount = Optional.of(count);
-            } else if (mpt.paramTypeList() != null) {
-                CsarParser.ParamTypeListContext pnt = mpt.paramTypeList();
-                Optional<Boolean> paramFinal = pnt.FINAL() != null ? Optional.of(true) : Optional.empty();
-                parameters.add(new Parameter(pnt.type().getText(), Optional.empty(), paramFinal, new ArrayList<>()));
+            } else if (paramsCtx.paramTypeList() != null) {
+                ParamTypeListContext pnt = paramsCtx.paramTypeList();
+                parameters.add(parseParameterVariableDescriptor(pnt.type(), pnt.FINAL()));
 
-                for (CsarParser.ParamTypeListRestContext p : pnt.paramTypeListRest()) {
-                    paramFinal = p.FINAL() != null ? Optional.of(true) : Optional.empty();
-                    parameters.add(new Parameter(p.type().getText(), Optional.empty(), paramFinal, new ArrayList<>()));
+                for (ParamTypeListRestContext p : pnt.paramTypeListRest()) {
+                    parameters.add(parseParameterVariableDescriptor(p.type(), p.FINAL()));
                 }
-            } else if (mpt.paramNamedTypeList() != null) {
-                CsarParser.ParamNamedTypeListContext ntlc = mpt.paramNamedTypeList();
-                Optional<Boolean> paramFinal = ntlc.FINAL() != null ? Optional.of(true) : Optional.empty();
-                parameters.add(new Parameter(ntlc.type().getText(), Optional.of(ntlc.identifierName().getText()),
-                        paramFinal, new ArrayList<>()));
+            } else if (paramsCtx.paramNamedTypeList() != null) {
+                ParamNamedTypeListContext ntlc = paramsCtx.paramNamedTypeList();
+                parameters.add(parseParameterVariableDescriptor(ntlc.identifierName(), ntlc.type(), ntlc.FINAL()));
 
-                for (CsarParser.ParamNamedTypeListRestContext p : ntlc.paramNamedTypeListRest()) {
-                    paramFinal = p.FINAL() != null ? Optional.of(true) : Optional.empty();
-                    parameters.add(new Parameter(p.type().getText(), Optional.of(p.identifierName().getText()),
-                            paramFinal, new ArrayList<>()));
+                for (ParamNamedTypeListRestContext p : ntlc.paramNamedTypeListRest()) {
+                    parameters.add(parseParameterVariableDescriptor(p.identifierName(), p.type(), p.FINAL()));
                 }
             }
         }
@@ -148,107 +155,113 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         List<String> thrownExceptions = new ArrayList<>();
 
         if (ctx.methodThrownExceptions() != null) {
-            for (CsarParser.TypeContext type : ctx.methodThrownExceptions().typeList().type()) {
+            for (TypeContext type : ctx.methodThrownExceptions().typeList().type()) {
                 thrownExceptions.add(type.getText());
             }
         }
 
-        // superClassList
-        List<String> superClasses = new ArrayList<>();
-
-        if (ctx.superClassList() != null) {
-            for (CsarParser.TypeContext type : ctx.superClassList().typeList().type()) {
-                superClasses.add(type.getText());
-            }
-        }
-        return new MethodLanguageElement(searchType, visibilityModifier, staticModifier, finalModifier, identifierName,
-                returnType, overriddenModifier, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), parameterCount, parameters, thrownExceptions, superClasses, new ArrayList<>(),
-                new ArrayList<>());
+        // Build and return
+        MethodDescriptor.Builder builder = new MethodDescriptor.Builder(identifierName)
+                .parameters(parameters)
+                .thrownExceptions(thrownExceptions);
+        staticModifier.ifPresent(builder::staticModifier);
+        finalModifier.ifPresent(builder::finalModifier);
+        overriddenModifier.ifPresent(builder::overridden);
+        visibilityModifier.ifPresent(builder::visibilityModifier);
+        returnType.ifPresent(builder::returnType);
+        parameterCount.ifPresent(builder::parameterCount);
+        return new TargetDescriptor(Optional.of(searchType), builder.build());
     }
 
-    private static LanguageElement parseVariable(CsarParser.VariableContext ctx) {
+    private static ParameterVariableDescriptor parseParameterVariableDescriptor(TypeContext typeCtx,
+            TerminalNode finalNode) {
+        Optional<Boolean> isFinal = finalNode != null ? Optional.of(true) : Optional.empty();
+        return new ParameterVariableDescriptor(Optional.empty(), Optional.of(typeCtx.getText()), isFinal);
+    }
+
+    private static ParameterVariableDescriptor parseParameterVariableDescriptor(IdentifierNameContext identifierNameCtx,
+            TypeContext typeCtx, TerminalNode finalNode) {
+        Optional<Boolean> isFinal = finalNode != null ? Optional.of(true) : Optional.empty();
+        return new ParameterVariableDescriptor(Optional.of(identifierNameCtx.getText()),
+                Optional.of(typeCtx.getText()), isFinal);
+    }
+
+    private static TargetDescriptor parseVariable(VariableContext ctx) {
         if (ctx.instanceVariable() != null) {
-            CsarParser.InstanceVariableContext ictx = ctx.instanceVariable();
-            CsarParser.CommonModifiersContext common = ictx.commonModifiers();
-            return new InstanceVariableLanguageElement(
-                    parseType(ictx.commonModifiers().DEF(), ictx.commonModifiers().USE()),
-                    visibilityModifier(common.visibilityModifier()),
-                    parseOptionalTrueOrEmpty(common.STATIC()),
-                    parseOptionalTrueOrEmpty(common.FINAL()),
-                    ictx.identifierName().getText(),
-                    Optional.empty(),
-                    parseTextOrEmpty(ictx.type()),
-                    new ArrayList<>()
-            );
+            InstanceVariableContext ictx = ctx.instanceVariable();
+            CommonModifiersContext common = ictx.commonModifiers();
+            InstanceVariableDescriptor.Builder builder = new InstanceVariableDescriptor
+                    .Builder(ictx.identifierName().getText());
+            if (ictx.type() != null)
+                builder.identifierType(ictx.type().getText());
+            visibilityModifier(common.visibilityModifier()).ifPresent(builder::visibilityModifier);
+            parseOptionalTrueOrEmpty(common.STATIC()).ifPresent(f -> builder.staticModifier(true));
+            parseOptionalTrueOrEmpty(common.FINAL()).ifPresent(f -> builder.finalModifier(true));
+            SearchType t = parseSearchType(ictx.commonModifiers().DEF(), ictx.commonModifiers().USE());
+            return new TargetDescriptor(Optional.of(t), builder.build());
         } else if (ctx.localVariable() != null) {
-            CsarParser.LocalVariableContext lctx = ctx.localVariable();
-            return new VariableLanguageElement(parseType(lctx.DEF(), lctx.USE()),
-                    VariableType.LOCAL,
-                    parseOptionalTrueOrEmpty(lctx.FINAL()),
-                    lctx.identifierName().getText(),
-                    Optional.empty(),
-                    parseTextOrEmpty(lctx.type()),
-                    new ArrayList<>());
+            LocalVariableContext lctx = ctx.localVariable();
+            Descriptor descriptor = new LocalVariableDescriptor(lctx.identifierName().getText(),
+                    parseTextOrEmpty(lctx.type()), parseOptionalTrueOrEmpty(lctx.FINAL()));
+            return new TargetDescriptor(Optional.of(parseSearchType(lctx.DEF(), lctx.USE())), descriptor);
         } else { // param
-            CsarParser.ParamVariableContext pctx = ctx.paramVariable();
-            return new VariableLanguageElement(parseType(pctx.DEF(), pctx.USE()),
-                    VariableType.PARAM,
-                    parseOptionalTrueOrEmpty(pctx.FINAL()),
-                    pctx.identifierName().getText(),
-                    Optional.empty(),
-                    parseTextOrEmpty(pctx.type()),
-                    new ArrayList<>());
+            ParamVariableContext pctx = ctx.paramVariable();
+            ParameterVariableDescriptor.Builder builder = new ParameterVariableDescriptor.Builder()
+                    .identifierName(pctx.identifierName().getText());
+            parseTextOrEmpty(pctx.type()).ifPresent(builder::identifierType);
+            parseOptionalTrueOrEmpty(pctx.FINAL()).ifPresent(f -> builder.finalModifier(true));
+            return new TargetDescriptor(Optional.of(parseSearchType(pctx.DEF(), pctx.USE())), builder.build());
         }
     }
 
-    private static LanguageElement parseControlflow(CsarParser.ControlFlowContext ctx) {
+    private static TargetDescriptor parseControlflow(ConditionalContext ctx) {
+        Descriptor descriptor;
+
         if (ctx.if0() != null) {
-            return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                    ControlFlowType.IF,
+            descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.IF, Optional.empty(),
                     parseTextOrEmpty(ctx.if0().expr()));
         } else if (ctx.switch0() != null) {
-            return new ControlFlowLanguageElement.NamedExprControlFlowLanguageElement(
-                    ControlFlowType.SWITCH,
-                    parseTextOrEmpty(ctx.switch0().identifierName()),
-                    parseTextOrEmpty(ctx.switch0().expr()));
+            descriptor = parseControlflowDescriptor(ConditionalDescriptor.Type.SWITCH,
+                    ctx.switch0().identifierName(), ctx.switch0().expr());
         } else if (ctx.while0() != null) {
-            return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                    ControlFlowType.WHILE,
+            descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.WHILE, Optional.empty(),
                     parseTextOrEmpty(ctx.while0().expr()));
         } else if (ctx.dowhile() != null) {
-            return new ControlFlowLanguageElement.ExprControlFlowLanguageElement(
-                    ControlFlowType.DO_WHILE,
+            descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.DO_WHILE, Optional.empty(),
                     parseTextOrEmpty(ctx.dowhile().expr()));
         } else if (ctx.for0() != null) {
-            return new ControlFlowLanguageElement(ControlFlowType.FOR);
+            descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR, Optional.empty(), Optional.empty());
         } else if (ctx.foreach() != null) {
-            return new ControlFlowLanguageElement.NamedControlFlowLanguageElement(
-                    ControlFlowType.FOREACH,
-                    parseTextOrEmpty(ctx.foreach().identifierName()));
+            descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR_EACH,
+                    parseTextOrEmpty(ctx.foreach().identifierName()), Optional.empty());
         } else if (ctx.ternary() != null) {
-            return new ControlFlowLanguageElement(ControlFlowType.TERNARY);
+            descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.TERNARY, Optional.empty(),
+                    Optional.empty());
         } else { // synchronized
-            return new ControlFlowLanguageElement.NamedExprControlFlowLanguageElement(
-                    ControlFlowType.SYNCHRONIZED,
-                    parseTextOrEmpty(ctx.synchronized0().identifierName()),
-                    parseTextOrEmpty(ctx.synchronized0().expr()));
+            descriptor = parseControlflowDescriptor(ConditionalDescriptor.Type.SYNCHRONIZED,
+                    ctx.synchronized0().identifierName(), ctx.synchronized0().expr());
         }
+        return new TargetDescriptor(descriptor);
     }
 
-    private static LanguageElement parseComment(CsarParser.CommentContext ctx) {
+    private static ConditionalDescriptor parseControlflowDescriptor(ConditionalDescriptor.Type type,
+            IdentifierNameContext identifierNameCtx, ExprContext expressionCtx) {
+        return new ConditionalDescriptor(type, parseTextOrEmpty(identifierNameCtx), parseTextOrEmpty(expressionCtx));
+    }
+
+    private static TargetDescriptor parseComment(CommentContext ctx) {
         if (ctx.singleLineComment() != null) {
-            CsarParser.SingleLineCommentContext sctx = ctx.singleLineComment();
-            return new CommentLanguageElement(CommentType.SINGLE, Optional.empty(),
-                    parseTextOrEmpty(sctx.content()));
+            SingleLineCommentContext sctx = ctx.singleLineComment();
+            return new TargetDescriptor(new LineCommentDescriptor(parseTextOrEmpty(sctx.content())));
         } else { // multi-line
-            CsarParser.MultiLineCommentContext mctx = ctx.multiLineComment();
-            return new CommentLanguageElement(CommentType.MULTI,
-                    parseOptionalTrueOrEmpty(mctx.JAVADOC()), parseTextOrEmpty(mctx.content()));
+            MultiLineCommentContext mctx = ctx.multiLineComment();
+            Descriptor desc = new BlockCommentDescriptor(parseTextOrEmpty(mctx.content()),
+                    parseOptionalTrueOrEmpty(mctx.JAVADOC()));
+            return new TargetDescriptor(desc);
         }
     }
 
-    private static Optional<VisibilityModifier> visibilityModifier(CsarParser.VisibilityModifierContext ctx) {
+    private static Optional<VisibilityModifier> visibilityModifier(VisibilityModifierContext ctx) {
         if (ctx.PUBLIC() != null) {
             return Optional.of(VisibilityModifier.PUBLIC);
         } else if (ctx.PRIVATE() != null) {
@@ -260,25 +273,25 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
     }
 
-    private static RefactorElement parseRefactorElement(CsarParser.RefactorElementContext ctx) {
+    private static RefactorElement parseRefactorElement(RefactorElementContext ctx) {
         if (ctx.changeParameters() != null) {
-            List<Parameter> parameters = new ArrayList<>();
-            CsarParser.ChangeParametersContext cpc = ctx.changeParameters();
+            List<ParameterVariableDescriptor> parameters = new ArrayList<>();
+            ChangeParametersContext cpc = ctx.changeParameters();
 
             if (cpc.typeList() != null) {
-                for (CsarParser.TypeContext type : cpc.typeList().type()) {
-                    parameters.add(new Parameter(type.getText(), Optional.empty()));
+                for (TypeContext type : cpc.typeList().type()) {
+                    parameters.add(new ParameterVariableDescriptor(Optional.empty(), Optional.of(type.getText()),
+                            Optional.empty()));
                 }
             } else { // namedTypeList
-                CsarParser.NamedTypeListContext ntlc = cpc.namedTypeList();
+                NamedTypeListContext params = cpc.namedTypeList();
 
-                if (ntlc.type().size() != ntlc.identifierName().size()) {
+                if (params.type().size() != params.identifierName().size()) {
                     throw new RuntimeException("syntax error parsing csar query named type list");
                 }
 
-                for (int i = 0; i < ntlc.type().size(); i++) {
-                    parameters.add(new Parameter(ntlc.type(i).getText(),
-                            Optional.of(ntlc.identifierName(i).getText())));
+                for (int i = 0; i < params.type().size(); i++) {
+                    parameters.add(parseParameterVariableDescriptor(params.identifierName(i), params.type(i), null));
                 }
             }
             return new RefactorElement.ChangeParametersRefactorElement(parameters);
@@ -288,24 +301,24 @@ class CsarQueryGenerator extends CsarParserBaseListener {
     }
 
     @Override
-    public void enterCsarQuery(CsarParser.CsarQueryContext ctx) {
-        searchTarget = parseLanguageElement(ctx.languageElement());
+    public void enterCsarQuery(CsarQueryContext ctx) {
+        searchTarget = parseTargetDescriptor(ctx.statementDescriptor());
     }
 
     @Override
-    public void enterContainsQuery(CsarParser.ContainsQueryContext ctx) {
+    public void enterContainsQuery(ContainsQueryContext ctx) {
         // Logical operators
         if (ctx.NOT() != null) {
             containsQueryElements.add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(LogicalOperator.NOT));
         }
 
         // Language element
-        LanguageElement languageElement = parseLanguageElement(ctx.languageElement());
-        containsQueryElements.add(new ContainsQueryElement.LanguageElementContainsQueryElement(languageElement));
+        TargetDescriptor targetDescriptor = parseTargetDescriptor(ctx.statementDescriptor());
+        containsQueryElements.add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(targetDescriptor));
     }
 
     @Override
-    public void enterContainsQueryRest(CsarParser.ContainsQueryRestContext ctx) {
+    public void enterContainsQueryRest(ContainsQueryRestContext ctx) {
         // Logical operators
         if (ctx.AND() != null) {
             containsQueryElements.add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(LogicalOperator.AND));
@@ -318,24 +331,24 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
 
         // Language element
-        LanguageElement languageElement = parseLanguageElement(ctx.languageElement());
-        containsQueryElements.add(new ContainsQueryElement.LanguageElementContainsQueryElement(languageElement));
+        TargetDescriptor Descriptor = parseTargetDescriptor(ctx.statementDescriptor());
+        containsQueryElements.add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(Descriptor));
     }
 
     @Override
-    public void exitContainsQueryRest(CsarParser.ContainsQueryRestContext ctx) {
+    public void exitContainsQueryRest(ContainsQueryRestContext ctx) {
         containsQuery = Optional.of(new ContainsQuery(containsQueryElements));
     }
 
     @Override
-    public void enterFromQuery(CsarParser.FromQueryContext ctx) {
-        for (CsarParser.TypeContext type : ctx.typeList().type()) {
+    public void enterFromQuery(FromQueryContext ctx) {
+        for (TypeContext type : ctx.typeList().type()) {
             fromTarget.add(type.getText());
         }
     }
 
     @Override
-    public void enterRefactorQuery(CsarParser.RefactorQueryContext ctx) {
+    public void enterRefactorQuery(RefactorQueryContext ctx) {
         refactorElement = Optional.of(parseRefactorElement(ctx.refactorElement()));
     }
 
