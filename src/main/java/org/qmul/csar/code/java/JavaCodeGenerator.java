@@ -676,15 +676,15 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
 
         // Fall-back: type declaration
-        InnerTypeDeclarationContext innerDec = st.innerTypeDeclaration();
+        LocalTypeDeclarationContext localDec = st.localTypeDeclaration();
 
         // XXX sometimes innerDec is null, although the grammar implies it should never be
-        if (innerDec == null || innerDec.SEMI() != null) { // semi-colon
+        if (localDec == null || localDec.SEMI() != null) { // semi-colon
             return new SemiColonStatement();
-        } else if (innerDec.classDeclaration() != null) {
-            return parseClass(innerDec.classOrInterfaceModifier(), innerDec.classDeclaration(), true, false);
+        } else if (localDec.classDeclaration() != null) {
+            return parseClass(localDec.classOrInterfaceModifier(), localDec.classDeclaration(), true, false);
         } else {
-            return parseInterface(innerDec.classOrInterfaceModifier(), innerDec.interfaceDeclaration(), true, false);
+            return parseInterface(localDec.classOrInterfaceModifier(), localDec.interfaceDeclaration(), true, false);
         }
     }
 

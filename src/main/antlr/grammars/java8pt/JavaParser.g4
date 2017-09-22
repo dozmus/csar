@@ -55,11 +55,6 @@ typeDeclaration
     | SEMI
     ;
 
-innerTypeDeclaration
-     : classOrInterfaceModifier* (classDeclaration | interfaceDeclaration)
-     | SEMI
-     ;
-
 modifier
     : classOrInterfaceModifier
     | NATIVE
@@ -370,8 +365,13 @@ block
 blockStatement
     : localVariableDeclaration SEMI
     | statement
-    | innerTypeDeclaration
+    | localTypeDeclaration
     ;
+
+localTypeDeclaration
+     : classOrInterfaceModifier* (classDeclaration | interfaceDeclaration)
+     | SEMI
+     ;
 
 localVariableDeclaration
     : variableModifier* typeType variableDeclarators
