@@ -11,26 +11,27 @@ Usage: java -jar csar.jar [options] Search query
     --threads, -t
       Thread count
       Default: 1
-    --verbose, -v
-      Verbose output
-      Default: false
+    --log-level
+      Log level
+      Default: INFO
+      Possible Values (in order of precedence): ERROR, WARN, INFO, DEBUG, TRACE
     --format, -f
       Output format
       Default: PlainText
+      Possible Values: PlainText, JSON
     --output, -o
       Output file name
     --project-url, --url
       Print project URL
-      Default: false
     --help, -h
       Print help information
 ```
 
-Further Example: `java -jar csar.jar SELECT method:def:add -t 4`
+Example: `java -jar csar.jar SELECT method:def:add -t 4`
 
 ### Contributing
-You can specify space separated arguments in the gradle `run` task as follows:  
-`gradle run -Pjargs="-q myquery"`
+You can specify space separated arguments with the gradle `run` task as follows:
+`-Pjargs="SELECT method:def:add -t 1 --log-level TRACE"`
 
 ### Roadmap
 1. Implement query parsing

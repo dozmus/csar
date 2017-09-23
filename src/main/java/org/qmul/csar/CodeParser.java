@@ -55,6 +55,8 @@ public final class CodeParser {
         running = true;
 
         // Submit tasks
+        LOGGER.info("Starting...");
+
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 String fileName = "";
@@ -84,7 +86,7 @@ public final class CodeParser {
                         }
 
                         // TODO finish?
-                        LOGGER.info("Parsed {}", fileName);
+                        LOGGER.trace("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
                     LOGGER.error("Parsing terminated {} because {}", fileName, ex.getMessage());
@@ -92,6 +94,7 @@ public final class CodeParser {
                     if (LOGGER.isTraceEnabled()) {
                         ex.printStackTrace();
                     }
+                    // TODO this is a fatal error, exit the program
                 } finally {
                     LOGGER.info("Finished");
                     countDown();

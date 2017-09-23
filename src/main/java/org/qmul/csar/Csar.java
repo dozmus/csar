@@ -1,7 +1,5 @@
 package org.qmul.csar;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
 import org.qmul.csar.io.ProjectIterator;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
@@ -19,7 +17,6 @@ public final class Csar {
     /**
      * The URL of this project on the internet.
      */
-    private static String PROJECT_URL = "https://github.research.its.qmul.ac.uk/ec15116/csar";
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final CsarContext ctx;
     private final Iterator<Path> it;
@@ -42,46 +39,7 @@ public final class Csar {
         this.it = it;
     }
 
-    /**
-     * Application main method.
-     * This parses command-line arguments and stores them in an instance of {@link CsarContext}.
-     * Then executes the actions which they describe.
-     *
-     * @param args application command-line arguments
-     * @see CsarContext
-     */
-    public static void main(String[] args) {
-        // Parse command-line arguments
-        CsarContext ctx = new CsarContext();
-
-        try {
-            JCommander com = JCommander.newBuilder()
-                    .addObject(ctx)
-                    .programName("java -jar csar.jar")
-                    .build();
-            com.parse(args);
-
-            if (ctx.isPrintProjectUrl()) {
-                System.out.println(PROJECT_URL);
-                System.exit(0);
-            }
-
-            if (ctx.isPrintHelp()) {
-                com.usage();
-                System.exit(0);
-            }
-        } catch (ParameterException ex) {
-            LOGGER.error(ex.getMessage());
-            System.exit(1);
-        }
-
-        // Run csar
-        Csar csar = new Csar(ctx);
-        csar.init();
-        csar.process();
-    }
-
-    private void init() {
+    public void init() {
         LOGGER.info("Initializing");
 
         if (!it.hasNext()) {
@@ -90,7 +48,7 @@ public final class Csar {
         }
     }
 
-    private void process() {
+    public void process() {
         LOGGER.info("Processing");
 
         // Parse query

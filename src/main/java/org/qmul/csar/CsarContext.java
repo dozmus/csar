@@ -5,6 +5,8 @@ import com.beust.jcommander.converters.PathConverter;
 import org.qmul.csar.result.PlainTextResultFormatter;
 import org.qmul.csar.result.ResultFormatter;
 import org.qmul.csar.util.ResultFormatterConverter;
+import org.qmul.csar.util.Slf4jLevelConverter;
+import org.slf4j.event.Level;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Command-line arguments for {@link Csar#main(String[])}.
+ * Command-line arguments.
+ * @see Main#main(String[])
+ * @see Csar
  */
 public class CsarContext {
 
@@ -22,8 +26,8 @@ public class CsarContext {
     @Parameter(names = {"--threads", "-t"}, description = "Thread count", order = 2)
     private int threads = 1;
 
-    @Parameter(names = {"--verbose", "-v"}, description = "Verbose output", order = 3)
-    private boolean verbose;
+    @Parameter(names = {"--log-level"}, description = "Log level", order = 3, converter = Slf4jLevelConverter.class)
+    private Level logLevel = Level.INFO;
 
     @Parameter(names = {"--format", "-f"}, description = "Output format", order = 4,
             converter = ResultFormatterConverter.class)
@@ -42,8 +46,8 @@ public class CsarContext {
         return String.join(" ", query);
     }
 
-    public boolean isVerbose() {
-        return verbose;
+    public Level getLogLevel() {
+        return logLevel;
     }
 
     public int getThreads() {
