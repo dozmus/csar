@@ -136,7 +136,6 @@ public class ConstructorStatement implements Statement {
                     .append(StringUtils.LINE_SEPARATOR)
                     .append(StringUtils.indentation(indentation))
                     .append("}");
-            System.out.println(builder.toString());
         }
         return builder.toString();
     }
