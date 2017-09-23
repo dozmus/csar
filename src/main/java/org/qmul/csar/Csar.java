@@ -26,7 +26,7 @@ public final class Csar {
      * @param ctx the details of should be performed
      */
     public Csar(CsarContext ctx) {
-        this(ctx, new ProjectIterator(ctx.getDirectory()));
+        this(ctx, new ProjectIterator(ctx.getDirectory(), ctx.isNarrowSearch()));
     }
 
     /**

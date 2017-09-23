@@ -36,10 +36,13 @@ public class CsarContext {
     @Parameter(names = {"--output", "-o"}, description = "Output file name", order = 5, converter = PathConverter.class)
     private Path path;
 
-    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 6)
+    @Parameter(names = {"--narrow-search"}, description = "Narrow search domain", order = 6)
+    private boolean narrowSearch = true;
+
+    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 7)
     private boolean printProjectUrl;
 
-    @Parameter(names = {"--help", "-h"}, description = "Print help information", help = true, order = 7)
+    @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 8, help = true)
     private boolean printHelp;
 
     public String getQuery() {
@@ -62,6 +65,10 @@ public class CsarContext {
         return path;
     }
 
+    public boolean isNarrowSearch() {
+        return narrowSearch;
+    }
+
     public boolean isPrintHelp() {
         return printHelp;
     }
@@ -70,6 +77,10 @@ public class CsarContext {
         return printProjectUrl;
     }
 
+    /**
+     * Returns the project base directory.
+     * @return the project base directory
+     */
     public Path getDirectory() {
         return Paths.get(".");
     }

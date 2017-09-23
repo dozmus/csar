@@ -3,7 +3,7 @@ csar (code search and refactor)
 
 ### Usage
 All source code in the working directory will be searched, if the current directory is a git repository then only source
-code in the repository (and staging area) will be searched.
+code in the repository (and staging area) will be searched. This can be toggled using the `--narrow-search` CLI flag.
 
 ```
 Usage: java -jar csar.jar [options] Search query
@@ -21,6 +21,9 @@ Usage: java -jar csar.jar [options] Search query
       Possible Values: PlainText, JSON
     --output, -o
       Output file name
+    --narrow-search
+      Default: true
+      Narrow search domain
     --project-url, --url
       Print project URL
     --help, -h
