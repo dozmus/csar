@@ -34,7 +34,8 @@ public class TernaryExpression implements Expression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TernaryExpression that = (TernaryExpression) o;
-        return Objects.equals(condition, that.condition) && Objects.equals(valueIfTrue, that.valueIfTrue)
+        return Objects.equals(condition, that.condition)
+                && Objects.equals(valueIfTrue, that.valueIfTrue)
                 && Objects.equals(valueIfFalse, that.valueIfFalse);
     }
 

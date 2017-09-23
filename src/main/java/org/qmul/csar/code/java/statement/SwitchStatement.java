@@ -55,7 +55,7 @@ public class SwitchStatement implements Statement {
         private Expression labelExpression;
 
         public SwitchLabelStatement(String literal) { // NOTE 'default' is placed here, if necessary
-            this(new UnitExpression(UnitExpression.Type.LITERAL, literal));
+            this(new UnitExpression(UnitExpression.ValueType.LITERAL, literal));
         }
 
         public SwitchLabelStatement(Expression labelExpression) {

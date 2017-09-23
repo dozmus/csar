@@ -6,7 +6,7 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
-public class SquareBracketsExpression implements Expression { // [] or [$expr]
+public class SquareBracketsExpression implements Expression {
 
     private final Optional<Expression> expression;
 

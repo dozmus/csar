@@ -39,16 +39,16 @@ public class ContainsQuery {
         private final List<ContainsQueryElement> elements = new ArrayList<>();
 
         public Builder addLogicalOperator(LogicalOperator operator) {
-            return add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(operator));
+            return add(new ContainsQueryElement.LogicalOperator(operator));
         }
 
         public Builder addTargetDescriptor(TargetDescriptor element) {
-            return add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(element));
+            return add(new ContainsQueryElement.TargetDescriptor(element));
         }
 
         public Builder addTargetDescriptor(SearchType type, Descriptor descriptor) {
             TargetDescriptor td = new TargetDescriptor(Optional.of(type), descriptor);
-            return add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(td));
+            return add(new ContainsQueryElement.TargetDescriptor(td));
         }
 
         public Builder add(ContainsQueryElement element) {

@@ -1,33 +1,29 @@
 package org.qmul.csar.code.java.expression;
 
+import org.qmul.csar.code.java.statement.BlockStatement;
+import org.qmul.csar.code.java.statement.ExpressionStatement;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.code.java.statement.ExpressionStatement;
-import org.qmul.csar.code.java.statement.BlockStatement;
-import org.qmul.csar.code.java.statement.ParameterVariableStatement;
 import org.qmul.csar.util.StringUtils;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class LambdaExpression implements Expression {
 
-    private final Parameter parameter;
+    private final LambdaParameter parameter;
     private final Statement value;
 
-    public LambdaExpression(Parameter parameter, ExpressionStatement value) {
+    public LambdaExpression(LambdaParameter parameter, ExpressionStatement value) {
         this.parameter = parameter;
         this.value = value;
     }
 
-    public LambdaExpression(Parameter parameter, BlockStatement value) {
+    public LambdaExpression(LambdaParameter parameter, BlockStatement value) {
         this.parameter = parameter;
         this.value = value;
     }
 
-    public Parameter getParameter() {
+    public LambdaParameter getParameter() {
         return parameter;
     }
 
@@ -62,70 +58,6 @@ public class LambdaExpression implements Expression {
         } else {
             return String.format("%s(%s) -> {%s%s%s}", i, parameter.toPseudoCode(), StringUtils.LINE_SEPARATOR,
                     value.toPseudoCode(), StringUtils.LINE_SEPARATOR);
-        }
-    }
-
-    public interface Parameter extends Expression {
-    }
-
-    public static class IdentifierParameter implements Parameter {
-
-        private final String identifier;
-
-        public IdentifierParameter(String identifier) {
-            this.identifier = identifier;
-        }
-
-        public String getIdentifier() {
-            return identifier;
-        }
-
-        @Override
-        public String toPseudoCode(int indentation) {
-            return StringUtils.indentation(indentation) + identifier;
-        }
-    }
-
-    public static class IdentifiersParameter implements Parameter {
-
-        private final List<String> identifiers;
-
-        public IdentifiersParameter(List<String> identifiers) {
-            this.identifiers = Collections.unmodifiableList(identifiers);
-        }
-
-        public List<String> getIdentifiers() {
-            return identifiers;
-        }
-
-        @Override
-        public String toPseudoCode(int indentation) {
-            return StringUtils.indentation(indentation) + String.join(", ", identifiers);
-        }
-    }
-
-    public static class ParameterVariablesParameter implements Parameter {
-        
-        private final List<ParameterVariableStatement> variables;
-
-        public ParameterVariablesParameter(List<ParameterVariableStatement> variables) {
-            this.variables = Collections.unmodifiableList(variables);
-        }
-
-        public List<ParameterVariableStatement> getVariables() {
-            return variables;
-        }
-
-        @Override
-        public String toPseudoCode(int indentation) {
-            return new StringBuilder()
-                    .append(StringUtils.indentation(indentation))
-                    .append("(")
-                    .append(String.join(", ", variables.stream()
-                            .map(p -> p.toPseudoCode())
-                            .collect(Collectors.toList())))
-                    .append(")")
-                    .toString();
         }
     }
 }

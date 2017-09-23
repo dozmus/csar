@@ -454,26 +454,26 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
     private static Expression parseExpression(ExpressionContext ctx) {
         if (ctx.primary() != null) {
             PrimaryContext primary = ctx.primary();
-            UnitExpression.Type type;
+            UnitExpression.ValueType valueType;
 
             if (primary.LPAREN() != null && primary.RPAREN() != null) {
                 return new ParenthesisExpression(parseExpression(primary.expression()));
             } else if (primary.DOT() != null && primary.CLASS() != null) {
-                type = UnitExpression.Type.CLASS_REFERENCE;
+                valueType = UnitExpression.ValueType.CLASS_REFERENCE;
             } else if (primary.methodReference() != null) {
-                type = UnitExpression.Type.METHOD_REFERENCE;
+                valueType = UnitExpression.ValueType.METHOD_REFERENCE;
             } else if (primary.THIS() != null) {
-                type = UnitExpression.Type.THIS;
+                valueType = UnitExpression.ValueType.THIS;
             } else if (primary.SUPER() != null) {
-                type = UnitExpression.Type.SUPER;
+                valueType = UnitExpression.ValueType.SUPER;
             } else if (primary.literal() != null) {
-                type = UnitExpression.Type.LITERAL;
+                valueType = UnitExpression.ValueType.LITERAL;
             } else if (primary.IDENTIFIER() != null) {
-                type = UnitExpression.Type.IDENTIFIER;
+                valueType = UnitExpression.ValueType.IDENTIFIER;
             } else { // nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)
-                type = (primary.arguments() != null) ? UnitExpression.Type.THIS_CALL : UnitExpression.Type.SUPER_CALL;
+                valueType = (primary.arguments() != null) ? UnitExpression.ValueType.THIS_CALL : UnitExpression.ValueType.SUPER_CALL;
             }
-            return new UnitExpression(type, primary.getText());
+            return new UnitExpression(valueType, primary.getText());
         }
 
         // Binary operations
@@ -485,20 +485,20 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 Expression right = null;
 
                 if (ctx.IDENTIFIER() != null) {
-                    right = new UnitExpression(UnitExpression.Type.IDENTIFIER, ctx.IDENTIFIER().getText());
+                    right = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, ctx.IDENTIFIER().getText());
                 } else if (ctx.THIS() != null) {
-                    right = new UnitExpression(UnitExpression.Type.THIS, ctx.THIS().getText());
+                    right = new UnitExpression(UnitExpression.ValueType.THIS, ctx.THIS().getText());
                 } else if (ctx.SUPER() != null) {
-                    right = new UnitExpression(UnitExpression.Type.SUPER_CALL, ctx.superSuffix().getText());
+                    right = new UnitExpression(UnitExpression.ValueType.SUPER_CALL, ctx.superSuffix().getText());
                 } else if (ctx.NEW() != null) {
                     String typeArg = (ctx.nonWildcardTypeArguments() == null) ? ""
                             : ctx.nonWildcardTypeArguments().getText();
-                    right = new UnitExpression(UnitExpression.Type.NEW, typeArg + ctx.innerCreator().getText());
+                    right = new UnitExpression(UnitExpression.ValueType.NEW, typeArg + ctx.innerCreator().getText());
                 } else if (ctx.explicitGenericInvocation() != null) {
                     ExplicitGenericInvocationContext invokCtx = ctx.explicitGenericInvocation();
-                    UnitExpression.Type type = (invokCtx.explicitGenericInvocationSuffix().SUPER() == null)
-                            ? UnitExpression.Type.METHOD_CALL : UnitExpression.Type.SUPER_CALL;
-                    right = new UnitExpression(type, invokCtx.getText());
+                    UnitExpression.ValueType valueType = (invokCtx.explicitGenericInvocationSuffix().SUPER() == null)
+                            ? UnitExpression.ValueType.METHOD_CALL : UnitExpression.ValueType.SUPER_CALL;
+                    right = new UnitExpression(valueType, invokCtx.getText());
                 }
                 return new BinaryExpression(left, op, right);
             } else if (op == BinaryOperation.QUESTION) {
@@ -506,7 +506,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 Expression valueIfFalse = parseExpression(ctx.expression(2));
                 return new TernaryExpression(left, valueIfTrue, valueIfFalse);
             } else if (op == BinaryOperation.INSTANCE_OF) {
-                Expression unitExpression = new UnitExpression(UnitExpression.Type.TYPE,
+                Expression unitExpression = new UnitExpression(UnitExpression.ValueType.TYPE,
                         ctx.typeType().getText());
                 return new BinaryExpression(left, op, unitExpression);
             }
@@ -520,19 +520,19 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             LambdaBodyContext body = ctx.lambdaExpression().lambdaBody();
 
             // Parameters
-            LambdaExpression.Parameter parameter;
+            LambdaParameter parameter;
 
             if (params.LPAREN() == null && params.IDENTIFIER().size() == 1) {
-                parameter = new LambdaExpression.IdentifierParameter(params.IDENTIFIER(0).getText());
+                parameter = new LambdaParameter.Identifier(params.IDENTIFIER(0).getText());
             } else if (params.LPAREN() == null && params.IDENTIFIER().size() > 0) {
                 List<String> identifiers = new ArrayList<>();
 
                 for (TerminalNode ident : params.IDENTIFIER()) {
                     identifiers.add(ident.getText());
                 }
-                parameter = new LambdaExpression.IdentifiersParameter(identifiers);
+                parameter = new LambdaParameter.Identifiers(identifiers);
             } else {
-                parameter = new LambdaExpression.ParameterVariablesParameter(
+                parameter = new LambdaParameter.ParameterVariables(
                         parseParameters(params.formalParameterList()));
             }
 

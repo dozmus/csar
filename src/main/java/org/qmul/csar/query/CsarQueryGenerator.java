@@ -309,30 +309,30 @@ class CsarQueryGenerator extends CsarParserBaseListener {
     public void enterContainsQuery(ContainsQueryContext ctx) {
         // Logical operators
         if (ctx.NOT() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(LogicalOperator.NOT));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.NOT));
         }
 
         // Language element
         TargetDescriptor targetDescriptor = parseTargetDescriptor(ctx.statementDescriptor());
-        containsQueryElements.add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(targetDescriptor));
+        containsQueryElements.add(new ContainsQueryElement.TargetDescriptor(targetDescriptor));
     }
 
     @Override
     public void enterContainsQueryRest(ContainsQueryRestContext ctx) {
         // Logical operators
         if (ctx.AND() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(LogicalOperator.AND));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.AND));
         } else if (ctx.OR() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(LogicalOperator.OR));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.OR));
         }
 
         if (ctx.NOT() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperatorContainsQueryElement(LogicalOperator.NOT));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.NOT));
         }
 
         // Language element
         TargetDescriptor Descriptor = parseTargetDescriptor(ctx.statementDescriptor());
-        containsQueryElements.add(new ContainsQueryElement.TargetDescriptorContainsQueryElement(Descriptor));
+        containsQueryElements.add(new ContainsQueryElement.TargetDescriptor(Descriptor));
     }
 
     @Override

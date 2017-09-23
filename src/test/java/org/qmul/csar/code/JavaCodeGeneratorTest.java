@@ -68,7 +68,7 @@ public final class JavaCodeGeneratorTest {
                         .identifierType("String")
                         .build(),
                 new ArrayList<>(),
-                Optional.of(new UnitExpression(UnitExpression.Type.LITERAL, "\"Sample1\"")));
+                Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "\"Sample1\"")));
 
         // Instance #2
         InstanceVariableStatement var2 = new InstanceVariableStatement(
@@ -92,8 +92,9 @@ public final class JavaCodeGeneratorTest {
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Method #2
-        ReturnStatement returnSt = new ReturnStatement(Optional.of(new UnitExpression(UnitExpression.Type.IDENTIFIER,
-                "result")));
+        ReturnStatement returnSt = new ReturnStatement(
+                Optional.of(new UnitExpression(UnitExpression.ValueType.IDENTIFIER,
+                        "result")));
         MethodStatement method2 = new MethodStatement(MethodDescriptor.Builder.allFalse("getResult")
                 .visibilityModifier(VisibilityModifier.PROTECTED)
                 .finalModifier(true)
@@ -106,9 +107,9 @@ public final class JavaCodeGeneratorTest {
                 .finalModifier(true)
                 .identifierType("int")
                 .build(),
-                Optional.of(new UnitExpression(UnitExpression.Type.LITERAL, "3")), new ArrayList<>()));
-        UnitExpression thisIdentifier = new UnitExpression(UnitExpression.Type.THIS, "this");
-        UnitExpression resultIdentifier = new UnitExpression(UnitExpression.Type.IDENTIFIER, "result");
+                Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "3")), new ArrayList<>()));
+        UnitExpression thisIdentifier = new UnitExpression(UnitExpression.ValueType.THIS, "this");
+        UnitExpression resultIdentifier = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "result");
         ExpressionStatement assignmentExpr = new ExpressionStatement(new BinaryExpression(
                 new BinaryExpression(thisIdentifier, BinaryOperation.DOT, resultIdentifier),
                 BinaryOperation.ASSIGN,
@@ -150,14 +151,14 @@ public final class JavaCodeGeneratorTest {
                         .finalModifier(false)
                         .identifierType("int")
                         .build(),
-                new ArrayList<>(), Optional.of(new UnitExpression(UnitExpression.Type.LITERAL, "1000")));
+                new ArrayList<>(), Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "1000")));
 
         // Method #1
         Expression methodName = new BinaryExpression(new BinaryExpression(
-                new UnitExpression(UnitExpression.Type.IDENTIFIER, "System"), BinaryOperation.DOT,
-                new UnitExpression(UnitExpression.Type.IDENTIFIER, "out")
-        ), BinaryOperation.DOT, new UnitExpression(UnitExpression.Type.IDENTIFIER, "println"));
-        List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.Type.IDENTIFIER, "s"));
+                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "System"), BinaryOperation.DOT,
+                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "out")
+        ), BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "println"));
+        List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "s"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
         ParameterVariableStatement param1 = createParameter("String", "s", false);
@@ -181,9 +182,9 @@ public final class JavaCodeGeneratorTest {
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Instance #1
-        Expression methodName2 = new UnitExpression(UnitExpression.Type.IDENTIFIER, "generateName");
+        Expression methodName2 = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "generateName");
         List<Expression> methodArgs
-                = Arrays.asList(new UnitExpression(UnitExpression.Type.CLASS_REFERENCE, "Sample2.class"));
+                = Arrays.asList(new UnitExpression(UnitExpression.ValueType.CLASS_REFERENCE, "Sample2.class"));
         InstanceVariableStatement var2 = new InstanceVariableStatement(new InstanceVariableDescriptor.Builder("name")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .identifierType("String[]")
@@ -244,14 +245,14 @@ public final class JavaCodeGeneratorTest {
         LocalVariableStatement local = new LocalVariableStatement(new LocalVariableDescriptor.Builder("x")
                 .finalModifier(false)
                 .identifierType("int")
-                .build(), Optional.of(new UnitExpression(UnitExpression.Type.LITERAL, "30")), new ArrayList<>());
+                .build(), Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "30")), new ArrayList<>());
         LocalVariableStatements locals = new LocalVariableStatements(Arrays.asList(local));
 
         Expression methodName = new BinaryExpression(new BinaryExpression(
-                new UnitExpression(UnitExpression.Type.IDENTIFIER, "System"), BinaryOperation.DOT,
-                new UnitExpression(UnitExpression.Type.IDENTIFIER, "out")
-        ), BinaryOperation.DOT, new UnitExpression(UnitExpression.Type.IDENTIFIER, "println"));
-        List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.Type.IDENTIFIER, "x"));
+                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "System"), BinaryOperation.DOT,
+                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "out")
+        ), BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "println"));
+        List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "x"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
         MethodStatement innerClassMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("run")
@@ -276,8 +277,9 @@ public final class JavaCodeGeneratorTest {
 
         // Method call
         ExpressionStatement methodCall2 = new ExpressionStatement(new MethodCallExpression(new BinaryExpression(
-                new UnitExpression(UnitExpression.Type.IDENTIFIER, "worker"),
-                BinaryOperation.DOT, new UnitExpression(UnitExpression.Type.IDENTIFIER, "run")), new ArrayList<>()));
+                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "worker"),
+                BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "run")),
+                new ArrayList<>()));
 
         // Parent class
         MethodStatement parentClassMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("work")

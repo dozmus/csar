@@ -7,16 +7,16 @@ import java.util.Objects;
 
 public class UnitExpression implements Expression {
 
-    private final Type type;
+    private final ValueType valueType;
     private final String value;
 
-    public UnitExpression(Type type, String value) {
-        this.type = type;
+    public UnitExpression(ValueType valueType, String value) {
+        this.valueType = valueType;
         this.value = value;
     }
 
-    public Type getType() {
-        return type;
+    public ValueType getValueType() {
+        return valueType;
     }
 
     public String getValue() {
@@ -28,17 +28,17 @@ public class UnitExpression implements Expression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UnitExpression that = (UnitExpression) o;
-        return type == that.type && Objects.equals(value, that.value);
+        return valueType == that.valueType && Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, value);
+        return Objects.hash(valueType, value);
     }
 
     @Override
     public String toString() {
-        return String.format("UnitExpression{type=%s, value='%s'}", type, value);
+        return String.format("UnitExpression{type=%s, value='%s'}", valueType, value);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class UnitExpression implements Expression {
         return StringUtils.indentation(indentation) + value;
     }
 
-    public enum Type {
+    public enum ValueType {
         LITERAL, IDENTIFIER, CLASS_REFERENCE, METHOD_REFERENCE, SUPER, THIS, THIS_CALL, SUPER_CALL, TYPE, NEW,
         METHOD_CALL
     }
