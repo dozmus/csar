@@ -10,8 +10,6 @@ import java.util.Arrays;
 
 public final class CodeParserFactory {
 
-    // TODO un-hardcode this, perhaps use annotations and reflection?
-
     /**
      * An array of handled code file extensions.
      */

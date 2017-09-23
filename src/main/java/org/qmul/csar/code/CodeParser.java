@@ -16,5 +16,11 @@ public interface CodeParser {
      */
     Statement parse(Path file) throws IOException;
 
+    /**
+     * Returns if the argument is a code file which this parser can parse (based on file extension).
+     *
+     * @param file the path to check is accepted
+     * @return if the given file can be parsed by this parser
+     */
     boolean accepts(Path file);
 }
