@@ -348,7 +348,7 @@ public final class JavaCodeGeneratorTest {
                 .build(), new BlockStatement(Arrays.asList(innerClass)), new ArrayList<>());
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name="{index}: \"{1}\"")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {sample1(), "Sample1.java"},
