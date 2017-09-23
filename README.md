@@ -14,7 +14,7 @@ Usage: java -jar csar.jar [options] Search query
     --log-level
       Log level
       Default: INFO
-      Possible Values (in order of precedence): ERROR, WARN, INFO, DEBUG, TRACE
+      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
     --format, -f
       Output format
       Default: PlainText
