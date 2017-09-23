@@ -16,7 +16,8 @@ public final class JsonResultFormatterTest {
     }
 
     @Test
-    public void format() throws Exception {
+    public void testValidOutputFormat() throws Exception {
+        // TODO read expected from test.resources file
         // Test #1
         Path path1 = Paths.get("test.java");
         int lineNumber1 = 36;

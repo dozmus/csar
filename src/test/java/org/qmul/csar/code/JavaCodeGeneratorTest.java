@@ -381,7 +381,7 @@ public final class JavaCodeGeneratorTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void testValidJavaCode() throws IOException {
         assertEquals(expected, CodeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + sampleFileName)));
     }
 }

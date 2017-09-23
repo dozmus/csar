@@ -33,7 +33,7 @@ public final class NamedThreadFactoryTest {
     }
 
     @Test
-    public void newThread() throws Exception {
+    public void testValidThreadNameSet() throws Exception {
         assertEquals(expected1, threadFactory.newThread(() -> {}).getName());
         assertEquals(expected2, threadFactory.newThread(() -> {}).getName());
     }

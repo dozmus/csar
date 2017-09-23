@@ -15,12 +15,12 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.fail;
 
-public final class TestJava8PT {
+public final class TestJava8PTGrammar {
 
     private static final Path SAMPLES_DIRECTORY = Paths.get("src/test/resources/grammars/java8pt");
 
     @Test
-    public void test() throws IOException {
+    public void testValidJava8Files() throws IOException {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(SAMPLES_DIRECTORY)) {
             for (Path path : stream) {
                 JavaLexer lexer = new JavaLexer(CharStreams.fromFileName(path.toString()));

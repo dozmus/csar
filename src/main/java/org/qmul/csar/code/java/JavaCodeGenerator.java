@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
 
 import static grammars.java8pt.JavaParser.*;
 
+/**
+ * A Java8 code parser.
+ */
 public final class JavaCodeGenerator extends JavaParserBaseListener {
 
     /**

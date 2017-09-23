@@ -17,7 +17,7 @@ public final class PlainTextResultFormatterTest {
     }
 
     @Test
-    public void format() throws Exception {
+    public void testValidOutputFormat() throws Exception {
         // Test #1
         Path path1 = Paths.get("test.java");
         int lineNumber1 = 36;
