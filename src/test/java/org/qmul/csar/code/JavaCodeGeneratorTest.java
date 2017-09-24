@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.qmul.csar.code.java.expression.UnitExpression.ValueType.*;
 
 @RunWith(value = Parameterized.class)
 public final class JavaCodeGeneratorTest {
@@ -68,7 +69,7 @@ public final class JavaCodeGeneratorTest {
                         .identifierType("String")
                         .build(),
                 new ArrayList<>(),
-                Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "\"Sample1\"")));
+                Optional.of(new UnitExpression(LITERAL, "\"Sample1\"")));
 
         // Instance #2
         InstanceVariableStatement var2 = new InstanceVariableStatement(
@@ -92,9 +93,7 @@ public final class JavaCodeGeneratorTest {
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Method #2
-        ReturnStatement returnSt = new ReturnStatement(
-                Optional.of(new UnitExpression(UnitExpression.ValueType.IDENTIFIER,
-                        "result")));
+        ReturnStatement returnSt = new ReturnStatement(new UnitExpression(IDENTIFIER, "result"));
         MethodStatement method2 = new MethodStatement(MethodDescriptor.Builder.allFalse("getResult")
                 .visibilityModifier(VisibilityModifier.PROTECTED)
                 .finalModifier(true)
@@ -107,12 +106,11 @@ public final class JavaCodeGeneratorTest {
                 .finalModifier(true)
                 .identifierType("int")
                 .build(),
-                Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "3")), new ArrayList<>()));
-        UnitExpression thisIdentifier = new UnitExpression(UnitExpression.ValueType.THIS, "this");
-        UnitExpression resultIdentifier = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "result");
+                Optional.of(new UnitExpression(LITERAL, "3")), new ArrayList<>()));
+        UnitExpression thisIdentifier = new UnitExpression(THIS, "this");
+        UnitExpression resultIdentifier = new UnitExpression(IDENTIFIER, "result");
         ExpressionStatement assignmentExpr = new ExpressionStatement(new BinaryExpression(
-                new BinaryExpression(thisIdentifier, BinaryOperation.DOT, resultIdentifier),
-                BinaryOperation.ASSIGN,
+                new BinaryExpression(thisIdentifier, BinaryOperation.DOT, resultIdentifier), BinaryOperation.ASSIGN,
                 resultIdentifier));
 
         ParameterVariableStatement param31 = createParameter("int", "result", false);
@@ -151,14 +149,13 @@ public final class JavaCodeGeneratorTest {
                         .finalModifier(false)
                         .identifierType("int")
                         .build(),
-                new ArrayList<>(), Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "1000")));
+                new ArrayList<>(), Optional.of(new UnitExpression(LITERAL, "1000")));
 
         // Method #1
-        Expression methodName = new BinaryExpression(new BinaryExpression(
-                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "System"), BinaryOperation.DOT,
-                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "out")
-        ), BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "println"));
-        List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "s"));
+        Expression methodName = new BinaryExpression(new BinaryExpression(new UnitExpression(IDENTIFIER, "System"),
+                BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")
+        ), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
+        List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "s"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
         ParameterVariableStatement param1 = createParameter("String", "s", false);
@@ -182,9 +179,8 @@ public final class JavaCodeGeneratorTest {
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Instance #1
-        Expression methodName2 = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "generateName");
-        List<Expression> methodArgs
-                = Arrays.asList(new UnitExpression(UnitExpression.ValueType.CLASS_REFERENCE, "Sample2.class"));
+        Expression methodName2 = new UnitExpression(IDENTIFIER, "generateName");
+        List<Expression> methodArgs = Arrays.asList(new UnitExpression(CLASS_REFERENCE, "Sample2.class"));
         InstanceVariableStatement var2 = new InstanceVariableStatement(new InstanceVariableDescriptor.Builder("name")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .identifierType("String[]")
@@ -245,14 +241,13 @@ public final class JavaCodeGeneratorTest {
         LocalVariableStatement local = new LocalVariableStatement(new LocalVariableDescriptor.Builder("x")
                 .finalModifier(false)
                 .identifierType("int")
-                .build(), Optional.of(new UnitExpression(UnitExpression.ValueType.LITERAL, "30")), new ArrayList<>());
+                .build(), Optional.of(new UnitExpression(LITERAL, "30")), new ArrayList<>());
         LocalVariableStatements locals = new LocalVariableStatements(Arrays.asList(local));
 
-        Expression methodName = new BinaryExpression(new BinaryExpression(
-                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "System"), BinaryOperation.DOT,
-                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "out")
-        ), BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "println"));
-        List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "x"));
+        Expression methodName = new BinaryExpression(new BinaryExpression(new UnitExpression(IDENTIFIER, "System"),
+                BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")),
+                BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
+        List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "x"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
         MethodStatement innerClassMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("run")
@@ -277,8 +272,7 @@ public final class JavaCodeGeneratorTest {
 
         // Method call
         ExpressionStatement methodCall2 = new ExpressionStatement(new MethodCallExpression(new BinaryExpression(
-                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "worker"),
-                BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "run")),
+                new UnitExpression(IDENTIFIER, "worker"), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "run")),
                 new ArrayList<>()));
 
         // Parent class
@@ -341,11 +335,120 @@ public final class JavaCodeGeneratorTest {
                 .typeParameters(Arrays.asList("T0"))
                 .build());
 
-        // Top-l;evel interface
+        // Top-level interface
         return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample6")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .interfaceModifier(true)
                 .build(), new BlockStatement(Arrays.asList(innerClass)), new ArrayList<>());
+    }
+
+    /**
+     * A <tt>TypeStatement</tt> representing the contents of 'Sample7.java' inside <tt>SAMPLES_DIRECTORY</tt>.
+     *
+     * @return
+     */
+    private static TypeStatement sample7() {
+        // Constants
+        EnumConstantStatement const1 = createEnumConstant("WINTER");
+        EnumConstantStatement const2 = createEnumConstant("SUMMER");
+
+        // Top-level enum
+        BlockStatement block = new BlockStatement(Arrays.asList(const1, const2));
+        EnumDescriptor desc = EnumDescriptor.Builder.allFalse("Season")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .build();
+        return new EnumStatement(desc, block, new ArrayList<>());
+    }
+
+    /**
+     * A <tt>TypeStatement</tt> representing the contents of 'Sample8.java' inside <tt>SAMPLES_DIRECTORY</tt>.
+     *
+     * @return
+     */
+    private static TypeStatement sample8() {
+        UnitExpression identifier1 = new UnitExpression(IDENTIFIER, "a");
+        UnitExpression identifier2 = new UnitExpression(IDENTIFIER, "b");
+
+        // Inherited method descriptor
+        ParameterVariableStatement param1 = createParameter("Integer", "a", false);
+        ParameterVariableStatement param2 = createParameter("Integer", "b", false);
+        MethodDescriptor interfaceMethodDesc = MethodDescriptor.Builder.allFalse("apply")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .returnType("Integer")
+                .parameters(Arrays.asList(param1.getDescriptor(), param2.getDescriptor()))
+                .parameterCount(2)
+                .build();
+
+        // Constants
+        ReturnStatement return1 = new ReturnStatement(
+                new BinaryExpression(identifier1, BinaryOperation.ADD, identifier2));
+        MethodStatement apply1 = new MethodStatement(interfaceMethodDesc, Arrays.asList(param1, param2),
+                new BlockStatement(Arrays.asList(return1)), new ArrayList<>());
+        EnumConstantStatement const1 = createEnumConstant("PLUS", new BlockStatement(Arrays.asList(apply1)));
+
+        ReturnStatement return2 = new ReturnStatement(
+                new BinaryExpression(identifier1, BinaryOperation.SUB, identifier2));
+        MethodStatement apply2 = new MethodStatement(interfaceMethodDesc, Arrays.asList(param1, param2),
+                new BlockStatement(Arrays.asList(return2)), new ArrayList<>());
+        EnumConstantStatement const2 = createEnumConstant("MINUS", new BlockStatement(Arrays.asList(apply2)));
+
+        // Top-level enum
+        EnumDescriptor desc = EnumDescriptor.Builder.allFalse("SimpleOperators")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .superClasses(Arrays.asList("Operator<Integer>"))
+                .build();
+        return new EnumStatement(desc, new BlockStatement(Arrays.asList(const1, const2)), new ArrayList<>());
+    }
+
+    /**
+     * A <tt>TypeStatement</tt> representing the contents of 'Sample9.java' inside <tt>SAMPLES_DIRECTORY</tt>.
+     *
+     * @return
+     */
+    private static TypeStatement sample9() {
+        // Constants
+        EnumConstantStatement const1 = createEnumConstant("USD", Arrays.asList(new UnitExpression(LITERAL, "1.10")));
+        EnumConstantStatement const2 = createEnumConstant("GBP", Arrays.asList(new UnitExpression(LITERAL, "1")));
+
+        // Body
+        UnitExpression valueIdent = new UnitExpression(IDENTIFIER, "value");
+        UnitExpression thisRef = new UnitExpression(THIS, "this");
+
+        InstanceVariableStatement variable = new InstanceVariableStatement(
+                InstanceVariableDescriptor.Builder.allFalse("value")
+                        .finalModifier(true)
+                        .visibilityModifier(VisibilityModifier.PRIVATE)
+                        .identifierType("double")
+                        .build(), new ArrayList<>(), Optional.empty());
+
+        BlockStatement constructorBlock = new BlockStatement(Arrays.asList(new ExpressionStatement(
+                new BinaryExpression(new BinaryExpression(
+                        thisRef, BinaryOperation.DOT, valueIdent), BinaryOperation.ASSIGN, valueIdent))
+        ));
+        ConstructorStatement constructor = new ConstructorStatement.Builder("Currency")
+                .visibilityModifier(VisibilityModifier.PRIVATE)
+                .parameterCount(1)
+                .block(constructorBlock)
+                .parameters(Arrays.asList(new ParameterVariableStatement(new ParameterVariableDescriptor.Builder()
+                        .identifierName("value")
+                        .identifierType("double")
+                        .finalModifier(false)
+                        .build(), new ArrayList<>())))
+                .build();
+
+        ReturnStatement returnSt = new ReturnStatement(valueIdent);
+        MethodStatement method = new MethodStatement(MethodDescriptor.Builder.allFalse("getValue")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .returnType("double")
+                .parameterCount(0)
+                .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(returnSt)), new ArrayList<>());
+
+        // Top-level enum
+        BlockStatement block = new BlockStatement(Arrays.asList(const1, const2, variable, constructor, method));
+        EnumDescriptor desc = EnumDescriptor.Builder.allFalse("Currency")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .build();
+        return new EnumStatement(desc, block, new ArrayList<>());
     }
 
     @Parameterized.Parameters(name="{index}: \"{1}\"")
@@ -356,7 +459,10 @@ public final class JavaCodeGeneratorTest {
                 {sample3(), "Sample3.java"},
                 {sample4(), "Sample4.java"},
                 {sample5(), "Sample5.java"},
-                {sample6(), "Sample6.java"}
+                {sample6(), "Sample6.java"},
+                {sample7(), "Sample7.java"},
+                {sample8(), "Sample8.java"},
+                {sample9(), "Sample9.java"}
         });
     }
 
@@ -378,6 +484,18 @@ public final class JavaCodeGeneratorTest {
 
     private static LocalVariableStatements createLocals(LocalVariableStatement... locals) {
         return new LocalVariableStatements(Arrays.asList(locals));
+    }
+
+    private static EnumConstantStatement createEnumConstant(String identifierName) {
+        return createEnumConstant(identifierName, BlockStatement.EMPTY);
+    }
+
+    private static EnumConstantStatement createEnumConstant(String identifierName, List<Expression> expressions) {
+        return new EnumConstantStatement(identifierName, expressions, BlockStatement.EMPTY, new ArrayList<>());
+    }
+
+    private static EnumConstantStatement createEnumConstant(String identifierName, BlockStatement block) {
+        return new EnumConstantStatement(identifierName, new ArrayList<>(), block, new ArrayList<>());
     }
 
     @Test

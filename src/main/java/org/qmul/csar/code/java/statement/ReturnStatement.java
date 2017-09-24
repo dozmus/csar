@@ -15,6 +15,10 @@ public class ReturnStatement implements Statement {
         this.expression = expression;
     }
 
+    public ReturnStatement(Expression expression) {
+        this.expression = Optional.of(expression);
+    }
+
     public Optional<Expression> getExpression() {
         return expression;
     }

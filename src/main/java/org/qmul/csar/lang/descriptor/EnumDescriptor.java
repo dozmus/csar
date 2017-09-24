@@ -4,6 +4,7 @@ import org.qmul.csar.lang.Descriptor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class EnumDescriptor implements Descriptor {
@@ -60,6 +61,27 @@ public class EnumDescriptor implements Descriptor {
 
     public List<String> getSuperClasses() {
         return superClasses;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EnumDescriptor that = (EnumDescriptor) o;
+        return Objects.equals(identifierName, that.identifierName)
+                && Objects.equals(visibilityModifier, that.visibilityModifier)
+                && Objects.equals(staticModifier, that.staticModifier)
+                && Objects.equals(finalModifier, that.finalModifier)
+                && Objects.equals(abstractModifier, that.abstractModifier)
+                && Objects.equals(strictfpModifier, that.strictfpModifier)
+                && Objects.equals(inner, that.inner)
+                && Objects.equals(superClasses, that.superClasses);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifierName, visibilityModifier, staticModifier, finalModifier, abstractModifier,
+                strictfpModifier, inner, superClasses);
     }
 
     @Override
