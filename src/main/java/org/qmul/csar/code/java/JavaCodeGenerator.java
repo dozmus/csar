@@ -53,7 +53,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static void applyAnnotationDefinitionModifiers(AnnotationDescriptor.Builder builder,
+    private static void applyModifiers(AnnotationDescriptor.Builder builder,
             List<ClassOrInterfaceModifierContext> ctxs) {
         for (ClassOrInterfaceModifierContext mod : ctxs) {
             if (mod.PUBLIC() != null) {
@@ -70,7 +70,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static void applyEnumModifiers(EnumDescriptor.Builder builder, List<ClassOrInterfaceModifierContext> ctxs) {
+    private static void applyModifiers(EnumDescriptor.Builder builder, List<ClassOrInterfaceModifierContext> ctxs) {
         for (ClassOrInterfaceModifierContext mod : ctxs) {
             if (mod.PUBLIC() != null) {
                 builder.visibilityModifier(VisibilityModifier.PUBLIC);
@@ -88,7 +88,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static void applyMethodModifiers(MethodDescriptor.Builder builder, ModifierContext mod) {
+    private static void applyModifier(MethodDescriptor.Builder builder, ModifierContext mod, boolean ignoreFinal) {
         if (mod.NATIVE() != null) {
             builder.nativeModifier(true);
         }
@@ -98,39 +98,40 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
         ClassOrInterfaceModifierContext mods = mod.classOrInterfaceModifier();
 
-        if (mods != null) {
-            if (mods.PUBLIC() != null) {
-                builder.visibilityModifier(VisibilityModifier.PUBLIC);
-            } else if (mods.PRIVATE() != null) {
-                builder.visibilityModifier(VisibilityModifier.PRIVATE);
-            } else if (mods.PROTECTED() != null) {
-                builder.visibilityModifier(VisibilityModifier.PROTECTED);
-            } else if (mods.ABSTRACT() != null) {
-                builder.abstractModifier(true);
-            } else if (mods.FINAL() != null) {
-                builder.finalModifier(true);
-            } else if (mods.STATIC() != null) {
-                builder.staticModifier(true);
-            } else if (mods.STRICTFP() != null) {
-                builder.strictfpModifier(true);
-            }
+        if (mods == null)
+            return;
+
+        if (mods.PUBLIC() != null) {
+            builder.visibilityModifier(VisibilityModifier.PUBLIC);
+        } else if (mods.PRIVATE() != null) {
+            builder.visibilityModifier(VisibilityModifier.PRIVATE);
+        } else if (mods.PROTECTED() != null) {
+            builder.visibilityModifier(VisibilityModifier.PROTECTED);
+        } else if (mods.ABSTRACT() != null) {
+            builder.abstractModifier(true);
+        } else if (mods.FINAL() != null && !ignoreFinal) {
+            builder.finalModifier(true);
+        } else if (mods.STATIC() != null) {
+            builder.staticModifier(true);
+        } else if (mods.STRICTFP() != null) {
+            builder.strictfpModifier(true);
         }
     }
 
-    private static void applyInterfaceMethodModifiers(MethodDescriptor.Builder builder,
-            InterfaceMethodModifierContext mod) {
-        if (mod != null) {
-            if (mod.PUBLIC() != null) {
-                builder.visibilityModifier(VisibilityModifier.PUBLIC);
-            } else if (mod.ABSTRACT() != null) {
-                builder.abstractModifier(true);
-            } else if (mod.DEFAULT() != null) {
-                builder.defaultModifier(true);
-            } else if (mod.STATIC() != null) {
-                builder.staticModifier(true);
-            } else if (mod.STRICTFP() != null) {
-                builder.strictfpModifier(true);
-            }
+    private static void applyModifier(MethodDescriptor.Builder builder, InterfaceMethodModifierContext mod) {
+        if (mod == null)
+            return;
+
+        if (mod.PUBLIC() != null) {
+            builder.visibilityModifier(VisibilityModifier.PUBLIC);
+        } else if (mod.ABSTRACT() != null) {
+            builder.abstractModifier(true);
+        } else if (mod.DEFAULT() != null) {
+            builder.defaultModifier(true);
+        } else if (mod.STATIC() != null) {
+            builder.staticModifier(true);
+        } else if (mod.STRICTFP() != null) {
+            builder.strictfpModifier(true);
         }
     }
 
@@ -342,7 +343,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, throwsCtx, overridden);
 
         // Modifiers
-        modifiers.forEach(mod -> applyMethodModifiers(builder, mod));
+        modifiers.forEach(mod -> applyModifier(builder, mod, false));
 
         // Type parameters
         builder.typeParameters(parseTypeParameters(typeParametersCtx));
@@ -378,8 +379,8 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, throwsCtx, overridden);
 
         // Modifiers
-        intBodyMods.forEach(mod -> applyMethodModifiers(builder, mod));
-        modifiers.forEach(mod -> applyInterfaceMethodModifiers(builder, mod));
+        intBodyMods.forEach(mod -> applyModifier(builder, mod, true));
+        modifiers.forEach(mod -> applyModifier(builder, mod));
 
         // Type parameters
         builder.typeParameters(parseTypeParameters(typeParametersCtx));
@@ -934,7 +935,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE);
 
         // Modifiers
-        applyAnnotationDefinitionModifiers(builder, modifiers);
+        applyModifiers(builder, modifiers);
 
         // Body
         BlockStatement block = parseAnnotationBody(dec.annotationTypeBody().annotationTypeElementDeclaration());
@@ -1033,7 +1034,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE);
 
         // Class modifiers
-        applyEnumModifiers(builder, classOrInterfaceModifierContexts);
+        applyModifiers(builder, classOrInterfaceModifierContexts);
 
         // Implemented interfaces
         builder.superClasses(parseTypesList(dec.typeList()));
