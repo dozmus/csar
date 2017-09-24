@@ -20,7 +20,9 @@ import static org.qmul.csar.code.java.expression.UnitExpression.ValueType.*;
 @RunWith(value = Parameterized.class)
 public final class JavaCodeGeneratorTest {
 
-    // TODO add enum and annotation tests
+    private static final BinaryExpression SYSTEM_OUT_PRINTLN = new BinaryExpression(new BinaryExpression(
+            new UnitExpression(IDENTIFIER, "System"), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")),
+            BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
 
     /**
      * Directory of the java code files.
@@ -152,9 +154,7 @@ public final class JavaCodeGeneratorTest {
                 new ArrayList<>(), Optional.of(new UnitExpression(LITERAL, "1000")));
 
         // Method #1
-        Expression methodName = new BinaryExpression(new BinaryExpression(new UnitExpression(IDENTIFIER, "System"),
-                BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")
-        ), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
+        Expression methodName = SYSTEM_OUT_PRINTLN;
         List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "s"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
@@ -244,9 +244,7 @@ public final class JavaCodeGeneratorTest {
                 .build(), Optional.of(new UnitExpression(LITERAL, "30")), new ArrayList<>());
         LocalVariableStatements locals = new LocalVariableStatements(Arrays.asList(local));
 
-        Expression methodName = new BinaryExpression(new BinaryExpression(new UnitExpression(IDENTIFIER, "System"),
-                BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")),
-                BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
+        Expression methodName = SYSTEM_OUT_PRINTLN;
         List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "x"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
@@ -486,6 +484,82 @@ public final class JavaCodeGeneratorTest {
                 .build(), new BlockStatement(Arrays.asList(author, date)), Arrays.asList(apiClassAnnotation));
     }
 
+    /**
+     * A <tt>TypeStatement</tt> representing the contents of 'Sample11.java' inside <tt>SAMPLES_DIRECTORY</tt>.
+     *
+     * @return
+     */
+    private static TypeStatement sample11() {
+        UnitExpression helloWorldLiteral = new UnitExpression(LITERAL, "\"Hello World\"");
+        ExpressionStatement exprSt = new ExpressionStatement(
+                new MethodCallExpression(SYSTEM_OUT_PRINTLN, Arrays.asList(helloWorldLiteral)));
+
+        // Runnable #1
+        LambdaExpression lambdaExpr1 = new LambdaExpression(new LambdaParameter.ParameterVariables(), exprSt);
+        LocalVariableStatements r1 = new LocalVariableStatements(Arrays.asList(
+                new LocalVariableStatement(new LocalVariableDescriptor.Builder("r1")
+                        .identifierType("Runnable")
+                        .finalModifier(false)
+                        .build(), Optional.of(lambdaExpr1), new ArrayList<>())
+        ));
+
+        // Runnable #2
+        LambdaExpression lambdaExpr2 = new LambdaExpression(new LambdaParameter.ParameterVariables(),
+                new BlockStatement(Arrays.asList(exprSt)));
+        LocalVariableStatements r2 = new LocalVariableStatements(Arrays.asList(
+                new LocalVariableStatement(new LocalVariableDescriptor.Builder("r2")
+                        .identifierType("Runnable")
+                        .finalModifier(false)
+                        .build(), Optional.of(lambdaExpr2), new ArrayList<>())
+        ));
+
+        // Binary Operation #1
+        LambdaExpression lambdaExpr3 = new LambdaExpression(new LambdaParameter.Identifiers(Arrays.asList("a", "b")),
+                new BlockStatement(Arrays.asList(exprSt)));
+        LocalVariableStatements bo1 = new LocalVariableStatements(Arrays.asList(
+                new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
+                        .identifierType("BinaryOperation")
+                        .finalModifier(true)
+                        .build(), Optional.of(lambdaExpr3), new ArrayList<>())
+        ));
+
+        // Binary Operation #2
+        LambdaExpression lambdaExpr4 = new LambdaExpression(new LambdaParameter.ParameterVariables(Arrays.asList(
+                createParameter("int", "a", false), createParameter("int", "b", false)
+        )), new BlockStatement(Arrays.asList(exprSt)));
+        LocalVariableStatements bo2 = new LocalVariableStatements(Arrays.asList(
+                new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
+                        .identifierType("BinaryOperation")
+                        .finalModifier(false)
+                        .build(), Optional.of(lambdaExpr4), new ArrayList<>())
+        ));
+
+        // Stream API call
+        ExpressionStatement streamApiCall = new ExpressionStatement(
+                new MethodCallExpression(new BinaryExpression(new MethodCallExpression(
+                        new BinaryExpression(new UnitExpression(IDENTIFIER, "variables"),
+                                BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "stream")), new ArrayList<>()),
+                        BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "map")),
+                        Arrays.asList(new UnitExpression(METHOD_REFERENCE, "SerializableCode::toPseudoCode")))
+        );
+
+        // Main method
+        ParameterVariableStatement param = createParameter("String[]", "args", false);
+        MethodStatement mainMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("main")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .staticModifier(true)
+                .returnType("void")
+                .parameters(Arrays.asList(param.getDescriptor()))
+                .parameterCount(1)
+                .build(), Arrays.asList(param), new BlockStatement(Arrays.asList(r1, r2, bo1, bo2, streamApiCall)),
+                new ArrayList<>());
+
+        // Top-level class
+        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample11")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .build(), new BlockStatement(Arrays.asList(mainMethod)), new ArrayList<>());
+    }
+
     @Parameterized.Parameters(name = "{index}: \"{1}\"")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
@@ -498,7 +572,8 @@ public final class JavaCodeGeneratorTest {
                 {sample7(), "Sample7.java"},
                 {sample8(), "Sample8.java"},
                 {sample9(), "Sample9.java"},
-                {sample10(), "Sample10.java"}
+                {sample10(), "Sample10.java"},
+                {sample11(), "Sample11.java"}
         });
     }
 
@@ -511,11 +586,8 @@ public final class JavaCodeGeneratorTest {
     }
 
     private static ParameterVariableStatement createParameter(String type, String identifier, boolean finalModifier) {
-        return new ParameterVariableStatement(new ParameterVariableDescriptor.Builder()
-                .finalModifier(finalModifier)
-                .identifierName(identifier)
-                .identifierType(type)
-                .build(), new ArrayList<>());
+        return new ParameterVariableStatement(
+                new ParameterVariableDescriptor(identifier, type, finalModifier), new ArrayList<>());
     }
 
     private static LocalVariableStatements createLocals(LocalVariableStatement... locals) {

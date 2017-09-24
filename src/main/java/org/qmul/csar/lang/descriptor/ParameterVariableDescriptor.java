@@ -18,6 +18,10 @@ public class ParameterVariableDescriptor implements Descriptor {
         this.finalModifier = finalModifier;
     }
 
+    public ParameterVariableDescriptor(String identifierName, String identifierType, boolean finalModifier) {
+        this(Optional.of(identifierName), Optional.of(identifierType), Optional.of(finalModifier));
+    }
+
     public Optional<String> getIdentifierName() {
         return identifierName;
     }

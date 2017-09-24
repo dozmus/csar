@@ -19,7 +19,6 @@ public class LocalVariableDescriptor extends AbstractVariableDescriptor {
             this.identifierName = identifierName;
         }
 
-
         public Builder identifierType(String identifierType) {
             this.identifierType = Optional.of(identifierType);
             return this;

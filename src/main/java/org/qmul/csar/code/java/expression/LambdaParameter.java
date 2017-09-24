@@ -5,6 +5,7 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +42,11 @@ public interface LambdaParameter extends Expression {
         public String toPseudoCode(int indentation) {
             return StringUtils.indentation(indentation) + identifier;
         }
+
+        @Override
+        public String toString() {
+            return String.format("Identifier{identifier='%s'}", identifier);
+        }
     }
 
     class Identifiers implements LambdaParameter {
@@ -72,11 +78,20 @@ public interface LambdaParameter extends Expression {
         public String toPseudoCode(int indentation) {
             return StringUtils.indentation(indentation) + String.join(", ", identifiers);
         }
+
+        @Override
+        public String toString() {
+            return String.format("Identifiers{identifiers=%s}", identifiers);
+        }
     }
 
     class ParameterVariables implements LambdaParameter {
         
         private final List<ParameterVariableStatement> variables;
+
+        public ParameterVariables() {
+            this(new ArrayList<>());
+        }
 
         public ParameterVariables(List<ParameterVariableStatement> variables) {
             this.variables = Collections.unmodifiableList(variables);
@@ -108,6 +123,11 @@ public interface LambdaParameter extends Expression {
                             variables.stream().map(SerializableCode::toPseudoCode).collect(Collectors.toList())))
                     .append(")")
                     .toString();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("ParameterVariables{variables=%s}", variables);
         }
     }
 }

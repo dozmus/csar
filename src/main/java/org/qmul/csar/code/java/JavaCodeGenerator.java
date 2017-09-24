@@ -527,7 +527,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
             if (params.LPAREN() == null && params.IDENTIFIER().size() == 1) {
                 parameter = new LambdaParameter.Identifier(params.IDENTIFIER(0).getText());
-            } else if (params.LPAREN() == null && params.IDENTIFIER().size() > 0) {
+            } else if (params.LPAREN() != null && params.IDENTIFIER().size() > 0) {
                 List<String> identifiers = new ArrayList<>();
 
                 for (TerminalNode ident : params.IDENTIFIER()) {
@@ -535,16 +535,14 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 }
                 parameter = new LambdaParameter.Identifiers(identifiers);
             } else {
-                parameter = new LambdaParameter.ParameterVariables(
-                        parseParameters(params.formalParameterList()));
+                parameter = new LambdaParameter.ParameterVariables(parseParameters(params.formalParameterList()));
             }
 
             // Body
             if (body.expression() != null) {
                 return new LambdaExpression(parameter, new ExpressionStatement(parseExpression(body.expression())));
             } else {
-                BlockStatement block = parseBlockStatements(body.block());
-                return new LambdaExpression(parameter, block);
+                return new LambdaExpression(parameter, parseBlockStatements(body.block()));
             }
         }
 
