@@ -144,15 +144,14 @@ memberDeclaration
     | enumDeclaration
     ;
 
-/* We use rule this even for void methods which cannot have [] after parameters.
-   This simplifies grammar and we can consider void to be a type, which
-   renders the [] matching as a context-sensitive issue or a semantic check
-   for invalid return type after parsing.
+/**
+ * We use rule this even for void methods which cannot have [] after parameters.
+ * This simplifies grammar and we can consider void to be a type, which
+ * renders the [] matching as a context-sensitive issue or a semantic check
+ * for invalid return type after parsing.
  */
 methodDeclaration
-    : typeTypeOrVoid IDENTIFIER formalParameters (LBRACK RBRACK)*
-      (THROWS qualifiedNameList)?
-      methodBody
+    : typeTypeOrVoid IDENTIFIER formalParameters (LBRACK RBRACK)* (THROWS qualifiedNameList)? methodBody
     ;
 
 methodBody
@@ -206,7 +205,8 @@ constantDeclarator
 // see matching of [] comment in methodDeclaratorRest
 // methodBody from Java 8
 interfaceMethodDeclaration
-    : interfaceMethodModifier* typeTypeOrVoid IDENTIFIER formalParameters (LBRACK RBRACK)* (THROWS qualifiedNameList)? methodBody
+    : interfaceMethodModifier* typeTypeOrVoid IDENTIFIER formalParameters (LBRACK RBRACK)* (THROWS qualifiedNameList)?
+      methodBody
     ;
 
 // Java8
@@ -421,8 +421,9 @@ resource
     : variableModifier* classOrInterfaceType variableDeclaratorId ASSIGN expression
     ;
 
-/** Matches cases then statements, both of which are mandatory.
- *  To handle empty cases at the end, we add switchLabel* to statement.
+/**
+ * Matches cases then statements, both of which are mandatory.
+ * To handle empty cases at the end, we add switchLabel* to statement.
  */
 switchBlockStatementGroup
     : switchLabel+ blockStatement+
@@ -486,7 +487,8 @@ expression
     | expression bop=OR expression
     | expression bop=QUESTION expression COLON expression
     | <assoc=right> expression
-      bop=(ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | AND_ASSIGN | OR_ASSIGN | XOR_ASSIGN | RSHIFT_ASSIGN | URSHIFT_ASSIGN | LSHIFT_ASSIGN | MOD_ASSIGN)
+      bop=(ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | AND_ASSIGN | OR_ASSIGN | XOR_ASSIGN
+      | RSHIFT_ASSIGN | URSHIFT_ASSIGN | LSHIFT_ASSIGN | MOD_ASSIGN)
       expression
     | lambdaExpression // Java8
     ;
