@@ -42,11 +42,12 @@ public final class Main {
 
             // Print help
             if (ctx.isPrintHelp()) {
-                com.usage();
+                printUsage();
                 System.exit(0);
             }
         } catch (ParameterException ex) {
             System.err.println("Error parsing command-line arguments: " + ex.getMessage());
+            printUsage();
             System.exit(1);
         }
 
@@ -54,5 +55,30 @@ public final class Main {
         Csar csar = new Csar(ctx);
         csar.init();
         csar.process();
+    }
+
+    /**
+     * Prints CLI usage. This is hardcoded and should be updated as the CLI changes.
+     */
+    private static void printUsage() {
+        String s = "Usage: java -jar csar.jar [options] search-query\n"
+                + "  Options:\n"
+                + "    --threads, -t\n"
+                + "      Thread count (default: 1)\n"
+                + "    --log-level\n"
+                + "      Log level (default: INFO)\n"
+                + "      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE\n"
+                + "    --format, -f\n"
+                + "      Output format (default: PlainText)\n"
+                + "      Possible Values: PlainText, JSON\n"
+                + "    --output, -o\n"
+                + "      Output file name\n"
+                + "    --narrow-search\n"
+                + "      Narrow search domain (default: true)\n"
+                + "    --project-url, --url\n"
+                + "      Print project URL\n"
+                + "    --help, -h\n"
+                + "      Print help information";
+        System.out.println(s);
     }
 }

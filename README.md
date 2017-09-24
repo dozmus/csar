@@ -9,21 +9,17 @@ code in the repository (and staging area) will be searched. This can be toggled 
 Usage: java -jar csar.jar [options] Search query
   Options:
     --threads, -t
-      Thread count
-      Default: 1
+      Thread count (default: 1)
     --log-level
-      Log level
-      Default: INFO
+      Log level (default: INFO)
       Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
     --format, -f
-      Output format
-      Default: PlainText
+      Output format (default: PlainText)
       Possible Values: PlainText, JSON
     --output, -o
       Output file name
     --narrow-search
-      Default: true
-      Narrow search domain
+      Narrow search domain (default: true)
     --project-url, --url
       Print project URL
     --help, -h
