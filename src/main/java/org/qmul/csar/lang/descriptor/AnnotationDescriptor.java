@@ -2,6 +2,8 @@ package org.qmul.csar.lang.descriptor;
 
 import org.qmul.csar.lang.Descriptor;
 
+import java.util.Objects;
+
 public class AnnotationDescriptor implements Descriptor {
 
     private final String identifierName;
@@ -37,6 +39,23 @@ public class AnnotationDescriptor implements Descriptor {
 
     public boolean isInner() {
         return inner;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnnotationDescriptor that = (AnnotationDescriptor) o;
+        return abstractModifier == that.abstractModifier
+                && strictfpModifier == that.strictfpModifier
+                && inner == that.inner
+                && Objects.equals(identifierName, that.identifierName)
+                && visibilityModifier == that.visibilityModifier;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifierName, visibilityModifier, abstractModifier, strictfpModifier, inner);
     }
 
     @Override

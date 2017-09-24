@@ -451,7 +451,42 @@ public final class JavaCodeGeneratorTest {
         return new EnumStatement(desc, block, new ArrayList<>());
     }
 
-    @Parameterized.Parameters(name="{index}: \"{1}\"")
+    /**
+     * A <tt>TypeStatement</tt> representing the contents of 'Sample10.java' inside <tt>SAMPLES_DIRECTORY</tt>.
+     *
+     * @return
+     */
+    private static TypeStatement sample10() {
+        Annotation apiClassAnnotation = new Annotation("ApiClass",
+                Optional.of(new Annotation.Values("ApiClass",
+                        Arrays.asList(new Annotation.ExpressionValue("author",
+                                new UnitExpression(LITERAL, "\"Deniz Ozmus\"")))))
+        );
+
+        Annotation authorMethodAnnotation = new Annotation("Metadata",
+                Optional.of(new Annotation.Values("Metadata",
+                        Arrays.asList(new Annotation.ExpressionValue("author", new UnitExpression(LITERAL, "\"DO\"")),
+                                new Annotation.ExpressionValue("since", new UnitExpression(LITERAL, "1.0")))))
+        );
+        AnnotationStatement.AnnotationMethod author = new AnnotationStatement.AnnotationMethod(
+                VisibilityModifier.PACKAGE_PRIVATE, false, "author", Optional.empty(),
+                Arrays.asList(authorMethodAnnotation));
+
+        AnnotationStatement.AnnotationMethod date = new AnnotationStatement.AnnotationMethod(
+                VisibilityModifier.PACKAGE_PRIVATE, false, "date",
+                Optional.of(new Annotation.ExpressionValue("date", new UnitExpression(LITERAL, "\"N/A\""))),
+                Arrays.asList(new Annotation("Deprecated", Optional.empty())));
+
+        // Top-level annotation type
+        return new AnnotationStatement(new AnnotationDescriptor.Builder("FileChange")
+                .visibilityModifier(VisibilityModifier.PUBLIC)
+                .inner(false)
+                .abstractModifier(false)
+                .strictfpModifier(false)
+                .build(), new BlockStatement(Arrays.asList(author, date)), Arrays.asList(apiClassAnnotation));
+    }
+
+    @Parameterized.Parameters(name = "{index}: \"{1}\"")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {sample1(), "Sample1.java"},
@@ -462,7 +497,8 @@ public final class JavaCodeGeneratorTest {
                 {sample6(), "Sample6.java"},
                 {sample7(), "Sample7.java"},
                 {sample8(), "Sample8.java"},
-                {sample9(), "Sample9.java"}
+                {sample9(), "Sample9.java"},
+                {sample10(), "Sample10.java"}
         });
     }
 

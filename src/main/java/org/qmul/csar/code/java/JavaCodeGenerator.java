@@ -211,7 +211,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             for (ElementValuePairContext pair : ctx.elementValuePairs().elementValuePair()) {
                 values.add(parseAnnotationElementValue(pair.IDENTIFIER().getText(), pair.elementValue()));
             }
-            value = Optional.of(new Annotation.StatementValues(identifierName, values));
+            value = Optional.of(new Annotation.Values(identifierName, values));
         } else if (ctx.elementValue() != null) {
             value = Optional.of(parseAnnotationElementValue(identifierName, ctx.elementValue()));
         }
@@ -229,7 +229,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             for (ElementValueContext valCtx : ctx.elementValueArrayInitializer().elementValue()) {
                 expressions.add(parseAnnotationElementValue(identifierName, valCtx));
             }
-            return new Annotation.StatementValues(identifierName, expressions);
+            return new Annotation.Values(identifierName, expressions);
         }
     }
 

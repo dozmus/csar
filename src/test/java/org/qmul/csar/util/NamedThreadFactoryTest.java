@@ -23,7 +23,7 @@ public final class NamedThreadFactoryTest {
         this.expected2 = expected2;
     }
 
-    @Parameterized.Parameters(name="{index}: \"{0}\"")
+    @Parameterized.Parameters(name = "{index}: \"{0}\"")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {"thread-%d", "thread-1", "thread-2"},

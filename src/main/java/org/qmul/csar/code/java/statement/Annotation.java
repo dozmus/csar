@@ -32,8 +32,7 @@ public class Annotation implements Statement {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Annotation that = (Annotation) o;
-        return Objects.equals(identifierName, that.identifierName)
-                && Objects.equals(value, that.value);
+        return Objects.equals(identifierName, that.identifierName) && Objects.equals(value, that.value);
     }
 
     @Override
@@ -78,8 +77,7 @@ public class Annotation implements Statement {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ExpressionValue that = (ExpressionValue) o;
-            return Objects.equals(identifierName, that.identifierName)
-                    && Objects.equals(value, that.value);
+            return Objects.equals(identifierName, that.identifierName) && Objects.equals(value, that.value);
         }
 
         @Override
@@ -113,7 +111,7 @@ public class Annotation implements Statement {
             return identifierName;
         }
 
-        public Statement getValue() {
+        public Annotation getValue() {
             return value;
         }
 
@@ -122,8 +120,7 @@ public class Annotation implements Statement {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             AnnotationValue that = (AnnotationValue) o;
-            return Objects.equals(identifierName, that.identifierName)
-                    && Objects.equals(value, that.value);
+            return Objects.equals(identifierName, that.identifierName) && Objects.equals(value, that.value);
         }
 
         @Override
@@ -143,12 +140,12 @@ public class Annotation implements Statement {
         }
     }
 
-    public static class StatementValues implements Value {
+    public static class Values implements Value {
 
         private final String identifierName;
         private final List<Value> values;
 
-        public StatementValues(String identifierName, List<Value> values) {
+        public Values(String identifierName, List<Value> values) {
             this.identifierName = identifierName;
             this.values = Collections.unmodifiableList(values);
         }
@@ -165,9 +162,8 @@ public class Annotation implements Statement {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            StatementValues that = (StatementValues) o;
-            return Objects.equals(identifierName, that.identifierName)
-                    && Objects.equals(values, that.values);
+            Values that = (Values) o;
+            return Objects.equals(identifierName, that.identifierName) && Objects.equals(values, that.values);
         }
 
         @Override
@@ -177,7 +173,7 @@ public class Annotation implements Statement {
 
         @Override
         public String toString() {
-            return String.format("ValueList{identifierName=%s, values=%s}", identifierName, values);
+            return String.format("Values{identifierName=%s, values=%s}", identifierName, values);
         }
 
         @Override
