@@ -1,8 +1,8 @@
 package org.qmul.csar.query;
 
 import org.junit.Test;
-import org.qmul.csar.lang.descriptor.*;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.descriptor.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,9 +25,11 @@ public final class CsarQueryFactoryTest {
         MethodDescriptor desc = new MethodDescriptor.Builder("add").build();
         ContainsQuery containsQuery = new ContainsQuery.Builder()
                 .addLogicalOperator(LogicalOperator.NOT)
-                .addTargetDescriptor(SearchType.USE, new ClassDescriptor.Builder("MyClass").build())
+                .addTargetDescriptor(new TargetDescriptor(SearchType.USE, new ClassDescriptor.Builder("MyClass")
+                        .build()))
                 .addLogicalOperator(LogicalOperator.OR)
-                .addTargetDescriptor(SearchType.DEF, new ClassDescriptor.Builder("SecondClass").inner(true).build())
+                .addTargetDescriptor(new TargetDescriptor(SearchType.DEF, new ClassDescriptor.Builder("SecondClass")
+                        .inner(true).build()))
                 .build();
         CsarQuery expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.USE), desc))
                 .contains(containsQuery)
@@ -43,9 +45,11 @@ public final class CsarQueryFactoryTest {
         MethodDescriptor desc = new MethodDescriptor.Builder("add").build();
         ContainsQuery containsQuery = new ContainsQuery.Builder()
                 .addLogicalOperator(LogicalOperator.NOT)
-                .addTargetDescriptor(SearchType.USE, new ClassDescriptor.Builder("MyClass").build())
+                .addTargetDescriptor(new TargetDescriptor(SearchType.USE, new ClassDescriptor.Builder("MyClass")
+                        .build()))
                 .addLogicalOperator(LogicalOperator.OR)
-                .addTargetDescriptor(SearchType.DEF, new ClassDescriptor.Builder("SecondClass").inner(true).build())
+                .addTargetDescriptor(new TargetDescriptor(SearchType.DEF, new ClassDescriptor.Builder("SecondClass")
+                        .inner(true).build()))
                 .build();
         CsarQuery expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.USE), desc))
                 .contains(containsQuery)

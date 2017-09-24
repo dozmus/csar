@@ -1,15 +1,83 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.lang.Descriptor;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 public class ContainsQuery {
 
     private final List<ContainsQueryElement> elements;
 
+    /**
+     * Creates a new instance of <tt>ContainsQuery</tt> with the argument elements.
+     *
+     * @param elements the elements this instance will contain
+     */
     public ContainsQuery(List<ContainsQueryElement> elements) {
         this.elements = elements;
+    }
+
+    /**
+     * Returns whether the argument is valid or not. It is valid if the following three criterion hold for its elements:
+     * <ol>
+     *     <li>No consecutive descriptors.</li>
+     *     <li>No consecutive logical operators (unless if <tt>AND</tt> or <tt>OR</tt>, followed by <tt>NOT</tt>).</li>
+     *     <li>First element is not <tt>AND</tt> or <tt>OR</tt>.</li>
+     *     <li>Last element is not <tt>AND</tt>, <tt>NOT</tt> or <tt>OR</tt>.</li>
+     * </ol>
+     *
+     * @param containsQuery the query whose elements to validate
+     * @return if the argument is valid
+     */
+    public static boolean validate(ContainsQuery containsQuery) {
+        List<ContainsQueryElement> elements = containsQuery.getElements();
+
+        if (elements.size() == 0)
+            return true;
+
+        // First element
+        if (elements.get(0) instanceof ContainsQueryElement.LogicalOperator) {
+            ContainsQueryElement.LogicalOperator op = ((ContainsQueryElement.LogicalOperator) elements.get(0));
+
+            if (op.getLogicalOperator() == LogicalOperator.AND || op.getLogicalOperator() == LogicalOperator.OR) {
+                return false;
+            }
+        }
+
+        // Last element
+        int n = elements.size();
+
+        if (elements.get(n - 1) instanceof ContainsQueryElement.LogicalOperator) {
+            return false;
+        }
+
+        // Body
+        for (int i = 0; i < n; i++) {
+            ContainsQueryElement currentElement = elements.get(i);
+
+            if (i + 1 >= n) // has no next element
+                continue;
+            ContainsQueryElement nextElement = elements.get(i + 1);
+
+            // Consecutive descriptors
+            if (currentElement instanceof ContainsQueryElement.TargetDescriptor
+                    && nextElement instanceof ContainsQueryElement.TargetDescriptor) {
+                return false;
+            }
+
+            // Consecutive logical operators
+            if (currentElement instanceof ContainsQueryElement.LogicalOperator
+                    && nextElement instanceof ContainsQueryElement.LogicalOperator) {
+                LogicalOperator curOp = ((ContainsQueryElement.LogicalOperator) currentElement).getLogicalOperator();
+                LogicalOperator nextOp = ((ContainsQueryElement.LogicalOperator) nextElement).getLogicalOperator();
+
+                if (nextOp != LogicalOperator.NOT || curOp == LogicalOperator.NOT) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public List<ContainsQueryElement> getElements() {
@@ -44,11 +112,6 @@ public class ContainsQuery {
 
         public Builder addTargetDescriptor(TargetDescriptor element) {
             return add(new ContainsQueryElement.TargetDescriptor(element));
-        }
-
-        public Builder addTargetDescriptor(SearchType type, Descriptor descriptor) {
-            TargetDescriptor td = new TargetDescriptor(Optional.of(type), descriptor);
-            return add(new ContainsQueryElement.TargetDescriptor(td));
         }
 
         public Builder add(ContainsQueryElement element) {

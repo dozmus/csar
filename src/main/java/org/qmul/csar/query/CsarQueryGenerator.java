@@ -54,7 +54,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         } else if (ctx.variable() != null) {
             return parseVariable(ctx.variable());
         } else if (ctx.conditional() != null) {
-            return parseControlflow(ctx.conditional());
+            return parseConditional(ctx.conditional());
         } else {
             return parseComment(ctx.comment());
         }
@@ -214,7 +214,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
     }
 
-    private static TargetDescriptor parseControlflow(ConditionalContext ctx) {
+    private static TargetDescriptor parseConditional(ConditionalContext ctx) {
         Descriptor descriptor;
 
         if (ctx.if0() != null) {
@@ -309,7 +309,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
     public void enterContainsQuery(ContainsQueryContext ctx) {
         // Logical operators
         if (ctx.NOT() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.NOT));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(LogicalOperator.NOT));
         }
 
         // Language element
@@ -321,13 +321,13 @@ class CsarQueryGenerator extends CsarParserBaseListener {
     public void enterContainsQueryRest(ContainsQueryRestContext ctx) {
         // Logical operators
         if (ctx.AND() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.AND));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(LogicalOperator.AND));
         } else if (ctx.OR() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.OR));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(LogicalOperator.OR));
         }
 
         if (ctx.NOT() != null) {
-            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(org.qmul.csar.query.LogicalOperator.NOT));
+            containsQueryElements.add(new ContainsQueryElement.LogicalOperator(LogicalOperator.NOT));
         }
 
         // Language element
@@ -336,8 +336,13 @@ class CsarQueryGenerator extends CsarParserBaseListener {
     }
 
     @Override
-    public void exitContainsQueryRest(ContainsQueryRestContext ctx) {
-        containsQuery = Optional.of(new ContainsQuery(containsQueryElements));
+    public void exitContainsQuery(ContainsQueryContext ctx) {
+        ContainsQuery containsQuery = new ContainsQuery(containsQueryElements);
+
+        if (!ContainsQuery.validate(containsQuery)) {
+            throw new RuntimeException("invalid contains query elements");
+        }
+        this.containsQuery = Optional.of(containsQuery);
     }
 
     @Override

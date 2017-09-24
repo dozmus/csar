@@ -15,6 +15,10 @@ public class TargetDescriptor {
         this.descriptor = descriptor;
     }
 
+    public TargetDescriptor(SearchType searchType, Descriptor descriptor) {
+        this(Optional.of(searchType), descriptor);
+    }
+
     public TargetDescriptor(Descriptor descriptor) {
         this(Optional.empty(), descriptor);
     }
