@@ -1,89 +1,43 @@
 package org.qmul.csar.io;
 
-import org.qmul.csar.code.CodeParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Iterates over files in the specified directory aggregating accepted ones. The code files may be narrowed down further
- * if the folder is a git repository (if successful).
- *
- * @see CodeParserFactory#accepts(Path)
- * @see #scanGitDir()
+ * Recursively iterates over files in the specified directory aggregating them.
  */
 public class ProjectIterator implements Iterator<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectIterator.class);
-    private final boolean narrowSearch;
     private final Path directory;
     private List<Path> files = new ArrayList<>(); // the element collection
     private int cursor = 0; // the index of the next element to return
-    private boolean initialized;
+    protected boolean initialized;
 
     /**
-     * Creates a new instance with the argument directory and <tt>narrowSearch</tt> set to <tt>true</tt>.
+     * Creates a new instance with the argument directory.
      *
      * @param directory the directory to search for files in
      */
     public ProjectIterator(Path directory) {
-        this(directory, true);
-    }
-
-    /**
-     * Creates a new instance.
-     *
-     * @param directory the directory to search for files in
-     * @param narrowSearch if the directory is home to a git repository, then if only files in the git
-     *         repository should be searched
-     */
-    public ProjectIterator(Path directory, boolean narrowSearch) {
         this.directory = directory;
-        this.narrowSearch = narrowSearch;
     }
 
     /**
      * Finds the code files in the working directory and stores them in {@link #files}.
      */
-    private void init() {
+    public void init() {
         LOGGER.info("Scanning project directory: {}", directory.toString());
-        boolean gitRepository = Files.isDirectory(Paths.get(directory.toString(), ".git"));
-
-        // Find files
-        if (gitRepository && narrowSearch) {
-            scanGitDir();
-        } else {
-            scanDir();
-        }
+        scanDir();
         initialized = true;
-    }
-
-    /**
-     * Finds code files in a git repository, which are in the staging area or have been committed. This is done by
-     * creating an instance of the git program. Failure will result in {@link #scanDir()} being called instead.
-     *
-     * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
-     * @see CodeParserFactory#accepts(Path)
-     * @see GitProcessHelper#lsFiles()
-     */
-    private void scanGitDir() {
-        LOGGER.trace("Scanning git repository");
-
-        try {
-            List<Path> output = GitProcessHelper.lsFiles();
-            output.stream().filter(CodeParserFactory::accepts).forEach(this::addFile);
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            scanDir();
-        }
     }
 
     /**
@@ -99,14 +53,13 @@ public class ProjectIterator implements Iterator<Path> {
      *
      * @param path the directory to be searched
      * @param recursive if the directory should be searched recursively
-     * @see CodeParserFactory#accepts(Path)
      * @see ProjectFileVisitor
      */
     private void scanDir(Path path, boolean recursive) {
         try {
-            ProjectFileVisitor fileVisitor = new ProjectFileVisitor(recursive, CodeParserFactory::accepts);
-            Files.walkFileTree(path, fileVisitor);
-            files.addAll(fileVisitor.getFiles());
+            ProjectFileVisitor visitor = new ProjectFileVisitor(recursive);
+            Files.walkFileTree(path, visitor);
+            files.addAll(visitor.getFiles());
         } catch (IOException e) {
             LOGGER.error("Error scanning directory: {}", e.getMessage());
         }
@@ -114,6 +67,10 @@ public class ProjectIterator implements Iterator<Path> {
 
     protected void addFile(Path path) {
         files.add(path);
+    }
+
+    public Path getDirectory() {
+        return directory;
     }
 
     @Override

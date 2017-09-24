@@ -1,6 +1,7 @@
 package org.qmul.csar;
 
 import org.qmul.csar.io.ProjectIterator;
+import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public final class Csar {
      * @param ctx the details of should be performed
      */
     public Csar(CsarContext ctx) {
-        this(ctx, new ProjectIterator(ctx.getDirectory(), ctx.isNarrowSearch()));
+        this(ctx, ProjectIteratorFactory.create(ctx.getDirectory(), ctx.isNarrowSearch()));
     }
 
     /**

@@ -20,17 +20,14 @@ public class ProjectFileVisitor extends SimpleFileVisitor<Path> {
 
     private final List<Path> files = new ArrayList<>();
     private final boolean recursive;
-    private final Predicate<Path> acceptor;
 
     /**
      * Creates a new ProjectFileVisitor.
      *
      * @param recursive if directories should be recursively iterated
-     * @param acceptor the predicate which determines which files are aggregated
      */
-    public ProjectFileVisitor(boolean recursive, Predicate<Path> acceptor) {
+    public ProjectFileVisitor(boolean recursive) {
         this.recursive = recursive;
-        this.acceptor = acceptor;
     }
 
     @Override
@@ -40,9 +37,7 @@ public class ProjectFileVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        if (acceptor.test(file)) {
-            files.add(file);
-        }
+        files.add(file);
         return super.visitFile(file, attrs);
     }
 
