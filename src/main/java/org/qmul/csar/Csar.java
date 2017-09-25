@@ -1,7 +1,10 @@
 package org.qmul.csar;
 
+import org.qmul.csar.code.AbstractProjectCodeParser;
+import org.qmul.csar.code.ProjectCodeParser;
 import org.qmul.csar.io.ProjectIterator;
 import org.qmul.csar.io.ProjectIteratorFactory;
+import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
 import org.slf4j.Logger;
@@ -9,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * A code search and refactorer.
@@ -65,12 +69,12 @@ public final class Csar {
 
         // Parse code
         LOGGER.trace("Parsing code...");
-        CodeParser parser = new CodeParser(it, ctx.getThreads());
+        AbstractProjectCodeParser parser = new ProjectCodeParser(it, ctx.getThreads());
 
-        try {
-            parser.runAndWait();
-        } catch (InterruptedException e) {
-            LOGGER.error("Failed to wait because {}", e.getMessage());
+        Map<Path, Statement> results = parser.results();
+
+        if (parser.errorOccurred()) {
+            System.exit(2);
         }
 
         // TODO search, refactor, print results

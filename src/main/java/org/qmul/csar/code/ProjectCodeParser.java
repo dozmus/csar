@@ -1,6 +1,5 @@
-package org.qmul.csar;
+package org.qmul.csar.code;
 
-import org.qmul.csar.code.CodeParserFactory;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
@@ -9,67 +8,79 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Iterator;
-import java.util.Objects;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A multi-threaded code parser.
+ * A multi-threaded project code parser.
  */
-public final class CodeParser {
+public final class ProjectCodeParser extends AbstractProjectCodeParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeParser.class);
     private final ExecutorService executor;
-    private final Iterator<Path> it;
-    private final int threadCount;
     private final CountDownLatch finishedLatch;
+    private final int threadCount;
+    private boolean errorOccurred = false;
     private boolean running = false;
 
-    public CodeParser(Iterator<Path> it) {
+    public ProjectCodeParser(Iterator<Path> it) {
         this(it, 1);
     }
 
-    public CodeParser(Iterator<Path> it, int threadCount) {
+    public ProjectCodeParser(Iterator<Path> it, int threadCount) {
+        super(it);
+
         if (threadCount <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
-        this.it = Objects.requireNonNull(it);
         this.threadCount = threadCount;
         this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
         this.finishedLatch = new CountDownLatch(threadCount);
     }
 
     /**
-     * Submits tasks to the underlying thread pool to begin processing code files, this is non-blocking.
+     * Submits tasks to the underlying thread pool to begin processing code files, this is blocking, and will return
+     * once finished or if interrupted, with partial results.
+     * If a fatal error occurs all parsing is gracefully terminated, and then {@link #errorOccurred()} is set to
+     * <tt>true</tt>.
      * This should only be called once per instance of this class.
+     * @return a map with parsed files as keys, and the output statements as values.
+     * @throws InterruptedException if the current thread is interrupted while waiting
      */
-    public void run() {
+    @Override
+    public Map<Path, Statement> results() {
         // Check if ready to run
-        if (!it.hasNext()) {
+        if (!getIt().hasNext()) {
             throw new IllegalStateException("no code files available");
         } else if (runningCount() == 0) {
             throw new IllegalStateException("already finished running");
-        } else if (isRunning()) {
+        } else if (running) {
             throw new IllegalStateException("already running");
         }
         running = true;
 
         // Submit tasks
+        final ConcurrentHashMap<Path, Statement> map = new ConcurrentHashMap<>();
         LOGGER.info("Starting...");
 
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 String fileName = "";
+                Statement root;
 
                 try {
                     while (hasNext() && !Thread.currentThread().isInterrupted()) {
                         // Get the next file
                         Path file = next();
                         fileName = file.getFileName().toString();
-                        Statement root;
+                        LOGGER.trace("Parsing {}", fileName);
 
+                        // Parse file
                         try {
                             root = CodeParserFactory.parse(file);
+                            map.put(file, root);
                         } catch (IOException | RuntimeException ex) {
                             String phrase = (ex instanceof IOException) ? "read" : "parse";
                             LOGGER.error("Failed to {} file {} because {}", phrase, fileName, ex.getMessage());
@@ -81,11 +92,9 @@ public final class CodeParser {
                         }
 
                         // Print code tree
-                        if (LOGGER.isTraceEnabled() && root != null) {
+                        if (LOGGER.isTraceEnabled()) {
                             LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                         }
-
-                        // TODO finish?
                         LOGGER.trace("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
@@ -94,27 +103,37 @@ public final class CodeParser {
                     if (LOGGER.isTraceEnabled()) {
                         ex.printStackTrace();
                     }
-                    // TODO this is a fatal error, exit the program
+                    setErrorOccurred();
+                    executor.shutdownNow();
                 } finally {
-                    LOGGER.info("Finished");
+                    LOGGER.trace("Finished");
                     countDown();
                     updateRunning();
                 }
             });
         }
+
+        // Wait for termination
         executor.shutdown();
+
+        try {
+            finishedLatch.await();
+        } catch (InterruptedException e) {
+            String msg = "Error waiting for termination because the current thread was interrupted- terminating tasks.";
+            LOGGER.error(msg);
+            executor.shutdownNow();
+        }
+        LOGGER.info("Finished");
+
+        synchronized (this) {
+            running = false;
+        }
+        return map;
     }
 
-    /**
-     * Executes {@link #run()} and blocks until finished, or an {@link InterruptedException} is thrown.
-     * @throws InterruptedException if the current thread is interrupted while waiting
-     */
-    public void runAndWait() throws InterruptedException {
-        // Run
-        run();
-
-        // Wait
-        finishedLatch.await();
+    @Override
+    public boolean errorOccurred() {
+        return errorOccurred;
     }
 
     /**
@@ -122,8 +141,8 @@ public final class CodeParser {
      * @return {@link #it#hasNext()}
      */
     private boolean hasNext() {
-        synchronized (it) {
-            return it.hasNext();
+        synchronized (getIt()) {
+            return getIt().hasNext();
         }
     }
 
@@ -132,20 +151,22 @@ public final class CodeParser {
      * @return {@link #it#next()}
      */
     private Path next() {
-        synchronized (it) {
-            if (it.hasNext()) {
-                return it.next();
+        synchronized (getIt()) {
+            if (getIt().hasNext()) {
+                return getIt().next();
             }
         }
         throw new IllegalStateException("ran out of code files");
     }
 
-    public synchronized boolean isRunning() {
-        return running;
-    }
-
     private synchronized void updateRunning() {
         running = (runningCount() > 0);
+    }
+
+    private synchronized void setErrorOccurred() {
+        synchronized (this) {
+            errorOccurred = true;
+        }
     }
 
     private long runningCount() {
