@@ -89,7 +89,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
 
                         // Parse file
                         try {
-                            root = CodeParserFactory.parse(file);
+                            root = CodeParserFactory.create(file).parse(file);
                             map.put(file, root);
                         } catch (IOException | RuntimeException ex) {
                             String phrase = (ex instanceof IOException) ? "read" : "parse";

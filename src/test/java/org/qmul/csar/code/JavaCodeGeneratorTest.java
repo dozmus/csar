@@ -10,6 +10,7 @@ import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.*;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -608,6 +609,7 @@ public final class JavaCodeGeneratorTest {
 
     @Test
     public void testValidJavaCode() throws IOException {
-        assertEquals(expected, CodeParserFactory.parse(Paths.get(SAMPLES_DIRECTORY + sampleFileName)));
+        Path sampleFile = Paths.get(SAMPLES_DIRECTORY + sampleFileName);
+        assertEquals(expected, CodeParserFactory.create(sampleFile).parse(sampleFile));
     }
 }

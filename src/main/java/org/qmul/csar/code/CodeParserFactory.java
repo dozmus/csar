@@ -1,7 +1,6 @@
 package org.qmul.csar.code;
 
 import org.qmul.csar.code.java.JavaCodeParser;
-import org.qmul.csar.lang.Statement;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +14,13 @@ public final class CodeParserFactory {
      */
     private static final String[] HANDLED_CODE_FILE_EXTENSIONS = {".java"};
 
-    public static Statement parse(Path file) throws IOException {
+    /**
+     * Returns a suitable {@link CodeParser} for the argument, or throws an exception.
+     * @param file the file for which a {@link CodeParser} is needed
+     * @return a suitable {@link CodeParser} for the argument
+     * @throws IllegalArgumentException if the argument is a directory, does not exist, or is not handled.
+     */
+    public static CodeParser create(Path file) throws IOException {
         if (Files.isDirectory(file))
             throw new IllegalArgumentException("path must not be a directory");
 
@@ -23,16 +28,16 @@ public final class CodeParserFactory {
             throw new IllegalArgumentException("file must exist");
 
         if (file.getFileName().toString().endsWith(".java")) {
-            return new JavaCodeParser().parse(file);
+            return new JavaCodeParser();
         }
         throw new IllegalArgumentException("file extension not handled");
     }
 
     /**
-     * Returns if the argument is a code file for which a parser exists.
+     * Returns <tt>true</tt> if the argument is a code file for which a parser exists.
      *
      * @param path the path to check is accepted
-     * @return if the given file has a defined parser
+     * @return <tt>true</tt> if the given file has a defined parser
      * @see #HANDLED_CODE_FILE_EXTENSIONS
      */
     public static boolean accepts(Path path) {
