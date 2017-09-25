@@ -5,6 +5,9 @@ import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
+/**
+ * A label statement.
+ */
 public class LabelStatement implements Statement {
 
     private final String identifier;

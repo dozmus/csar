@@ -17,6 +17,11 @@ public abstract class AbstractProjectCodeParser {
 
     public abstract Map<Path, Statement> results();
 
+    /**
+     * Returns <tt>true</tt> if an error occurred within {@link #results()} which did not result in an exception being
+     * thrown.
+     * @return <tt>true</tt> if an error occurred within {@link #results()}
+     */
     public abstract boolean errorOccurred();
 
     protected Iterator<Path> getIt() {

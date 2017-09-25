@@ -29,7 +29,7 @@ public final class Csar {
     private Map<Path, Statement> code;
 
     /**
-     * Constructs a new Csar, with a standard {@link ProjectIterator}.
+     * Constructs a new {@link Csar}, with a {@link ProjectIterator} with the configuration detailed in the argument.
      * @param ctx the details of should be performed
      */
     public Csar(CsarContext ctx) {
@@ -40,7 +40,7 @@ public final class Csar {
     }
 
     /**
-     * Constructs a new Csar.
+     * Constructs a new {@link Csar}.
      * @param query the csar query to perform
      * @param parser the project code parser to use
      */
@@ -49,6 +49,10 @@ public final class Csar {
         this.parser = parser;
     }
 
+    /**
+     * Returns <tt>true</tt> if {@link #query} was parsed and assigned to {@link #csarQuery} successfully.
+     * @return <tt>true</tt> if the query was parsed successfully.
+     */
     public boolean parseQuery() {
         LOGGER.trace("Parsing query...");
 
@@ -61,6 +65,10 @@ public final class Csar {
         return true;
     }
 
+    /**
+     * Returns <tt>true</tt> if the code was parsed and the results assigned to {@link #code} successfully.
+     * @return <tt>true</tt> if the code was parsed successfully.
+     */
     public boolean parseCode() {
         LOGGER.trace("Parsing code...");
         code = parser.results();

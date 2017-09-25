@@ -3,6 +3,9 @@ package org.qmul.csar.code.java.statement;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
+/**
+ * A throw statement.
+ */
 public class ThrowStatement extends ExpressionStatement {
 
     public ThrowStatement(Expression expression) {

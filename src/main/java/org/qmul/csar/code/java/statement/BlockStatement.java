@@ -9,12 +9,25 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * A container for a {@link List<Statement>}.
+ */
 public class BlockStatement implements Statement {
 
+    /**
+     * An empty {@link BlockStatement}.
+     */
     public static final BlockStatement EMPTY = new BlockStatement(new ArrayList<>());
 
     private final List<Statement> statements;
 
+    /**
+     * Constructs a new {@link BlockStatement} containing the argument list.
+     * Note: {@link #statements} is assigned the result of calling {@link Collections#unmodifiableList(List)} on the
+     * argument list.
+     * @param statements the statements it should contain
+     * @see #EMPTY
+     */
     public BlockStatement(List<Statement> statements) {
         this.statements = Collections.unmodifiableList(statements);
     }
@@ -38,7 +51,7 @@ public class BlockStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("ExpressionList{statements=%s}", statements);
+        return String.format("BlockStatement{statements=%s}", statements);
     }
 
     @Override

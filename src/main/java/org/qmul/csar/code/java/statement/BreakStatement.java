@@ -6,6 +6,9 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A break statement, with an optional identifier.
+ */
 public class BreakStatement implements Statement {
 
     private final Optional<String> identifier;

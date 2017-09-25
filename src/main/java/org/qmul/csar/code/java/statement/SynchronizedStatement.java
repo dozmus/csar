@@ -6,8 +6,14 @@ import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
+/**
+ * A synchronized statement.
+ */
 public class SynchronizedStatement implements Statement {
 
+    /**
+     * An expression representing the element to lock.
+     */
     private final Expression element;
     private final BlockStatement block;
 

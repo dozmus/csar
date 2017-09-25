@@ -5,6 +5,9 @@ import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
+/**
+ * A static block.
+ */
 public class StaticBlockStatement implements Statement {
 
     private final BlockStatement block;

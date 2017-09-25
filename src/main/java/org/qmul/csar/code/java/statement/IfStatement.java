@@ -7,6 +7,9 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * An if statement.
+ */
 public class IfStatement implements Statement {
 
     private final Expression condition;

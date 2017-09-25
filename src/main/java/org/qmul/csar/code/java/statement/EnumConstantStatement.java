@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * An enum constant.
+ */
 public class EnumConstantStatement implements Statement {
 
     private final String identifierName;

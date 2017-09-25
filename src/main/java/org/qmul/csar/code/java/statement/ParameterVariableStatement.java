@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A constructor, method, or lambda, parameter.
+ */
 public class ParameterVariableStatement implements Statement {
 
     private final ParameterVariableDescriptor descriptor;

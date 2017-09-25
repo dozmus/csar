@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A local variable statement.
+ */
 public class LocalVariableStatement implements Statement {
 
     private final LocalVariableDescriptor descriptor;

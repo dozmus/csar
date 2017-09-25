@@ -7,6 +7,9 @@ import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
+/**
+ * A switch statement.
+ */
 public class SwitchStatement implements Statement {
 
     private final Expression argument;
@@ -50,11 +53,14 @@ public class SwitchStatement implements Statement {
                 StringUtils.LINE_SEPARATOR);
     }
 
+    /**
+     * A switch label statement.
+     */
     public static class SwitchLabelStatement implements Statement {
 
         private Expression labelExpression;
 
-        public SwitchLabelStatement(String literal) { // NOTE 'default' is placed here, if necessary
+        public SwitchLabelStatement(String literal) { // Note: 'default' is placed here, if necessary
             this(new UnitExpression(UnitExpression.ValueType.LITERAL, literal));
         }
 
@@ -62,7 +68,7 @@ public class SwitchStatement implements Statement {
             this.labelExpression = labelExpression;
         }
 
-        public Expression getLabelExpr() {
+        public Expression getLabelExpression() {
             return labelExpression;
         }
 

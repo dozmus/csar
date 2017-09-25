@@ -5,6 +5,9 @@ import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
+/**
+ * A unit expression, that is an irreducible expression.
+ */
 public class UnitExpression implements Expression {
 
     private final ValueType valueType;

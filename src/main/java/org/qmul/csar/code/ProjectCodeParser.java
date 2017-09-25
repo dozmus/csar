@@ -26,10 +26,20 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
     private boolean errorOccurred = false;
     private boolean running = false;
 
+    /**
+     * Creates a new {@link ProjectCodeParser} with the argument iterator and a <tt>threadCount</tt> of <tt>1</tt>.
+     * @param it the {@link Path} iterator whose contents to parse
+     */
     public ProjectCodeParser(Iterator<Path> it) {
         this(it, 1);
     }
 
+    /**
+     * Creates a new {@link ProjectCodeParser} with the arguments.
+     * @param it the {@link Path} iterator whose contents to parse
+     * @param threadCount the amount of threads to use
+     * @throws IllegalArgumentException if <tt>threadCount</tt> is less than or equal to <tt>0</tt>
+     */
     public ProjectCodeParser(Iterator<Path> it, int threadCount) {
         super(it);
 
@@ -41,13 +51,13 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
     }
 
     /**
-     * Submits tasks to the underlying thread pool to begin processing code files, this is blocking, and will return
-     * once finished or if interrupted, with partial results.
-     * If a fatal error occurs all parsing is gracefully terminated, and then {@link #errorOccurred()} is set to
-     * <tt>true</tt>.
+     * Submits tasks to the underlying thread pool to begin processing code files, this is a blocking operation.
+     * If a fatal error occurs then all parsing is gracefully terminated, then {@link #errorOccurred()} is set to
+     * <tt>true</tt> and returns partial results.
+     * If {@link #getIt()} contains no files then an empty map is returned.
      * This should only be called once per instance of this class.
      * @return a map with parsed files as keys, and the output statements as values.
-     * @throws InterruptedException if the current thread is interrupted while waiting
+     * @throws IllegalStateException if it has already been called on this instance, or if it is currently running
      */
     @Override
     public Map<Path, Statement> results() {

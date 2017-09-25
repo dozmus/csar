@@ -6,6 +6,9 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A continue statement, with an optional identifier.
+ */
 public class ContinueStatement implements Statement {
 
     private final Optional<String> identifier;

@@ -7,6 +7,9 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * An assertion statement, it contains the assertion expression and optionally an error message expression.
+ */
 public class AssertStatement implements Statement {
 
     private final Expression expression;

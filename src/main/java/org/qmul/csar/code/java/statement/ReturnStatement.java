@@ -7,6 +7,9 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A return statement, with an optional expression.
+ */
 public class ReturnStatement implements Statement {
 
     private final Optional<Expression> expression;

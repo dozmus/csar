@@ -5,6 +5,9 @@ import org.qmul.csar.lang.Statement;
 
 import java.util.Objects;
 
+/**
+ * A for-each statement.
+ */
 public class ForEachStatement implements Statement {
 
     private final LocalVariableStatement variable;

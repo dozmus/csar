@@ -6,6 +6,9 @@ import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
+/**
+ * A while statement.
+ */
 public class WhileStatement implements Statement {
 
     private final Expression condition;

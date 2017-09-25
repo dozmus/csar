@@ -7,10 +7,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A container for a {@link List<LocalVariableStatement>}.
+ */
 public class LocalVariableStatements implements Statement {
 
     private final List<LocalVariableStatement> locals;
 
+    /**
+     * Constructs a new {@link LocalVariableStatements} containing the argument list.
+     * Note: {@link #locals} is assigned the result of calling {@link Collections#unmodifiableList(List)} on the
+     * argument list.
+     * @param locals the locals it should contain
+     */
     public LocalVariableStatements(List<LocalVariableStatement> locals) {
         this.locals = Collections.unmodifiableList(locals);
     }

@@ -6,6 +6,9 @@ import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
+/**
+ * A do-while statement.
+ */
 public class DoWhileStatement implements Statement {
 
     private final Expression condition;

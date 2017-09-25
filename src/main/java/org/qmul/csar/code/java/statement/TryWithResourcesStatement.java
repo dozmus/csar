@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A try with resources statement.
+ */
 public class TryWithResourcesStatement extends TryStatement {
 
     private final List<LocalVariableStatement> resources;

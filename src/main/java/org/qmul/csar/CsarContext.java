@@ -47,6 +47,10 @@ public class CsarContext {
     @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 8, help = true)
     private boolean printHelp;
 
+    /**
+     * Returns the result of joining together {@link #query} with the space delimeter.
+     * @return {@link #query} joined together with the space delimeter
+     */
     public String getQuery() {
         return String.join(" ", query);
     }
@@ -80,10 +84,11 @@ public class CsarContext {
     }
 
     /**
-     * Returns the project base directory.
-     * @return the project base directory
+     * Returns the base project directory, which is defined as <tt>Paths.get(".")</tt>.
+     * @return the base project directory
      */
     public Path getDirectory() {
+        // TODO allow this to be set in a constructor
         return Paths.get(".");
     }
 }

@@ -8,6 +8,9 @@ import org.qmul.csar.util.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * A constructor.
+ */
 public class ConstructorStatement implements Statement {
 
     private final String identifierName;

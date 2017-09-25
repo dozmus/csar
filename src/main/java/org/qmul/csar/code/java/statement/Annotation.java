@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * An annotation (usage).
+ */
 public class Annotation implements Statement {
 
     private final String identifierName;

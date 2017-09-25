@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A try statement, however this cannot represent a try with resources statement.
+ */
 public class TryStatement implements Statement {
 
     private final BlockStatement block;

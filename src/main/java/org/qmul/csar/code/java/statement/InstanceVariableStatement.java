@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * An instance variable statement.
+ */
 public class InstanceVariableStatement implements Statement {
 
     private final InstanceVariableDescriptor descriptor;

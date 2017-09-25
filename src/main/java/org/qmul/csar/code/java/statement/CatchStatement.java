@@ -4,6 +4,11 @@ import org.qmul.csar.lang.Statement;
 
 import java.util.Objects;
 
+/**
+ * A catch statement, used as an element within try and try-with-resources statements.
+ * @see TryStatement
+ * @see TryWithResourcesStatement
+ */
 public class CatchStatement implements Statement {
 
     private final LocalVariableStatements variable;
