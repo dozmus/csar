@@ -52,12 +52,12 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
     @Override
     public Map<Path, Statement> results() {
         // Check if ready to run
-        if (!getIt().hasNext()) {
-            throw new IllegalStateException("no code files available");
-        } else if (runningCount() == 0) {
+        if (runningCount() == 0) {
             throw new IllegalStateException("already finished running");
         } else if (running) {
             throw new IllegalStateException("already running");
+        } else if (!getIt().hasNext()) {
+            return new ConcurrentHashMap<>();
         }
         running = true;
 

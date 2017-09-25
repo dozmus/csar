@@ -4,6 +4,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.slf4j.impl.SimpleLogger;
 
+/**
+ * Application entry-point, contains the main method. All calls to {@link System#exit(int)} in the project appear here.
+ */
 public final class Main {
 
     /**
@@ -53,8 +56,16 @@ public final class Main {
 
         // Run csar
         Csar csar = new Csar(ctx);
-        csar.init();
-        csar.process();
+
+        if (!csar.parseQuery()) {
+            System.exit(2);
+        }
+
+        if (!csar.parseCode()) {
+            System.exit(3);
+        }
+
+        // TODO search, refactor, print results
     }
 
     /**

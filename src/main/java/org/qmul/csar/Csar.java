@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * A code search and refactorer.
+ * A code search and refactor tool instance.
  */
 public final class Csar {
 
@@ -23,61 +23,47 @@ public final class Csar {
      * The URL of this project on the internet.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
-    private final CsarContext ctx;
-    private final Iterator<Path> it;
+    private final AbstractProjectCodeParser parser;
+    private final String query;
+    private CsarQuery csarQuery;
+    private Map<Path, Statement> code;
 
     /**
      * Constructs a new Csar, with a standard {@link ProjectIterator}.
      * @param ctx the details of should be performed
      */
     public Csar(CsarContext ctx) {
-        this(ctx, ProjectIteratorFactory.create(ctx.getDirectory(), ctx.isNarrowSearch()));
+        Iterator<Path> it = ProjectIteratorFactory.create(ctx.getDirectory(), ctx.isNarrowSearch());
+        AbstractProjectCodeParser parser = new ProjectCodeParser(it, ctx.getThreads());
+        this.query = ctx.getQuery();
+        this.parser = parser;
     }
 
     /**
      * Constructs a new Csar.
-     * @param ctx the details of what it should perform
-     * @param it the project code iterator to use
+     * @param query the csar query to perform
+     * @param parser the project code parser to use
      */
-    public Csar(CsarContext ctx, Iterator<Path> it) {
-        this.ctx = ctx;
-        this.it = it;
+    public Csar(String query, AbstractProjectCodeParser parser) {
+        this.query = query;
+        this.parser = parser;
     }
 
-    public void init() {
-        LOGGER.info("Initializing");
-
-        if (!it.hasNext()) {
-            LOGGER.error("No code files found");
-            System.exit(0);
-        }
-    }
-
-    public void process() {
-        LOGGER.info("Processing");
-
-        // Parse query
+    public boolean parseQuery() {
         LOGGER.trace("Parsing query...");
-        CsarQuery csarQuery;
 
         try {
-            csarQuery = CsarQueryFactory.parse(ctx.getQuery());
+            csarQuery = CsarQueryFactory.parse(query);
         } catch (Exception ex) {
             LOGGER.error("Failed to parse csar query because {}", ex.getMessage());
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // Parse code
+    public boolean parseCode() {
         LOGGER.trace("Parsing code...");
-        AbstractProjectCodeParser parser = new ProjectCodeParser(it, ctx.getThreads());
-
-        Map<Path, Statement> results = parser.results();
-
-        if (parser.errorOccurred()) {
-            System.exit(2);
-        }
-
-        // TODO search, refactor, print results
-        LOGGER.info("Finished");
+        code = parser.results();
+        return !parser.errorOccurred();
     }
 }
