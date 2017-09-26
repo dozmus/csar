@@ -589,7 +589,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
                 if (rest.arrayInitializer() != null) { // squareBrackets squareBrackets* arrayInitializer
                     for (SquareBracketsContext sq : rest.squareBrackets()) {
-                        contents.add(new SquareBracketsExpression(Optional.empty()));
+                        contents.add(new SquareBracketsExpression());
                     }
                     List<Expression> expressions = new ArrayList<>();
 
@@ -604,7 +604,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                     }
 
                     for (SquareBracketsContext sq : rest.squareBrackets()) {
-                        contents.add(new SquareBracketsExpression(Optional.empty()));
+                        contents.add(new SquareBracketsExpression());
                     }
                 }
                 return new ArrayDefinitionExpression(contents);
@@ -690,13 +690,13 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static SwitchStatement.SwitchLabelStatement parseSwitchLabel(SwitchLabelContext ctx) {
+    private static SwitchLabelStatement parseSwitchLabel(SwitchLabelContext ctx) {
         if (ctx.constantExpression != null) {
-            return new SwitchStatement.SwitchLabelStatement(parseExpression(ctx.constantExpression));
+            return new SwitchLabelStatement(parseExpression(ctx.constantExpression));
         } else if (ctx.enumConstantName != null) {
-            return new SwitchStatement.SwitchLabelStatement(ctx.enumConstantName.getText());
+            return new SwitchLabelStatement(ctx.enumConstantName.getText());
         } else {
-            return new SwitchStatement.SwitchLabelStatement("default");
+            return new SwitchLabelStatement("default");
         }
     }
 
@@ -732,13 +732,18 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             List<Statement> elements = new ArrayList<>();
 
             for (SwitchBlockStatementGroupContext group : ctx.switchBlockStatementGroup()) {
-                for (BlockStatementContext block : group.blockStatement()) {
-                    elements.add(parseBlockStatement(block));
-                }
-
+                // Switch label
                 for (SwitchLabelContext label : group.switchLabel()) {
                     elements.add(parseSwitchLabel(label));
                 }
+
+                // Switch body
+                List<Statement> body = new ArrayList<>();
+
+                for (BlockStatementContext block : group.blockStatement()) {
+                    body.add(parseBlockStatement(block));
+                }
+                elements.add(new BlockStatement(body));
             }
 
             for (SwitchLabelContext label : ctx.switchLabel()) {
@@ -796,7 +801,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                         updateExpressions.add(parseExpression(ectx));
                     }
                 }
-                return new ForStatement(initVariables, initExpressions, condition, updateExpressions);
+                return new ForStatement(initVariables, initExpressions, condition, updateExpressions, statement);
             }
         } else if (ctx.IF() != null) {
             Expression condition = new ParenthesisExpression(parseExpression(ctx.parExpression().expression()));

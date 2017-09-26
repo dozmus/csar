@@ -49,6 +49,11 @@ public class TryStatement implements Statement {
     }
 
     @Override
+    public String toString() {
+        return String.format("TryStatement{block=%s, catches=%s, finallyBlock=%s}", block, catches, finallyBlock);
+    }
+
+    @Override
     public String toPseudoCode(int indentation) {
         return "try"; // TODO write
     }

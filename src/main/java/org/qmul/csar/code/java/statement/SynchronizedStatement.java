@@ -12,7 +12,8 @@ import java.util.Objects;
 public class SynchronizedStatement implements Statement {
 
     /**
-     * An expression representing the element to lock.
+     * This is a {@link org.qmul.csar.code.java.expression.ParenthesisExpression}, since the element to lock is
+     * expressed within parentheses.
      */
     private final Expression element;
     private final BlockStatement block;
@@ -42,6 +43,11 @@ public class SynchronizedStatement implements Statement {
     @Override
     public int hashCode() {
         return Objects.hash(element, block);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("SynchronizedStatement{element=%s, block=%s}", element, block);
     }
 
     @Override

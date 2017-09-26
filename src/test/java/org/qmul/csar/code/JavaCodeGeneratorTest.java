@@ -6,6 +6,7 @@ import org.junit.runners.Parameterized;
 import org.qmul.csar.code.java.expression.*;
 import org.qmul.csar.code.java.statement.*;
 import org.qmul.csar.lang.Expression;
+import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.*;
 
@@ -21,9 +22,11 @@ import static org.qmul.csar.code.java.expression.UnitExpression.ValueType.*;
 @RunWith(value = Parameterized.class)
 public final class JavaCodeGeneratorTest {
 
-    private static final BinaryExpression SYSTEM_OUT_PRINTLN = new BinaryExpression(new BinaryExpression(
+    private static final BinaryExpression SOUT_PRINTLN = new BinaryExpression(new BinaryExpression(
             new UnitExpression(IDENTIFIER, "System"), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")),
             BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
+    private static final ExpressionStatement SOUT_PRINTLN_HELLO_WORLD = new ExpressionStatement(
+            new MethodCallExpression(SOUT_PRINTLN, Arrays.asList(new UnitExpression(LITERAL, "\"Hello World\""))));
 
     /**
      * Directory of the java code files.
@@ -155,7 +158,7 @@ public final class JavaCodeGeneratorTest {
                 new ArrayList<>(), Optional.of(new UnitExpression(LITERAL, "1000")));
 
         // Method #1
-        Expression methodName = SYSTEM_OUT_PRINTLN;
+        Expression methodName = SOUT_PRINTLN;
         List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "s"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
@@ -245,7 +248,7 @@ public final class JavaCodeGeneratorTest {
                 .build(), Optional.of(new UnitExpression(LITERAL, "30")), new ArrayList<>());
         LocalVariableStatements locals = new LocalVariableStatements(Arrays.asList(local));
 
-        Expression methodName = SYSTEM_OUT_PRINTLN;
+        Expression methodName = SOUT_PRINTLN;
         List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "x"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
 
@@ -491,12 +494,9 @@ public final class JavaCodeGeneratorTest {
      * @return
      */
     private static TypeStatement sample11() {
-        UnitExpression helloWorldLiteral = new UnitExpression(LITERAL, "\"Hello World\"");
-        ExpressionStatement exprSt = new ExpressionStatement(
-                new MethodCallExpression(SYSTEM_OUT_PRINTLN, Arrays.asList(helloWorldLiteral)));
-
         // Runnable #1
-        LambdaExpression lambdaExpr1 = new LambdaExpression(new LambdaParameter.ParameterVariables(), exprSt);
+        LambdaExpression lambdaExpr1 = new LambdaExpression(new LambdaParameter.ParameterVariables(),
+                SOUT_PRINTLN_HELLO_WORLD);
         LocalVariableStatements r1 = new LocalVariableStatements(Arrays.asList(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("r1")
                         .identifierType("Runnable")
@@ -506,7 +506,7 @@ public final class JavaCodeGeneratorTest {
 
         // Runnable #2
         LambdaExpression lambdaExpr2 = new LambdaExpression(new LambdaParameter.ParameterVariables(),
-                new BlockStatement(Arrays.asList(exprSt)));
+                new BlockStatement(Arrays.asList(SOUT_PRINTLN_HELLO_WORLD)));
         LocalVariableStatements r2 = new LocalVariableStatements(Arrays.asList(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("r2")
                         .identifierType("Runnable")
@@ -516,7 +516,7 @@ public final class JavaCodeGeneratorTest {
 
         // Binary Operation #1
         LambdaExpression lambdaExpr3 = new LambdaExpression(new LambdaParameter.Identifiers(Arrays.asList("a", "b")),
-                new BlockStatement(Arrays.asList(exprSt)));
+                new BlockStatement(Arrays.asList(SOUT_PRINTLN_HELLO_WORLD)));
         LocalVariableStatements bo1 = new LocalVariableStatements(Arrays.asList(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
                         .identifierType("BinaryOperation")
@@ -527,7 +527,7 @@ public final class JavaCodeGeneratorTest {
         // Binary Operation #2
         LambdaExpression lambdaExpr4 = new LambdaExpression(new LambdaParameter.ParameterVariables(Arrays.asList(
                 createParameter("int", "a", false), createParameter("int", "b", false)
-        )), new BlockStatement(Arrays.asList(exprSt)));
+        )), new BlockStatement(Arrays.asList(SOUT_PRINTLN_HELLO_WORLD)));
         LocalVariableStatements bo2 = new LocalVariableStatements(Arrays.asList(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
                         .identifierType("BinaryOperation")
@@ -561,6 +561,247 @@ public final class JavaCodeGeneratorTest {
                 .build(), new BlockStatement(Arrays.asList(mainMethod)), new ArrayList<>());
     }
 
+    /**
+     * A <tt>TypeStatement</tt> representing the contents of 'Sample12.java' inside <tt>SAMPLES_DIRECTORY</tt>.
+     *
+     * @return
+     */
+    private static TypeStatement sample12() {
+        // Frequently used elements
+        final BlockStatement helloWorldBlock = new BlockStatement(Arrays.asList(SOUT_PRINTLN_HELLO_WORLD));
+        final ExpressionStatement aCall = new ExpressionStatement(new MethodCallExpression(identifierUnit("a")));
+        final ExpressionStatement bCall = new ExpressionStatement(new MethodCallExpression(identifierUnit("b")));
+        final ExpressionStatement cCall = new ExpressionStatement(new MethodCallExpression(identifierUnit("c")));
+        final ExpressionStatement errorCall = new ExpressionStatement(new MethodCallExpression(
+                identifierUnit("error")));
+        final MethodCallExpression getLockCall = new MethodCallExpression(identifierUnit("getLock"));
+        final MethodCallExpression supplierCall = new MethodCallExpression(identifierUnit("supplier"));
+        final ParenthesisExpression aEquals3 = new ParenthesisExpression(new BinaryExpression(identifierUnit("a"),
+                BinaryOperation.EQUALS, literalUnit("3")));
+        final ParenthesisExpression aNotEquals3 = new ParenthesisExpression(new BinaryExpression(identifierUnit("a"),
+                BinaryOperation.NOTEQUALS, literalUnit("3")));
+        final ParenthesisExpression bEquals3 = new ParenthesisExpression(new BinaryExpression(identifierUnit("b"),
+                BinaryOperation.EQUALS, literalUnit("3")));
+        final ParenthesisExpression aPlusBNotEqual3 = new ParenthesisExpression(new BinaryExpression(
+                new BinaryExpression(identifierUnit("a"), BinaryOperation.ADD, identifierUnit("b")),
+                BinaryOperation.NOTEQUALS, literalUnit("3")));
+        final BinaryExpression no1Plus1 = new BinaryExpression(literalUnit("1"), BinaryOperation.ADD, literalUnit("1"));
+        final BinaryExpression iLt10 = new BinaryExpression(identifierUnit("i"), BinaryOperation.LT, literalUnit("10"));
+        final BinaryExpression iLtK = new BinaryExpression(identifierUnit("i"), BinaryOperation.LT,
+                identifierUnit("k"));
+        final BinaryExpression ipck = new BinaryExpression(identifierUnit("i"), BinaryOperation.ADD_ASSIGN,
+                identifierUnit("k"));
+        final ParenthesisExpression trueCond = new ParenthesisExpression(literalUnit("true"));
+        final ParenthesisExpression falseCond = new ParenthesisExpression(literalUnit("false"));
+        final PostfixedExpression ipp = new PostfixedExpression(identifierUnit("i"), Postfix.INC);
+
+        // Static block
+        StaticBlockStatement staticBlock1 = new StaticBlockStatement(helloWorldBlock);
+        StaticBlockStatement staticBlock2 = new StaticBlockStatement(BlockStatement.EMPTY);
+
+        // Method #1
+        List<Statement> b1 = new ArrayList<>();
+
+        // If
+        b1.add(new IfStatement(aEquals3, aCall, Optional.empty()));
+        b1.add(new IfStatement(aEquals3, createBlock(bCall), Optional.of(createBlock(cCall))));
+        b1.add(new IfStatement(aEquals3, createBlock(aCall), Optional.of(
+                new IfStatement(bEquals3, createBlock(bCall), Optional.empty()))));
+        b1.add(new IfStatement(aEquals3, createBlock(aCall), Optional.of(
+                new IfStatement(bEquals3, createBlock(bCall), Optional.of(createBlock(cCall))))));
+
+        // While
+        b1.add(new WhileStatement(trueCond, SOUT_PRINTLN_HELLO_WORLD));
+        b1.add(new WhileStatement(aPlusBNotEqual3, createBlock(SOUT_PRINTLN_HELLO_WORLD)));
+
+        // Do-While
+        b1.add(new DoWhileStatement(falseCond, createBlock(bCall)));
+        b1.add(new DoWhileStatement(aEquals3, createBlock(SOUT_PRINTLN_HELLO_WORLD)));
+
+        // Synchronized
+        b1.add(new SynchronizedStatement(new ParenthesisExpression(thisUnit()), createBlock(aCall)));
+        b1.add(new SynchronizedStatement(new ParenthesisExpression(getLockCall), createBlock(SOUT_PRINTLN_HELLO_WORLD)));
+
+        // For-loop
+        LocalVariableStatement localVarI = new LocalVariableStatement(new LocalVariableDescriptor.Builder("i")
+                .identifierType("int")
+                .finalModifier(false)
+                .build(), Optional.of(literalUnit("0")), new ArrayList<>());
+        Optional<LocalVariableStatements> localVars1 = Optional.of(createLocals(localVarI));
+        b1.add(new ForStatement(localVars1, new ArrayList<>(), Optional.of(iLt10), Arrays.asList(ipp),
+                createBlock(aCall)));
+
+        LocalVariableStatement localVarK = new LocalVariableStatement(new LocalVariableDescriptor.Builder("k")
+                .identifierType("int")
+                .finalModifier(false)
+                .build(), Optional.of(literalUnit("3")), new ArrayList<>());
+        Optional<LocalVariableStatements> localVars2 = Optional.of(createLocals(localVarI, localVarK));
+        b1.add(new ForStatement(localVars2, new ArrayList<>(), Optional.of(iLtK), Arrays.asList(ipck),
+                BlockStatement.EMPTY));
+
+        // For-loop with label
+        b1.add(new LabelStatement("for1", new ForStatement(localVars1, new ArrayList<>(), Optional.of(iLt10),
+                Arrays.asList(ipp), createBlock(new BreakStatement(Optional.of("for1"))))));
+
+        // For-each
+        final ExpressionStatement SOUT_PRINTLN_S = new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+                Arrays.asList(identifierUnit("s"))));
+        b1.add(new ForEachStatement(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
+                .identifierType("String")
+                .finalModifier(false)
+                .build(), Optional.empty(), new ArrayList<>()), identifierUnit("list"),
+                createBlock(SOUT_PRINTLN_S)));
+
+        final MethodCallExpression getTypes = new MethodCallExpression(identifierUnit("getTypes"),
+                Arrays.asList(literalUnit("3")));
+        b1.add(new ForEachStatement(new LocalVariableStatement(new LocalVariableDescriptor.Builder("t")
+                .identifierType("Type<K>")
+                .finalModifier(true)
+                .build(), Optional.empty(), new ArrayList<>()), getTypes, createBlock(aCall)));
+
+        // Try
+        b1.add(new TryStatement(createBlock(aCall), new ArrayList<>(), createBlock(bCall)));
+
+        List<CatchStatement> catches1 = Arrays.asList(new CatchStatement(createLocals(
+                        new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
+                                .identifierType("Exception")
+                                .finalModifier(false)
+                                .build(), Optional.empty(), new ArrayList<>())), createBlock(errorCall)));
+        b1.add(new TryStatement(createBlock(aCall), catches1, createBlock(bCall)));
+
+        List<CatchStatement> catches2 = Arrays.asList(new CatchStatement(createLocals(
+                new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
+                        .identifierType("Exception")
+                        .finalModifier(false)
+                        .build(), Optional.empty(), new ArrayList<>()),
+                new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
+                        .identifierType("RuntimeException")
+                        .finalModifier(false)
+                        .build(), Optional.empty(), new ArrayList<>())), createBlock(errorCall)));
+        b1.add(new TryStatement(createBlock(aCall), catches2, BlockStatement.EMPTY));
+
+        // Try-with-resources
+        final LocalVariableStatement resource = new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
+                        .identifierType("StringSupplier")
+                        .finalModifier(false)
+                        .build(), Optional.of(supplierCall), new ArrayList<>());
+
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), new ArrayList<>(), BlockStatement.EMPTY,
+                Arrays.asList(resource)));
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches1, BlockStatement.EMPTY,
+                Arrays.asList(resource)));
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, BlockStatement.EMPTY,
+                Arrays.asList(resource)));
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, createBlock(bCall),
+                Arrays.asList(resource)));
+
+        // Switch
+        BlockStatement switchBlock1 = createBlock(
+                new SwitchLabelStatement("\"a\""), createBlock(aCall, new BreakStatement(Optional.empty())),
+                new SwitchLabelStatement("default"), createBlock(errorCall)
+        );
+        b1.add(new SwitchStatement(new ParenthesisExpression(identifierUnit("s")), switchBlock1));
+
+        BlockStatement switchBlock2 = createBlock(
+                new SwitchLabelStatement("\"a\""), new SwitchLabelStatement("default"), createBlock(aCall),
+                new SwitchLabelStatement(no1Plus1), new SwitchLabelStatement("\"\""), createBlock(bCall)
+        );
+        b1.add(new SwitchStatement(new ParenthesisExpression(
+                new BinaryExpression(identifierUnit("x"), BinaryOperation.ASSIGN, getTypes)
+        ), switchBlock2));
+
+        b1.add(new SwitchStatement(new ParenthesisExpression(literalUnit("3")), BlockStatement.EMPTY));
+
+        MethodStatement method1 = new MethodStatement(MethodDescriptor.Builder.allFalse("a")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .returnType("void")
+                .parameterCount(0)
+                .build(), new ArrayList<>(), new BlockStatement(b1), new ArrayList<>());
+
+        // Method #2
+        List<Statement> b2 = new ArrayList<>();
+
+        // Assert
+        b2.add(new AssertStatement(aNotEquals3, Optional.empty()));
+        b2.add(new AssertStatement(new BinaryExpression(new ArrayAccessExpression(identifierUnit("a"), literalUnit("3")),
+                BinaryOperation.NOTEQUALS, literalUnit("3")), Optional.of(literalUnit("\"a is 3\""))));
+
+        // Break
+        b2.add(new BreakStatement(Optional.empty()));
+        b2.add(new BreakStatement(Optional.of("ident")));
+
+        // Return
+        b2.add(new ReturnStatement(Optional.empty()));
+        b2.add(new ReturnStatement(Optional.of(
+                new TernaryExpression(identifierUnit("a"),
+                        new BinaryExpression(new ParenthesisExpression(literalUnit("1_000")), BinaryOperation.MUL,
+                                literalUnit("1d")),
+                        literalUnit("300"))
+        )));
+
+        // Throw
+        b2.add(new ThrowStatement(new InstantiateClassExpression(createClass(
+                ClassDescriptor.Builder.allFalse("RuntimeException")
+                        .local(true)
+                        .build()),
+                Arrays.asList(literalUnit("\"rtex\"")), new ArrayList<>(), false)));
+
+        // Post-fixed
+        b2.add(new ExpressionStatement(new PostfixedExpression(identifierUnit("i"), Postfix.INC)));
+        b2.add(new ExpressionStatement(new PostfixedExpression(identifierUnit("i"), Postfix.DEC)));
+
+        // Pre-fixed
+        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.ADD)));
+        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.SUB)));
+        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.INC)));
+        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.DEC)));
+        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.TILDE)));
+        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.BANG)));
+
+        // Array expression
+        LocalVariableStatement localArrayVar1 = new LocalVariableStatement(new LocalVariableDescriptor.Builder("a")
+                .identifierType("int[]")
+                .finalModifier(true)
+                .build(),
+                Optional.of(new ArrayExpression(Arrays.asList(literalUnit("1"), literalUnit("\"a\""), supplierCall))),
+                new ArrayList<>());
+        b2.add(createLocals(localArrayVar1));
+
+        // Array definition
+        LocalVariableStatement localArrayVar2 = new LocalVariableStatement(new LocalVariableDescriptor.Builder("a")
+                .identifierType("int[]")
+                .finalModifier(false)
+                .build(),
+                Optional.of(new ArrayDefinitionExpression(Arrays.asList(
+                        new SquareBracketsExpression(Optional.of(literalUnit("3")))
+                ))),
+                new ArrayList<>());
+        b2.add(createLocals(localArrayVar2));
+
+        LocalVariableStatement localArrayVar3 = new LocalVariableStatement(new LocalVariableDescriptor.Builder("a")
+                .identifierType("int[]")
+                .finalModifier(false)
+                .build(),
+                Optional.of(new ArrayDefinitionExpression(Arrays.asList(
+                        new SquareBracketsExpression(Optional.of(literalUnit("3"))),
+                        new SquareBracketsExpression()
+                ))),
+                new ArrayList<>());
+        b2.add(createLocals(localArrayVar3));
+
+        MethodStatement method2 = new MethodStatement(MethodDescriptor.Builder.allFalse("b")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .returnType("void")
+                .parameterCount(0)
+                .build(), new ArrayList<>(), new BlockStatement(b2), new ArrayList<>());
+
+        // Top-level class
+        BlockStatement classBlock = new BlockStatement(Arrays.asList(staticBlock1, staticBlock2, method1, method2));
+        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample12")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .build(), classBlock, new ArrayList<>());
+    }
+
     @Parameterized.Parameters(name = "{index}: \"{1}\"")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
@@ -574,8 +815,25 @@ public final class JavaCodeGeneratorTest {
                 {sample8(), "Sample8.java"},
                 {sample9(), "Sample9.java"},
                 {sample10(), "Sample10.java"},
-                {sample11(), "Sample11.java"}
+                {sample11(), "Sample11.java"},
+                {sample12(), "Sample12.java"}
         });
+    }
+
+    private static BlockStatement createBlock(Statement... block) {
+        return new BlockStatement(Arrays.asList(block));
+    }
+
+    private static UnitExpression thisUnit() {
+        return new UnitExpression(THIS, "this");
+    }
+
+    private static UnitExpression identifierUnit(String identifier) {
+        return new UnitExpression(IDENTIFIER, identifier);
+    }
+
+    private static UnitExpression literalUnit(String value) {
+        return new UnitExpression(LITERAL, value);
     }
 
     private static MethodStatement createMethod(MethodDescriptor desc) {
@@ -587,8 +845,8 @@ public final class JavaCodeGeneratorTest {
     }
 
     private static ParameterVariableStatement createParameter(String type, String identifier, boolean finalModifier) {
-        return new ParameterVariableStatement(
-                new ParameterVariableDescriptor(identifier, type, finalModifier), new ArrayList<>());
+        return new ParameterVariableStatement(new ParameterVariableDescriptor(identifier, type, finalModifier),
+                new ArrayList<>());
     }
 
     private static LocalVariableStatements createLocals(LocalVariableStatement... locals) {

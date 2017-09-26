@@ -3,6 +3,7 @@ package org.qmul.csar.code.java.expression;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +16,10 @@ public class MethodCallExpression implements Expression {
     public MethodCallExpression(Expression methodName, List<Expression> arguments) {
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);
+    }
+
+    public MethodCallExpression(Expression methodName) {
+        this(methodName, new ArrayList<>());
     }
 
     public Expression getMethodName() {

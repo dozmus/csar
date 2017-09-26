@@ -14,6 +14,10 @@ public class SquareBracketsExpression implements Expression {
         this.expression = expression;
     }
 
+    public SquareBracketsExpression() {
+        this(Optional.empty());
+    }
+
     public Optional<Expression> getExpression() {
         return expression;
     }

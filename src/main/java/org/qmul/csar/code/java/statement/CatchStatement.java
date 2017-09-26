@@ -32,8 +32,7 @@ public class CatchStatement implements Statement {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CatchStatement that = (CatchStatement) o;
-        return Objects.equals(variable, that.variable)
-                && Objects.equals(block, that.block);
+        return Objects.equals(variable, that.variable) && Objects.equals(block, that.block);
     }
 
     @Override

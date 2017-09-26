@@ -12,8 +12,19 @@ import java.util.Optional;
  */
 public class IfStatement implements Statement {
 
+    /**
+     * This is a {@link org.qmul.csar.code.java.expression.ParenthesisExpression}, since the condition is expressed
+     * within parentheses.
+     */
     private final Expression condition;
+    /**
+     * This is either a {@link ExpressionStatement} or a {@link BlockStatement}.
+     */
     private final Statement statement;
+    /**
+     * This can contain an {@link IfStatement} (for else-if), or an {@link ExpressionStatement} or a
+     * {@link BlockStatement} (for else).
+     */
     private final Optional<Statement> elseStatement;
 
     public IfStatement(Expression condition, Statement statement, Optional<Statement> elseStatement) {

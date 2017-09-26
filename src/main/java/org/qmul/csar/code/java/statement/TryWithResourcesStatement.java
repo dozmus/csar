@@ -9,7 +9,7 @@ import java.util.Objects;
  */
 public class TryWithResourcesStatement extends TryStatement {
 
-    private final List<LocalVariableStatement> resources;
+    private final List<LocalVariableStatement> resources; // TODO change this to LocalVariableStatements
 
     public TryWithResourcesStatement(BlockStatement block, List<CatchStatement> catches, BlockStatement finallyBlock,
             List<LocalVariableStatement> resources) {

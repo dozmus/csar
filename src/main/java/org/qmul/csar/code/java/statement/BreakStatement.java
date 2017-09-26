@@ -35,6 +35,11 @@ public class BreakStatement implements Statement {
     }
 
     @Override
+    public String toString() {
+        return String.format("BreakStatement{identifier=%s}", identifier);
+    }
+
+    @Override
     public String toPseudoCode(int indentation) {
         if (identifier.isPresent()) {
             return String.format("%sbreak %s;", StringUtils.indentation(indentation), identifier);

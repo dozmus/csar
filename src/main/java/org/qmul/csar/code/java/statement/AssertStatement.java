@@ -43,6 +43,12 @@ public class AssertStatement implements Statement {
     }
 
     @Override
+    public String toString() {
+        return String.format("AssertStatement{expression=%s, errorMessageExpression=%s}", expression,
+                errorMessageExpression);
+    }
+
+    @Override
     public String toPseudoCode(int indentation) {
         final String start = StringUtils.indentation(indentation) + "assert " + expression.toPseudoCode();
         return errorMessageExpression.map(expr -> start + " : %s;" + expr.toPseudoCode()).orElseGet(() -> start + ";");

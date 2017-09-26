@@ -4,7 +4,7 @@ public enum BinaryOperation {
     MUL("*"), DIV("/"), MOD("%"), ADD("+"), SUB("-"),
     LE("<="), GE(">="), GT(">"), LT("<"),
     INSTANCE_OF("instanceof"),
-    EQUAL("=="), NOTEQUAL("!="),
+    EQUALS("=="), NOTEQUALS("!="),
     BITAND("&"), BITOR("|"), BITXOR("^"),
     AND("&&"), OR("||"),
     ASSIGN("="),

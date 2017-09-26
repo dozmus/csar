@@ -31,13 +31,17 @@ public class LabelStatement implements Statement {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LabelStatement that = (LabelStatement) o;
-        return Objects.equals(identifier, that.identifier)
-                && Objects.equals(statement, that.statement);
+        return Objects.equals(identifier, that.identifier) && Objects.equals(statement, that.statement);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(identifier, statement);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("LabelStatement{identifier='%s', statement=%s}", identifier, statement);
     }
 
     @Override
