@@ -34,7 +34,7 @@ public final class CsarQueryFactoryTest {
         CsarQuery expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.USE), desc))
                 .contains(containsQuery)
                 .from("Helpers")
-                .refactor(new RefactorElement.RenameRefactorElement("addInt"))
+                .refactor(new RefactorDescriptor.Rename("addInt"))
                 .build();
         assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass "
                 + "FROM Helpers REFACTOR rename:addInt", expected);
@@ -71,7 +71,7 @@ public final class CsarQueryFactoryTest {
         // Rename
         CsarQuery expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.USE),
                 new MethodDescriptor.Builder("add").build()))
-                .refactor(new RefactorElement.RenameRefactorElement("addInt"))
+                .refactor(new RefactorDescriptor.Rename("addInt"))
                 .build();
         assertEquals("SELECT method:use:add REFACTOR rename:addInt", expected);
 
@@ -89,7 +89,7 @@ public final class CsarQueryFactoryTest {
                 )
                 .build();
         expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.DEF), method1))
-                .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters1))
+                .refactor(new RefactorDescriptor.ChangeParameters(parameters1))
                 .build();
         assertEquals("method:def:static boolean SELECT(int k,  Thread t ) REFACTOR changeparam: int k,  Runnable r",
                 expected);
@@ -108,7 +108,7 @@ public final class CsarQueryFactoryTest {
                 )
                 .build();
         expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.DEF), method2))
-                .refactor(new RefactorElement.ChangeParametersRefactorElement(parameters2))
+                .refactor(new RefactorDescriptor.ChangeParameters(parameters2))
                 .build();
         assertEquals("method:def:static int add(float, char) REFACTOR changeparam:float,String", expected);
     }

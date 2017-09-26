@@ -1,6 +1,5 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.code.java.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.descriptor.*;
 
@@ -72,7 +71,7 @@ public interface RefactorDescriptor {
 
         @Override
         public boolean validate(TargetDescriptor desc) {
-            return desc.getDescriptor() instanceof MethodStatement;
+            return desc.getDescriptor() instanceof MethodDescriptor;
         }
 
         @Override
