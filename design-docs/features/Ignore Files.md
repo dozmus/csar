@@ -1,4 +1,4 @@
-Ignored Files
+Ignore Files
 ========
 
 # Input Files
@@ -17,4 +17,4 @@ It would be optimal if I either: had a command-line flag to search the current f
 
 __Accepted Solution__:  
 I have decided to search the entire working directory by default. I support git ignore files (using the `git ls-files` command) and default to finding any source files (on: error or unavailable).  
-Allowing a `.csarignore` file is a stretch goal since it will be more complicated than my current approach.
+Allowing a `.csarignore` file is a stretch goal since it will be more complicated than my current approach and is mostly a vanity feature.
