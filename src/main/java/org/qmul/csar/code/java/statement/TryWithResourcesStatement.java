@@ -1,6 +1,5 @@
 package org.qmul.csar.code.java.statement;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,15 +8,15 @@ import java.util.Objects;
  */
 public class TryWithResourcesStatement extends TryStatement {
 
-    private final List<LocalVariableStatement> resources; // TODO change this to LocalVariableStatements
+    private final LocalVariableStatements resources;
 
     public TryWithResourcesStatement(BlockStatement block, List<CatchStatement> catches, BlockStatement finallyBlock,
-            List<LocalVariableStatement> resources) {
+            LocalVariableStatements resources) {
         super(block, catches, finallyBlock);
-        this.resources = Collections.unmodifiableList(resources);
+        this.resources = resources;
     }
 
-    public List<LocalVariableStatement> getResources() {
+    public LocalVariableStatements getResources() {
         return resources;
     }
 

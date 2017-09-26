@@ -33,7 +33,7 @@ public final class Csar {
      * @param ctx the details of should be performed
      */
     public Csar(CsarContext ctx) {
-        Iterator<Path> it = ProjectIteratorFactory.create(ctx.getDirectory(), ctx.isNarrowSearch());
+        Iterator<Path> it = ProjectIteratorFactory.create(ctx.getProjectDirectory(), ctx.isNarrowSearch());
         AbstractProjectCodeParser parser = new ProjectCodeParser(it, ctx.getThreads());
         this.query = ctx.getQuery();
         this.parser = parser;

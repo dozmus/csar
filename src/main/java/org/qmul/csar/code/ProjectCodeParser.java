@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +24,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
     private final ExecutorService executor;
     private final CountDownLatch finishedLatch;
     private final int threadCount;
+    private final Iterator<Path> it;
     private boolean errorOccurred = false;
     private boolean running = false;
 
@@ -41,7 +43,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
      * @throws IllegalArgumentException if <tt>threadCount</tt> is less than or equal to <tt>0</tt>
      */
     public ProjectCodeParser(Iterator<Path> it, int threadCount) {
-        super(it);
+        this.it = Objects.requireNonNull(it);
 
         if (threadCount <= 0)
             throw new IllegalArgumentException("threads must be greater than 0");
@@ -54,7 +56,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
      * Submits tasks to the underlying thread pool to begin processing code files, this is a blocking operation.
      * If a fatal error occurs then all parsing is gracefully terminated, then {@link #errorOccurred()} is set to
      * <tt>true</tt> and returns partial results.
-     * If {@link #getIt()} contains no files then an empty map is returned.
+     * If {@link #it} contains no files then an empty map is returned.
      * This should only be called once per instance of this class.
      * @return a map with parsed files as keys, and the output statements as values.
      * @throws IllegalStateException if it has already been called on this instance, or if it is currently running
@@ -66,7 +68,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
             throw new IllegalStateException("already finished running");
         } else if (running) {
             throw new IllegalStateException("already running");
-        } else if (!getIt().hasNext()) {
+        } else if (!it.hasNext()) {
             return new ConcurrentHashMap<>();
         }
         running = true;
@@ -151,8 +153,8 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
      * @return {@link #it#hasNext()}
      */
     private boolean hasNext() {
-        synchronized (getIt()) {
-            return getIt().hasNext();
+        synchronized (it) {
+            return it.hasNext();
         }
     }
 
@@ -161,9 +163,9 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
      * @return {@link #it#next()}
      */
     private Path next() {
-        synchronized (getIt()) {
-            if (getIt().hasNext()) {
-                return getIt().next();
+        synchronized (it) {
+            if (it.hasNext()) {
+                return it.next();
             }
         }
         throw new IllegalStateException("ran out of code files");

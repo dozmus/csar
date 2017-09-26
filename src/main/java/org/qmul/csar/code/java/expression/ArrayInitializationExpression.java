@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ArrayDefinitionExpression implements Expression { // TODO rename class
+public class ArrayInitializationExpression implements Expression {
 
     private final List<Expression> expr;
 
-    public ArrayDefinitionExpression(List<Expression> expr) {
+    public ArrayInitializationExpression(List<Expression> expr) {
         this.expr = Collections.unmodifiableList(expr);
     }
 
@@ -24,7 +24,7 @@ public class ArrayDefinitionExpression implements Expression { // TODO rename cl
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArrayDefinitionExpression that = (ArrayDefinitionExpression) o;
+        ArrayInitializationExpression that = (ArrayInitializationExpression) o;
         return Objects.equals(expr, that.expr);
     }
 
@@ -35,7 +35,7 @@ public class ArrayDefinitionExpression implements Expression { // TODO rename cl
 
     @Override
     public String toString() {
-        return String.format("ArrayDefinitionExpression{expr=%s}", expr);
+        return String.format("ArrayInitializationExpression{expr=%s}", expr);
     }
 
     @Override

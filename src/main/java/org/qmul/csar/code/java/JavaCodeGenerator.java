@@ -136,10 +136,10 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
     }
 
     /**
-     * Collects only the classOrInterfaceModifier elements.
+     * Returns the {@link ClassOrInterfaceModifierContext} elements from a list of {@link ModifierContext}.
      *
-     * @param mods
-     * @return
+     * @param mods the list of {@link ModifierContext} to filter
+     * @return Returns the {@link ClassOrInterfaceModifierContext} elements from a list of {@link ModifierContext}.
      */
     private static List<ClassOrInterfaceModifierContext> parseNonTypeModifiers(List<ModifierContext> mods) {
         return mods.stream().filter(mod -> mod.classOrInterfaceModifier() != null)
@@ -607,7 +607,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                         contents.add(new SquareBracketsExpression());
                     }
                 }
-                return new ArrayDefinitionExpression(contents);
+                return new ArrayInitializationExpression(contents);
             }
         }
 
@@ -835,7 +835,8 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
                 // Finally
                 BlockStatement finallyBlock = parseFinallyBlock(ctx.finallyBlock());
-                return new TryWithResourcesStatement(block, catchStatements, finallyBlock, resources);
+                return new TryWithResourcesStatement(block, catchStatements, finallyBlock,
+                        new LocalVariableStatements(resources));
             } else { // try-catch
                 // Try
                 BlockStatement block = parseBlockStatements(ctx.block());

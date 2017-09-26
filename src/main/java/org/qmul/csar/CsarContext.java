@@ -22,34 +22,49 @@ import java.util.List;
  */
 public class CsarContext {
 
+    /**
+     * The root directory of the project.
+     */
+    private final Path projectDirectory;
     @Parameter(description = "Search query", required = true, order = 1)
     private List<String> query = new ArrayList<>();
-
     @Parameter(names = {"--threads", "-t"}, description = "Thread count", order = 2)
     private int threads = 1;
-
     @Parameter(names = {"--log-level"}, description = "Log level", order = 3, converter = Slf4jLevelConverter.class)
     private Level logLevel = Level.INFO;
-
     @Parameter(names = {"--format", "-f"}, description = "Output format", order = 4,
             converter = ResultFormatterConverter.class)
     private ResultFormatter resultFormatter = new PlainTextResultFormatter();
-
     @Parameter(names = {"--output", "-o"}, description = "Output file name", order = 5, converter = PathConverter.class)
     private Path path;
-
     @Parameter(names = {"--narrow-search"}, description = "Narrow search domain", order = 6)
     private boolean narrowSearch = true;
-
     @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 7)
     private boolean printProjectUrl;
-
     @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 8, help = true)
     private boolean printHelp;
 
     /**
-     * Returns the result of joining together {@link #query} with the space delimeter.
-     * @return {@link #query} joined together with the space delimeter
+     * Creates a new {@link CsarContext} with {@link #projectDirectory} set to the current working directory
+     * (<tt>Paths.get(".")</tt>).
+     */
+    public CsarContext() {
+        this(Paths.get("."));
+    }
+
+    /**
+     * Creates a new {@link CsarContext} with the project base directory set to the argument.
+     *
+     * @param projectDirectory the project base directory
+     */
+    public CsarContext(Path projectDirectory) {
+        this.projectDirectory = projectDirectory;
+    }
+
+    /**
+     * Returns the result of joining together {@link #query} with the space delimiter.
+     *
+     * @return {@link #query} joined together with the space delimiter
      */
     public String getQuery() {
         return String.join(" ", query);
@@ -84,11 +99,11 @@ public class CsarContext {
     }
 
     /**
-     * Returns the base project directory, which is defined as <tt>Paths.get(".")</tt>.
+     * Returns the base project directory.
+     *
      * @return the base project directory
      */
-    public Path getDirectory() {
-        // TODO allow this to be set in a constructor
-        return Paths.get(".");
+    public Path getProjectDirectory() {
+        return projectDirectory;
     }
 }

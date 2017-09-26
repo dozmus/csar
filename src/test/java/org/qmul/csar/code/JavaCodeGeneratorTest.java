@@ -687,13 +687,13 @@ public final class JavaCodeGeneratorTest {
                         .build(), Optional.of(supplierCall), new ArrayList<>());
 
         b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), new ArrayList<>(), BlockStatement.EMPTY,
-                Arrays.asList(resource)));
+                createLocals(resource)));
         b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches1, BlockStatement.EMPTY,
-                Arrays.asList(resource)));
+                createLocals(resource)));
         b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, BlockStatement.EMPTY,
-                Arrays.asList(resource)));
+                createLocals(resource)));
         b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, createBlock(bCall),
-                Arrays.asList(resource)));
+                createLocals(resource)));
 
         // Switch
         BlockStatement switchBlock1 = createBlock(
@@ -772,7 +772,7 @@ public final class JavaCodeGeneratorTest {
                 .identifierType("int[]")
                 .finalModifier(false)
                 .build(),
-                Optional.of(new ArrayDefinitionExpression(Arrays.asList(
+                Optional.of(new ArrayInitializationExpression(Arrays.asList(
                         new SquareBracketsExpression(Optional.of(literalUnit("3")))
                 ))),
                 new ArrayList<>());
@@ -782,7 +782,7 @@ public final class JavaCodeGeneratorTest {
                 .identifierType("int[]")
                 .finalModifier(false)
                 .build(),
-                Optional.of(new ArrayDefinitionExpression(Arrays.asList(
+                Optional.of(new ArrayInitializationExpression(Arrays.asList(
                         new SquareBracketsExpression(Optional.of(literalUnit("3"))),
                         new SquareBracketsExpression()
                 ))),

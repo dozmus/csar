@@ -3,18 +3,18 @@ package org.qmul.csar.code;
 import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 
+/**
+ * A project-wide code file parser.
+ */
 public abstract class AbstractProjectCodeParser {
 
-    private final Iterator<Path> it;
-
-    public AbstractProjectCodeParser(Iterator<Path> it) {
-        this.it = Objects.requireNonNull(it);
-    }
-
+    /**
+     * Returns a map with parsed files as keys, and the output statements as values.
+     *
+     * @return a map with parsed files as keys, and the output statements as values.
+     */
     public abstract Map<Path, Statement> results();
 
     /**
@@ -23,8 +23,4 @@ public abstract class AbstractProjectCodeParser {
      * @return <tt>true</tt> if an error occurred within {@link #results()}
      */
     public abstract boolean errorOccurred();
-
-    protected Iterator<Path> getIt() {
-        return it;
-    }
 }
