@@ -1,7 +1,9 @@
 package org.qmul.csar.code.java.statement;
 
 import org.qmul.csar.lang.Expression;
+import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +73,37 @@ public class ForStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "for"; // TODO write
+        String initExprsStr = "";
+
+        for (int i = 0; i < initExpressions.size(); i++) {
+            initExprsStr += initExpressions.get(i).toPseudoCode();
+
+            if (i + 1 < initExpressions.size())
+                initExprsStr += ", ";
+        }
+        String initVars = initVariables.map(SerializableCode::toPseudoCode).orElse(initExprsStr);
+        String updateStr = "";
+
+        for (int i = 0; i < updateExpressions.size(); i++) {
+            updateStr += updateExpressions.get(i).toPseudoCode();
+
+            if (i + 1 < updateExpressions.size())
+                updateStr += ", ";
+        }
+
+        String conditionStr = condition.map(SerializableCode::toPseudoCode).orElse("");
+        String forHeader = String.format("%s; %s; %s", initVars, conditionStr, updateStr);
+
+        return new StringBuilder()
+                .append(StringUtils.indentation(indentation))
+                .append("for (")
+                .append(forHeader)
+                .append(") {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(statement.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}")
+                .toString();
     }
 }

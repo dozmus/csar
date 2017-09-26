@@ -4,6 +4,7 @@ import org.qmul.csar.lang.descriptor.AnnotationDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +61,39 @@ public class AnnotationStatement implements TypeStatement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "annotation_def"; // TODO write
+        StringBuilder builder = new StringBuilder();
+
+        if (getAnnotations().size() > 0) {
+            getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
+                    .append(StringUtils.LINE_SEPARATOR));
+        }
+        builder.append(StringUtils.indentation(indentation));
+        builder.append(descriptor.getVisibilityModifier().toPseudoCode()).append(" ");
+
+        if (descriptor.isAbstractModifier()) {
+            builder.append("abstract ");
+        }
+
+        if (descriptor.isStrictfpModifier()) {
+            builder.append("strictfp ");
+        }
+
+        if (descriptor.isInner()) {
+            builder.append("(inner) ");
+        }
+        builder.append(descriptor.getIdentifierName());
+
+        if (block.equals(BlockStatement.EMPTY)) {
+            builder.append(" { }");
+        } else {
+            builder.append(" {")
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(block.toPseudoCode(indentation + 1))
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(StringUtils.indentation(indentation))
+                    .append("}");
+        }
+        return builder.toString();
     }
 
     public static class AnnotationMethod implements Statement {
@@ -126,7 +159,21 @@ public class AnnotationStatement implements TypeStatement {
 
         @Override
         public String toPseudoCode(int indentation) {
-            return "annotation_method"; // TODO write
+            StringBuilder builder = new StringBuilder();
+
+            if (getAnnotations().size() > 0) {
+                getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
+                        .append(StringUtils.LINE_SEPARATOR));
+            }
+            builder.append(StringUtils.indentation(indentation));
+            builder.append(visibilityModifier.toPseudoCode()).append(" ");
+
+            if (abstractModifier) {
+                builder.append("abstract ");
+            }
+            builder.append(identifierName).append("()");
+            defaultValue.ifPresent(value -> builder.append(" default ").append(value.toPseudoCode())); // TODO fix this
+            return builder.append(";").toString();
         }
     }
 }

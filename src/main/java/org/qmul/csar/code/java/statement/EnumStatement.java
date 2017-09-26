@@ -2,6 +2,8 @@ package org.qmul.csar.code.java.statement;
 
 import org.qmul.csar.lang.descriptor.EnumDescriptor;
 import org.qmul.csar.lang.TypeStatement;
+import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +58,40 @@ public class EnumStatement implements TypeStatement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "enum"; // TODO write
+        StringBuilder builder = new StringBuilder();
+
+        if (getAnnotations().size() > 0) {
+            getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
+                    .append(StringUtils.LINE_SEPARATOR));
+        }
+        builder.append(StringUtils.indentation(indentation));
+
+        if (descriptor.getVisibilityModifier().isPresent()
+                && descriptor.getVisibilityModifier().get() != VisibilityModifier.PACKAGE_PRIVATE) {
+            builder.append(descriptor.getVisibilityModifier().get().toPseudoCode()).append(" ");
+        }
+
+        StringUtils.append(builder, descriptor.getStaticModifier(), "static ");
+        StringUtils.append(builder, descriptor.getFinalModifier(), "final ");
+        StringUtils.append(builder, descriptor.getAbstractModifier(), "abstract ");
+        StringUtils.append(builder, descriptor.getStrictfpModifier(), "strictfp ");
+        StringUtils.append(builder, descriptor.getInner(), "(inner) ");
+        builder.append("enum ").append(descriptor.getIdentifierName());
+
+        if (descriptor.getSuperClasses().size() > 0) {
+            builder.append("(").append(String.join(", ", descriptor.getSuperClasses())).append(")");
+        }
+
+        if (block.equals(BlockStatement.EMPTY)) {
+            builder.append(" { }");
+        } else {
+            builder.append(" {")
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(block.toPseudoCode(indentation + 1))
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(StringUtils.indentation(indentation))
+                    .append("}");
+        }
+        return builder.toString();
     }
 }

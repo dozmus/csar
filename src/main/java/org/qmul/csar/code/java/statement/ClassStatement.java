@@ -1,8 +1,8 @@
 package org.qmul.csar.code.java.statement;
 
+import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.ClassDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
-import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
@@ -69,7 +69,7 @@ public class ClassStatement implements TypeStatement {
 
         if (descriptor.getVisibilityModifier().isPresent()
                 && descriptor.getVisibilityModifier().get() != VisibilityModifier.PACKAGE_PRIVATE) {
-            builder.append(descriptor.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
+            builder.append(descriptor.getVisibilityModifier().get().toPseudoCode()).append(" ");
         }
 
         StringUtils.append(builder, descriptor.getStaticModifier(), "static ");

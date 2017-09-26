@@ -78,7 +78,7 @@ public class MethodStatement implements Statement {
 
         if (descriptor.getVisibilityModifier().isPresent()
                 && descriptor.getVisibilityModifier().get() != VisibilityModifier.PACKAGE_PRIVATE) {
-            builder.append(descriptor.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
+            builder.append(descriptor.getVisibilityModifier().get().toPseudoCode()).append(" ");
         }
         StringUtils.append(builder, descriptor.getStaticModifier(), "static ");
         StringUtils.append(builder, descriptor.getFinalModifier(), "final ");

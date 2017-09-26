@@ -3,6 +3,7 @@ package org.qmul.csar.code.java.statement;
 import org.qmul.csar.code.java.expression.UnitExpression;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
@@ -45,6 +46,7 @@ public class SwitchLabelStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return labelExpression.toPseudoCode() + ":";
+        String label = labelExpression.toPseudoCode();
+        return StringUtils.indentation(indentation) + (label.equals("default") ? "default" : "case " + label) + ":";
     }
 }

@@ -1,7 +1,9 @@
 package org.qmul.csar.code.java.statement;
 
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -11,7 +13,7 @@ import java.util.Objects;
  */
 public class CatchStatement implements Statement {
 
-    private final LocalVariableStatements variable;
+    private final LocalVariableStatements variable; // TODO replace with custom variable
     private final BlockStatement block;
 
     public CatchStatement(LocalVariableStatements variable, BlockStatement block) {
@@ -47,6 +49,32 @@ public class CatchStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "catch"; // TODO write
+        StringBuilder builder = new StringBuilder();
+        List<LocalVariableStatement> locals = variable.getLocals();
+        String catchVariableString = "";
+
+        if (locals.get(0).getDescriptor().getFinalModifier().isPresent()
+                && locals.get(0).getDescriptor().getFinalModifier().get()) {
+            catchVariableString += "final ";
+        }
+
+        for (int i = 0; i < locals.size(); i++) {
+            LocalVariableStatement local = locals.get(i);
+            catchVariableString += local.getDescriptor().getIdentifierType().get();
+
+            if (i + 1 < locals.size())
+                catchVariableString += " | ";
+
+            if (i + 1 == locals.size())
+                catchVariableString += " " + local.getDescriptor().getIdentifierName();
+        }
+
+        builder.append(" catch(").append(catchVariableString).append(") {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(block.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}");
+        return builder.toString();
     }
 }

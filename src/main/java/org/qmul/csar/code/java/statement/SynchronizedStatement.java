@@ -53,11 +53,14 @@ public class SynchronizedStatement implements Statement {
     @Override
     public String toPseudoCode(int indentation) {
         return new StringBuilder()
+                .append(StringUtils.indentation(indentation))
                 .append("synchronized(")
                 .append(element.toPseudoCode())
                 .append(") {")
-                .append(block.toPseudoCode())
                 .append(StringUtils.LINE_SEPARATOR)
+                .append(block.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
                 .append("}")
                 .toString();
     }

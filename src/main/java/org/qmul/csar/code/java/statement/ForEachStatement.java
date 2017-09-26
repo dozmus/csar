@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.statement;
 
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Objects;
 
@@ -55,6 +56,18 @@ public class ForEachStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "foreach"; // TODO write
+        return new StringBuilder()
+                .append(StringUtils.indentation(indentation))
+                .append("for (")
+                .append(variable.toPseudoCode())
+                .append(" : ")
+                .append(collection.toPseudoCode())
+                .append(") {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(statement.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}")
+                .toString();
     }
 }

@@ -1,7 +1,10 @@
 package org.qmul.csar.code.java.statement;
 
+import org.qmul.csar.util.StringUtils;
+
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A try with resources statement.
@@ -10,8 +13,8 @@ public class TryWithResourcesStatement extends TryStatement {
 
     private final LocalVariableStatements resources;
 
-    public TryWithResourcesStatement(BlockStatement block, List<CatchStatement> catches, BlockStatement finallyBlock,
-            LocalVariableStatements resources) {
+    public TryWithResourcesStatement(BlockStatement block, List<CatchStatement> catches,
+            Optional<BlockStatement> finallyBlock, LocalVariableStatements resources) {
         super(block, catches, finallyBlock);
         this.resources = resources;
     }
@@ -36,6 +39,32 @@ public class TryWithResourcesStatement extends TryStatement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "try-with-res"; // TODO write
+        // Resource
+        List<LocalVariableStatement> locals = resources.getLocals();
+        String resourceString = locals.get(0).toPseudoCode();
+
+        // Try
+        StringBuilder builder = new StringBuilder()
+                .append(StringUtils.indentation(indentation))
+                .append("try (").append(resourceString).append(") {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(getBlock().toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}");
+
+        // Catches
+        for (CatchStatement catchSt : getCatches()) {
+            builder.append(catchSt.toPseudoCode(indentation));
+        }
+
+        // Finally
+        getFinallyBlock().ifPresent(blockStatement -> builder.append(" finally {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(blockStatement.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}"));
+        return builder.toString();
     }
 }

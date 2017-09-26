@@ -1,21 +1,24 @@
 package org.qmul.csar.code.java.statement;
 
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A try statement, however this cannot represent a try with resources statement.
+ * @see TryWithResourcesStatement
  */
 public class TryStatement implements Statement {
 
     private final BlockStatement block;
     private final List<CatchStatement> catches;
-    private final BlockStatement finallyBlock;
+    private final Optional<BlockStatement> finallyBlock;
 
-    public TryStatement(BlockStatement block, List<CatchStatement> catches, BlockStatement finallyBlock) {
+    public TryStatement(BlockStatement block, List<CatchStatement> catches, Optional<BlockStatement> finallyBlock) {
         this.block = block;
         this.catches = Collections.unmodifiableList(catches);
         this.finallyBlock = finallyBlock;
@@ -29,7 +32,7 @@ public class TryStatement implements Statement {
         return catches;
     }
 
-    public BlockStatement getFinallyBlock() {
+    public Optional<BlockStatement> getFinallyBlock() {
         return finallyBlock;
     }
 
@@ -55,6 +58,27 @@ public class TryStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "try"; // TODO write
+        StringBuilder builder = new StringBuilder()
+                .append(StringUtils.indentation(indentation))
+                .append("try {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(block.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}");
+
+        // Catches
+        for (CatchStatement catchSt : catches) {
+            builder.append(catchSt.toPseudoCode(indentation));
+        }
+
+        // Finally
+        finallyBlock.ifPresent(blockStatement -> builder.append(" finally {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(blockStatement.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}"));
+        return builder.toString();
     }
 }

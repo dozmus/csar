@@ -1,8 +1,9 @@
 package org.qmul.csar.code.java.statement;
 
-import org.qmul.csar.lang.descriptor.LocalVariableDescriptor;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.lang.descriptor.LocalVariableDescriptor;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,6 +61,18 @@ public class LocalVariableStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return "local_var"; // TODO write
+        StringBuilder builder = new StringBuilder();
+
+        if (getAnnotations().size() > 0) {
+            getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
+                    .append(StringUtils.LINE_SEPARATOR));
+        }
+        builder.append(StringUtils.indentation(indentation));
+        StringUtils.append(builder, descriptor.getFinalModifier(), "final ");
+        return builder.append(descriptor.getIdentifierType().map(t -> t + " ").orElse(""))
+                .append(descriptor.getIdentifierName())
+                .append(valueExpression.map(expression -> " = " + expression.toPseudoCode()).orElse(""))
+                .append(";")
+                .toString();
     }
 }

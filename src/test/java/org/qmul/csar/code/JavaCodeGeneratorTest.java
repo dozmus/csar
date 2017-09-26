@@ -660,14 +660,14 @@ public final class JavaCodeGeneratorTest {
                 .build(), Optional.empty(), new ArrayList<>()), getTypes, createBlock(aCall)));
 
         // Try
-        b1.add(new TryStatement(createBlock(aCall), new ArrayList<>(), createBlock(bCall)));
+        b1.add(new TryStatement(createBlock(aCall), new ArrayList<>(), Optional.of(createBlock(bCall))));
 
         List<CatchStatement> catches1 = Arrays.asList(new CatchStatement(createLocals(
                         new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                                 .identifierType("Exception")
                                 .finalModifier(false)
                                 .build(), Optional.empty(), new ArrayList<>())), createBlock(errorCall)));
-        b1.add(new TryStatement(createBlock(aCall), catches1, createBlock(bCall)));
+        b1.add(new TryStatement(createBlock(aCall), catches1, Optional.of(createBlock(bCall))));
 
         List<CatchStatement> catches2 = Arrays.asList(new CatchStatement(createLocals(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
@@ -678,7 +678,7 @@ public final class JavaCodeGeneratorTest {
                         .identifierType("RuntimeException")
                         .finalModifier(false)
                         .build(), Optional.empty(), new ArrayList<>())), createBlock(errorCall)));
-        b1.add(new TryStatement(createBlock(aCall), catches2, BlockStatement.EMPTY));
+        b1.add(new TryStatement(createBlock(aCall), catches2, Optional.empty()));
 
         // Try-with-resources
         final LocalVariableStatement resource = new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
@@ -686,13 +686,13 @@ public final class JavaCodeGeneratorTest {
                         .finalModifier(false)
                         .build(), Optional.of(supplierCall), new ArrayList<>());
 
-        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), new ArrayList<>(), BlockStatement.EMPTY,
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), new ArrayList<>(), Optional.empty(),
                 createLocals(resource)));
-        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches1, BlockStatement.EMPTY,
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches1, Optional.empty(),
                 createLocals(resource)));
-        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, BlockStatement.EMPTY,
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, Optional.empty(),
                 createLocals(resource)));
-        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, createBlock(bCall),
+        b1.add(new TryWithResourcesStatement(createBlock(SOUT_PRINTLN_S), catches2, Optional.of(createBlock(bCall)),
                 createLocals(resource)));
 
         // Switch

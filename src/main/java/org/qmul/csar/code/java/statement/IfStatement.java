@@ -69,17 +69,20 @@ public class IfStatement implements Statement {
     @Override
     public String toPseudoCode(int indentation) {
         StringBuilder sb = new StringBuilder()
+                .append(StringUtils.indentation(indentation))
                 .append("if (")
                 .append(condition.toPseudoCode())
                 .append(") {")
                 .append(StringUtils.LINE_SEPARATOR)
-                .append(statement.toPseudoCode())
+                .append(statement.toPseudoCode(indentation + 1))
                 .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
                 .append("}");
-        elseStatement.ifPresent(statement -> sb.append(" else {")
+        elseStatement.ifPresent(statement -> sb.append(" else {") // TODO clean up printing here, it should sometimes be } else if (...
                 .append(StringUtils.LINE_SEPARATOR)
-                .append(statement.toPseudoCode())
+                .append(statement.toPseudoCode(indentation + 1))
                 .append(StringUtils.LINE_SEPARATOR)
+                .append(statement.toPseudoCode(indentation))
                 .append("}"));
         return sb.toString();
     }

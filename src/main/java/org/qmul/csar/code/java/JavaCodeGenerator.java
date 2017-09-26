@@ -834,7 +834,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 List<CatchStatement> catchStatements = parseCatchStatements(ctx.catchClause());
 
                 // Finally
-                BlockStatement finallyBlock = parseFinallyBlock(ctx.finallyBlock());
+                Optional<BlockStatement> finallyBlock = parseFinallyBlock(ctx.finallyBlock());
                 return new TryWithResourcesStatement(block, catchStatements, finallyBlock,
                         new LocalVariableStatements(resources));
             } else { // try-catch
@@ -845,7 +845,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 List<CatchStatement> catchStatements = parseCatchStatements(ctx.catchClause());
 
                 // Finally
-                BlockStatement finallyBlock = parseFinallyBlock(ctx.finallyBlock());
+                Optional<BlockStatement> finallyBlock = parseFinallyBlock(ctx.finallyBlock());
                 return new TryStatement(block, catchStatements, finallyBlock);
             }
         } else if (ctx.RETURN() != null) {
@@ -888,8 +888,8 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static BlockStatement parseFinallyBlock(FinallyBlockContext ctx) {
-        return ctx != null ? parseBlockStatements(ctx.block()) : BlockStatement.EMPTY;
+    private static Optional<BlockStatement> parseFinallyBlock(FinallyBlockContext ctx) {
+        return ctx != null ? Optional.of(parseBlockStatements(ctx.block())) : Optional.empty();
     }
 
     private static List<CatchStatement> parseCatchStatements(List<CatchClauseContext> ctxs) {

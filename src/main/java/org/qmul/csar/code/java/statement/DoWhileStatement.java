@@ -48,8 +48,8 @@ public class DoWhileStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return String.format("%sdo {%s%s%s} while(%s);", StringUtils.indentation(indentation),
-                StringUtils.LINE_SEPARATOR, statement.toPseudoCode(), StringUtils.LINE_SEPARATOR,
-                condition.toPseudoCode());
+        return String.format("%sdo {%s%s%s%s} while(%s);", StringUtils.indentation(indentation),
+                StringUtils.LINE_SEPARATOR, statement.toPseudoCode(indentation + 1), StringUtils.LINE_SEPARATOR,
+                StringUtils.indentation(indentation), condition.toPseudoCode());
     }
 }

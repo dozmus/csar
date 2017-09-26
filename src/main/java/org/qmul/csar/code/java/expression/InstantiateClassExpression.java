@@ -1,13 +1,17 @@
 package org.qmul.csar.code.java.expression;
 
+import org.qmul.csar.code.java.statement.BlockStatement;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.code.java.statement.ClassStatement;
+import org.qmul.csar.lang.descriptor.ClassDescriptor;
+import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class InstantiateClassExpression implements Expression {
+public class InstantiateClassExpression implements Expression { // TODO allow this to have an Optional<Body>
 
     private final List<Expression> arguments;
     private final ClassStatement classStatement;
@@ -61,7 +65,61 @@ public class InstantiateClassExpression implements Expression {
     }
 
     @Override
-    public String toPseudoCode(int indentation) {
-        return "instantiate_class"; // TODO write
+    public String toPseudoCode(int indentation) { // TODO fix this
+        StringBuilder builder = new StringBuilder();
+        ClassDescriptor descriptor = classStatement.getDescriptor();
+        BlockStatement block = classStatement.getBlock();
+
+        if (classStatement.getAnnotations().size() > 0) {
+            classStatement.getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
+                    .append(StringUtils.LINE_SEPARATOR));
+        }
+        builder.append(StringUtils.indentation(indentation));
+        builder.append("new ");
+
+        if (descriptor.getVisibilityModifier().isPresent()
+                && descriptor.getVisibilityModifier().get() != VisibilityModifier.PACKAGE_PRIVATE) {
+            builder.append(descriptor.getVisibilityModifier().get().toPseudoCode()).append(" ");
+        }
+
+        StringUtils.append(builder, descriptor.getStaticModifier(), "static ");
+        StringUtils.append(builder, descriptor.getFinalModifier(), "final ");
+        StringUtils.append(builder, descriptor.getAbstractModifier(), "abstract ");
+        StringUtils.append(builder, descriptor.getStrictfpModifier(), "strictfp ");
+//        StringUtils.append(builder, descriptor.getInner(), "(inner) ");
+//        StringUtils.append(builder, descriptor.getLocal(), "(local) ");
+//        StringUtils.append(builder, descriptor.getAnonymous(), "(anonymous) ");
+
+        builder.append(descriptor.getIdentifierName());
+
+        if (hasTypeArguments && typeArguments.size() > 0) {
+            builder.append("<").append(String.join(", ", typeArguments)).append(">");
+        }
+
+        if (arguments.size() > 0) {
+            String args = "(";
+
+            for (int i = 0; i < arguments.size(); i++) {
+                args += arguments.get(i).toPseudoCode();
+
+                if (i + 1 < arguments.size())
+                    args += ", ";
+            }
+            builder.append(args).append(")");
+        } else {
+            builder.append("()");
+        }
+
+        if (block.equals(BlockStatement.EMPTY)) {
+            builder.append(" { }");
+        } else {
+            builder.append(" {")
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(block.toPseudoCode(indentation + 1))
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(StringUtils.indentation(indentation))
+                    .append("}");
+        }
+        return builder.toString();
     }
 }

@@ -1,8 +1,8 @@
 package org.qmul.csar.code.java.statement;
 
-import org.qmul.csar.lang.descriptor.InstanceVariableDescriptor;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.lang.descriptor.InstanceVariableDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
 
@@ -72,7 +72,7 @@ public class InstanceVariableStatement implements Statement {
 
         if (descriptor.getVisibilityModifier().isPresent()
                 && descriptor.getVisibilityModifier().get() != VisibilityModifier.PACKAGE_PRIVATE) {
-            builder.append(descriptor.getVisibilityModifier().get().toString().toLowerCase()).append(" ");
+            builder.append(descriptor.getVisibilityModifier().get().toPseudoCode()).append(" ");
         }
         StringUtils.append(builder, descriptor.getStaticModifier(), "static ");
         StringUtils.append(builder, descriptor.getFinalModifier(), "final ");

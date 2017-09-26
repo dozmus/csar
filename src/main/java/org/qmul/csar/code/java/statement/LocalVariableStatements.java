@@ -1,11 +1,11 @@
 package org.qmul.csar.code.java.statement;
 
+import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.lang.descriptor.LocalVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A container for a {@link List<LocalVariableStatement>}.
@@ -46,8 +46,43 @@ public class LocalVariableStatements implements Statement {
         return String.format("LocalVariableStatements{locals=%s}", locals);
     }
 
+    /**
+     * Note: This assumes every element in {@link #locals} have the same annotations and final modifier (or lack of).
+     * @param indentation
+     * @return
+     */
     @Override
     public String toPseudoCode(int indentation) {
-        return StringUtils.indentation(indentation) + "locals"; // TODO write
+        StringBuilder builder = new StringBuilder()
+                .append(StringUtils.indentation(indentation));
+
+        // Annotations
+        Set<Annotation> annotations = new HashSet<>();
+        locals.stream().map(LocalVariableStatement::getAnnotations).forEach(annotations::addAll);
+        annotations.forEach(annotation -> builder.append(annotation.toPseudoCode(indentation)).append(" "));
+
+        // Final modifier
+        for (LocalVariableStatement local : locals) {
+            LocalVariableDescriptor desc = local.getDescriptor();
+
+            if (desc.getFinalModifier().isPresent() && desc.getFinalModifier().get()) {
+                builder.append("final ");
+                break;
+            }
+        }
+
+        // Bodies
+        for (int i = 0; i < locals.size(); i++) {
+            Optional<Expression> valueExpression = locals.get(i).getValueExpression();
+            LocalVariableDescriptor desc = locals.get(i).getDescriptor();
+
+            builder.append(desc.getIdentifierType().map(t -> t + " ").orElse(""))
+                    .append(desc.getIdentifierName())
+                    .append(valueExpression.map(expression -> " = " + expression.toPseudoCode()).orElse(""));
+
+            if (i + 1 < locals.size())
+                builder.append(", ");
+        }
+        return builder.append(";").toString();
     }
 }

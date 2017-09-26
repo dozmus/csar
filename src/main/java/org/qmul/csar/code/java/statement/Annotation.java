@@ -181,7 +181,17 @@ public class Annotation implements Statement {
 
         @Override
         public String toPseudoCode(int indentation) {
-            return "value_list"; // TODO write
+            StringBuilder builder = new StringBuilder()
+                    .append(StringUtils.indentation(indentation));
+
+            for (int i = 0; i < values.size(); i++) {
+                Value value = values.get(i);
+                builder.append(value.toPseudoCode());
+
+                if (i + 1 < values.size())
+                    builder.append(", ");
+            }
+            return builder.toString();
         }
     }
 }
