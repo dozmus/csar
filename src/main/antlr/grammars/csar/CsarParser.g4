@@ -14,10 +14,10 @@ csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fro
 containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*; // TODO allow parentheses
 containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
 fromQuery: FROM SPACE typeList;
-refactorQuery: REFACTOR SPACE refactorElement;
+refactorQuery: REFACTOR SPACE refactorDescriptor;
 
 statementDescriptor: clazz | method | variable | conditional | comment;
-refactorElement: rename | changeParameters;
+refactorDescriptor: rename | changeParameters;
 
 // Class
 clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers identifierName superClassList?;

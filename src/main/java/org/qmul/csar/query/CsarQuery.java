@@ -9,24 +9,25 @@ import java.util.*;
  *     <li>searchTarget - The element to select.</li>
  *     <li>containsQuery - What searchTarget should contain within it..</li>
  *     <li>fromTarget - Where searchTarget should be found.</li>
- *     <li>refactorElement - The transformation to apply to searchTarget.</li>
+ *     <li>refactorDescriptor - The transformation to apply to searchTarget.</li>
  * </ul>
  * <p>
  * All classes which comprise CsarQuery are immutable.
+ * @see CsarQueryFactory
  */
 public final class CsarQuery {
 
     private final TargetDescriptor searchTarget;
     private final Optional<ContainsQuery> containsQuery;
     private final List<String> fromTarget;
-    private final Optional<RefactorElement> refactorElement;
+    private final Optional<RefactorDescriptor> refactorDescriptor;
 
     public CsarQuery(TargetDescriptor searchTarget, Optional<ContainsQuery> containsQuery, List<String> fromTarget,
-                     Optional<RefactorElement> refactorElement) {
+                     Optional<RefactorDescriptor> refactorDescriptor) {
         this.searchTarget = searchTarget;
         this.fromTarget = Collections.unmodifiableList(fromTarget);
         this.containsQuery = containsQuery;
-        this.refactorElement = refactorElement;
+        this.refactorDescriptor = refactorDescriptor;
     }
 
     public CsarQuery(TargetDescriptor searchTarget) {
@@ -45,8 +46,8 @@ public final class CsarQuery {
         return containsQuery;
     }
 
-    public Optional<RefactorElement> getRefactorElement() {
-        return refactorElement;
+    public Optional<RefactorDescriptor> getRefactorDescriptor() {
+        return refactorDescriptor;
     }
 
     @Override
@@ -57,13 +58,13 @@ public final class CsarQuery {
         return Objects.equals(fromTarget, csarQuery.fromTarget) &&
                 Objects.equals(searchTarget, csarQuery.searchTarget) &&
                 Objects.equals(containsQuery, csarQuery.containsQuery) &&
-                Objects.equals(refactorElement, csarQuery.refactorElement);
+                Objects.equals(refactorDescriptor, csarQuery.refactorDescriptor);
     }
 
     @Override
     public String toString() {
-        return String.format("CsarQuery{searchTarget=%s, containsQuery=%s, fromTarget=%s, refactorElement=%s}",
-                searchTarget, containsQuery, fromTarget, refactorElement);
+        return String.format("CsarQuery{searchTarget=%s, containsQuery=%s, fromTarget=%s, refactorDescriptor=%s}",
+                searchTarget, containsQuery, fromTarget, refactorDescriptor);
     }
 
     public static final class Builder {
@@ -71,7 +72,7 @@ public final class CsarQuery {
         private final TargetDescriptor searchTarget;
         private Optional<ContainsQuery> containsQuery = Optional.empty();
         private List<String> fromTarget = new ArrayList<>();
-        private Optional<RefactorElement> refactorElement = Optional.empty();
+        private Optional<RefactorDescriptor> refactorDescriptor = Optional.empty();
 
         public Builder(TargetDescriptor searchTarget) {
             this.searchTarget = searchTarget;
@@ -92,13 +93,13 @@ public final class CsarQuery {
             return this;
         }
 
-        public Builder refactor(RefactorElement refactorElement) {
-            this.refactorElement = Optional.of(refactorElement);
+        public Builder refactor(RefactorDescriptor refactorElement) {
+            this.refactorDescriptor = Optional.of(refactorElement);
             return this;
         }
 
         public CsarQuery build() {
-            return new CsarQuery(searchTarget, containsQuery, fromTarget, refactorElement);
+            return new CsarQuery(searchTarget, containsQuery, fromTarget, refactorDescriptor);
         }
     }
 }

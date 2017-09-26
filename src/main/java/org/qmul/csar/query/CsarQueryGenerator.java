@@ -20,7 +20,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
     private TargetDescriptor searchTarget;
     private final List<String> fromTarget = new ArrayList<>();
     private Optional<ContainsQuery> containsQuery = Optional.empty();
-    private Optional<RefactorElement> refactorElement = Optional.empty();
+    private Optional<RefactorDescriptor> refactorDescriptor = Optional.empty();
     private final List<ContainsQueryElement> containsQueryElements = new ArrayList<>();
 
     private static SearchType parseSearchType(TerminalNode defNode, TerminalNode useNode) {
@@ -273,7 +273,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
     }
 
-    private static RefactorElement parseRefactorElement(RefactorElementContext ctx) {
+    private static RefactorDescriptor parseRefactorDescriptor(RefactorDescriptorContext ctx) {
         if (ctx.changeParameters() != null) {
             List<ParameterVariableDescriptor> parameters = new ArrayList<>();
             ChangeParametersContext cpc = ctx.changeParameters();
@@ -294,9 +294,9 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     parameters.add(parseParameterVariableDescriptor(params.identifierName(i), params.type(i), null));
                 }
             }
-            return new RefactorElement.ChangeParametersRefactorElement(parameters);
+            return new RefactorDescriptor.ChangeParameters(parameters);
         } else { // rename
-            return new RefactorElement.RenameRefactorElement(ctx.rename().identifierName().getText());
+            return new RefactorDescriptor.Rename(ctx.rename().identifierName().getText());
         }
     }
 
@@ -354,10 +354,15 @@ class CsarQueryGenerator extends CsarParserBaseListener {
 
     @Override
     public void enterRefactorQuery(RefactorQueryContext ctx) {
-        refactorElement = Optional.of(parseRefactorElement(ctx.refactorElement()));
+        RefactorDescriptor re = parseRefactorDescriptor(ctx.refactorDescriptor());
+        refactorDescriptor = Optional.of(re);
+
+        if (!re.validate(searchTarget)) {
+            throw new RuntimeException("invalid refactor element");
+        }
     }
 
     public CsarQuery csarQuery() {
-        return new CsarQuery(searchTarget, containsQuery, fromTarget, refactorElement);
+        return new CsarQuery(searchTarget, containsQuery, fromTarget, refactorDescriptor);
     }
 }

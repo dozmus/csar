@@ -1,17 +1,28 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
+import org.qmul.csar.code.java.statement.MethodStatement;
+import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.descriptor.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class RefactorElement {
+public interface RefactorDescriptor {
 
-    public static class RenameRefactorElement extends RefactorElement {
+    /**
+     * Returns <tt>true</tt> if the argument is a valid target for this refactor.
+     *
+     * @param desc the descriptor to validate for
+     * returns <tt>true</tt> if this descriptor is a valid target for this refactor.
+     */
+    boolean validate(TargetDescriptor desc);
+
+    class Rename implements RefactorDescriptor {
 
         private final String identifierName;
 
-        public RenameRefactorElement(String identifierName) {
+        public Rename(String identifierName) {
             this.identifierName = identifierName;
         }
 
@@ -20,10 +31,19 @@ public class RefactorElement {
         }
 
         @Override
+        public boolean validate(TargetDescriptor desc) {
+            Descriptor descriptor = desc.getDescriptor();
+            // XXX clean up by introducing enum Type to Descriptor
+            return descriptor instanceof ClassDescriptor || descriptor instanceof MethodDescriptor
+                    || descriptor instanceof EnumDescriptor || descriptor instanceof AbstractVariableDescriptor
+                    || descriptor instanceof AnnotationDescriptor;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            RenameRefactorElement that = (RenameRefactorElement) o;
+            Rename that = (Rename) o;
             return Objects.equals(identifierName, that.identifierName);
         }
 
@@ -38,12 +58,12 @@ public class RefactorElement {
         }
     }
 
-    public static class ChangeParametersRefactorElement extends RefactorElement {
+    class ChangeParameters implements RefactorDescriptor {
 
         private final List<ParameterVariableDescriptor> descriptors;
 
-        public ChangeParametersRefactorElement(List<ParameterVariableDescriptor> descriptors) {
-            this.descriptors = descriptors;
+        public ChangeParameters(List<ParameterVariableDescriptor> descriptors) {
+            this.descriptors = Collections.unmodifiableList(descriptors);
         }
 
         public List<ParameterVariableDescriptor> getDescriptors() {
@@ -51,10 +71,15 @@ public class RefactorElement {
         }
 
         @Override
+        public boolean validate(TargetDescriptor desc) {
+            return desc.getDescriptor() instanceof MethodStatement;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            ChangeParametersRefactorElement that = (ChangeParametersRefactorElement) o;
+            ChangeParameters that = (ChangeParameters) o;
             return Objects.equals(descriptors, that.descriptors);
         }
 
