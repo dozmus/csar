@@ -1,0 +1,10 @@
+### .csarignore file ###
+# This is formatted just like a .gitignore file, for familiarity and simplicity
+# Project files
+*.iml
+
+# Code/class files
+out/
+!out/*.java
+\!test.java
+\#test.java
