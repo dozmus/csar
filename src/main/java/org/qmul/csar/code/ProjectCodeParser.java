@@ -135,7 +135,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
             LOGGER.error(msg);
             executor.shutdownNow();
         }
-        LOGGER.info("Finished");
+        LOGGER.info("Finished parsing files");
 
         synchronized (this) {
             running = false;

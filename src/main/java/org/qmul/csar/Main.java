@@ -4,6 +4,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.slf4j.impl.SimpleLogger;
 
+import java.io.IOException;
+
 /**
  * Application entry-point, contains the main method. All calls to {@link System#exit(int)} in the project appear here.
  */
@@ -55,7 +57,14 @@ public final class Main {
         }
 
         // Run csar
-        Csar csar = new Csar(ctx);
+        Csar csar = null;
+
+        try {
+            csar = CsarFactory.create(ctx);
+        } catch (IOException ex) {
+            System.err.println("Error reading ignore file because " + ex.getMessage());
+            System.exit(4);
+        }
 
         if (!csar.parseQuery()) {
             System.exit(2);
@@ -86,6 +95,8 @@ public final class Main {
                 + "      Output file name\n"
                 + "    --narrow-search\n"
                 + "      Narrow search domain (default: true)\n"
+                + "    --ignore-file\n"
+                + "      Ignore file (default: .csarignore)\n"
                 + "    --project-url, --url\n"
                 + "      Print project URL\n"
                 + "    --help, -h\n"

@@ -39,26 +39,30 @@ public class CsarContext {
     private Path path;
     @Parameter(names = {"--narrow-search"}, description = "Narrow search domain", order = 6)
     private boolean narrowSearch = true;
-    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 7)
+    @Parameter(names = {"--ignore-file"}, description = "Ignore file", order = 7)
+    private Path ignoreFile;
+    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 8)
     private boolean printProjectUrl;
-    @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 8, help = true)
+    @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 9, help = true)
     private boolean printHelp;
 
     /**
-     * Creates a new {@link CsarContext} with {@link #projectDirectory} set to the current working directory
-     * (<tt>Paths.get(".")</tt>).
+     * Creates a new {@link CsarContext} with {@link #projectDirectory} set to <tt>Paths.get(".")</tt> and
+     * {@link #ignoreFile} set to <tt>Paths.get(".csarignore")</tt>.
      */
     public CsarContext() {
-        this(Paths.get("."));
+        this(Paths.get("."), Paths.get(".csarignore"));
     }
 
     /**
      * Creates a new {@link CsarContext} with the project base directory set to the argument.
      *
      * @param projectDirectory the project base directory
+     * @param ignoreFile the ignore file
      */
-    public CsarContext(Path projectDirectory) {
+    public CsarContext(Path projectDirectory, Path ignoreFile) {
         this.projectDirectory = projectDirectory;
+        this.ignoreFile = ignoreFile;
     }
 
     /**
@@ -96,6 +100,10 @@ public class CsarContext {
 
     public boolean isPrintProjectUrl() {
         return printProjectUrl;
+    }
+
+    public Path getIgnoreFile() {
+        return ignoreFile;
     }
 
     /**

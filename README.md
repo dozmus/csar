@@ -20,6 +20,8 @@ Usage: java -jar csar.jar [options] Search query
       Output file name
     --narrow-search
       Narrow search domain (default: true)
+    --ignore-file
+      Ignore file (default: .csarignore)
     --project-url, --url
       Print project URL
     --help, -h

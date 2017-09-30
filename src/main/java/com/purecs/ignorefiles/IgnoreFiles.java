@@ -48,12 +48,12 @@ public class IgnoreFiles {
     /**
      * Returns the {@link List<Rule>} expressed in the argument file.
      *
+     * @param baseDirectory the base directory of the parsed rules
      * @param path the file to read
      * @return returns the {@link List<Rule>} expressed in the argument file.
      * @throws IOException if an I/O error occurs
      */
-    public static List<Rule> read(Path path) throws IOException {
-        String baseDirectory = path.getParent().toAbsolutePath().toString();
+    public static List<Rule> read(String baseDirectory, Path path) throws IOException {
         List<Rule> rules = new ArrayList<>();
 
         for (String line : Files.readAllLines(path)) {
