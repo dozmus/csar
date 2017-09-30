@@ -118,8 +118,8 @@ public class IgnoreFilesTest {
 
     @Test
     public void testIgnored() throws IOException {
-        Path path = Paths.get("src/test/resources/com/purecs/ignorefiles/.csarignore");
-        List<Rule> rules = IgnoreFiles.read(path);
+        Path path = Paths.get(IGNORE_FILE_DIR, ".csarignore");
+        List<Rule> rules = IgnoreFiles.read(IGNORE_FILE_DIR, path);
 
         // Project files
         assertTrue(rules, Paths.get(IGNORE_FILE_DIR, "csar.iml"));
