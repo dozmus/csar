@@ -1,6 +1,7 @@
 package org.qmul.csar.lang.descriptor;
 
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.util.OptionalUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +22,13 @@ public class MethodDescriptor implements Descriptor {
     private final Optional<Boolean> defaultModifier;
     private final Optional<Boolean> overridden;
     private final Optional<Boolean> hasTypeArguments;
+    private final Optional<Boolean> hasParameters;
+    private final Optional<Boolean> hasThrownExceptions;
     private final Optional<Integer> parameterCount;
     private final List<ParameterVariableDescriptor> parameters;
     private final List<String> thrownExceptions;
     private final List<String> typeParameters;
+    // TODO need hasThrownExceptions, hasParameters
 
     public MethodDescriptor(String identifierName, Optional<String> returnType,
             Optional<VisibilityModifier> visibilityModifier, Optional<Boolean> staticModifier,
@@ -33,7 +37,8 @@ public class MethodDescriptor implements Descriptor {
             Optional<Boolean> nativeModifier, Optional<Boolean> defaultModifier,
             Optional<Boolean> overridden, Optional<Boolean> hasTypeArguments,
             Optional<Integer> parameterCount, List<ParameterVariableDescriptor> parameters,
-            List<String> thrownExceptions, List<String> typeParameters) {
+            List<String> thrownExceptions, List<String> typeParameters,
+            Optional<Boolean> hasParameters, Optional<Boolean> hasThrownExceptions) {
         this.identifierName = identifierName;
         this.returnType = returnType;
         this.visibilityModifier = visibilityModifier;
@@ -50,6 +55,8 @@ public class MethodDescriptor implements Descriptor {
         this.parameters = parameters;
         this.thrownExceptions = thrownExceptions;
         this.typeParameters = typeParameters;
+        this.hasParameters = hasParameters;
+        this.hasThrownExceptions = hasThrownExceptions;
     }
 
     public String getIdentifierName() {
@@ -116,6 +123,37 @@ public class MethodDescriptor implements Descriptor {
         return typeParameters;
     }
 
+    public Optional<Boolean> getHasParameters() {
+        return hasParameters;
+    }
+
+    public Optional<Boolean> getHasThrownExceptions() {
+        return hasThrownExceptions;
+    }
+
+    @Override
+    public boolean lenientEquals(Descriptor o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MethodDescriptor that = (MethodDescriptor) o;
+        return Objects.equals(identifierName, that.identifierName) // TODO compare using regex
+                && OptionalUtils.lenientEquals(returnType, that.returnType)
+                && OptionalUtils.lenientEquals(visibilityModifier, that.visibilityModifier)
+                && OptionalUtils.lenientEquals(staticModifier, that.staticModifier)
+                && OptionalUtils.lenientEquals(finalModifier, that.finalModifier)
+                && OptionalUtils.lenientEquals(abstractModifier, that.abstractModifier)
+                && OptionalUtils.lenientEquals(strictfpModifier, that.strictfpModifier)
+                && OptionalUtils.lenientEquals(synchronizedModifier, that.synchronizedModifier)
+                && OptionalUtils.lenientEquals(nativeModifier, that.nativeModifier)
+                && OptionalUtils.lenientEquals(defaultModifier, that.defaultModifier)
+                && OptionalUtils.lenientEquals(overridden, that.overridden)
+                && OptionalUtils.lenientEquals(hasParameters, parameters, that.hasParameters, that.parameters)
+                && OptionalUtils.lenientEquals(hasThrownExceptions, thrownExceptions, that.hasThrownExceptions,
+                        that.thrownExceptions)
+                && OptionalUtils.lenientEquals(hasTypeArguments, typeParameters, that.hasTypeArguments,
+                        that.typeParameters);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -133,6 +171,8 @@ public class MethodDescriptor implements Descriptor {
                 && Objects.equals(defaultModifier, that.defaultModifier)
                 && Objects.equals(overridden, that.overridden)
                 && Objects.equals(hasTypeArguments, that.hasTypeArguments)
+                && Objects.equals(hasParameters, that.hasParameters)
+                && Objects.equals(hasThrownExceptions, that.hasThrownExceptions)
                 && Objects.equals(parameterCount, that.parameterCount)
                 && Objects.equals(parameters, that.parameters)
                 && Objects.equals(thrownExceptions, that.thrownExceptions)
@@ -143,7 +183,8 @@ public class MethodDescriptor implements Descriptor {
     public int hashCode() {
         return Objects.hash(identifierName, returnType, visibilityModifier, staticModifier, finalModifier,
                 abstractModifier, strictfpModifier, synchronizedModifier, nativeModifier, defaultModifier, overridden,
-                hasTypeArguments, parameterCount, parameters, thrownExceptions, typeParameters);
+                hasTypeArguments, hasParameters, hasThrownExceptions, parameterCount, parameters, thrownExceptions,
+                typeParameters);
     }
 
     @Override
@@ -152,10 +193,11 @@ public class MethodDescriptor implements Descriptor {
                 "MethodDescriptor{identifierName='%s', returnType=%s, visibilityModifier=%s, staticModifier=%s, "
                         + "finalModifier=%s, abstractModifier=%s, strictfpModifier=%s, synchronizedModifier=%s, "
                         + "nativeModifier=%s, defaultModifier=%s, overridden=%s, hasTypeArguments=%s, "
-                        + "parameterCount=%s, parameters=%s, thrownExceptions=%s, typeParameters=%s}",
+                        + "hasParameters=%s, hasThrownExceptions=%s, parameterCount=%s, parameters=%s, "
+                        + "thrownExceptions=%s, typeParameters=%s}",
                 identifierName, returnType, visibilityModifier, staticModifier, finalModifier, abstractModifier,
                 strictfpModifier, synchronizedModifier, nativeModifier, defaultModifier, overridden, hasTypeArguments,
-                parameterCount, parameters, thrownExceptions, typeParameters);
+                hasParameters, hasThrownExceptions, parameterCount, parameters, thrownExceptions, typeParameters);
     }
 
     public static class Builder {
@@ -172,6 +214,8 @@ public class MethodDescriptor implements Descriptor {
         private Optional<Boolean> defaultModifier = Optional.empty();
         private Optional<Boolean> overridden = Optional.empty();
         private Optional<Boolean> hasTypeArguments = Optional.empty();
+        private Optional<Boolean> hasParameters = Optional.empty();
+        private Optional<Boolean> hasThrownExceptions = Optional.empty();
         private Optional<Integer> parameterCount = Optional.empty();
         private List<ParameterVariableDescriptor> parameters = new ArrayList<>();
         private List<String> thrownExceptions = new ArrayList<>();
@@ -187,7 +231,9 @@ public class MethodDescriptor implements Descriptor {
                     .nativeModifier(false)
                     .defaultModifier(false)
                     .overridden(false)
-                    .hasTypeArguments(false);
+                    .hasTypeArguments(false)
+                    .hasParameters(false)
+                    .hasThrownExceptions(false);
         }
 
         public Builder(String identifierName) {
@@ -249,6 +295,16 @@ public class MethodDescriptor implements Descriptor {
             return this;
         }
 
+        public Builder hasThrownExceptions(boolean hasThrownExceptions) {
+            this.hasThrownExceptions = Optional.of(hasThrownExceptions);
+            return this;
+        }
+
+        public Builder hasParameters(boolean hasParameters) {
+            this.hasParameters = Optional.of(hasParameters);
+            return this;
+        }
+
         public Builder parameterCount(int parameterCount) {
             this.parameterCount = Optional.of(parameterCount);
             return this;
@@ -272,7 +328,8 @@ public class MethodDescriptor implements Descriptor {
         public MethodDescriptor build() {
             return new MethodDescriptor(identifierName, returnType, visibilityModifier, staticModifier, finalModifier,
                     abstractModifier, strictfpModifier, synchronizedModifier, nativeModifier, defaultModifier,
-                    overridden, hasTypeArguments, parameterCount, parameters, thrownExceptions, typeParameters);
+                    overridden, hasTypeArguments, parameterCount, parameters, thrownExceptions, typeParameters,
+                    hasParameters, hasThrownExceptions);
         }
     }
 }

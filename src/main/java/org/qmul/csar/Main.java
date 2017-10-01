@@ -63,7 +63,7 @@ public final class Main {
             csar = CsarFactory.create(ctx);
         } catch (IOException ex) {
             System.err.println("Error reading ignore file because " + ex.getMessage());
-            System.exit(4);
+            System.exit(5);
         }
 
         if (!csar.parseQuery()) {
@@ -74,7 +74,11 @@ public final class Main {
             System.exit(3);
         }
 
-        // TODO search, refactor, print results
+        if (!csar.searchCode()) {
+            System.exit(4);
+        }
+
+        // TODO refactor, print results
     }
 
     /**

@@ -3,8 +3,9 @@ package org.qmul.csar.code;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.qmul.csar.code.java.expression.*;
-import org.qmul.csar.code.java.statement.*;
+import org.qmul.csar.code.parse.CodeParserFactory;
+import org.qmul.csar.code.parse.java.expression.*;
+import org.qmul.csar.code.parse.java.statement.*;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
@@ -17,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.qmul.csar.code.java.expression.UnitExpression.ValueType.*;
+import static org.qmul.csar.code.parse.java.expression.UnitExpression.ValueType.*;
 
 @RunWith(value = Parameterized.class)
 public final class JavaCodeGeneratorTest {
@@ -96,6 +97,7 @@ public final class JavaCodeGeneratorTest {
                 .returnType("void")
                 .parameters(Arrays.asList(param21.getDescriptor(), param22.getDescriptor()))
                 .parameterCount(2)
+                .hasParameters(true)
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Method #2
@@ -105,6 +107,7 @@ public final class JavaCodeGeneratorTest {
                 .finalModifier(true)
                 .returnType("int")
                 .parameterCount(0)
+                .hasParameters(false)
                 .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(returnSt)), new ArrayList<>());
 
         // Method #3
@@ -126,7 +129,9 @@ public final class JavaCodeGeneratorTest {
                 .returnType("void")
                 .parameters(Arrays.asList(param31.getDescriptor()))
                 .parameterCount(1)
+                .hasParameters(true)
                 .typeParameters(Arrays.asList("E extends AbstractSample"))
+                .hasTypeArguments(true)
                 .build(),
                 Arrays.asList(param31), new BlockStatement(Arrays.asList(local, assignmentExpr)), new ArrayList<>());
 
@@ -169,6 +174,7 @@ public final class JavaCodeGeneratorTest {
                 .defaultModifier(true)
                 .parameters(Arrays.asList(param1.getDescriptor()))
                 .parameterCount(1)
+                .hasParameters(true)
                 .build(), Arrays.asList(param1), new BlockStatement(Arrays.asList(methodCall1)), new ArrayList<>());
 
         // Method #2
@@ -179,7 +185,9 @@ public final class JavaCodeGeneratorTest {
                 .returnType("void")
                 .parameters(Arrays.asList(param21.getDescriptor(), param22.getDescriptor()))
                 .parameterCount(2)
+                .hasParameters(true)
                 .typeParameters(Arrays.asList("E"))
+                .hasTypeArguments(true)
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Instance #1
@@ -200,6 +208,7 @@ public final class JavaCodeGeneratorTest {
                 .returnType("void")
                 .parameters(Arrays.asList(param31.getDescriptor()))
                 .parameterCount(1)
+                .hasParameters(true)
                 .build(), Arrays.asList(param31), BlockStatement.EMPTY, new ArrayList<>());
 
         // Top-level class
@@ -248,9 +257,8 @@ public final class JavaCodeGeneratorTest {
                 .build(), Optional.of(new UnitExpression(LITERAL, "30")), new ArrayList<>());
         LocalVariableStatements locals = new LocalVariableStatements(Arrays.asList(local));
 
-        Expression methodName = SOUT_PRINTLN;
         List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "x"));
-        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments));
+        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN, arguments));
 
         MethodStatement innerClassMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("run")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
@@ -310,6 +318,7 @@ public final class JavaCodeGeneratorTest {
                 .returnType("void")
                 .parameters(params.stream().map(ParameterVariableStatement::getDescriptor).collect(Collectors.toList()))
                 .parameterCount(1)
+                .hasParameters(true)
                 .build(), params, BlockStatement.EMPTY, new ArrayList<>());
         ClassStatement innerClass = new ClassStatement(ClassDescriptor.Builder.allFalse("B")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
@@ -379,6 +388,7 @@ public final class JavaCodeGeneratorTest {
                 .returnType("Integer")
                 .parameters(Arrays.asList(param1.getDescriptor(), param2.getDescriptor()))
                 .parameterCount(2)
+                .hasParameters(true)
                 .build();
 
         // Constants
@@ -552,6 +562,7 @@ public final class JavaCodeGeneratorTest {
                 .returnType("void")
                 .parameters(Arrays.asList(param.getDescriptor()))
                 .parameterCount(1)
+                .hasParameters(true)
                 .build(), Arrays.asList(param), new BlockStatement(Arrays.asList(r1, r2, bo1, bo2, streamApiCall)),
                 new ArrayList<>());
 

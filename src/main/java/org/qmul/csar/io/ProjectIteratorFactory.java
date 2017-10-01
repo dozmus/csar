@@ -2,7 +2,7 @@ package org.qmul.csar.io;
 
 import com.purecs.ignorefiles.IgnoreFiles;
 import com.purecs.ignorefiles.Rule;
-import org.qmul.csar.code.CodeParserFactory;
+import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.util.FilterableIterator;
 
 import java.io.IOException;

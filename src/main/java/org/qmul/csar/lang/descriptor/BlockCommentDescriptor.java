@@ -1,5 +1,7 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.qmul.csar.lang.Descriptor;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -14,6 +16,11 @@ public class BlockCommentDescriptor extends AbstractCommentDescriptor {
 
     public Optional<Boolean> getJavadoc() {
         return javadoc;
+    }
+
+    @Override
+    public boolean lenientEquals(Descriptor other) {
+        return false; // TODO impl
     }
 
     @Override

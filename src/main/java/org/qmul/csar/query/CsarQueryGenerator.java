@@ -126,15 +126,18 @@ class CsarQueryGenerator extends CsarParserBaseListener {
 
         // methodParameters
         Optional<Integer> parameterCount = Optional.empty();
+        Optional<Boolean> hasParameters = Optional.empty();
         List<ParameterVariableDescriptor> parameters = new ArrayList<>();
 
         if (ctx.methodParameters() != null) {
             MethodParametersContext paramsCtx = ctx.methodParameters();
 
             if (paramsCtx.NUMBER() != null) {
+                hasParameters = Optional.of(true);
                 int count = Integer.parseInt(paramsCtx.NUMBER().getText());
                 parameterCount = Optional.of(count);
             } else if (paramsCtx.paramTypeList() != null) {
+                hasParameters = Optional.of(true);
                 ParamTypeListContext pnt = paramsCtx.paramTypeList();
                 parameters.add(parseParameterVariableDescriptor(pnt.type(), pnt.FINAL()));
 
@@ -142,6 +145,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
                     parameters.add(parseParameterVariableDescriptor(p.type(), p.FINAL()));
                 }
             } else if (paramsCtx.paramNamedTypeList() != null) {
+                hasParameters = Optional.of(true);
                 ParamNamedTypeListContext ntlc = paramsCtx.paramNamedTypeList();
                 parameters.add(parseParameterVariableDescriptor(ntlc.identifierName(), ntlc.type(), ntlc.FINAL()));
 
@@ -152,9 +156,12 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
 
         // methodThrownExceptions
+        Optional<Boolean> hasThrownExceptions = Optional.empty();
         List<String> thrownExceptions = new ArrayList<>();
 
         if (ctx.methodThrownExceptions() != null) {
+            hasThrownExceptions = Optional.of(true);
+
             for (TypeContext type : ctx.methodThrownExceptions().typeList().type()) {
                 thrownExceptions.add(type.getText());
             }
@@ -170,6 +177,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         visibilityModifier.ifPresent(builder::visibilityModifier);
         returnType.ifPresent(builder::returnType);
         parameterCount.ifPresent(builder::parameterCount);
+        hasParameters.ifPresent(builder::hasParameters);
+        hasThrownExceptions.ifPresent(builder::hasThrownExceptions);
         return new TargetDescriptor(Optional.of(searchType), builder.build());
     }
 

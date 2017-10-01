@@ -27,6 +27,6 @@ public final class CsarFactory {
         } else {
             it = ProjectIteratorFactory.createFilteredIterator(ctx.getProjectDirectory(), ctx.isNarrowSearch());
         }
-        return new Csar(ctx.getQuery(), new ProjectCodeParser(it, ctx.getThreads()));
+        return new Csar(ctx.getQuery(), new ProjectCodeParser(it, ctx.getThreads()), ctx.getResultFormatter());
     }
 }

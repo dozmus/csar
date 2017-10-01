@@ -42,6 +42,11 @@ public class AnnotationDescriptor implements Descriptor {
     }
 
     @Override
+    public boolean lenientEquals(Descriptor other) {
+        return false; // TODO impl
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
