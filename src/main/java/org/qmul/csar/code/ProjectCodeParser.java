@@ -87,7 +87,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
                         // Get the next file
                         Path file = next();
                         fileName = file.getFileName().toString();
-                        LOGGER.trace("Parsing {}", fileName);
+                        LOGGER.debug("Parsing {}", fileName);
 
                         // Parse file
                         try {
@@ -107,7 +107,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
                         if (LOGGER.isTraceEnabled()) {
                             LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                         }
-                        LOGGER.trace("Parsed {}", fileName);
+                        LOGGER.debug("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
                     LOGGER.error("Parsing terminated {} because {}", fileName, ex.getMessage());
