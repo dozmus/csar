@@ -9,7 +9,7 @@ Useful Material
   This work is regarding dependence-based code searching. They have also devised a query language to make producing Program Dependency Graphs easier.  
 * [Shepherd D, Damevski K, Ropski B, Fritz T. "Sando: an extensible local code search framework." Proceedings of the ACM SIGSOFT 20th International Symposium on the foundations of software engineering (2012).](http://dl.acm.org.ezproxy.library.qmul.ac.uk/citation.cfm?id=2393612)  
   This work is regarding an extensible plain-text code search in local projects.
-* There are also tons of material on code search engines, ranking code samples and finding code from textual descriptions, if the need arises.
+* There are also tons of material on code search engines, ranking code samples and text matching, if the need arises.
 
 ## Related Programs
 * [grep](https://en.wikipedia.org/wiki/Grep)  
