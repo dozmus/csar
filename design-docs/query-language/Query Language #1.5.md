@@ -24,6 +24,8 @@ NOT: 'NOT' | 'not';
 CLASS_NV: 'CLASS' | 'cls' | 'c';
 CLASS_V: 'class'; // separated the java keyword from the non-keywords
 METHOD: 'METHOD' | 'method' | 'm' | 'FUNCTION' | 'function' | 'func' | 'fn' | 'f';
+CONSTRUCTOR: 'CONSTRUCTOR' | 'constructor' | 'cons';
+STATIC_CONSTRUCTOR: 'STATICCONSTRUCTOR' | 'staticconstructor' | 'staticcons';
 
 INSTANCE: 'INSTANCE' | 'instance' | 'FIELD' | 'field' | 'i';
 LOCAL: 'LOCAL' | 'local' | 'l';
@@ -56,6 +58,8 @@ INNER: 'inner';
 SUPER: 'super';
 OVERRIDDEN: 'overridden';
 THROWS: 'throws';
+GOTO: 'goto';
+DEFAULT: 'default';
 
 // Refactor
 RENAME: 'rename';
@@ -105,13 +109,13 @@ fragment JAVA_LETTER
 parser grammar CsarParser;
 
 // Csar query (top-level)
-csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
-containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*;
-containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
+csarQuery: (SELECT SPACE)? elementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
+containsQuery: CONTAINS SPACE (NOT SPACE)? elementDescriptor containsQueryRest*;
+containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? elementDescriptor;
 fromQuery: FROM SPACE typeList;
 refactorQuery: REFACTOR SPACE refactorElement;
 
-statementDescriptor: clazz | method | variable | conditional | comment;
+elementDescriptor: clazz | method | variable | constructor | conditional | comment;
 refactorElement: rename | changeParameters | reduceDuplicates | move;
 
 // Class
@@ -121,7 +125,7 @@ superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 
 // Method
 method
-    : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
+    : METHOD commonModifiers (OVERRIDDEN SPACE)? (DEFAULT SPACE)? (type SPACE)? identifierName
      (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
@@ -131,6 +135,14 @@ paramTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type;
 paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest*;
 paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifierName;
 
+// Constructor
+constructor: CONSTRUCTOR commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
+     (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
+    ;
+
+// Static constructor
+staticConstructor: STATIC_CONSTRUCTOR;
+
 // Variable
 variable: instanceVariable | localVariable | paramVariable;
 instanceVariable: INSTANCE commonModifiers instanceVariableModifiers (type SPACE)? identifierName;
@@ -139,7 +151,7 @@ localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identi
 paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 
 // Conditional
-conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
+conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0 | goto0;
 if0: IF (LPAREN expr RPAREN)?;
 switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
 while0: WHILE (LPAREN expr RPAREN)?;
@@ -148,6 +160,7 @@ for0: FOR;
 foreach: FOREACH (COLON identifierName)?;
 ternary: TERNARY;
 synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
+goto0: GOTO (COLON identifierName)?;
 
 // Comment
 comment: singleLineComment | multiLineComment;
@@ -170,7 +183,8 @@ namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ ident
 identifierName
     : IDENTIFIER_NAME | SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | DOWHILE | TERNARY | RENAME
     | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
-    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | MOVE | REDUCE_DUPLICATES
+    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | MOVE | REDUCE_DUPLICATES | CONSTRUCTOR
+    | STATIC_CONSTRUCTOR
     ;
 
 content
@@ -179,7 +193,7 @@ content
         | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
-        | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES
+        | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES | GOTO | DEFAULT | CONSTRUCTOR | STATIC_CONSTRUCTOR
       )*
     ;
 expr: content;
@@ -192,24 +206,21 @@ expr: content;
 * Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
 
 ## Problems with the Syntax
+* Cannot represent type parameters
 * Cannot represent lambdas
-* Cannot represent goto
 * Cannot represent try-catch blocks
 * Cannot represent enums
 * Cannot represent annotations (definitions and usages)
 * Cannot represent throw (i.e. throwing an exception)
 * Cannot represent type parameters (generics) for classes/interfaces/methods
-* Cannot represent annotations
-* Cannot represent default methods
-* Cannot represent constructors
-* Cannot represent static constructors
 * Cannot represent varargs in method parameters
 * Cannot represent identifiers with generic types, i.e. `List<String>`
 * Cannot have methods which are abstract or strictfp
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
 * Cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
-  However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error. One solution is to print an error message and terminate.
+  However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error.
+  One solution to this is to print an error message and terminate.
 
 ## Use Cases
 The use-cases will detail why and how end users might use this tool.  
