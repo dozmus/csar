@@ -60,6 +60,7 @@ OVERRIDDEN: 'overridden';
 THROWS: 'throws';
 GOTO: 'goto';
 DEFAULT: 'default';
+THROW: 'throw';
 
 // Refactor
 RENAME: 'rename';
@@ -79,6 +80,7 @@ COMMA: ',';
 S_QUOTE: '\'';
 LPAREN: '(';
 RPAREN: ')';
+ELLIPSIS: '...';
 
 // Language elements
 IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
@@ -125,15 +127,18 @@ superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 
 // Method
 method
-    : METHOD commonModifiers (OVERRIDDEN SPACE)? (DEFAULT SPACE)? (type SPACE)? identifierName
-     (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
+    : METHOD commonModifiers (OVERRIDDEN SPACE)? (ABSTRACT SPACE)? (STRICTFP SPACE)? (DEFAULT SPACE)?
+     (type SPACE)? identifierName (SPACE? methodParameters)? (SPACE methodThrownExceptions)?
+     (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
 methodThrownExceptions: THROWS SPACE* LPAREN SPACE* typeList SPACE* RPAREN;
-paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest*;
+paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest* paramTypeListEnd?;
 paramTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type;
-paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest*;
+paramTypeListEnd: SPACE* COMMA (FINAL SPACE)? SPACE* type ELLIPSIS?;
+paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest* paramTypeListEnd?;
 paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifierName;
+paramNamedTypeListEnd: SPACE* COMMA (FINAL SPACE)? SPACE* type ELLIPSIS? SPACE+ identifierName;
 
 // Constructor
 constructor: CONSTRUCTOR commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
@@ -151,7 +156,7 @@ localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identi
 paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 
 // Conditional
-conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0 | goto0;
+conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0 | goto0 | throw0;
 if0: IF (LPAREN expr RPAREN)?;
 switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
 while0: WHILE (LPAREN expr RPAREN)?;
@@ -161,6 +166,7 @@ foreach: FOREACH (COLON identifierName)?;
 ternary: TERNARY;
 synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
 goto0: GOTO (COLON identifierName)?;
+throw0: THROW (COLON identifierName SPACE? (methodParameters? | LPAREN RPAREN) (SPACE methodThrownExceptions)?);
 
 // Comment
 comment: singleLineComment | multiLineComment;
@@ -193,7 +199,8 @@ content
         | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
-        | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES | GOTO | DEFAULT | CONSTRUCTOR | STATIC_CONSTRUCTOR
+        | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES | GOTO | DEFAULT | CONSTRUCTOR | STATIC_CONSTRUCTOR | THROW
+        | ELLIPSIS
       )*
     ;
 expr: content;
@@ -206,16 +213,12 @@ expr: content;
 * Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
 
 ## Problems with the Syntax
-* Cannot represent type parameters
 * Cannot represent lambdas
 * Cannot represent try-catch blocks
 * Cannot represent enums
 * Cannot represent annotations (definitions and usages)
-* Cannot represent throw (i.e. throwing an exception)
 * Cannot represent type parameters (generics) for classes/interfaces/methods
-* Cannot represent varargs in method parameters
 * Cannot represent identifiers with generic types, i.e. `List<String>`
-* Cannot have methods which are abstract or strictfp
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
 * Cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
