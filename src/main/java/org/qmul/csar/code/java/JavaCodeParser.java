@@ -4,6 +4,7 @@ import grammars.java8pt.JavaLexer;
 import grammars.java8pt.JavaParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.qmul.csar.code.CodeParser;
 import org.qmul.csar.lang.Statement;
@@ -24,7 +25,9 @@ public final class JavaCodeParser implements CodeParser {
     @Override
     public Statement parse(Path file) throws IOException {
         JavaLexer lexer = new JavaLexer(CharStreams.fromPath(file));
+        lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
         JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
+        parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
 
         // Generate the code tree for it
         ParseTreeWalker walker = new ParseTreeWalker();

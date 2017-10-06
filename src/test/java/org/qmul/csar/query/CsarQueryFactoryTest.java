@@ -335,7 +335,7 @@ public final class CsarQueryFactoryTest {
 
     @Test(expected = RuntimeException.class)
     public void testInvalidClassNameQuery() {
-        parse("class:def:Element[]"); // XXX prints `line 1:17 no viable alternative at input '['` to std.err
+        parse("class:def:Element[]");
     }
 
     @Test(expected = RuntimeException.class)
