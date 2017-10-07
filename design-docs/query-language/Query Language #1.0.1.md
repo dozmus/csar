@@ -1,4 +1,4 @@
-# Query Language (Draft #1.1)
+# Query Language (Draft #1.0.1)
 ## Syntax
 | Target Element | Query | Notes |
 |---|---|---|

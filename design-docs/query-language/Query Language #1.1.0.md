@@ -1,4 +1,4 @@
-# Query Language (Draft #1.2)
+# Query Language (Draft #1.1.0)
 ## Syntax ([E-BNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form))
 ```
 query = element [('CONTAINS' | 'contains') ['not'] element {('and' | 'or') ['not'] element}]

@@ -1,4 +1,4 @@
-# Query Language (Draft #1.3)
+# Query Language (Draft #1.1.1)
 ## Syntax ([E-BNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form))
 ```
 csarquery = 'SELECT ' query [' FROM ' element] ' REFACTOR ' refactor

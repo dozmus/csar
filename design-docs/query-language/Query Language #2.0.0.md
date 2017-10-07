@@ -1,4 +1,4 @@
-# Query Language (Draft #1.4)
+# Query Language (Draft #2.0.0) - WILL NOT BE IMPLEMENTED!
 ## Syntax (ANTLR4)
 ```
 /**
@@ -24,6 +24,8 @@ NOT: 'NOT' | 'not';
 CLASS_NV: 'CLASS' | 'cls' | 'c';
 CLASS_V: 'class'; // separated the java keyword from the non-keywords
 METHOD: 'METHOD' | 'method' | 'm' | 'FUNCTION' | 'function' | 'func' | 'fn' | 'f';
+CONSTRUCTOR: 'CONSTRUCTOR' | 'constructor' | 'cons';
+STATIC_CONSTRUCTOR: 'STATICCONSTRUCTOR' | 'staticconstructor' | 'staticcons';
 
 INSTANCE: 'INSTANCE' | 'instance' | 'FIELD' | 'field' | 'i';
 LOCAL: 'LOCAL' | 'local' | 'l';
@@ -56,10 +58,15 @@ INNER: 'inner';
 SUPER: 'super';
 OVERRIDDEN: 'overridden';
 THROWS: 'throws';
+GOTO: 'goto';
+DEFAULT: 'default';
+THROW: 'throw';
 
 // Refactor
 RENAME: 'rename';
 CHANGE_PARAMETERS: 'changeparam';
+MOVE: 'move';
+REDUCE_DUPLICATES: 'reducedups';
 
 // Misc
 TRANSIENT: 'transient';
@@ -73,6 +80,7 @@ COMMA: ',';
 S_QUOTE: '\'';
 LPAREN: '(';
 RPAREN: ')';
+ELLIPSIS: '...';
 
 // Language elements
 IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
@@ -103,14 +111,14 @@ fragment JAVA_LETTER
 parser grammar CsarParser;
 
 // Csar query (top-level)
-csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
-containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*;
-containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
+csarQuery: (SELECT SPACE)? elementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
+containsQuery: CONTAINS SPACE (NOT SPACE)? elementDescriptor containsQueryRest*;
+containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? elementDescriptor;
 fromQuery: FROM SPACE typeList;
 refactorQuery: REFACTOR SPACE refactorElement;
 
-statementDescriptor: clazz | method | variable | conditional | comment;
-refactorElement: rename | changeParameters;
+elementDescriptor: clazz | method | variable | constructor | conditional | comment;
+refactorElement: rename | changeParameters | reduceDuplicates | move;
 
 // Class
 clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers identifierName superClassList?;
@@ -119,15 +127,26 @@ superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 
 // Method
 method
-    : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
-     (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
+    : METHOD commonModifiers (OVERRIDDEN SPACE)? (ABSTRACT SPACE)? (STRICTFP SPACE)? (DEFAULT SPACE)?
+     (type SPACE)? identifierName (SPACE? methodParameters)? (SPACE methodThrownExceptions)?
+     (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
 methodThrownExceptions: THROWS SPACE* LPAREN SPACE* typeList SPACE* RPAREN;
-paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest*;
+paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest* paramTypeListEnd?;
 paramTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type;
-paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest*;
+paramTypeListEnd: SPACE* COMMA (FINAL SPACE)? SPACE* type ELLIPSIS?;
+paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest* paramTypeListEnd?;
 paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifierName;
+paramNamedTypeListEnd: SPACE* COMMA (FINAL SPACE)? SPACE* type ELLIPSIS? SPACE+ identifierName;
+
+// Constructor
+constructor: CONSTRUCTOR commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
+     (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
+    ;
+
+// Static constructor
+staticConstructor: STATIC_CONSTRUCTOR;
 
 // Variable
 variable: instanceVariable | localVariable | paramVariable;
@@ -137,7 +156,7 @@ localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identi
 paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 
 // Conditional
-conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
+conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0 | goto0 | throw0;
 if0: IF (LPAREN expr RPAREN)?;
 switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
 while0: WHILE (LPAREN expr RPAREN)?;
@@ -146,6 +165,8 @@ for0: FOR;
 foreach: FOREACH (COLON identifierName)?;
 ternary: TERNARY;
 synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
+goto0: GOTO (COLON identifierName)?;
+throw0: THROW (COLON identifierName SPACE? (methodParameters? | LPAREN RPAREN) (SPACE methodThrownExceptions)?);
 
 // Comment
 comment: singleLineComment | multiLineComment;
@@ -155,6 +176,8 @@ multiLineComment: MULTI_LINE_COMMENT (COLON JAVADOC)? (COLON S_QUOTE content S_Q
 // Refactor
 rename: RENAME COLON SPACE* identifierName;
 changeParameters: CHANGE_PARAMETERS COLON SPACE* (typeList | namedTypeList);
+move: MOVE COLON SPACE* (S_QUOTE content S_QUOTE) SPACE+ (S_QUOTE content S_QUOTE);
+reduceDuplicates: REDUCE_DUPLICATES COLON SPACE* (S_QUOTE content S_QUOTE);
 
 // Helpers
 commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPACE)? (FINAL SPACE)?;
@@ -166,7 +189,8 @@ namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ ident
 identifierName
     : IDENTIFIER_NAME | SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | DOWHILE | TERNARY | RENAME
     | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
-    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV
+    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | MOVE | REDUCE_DUPLICATES | CONSTRUCTOR
+    | STATIC_CONSTRUCTOR
     ;
 
 content
@@ -175,7 +199,8 @@ content
         | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
-        | LBRACK | RBRACK
+        | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES | GOTO | DEFAULT | CONSTRUCTOR | STATIC_CONSTRUCTOR | THROW
+        | ELLIPSIS
       )*
     ;
 expr: content;
@@ -189,23 +214,16 @@ expr: content;
 
 ## Problems with the Syntax
 * Cannot represent lambdas
-* Cannot represent goto
 * Cannot represent try-catch blocks
 * Cannot represent enums
 * Cannot represent annotations (definitions and usages)
-* Cannot represent throw (i.e. throwing an exception)
 * Cannot represent type parameters (generics) for classes/interfaces/methods
-* Cannot represent annotations
-* Cannot represent default methods
-* Cannot represent constructors
-* Cannot represent static constructors
-* Cannot represent varargs in method parameters
 * Cannot represent identifiers with generic types, i.e. `List<String>`
-* Cannot have methods which are abstract or strictfp
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
 * Cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
-  However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error. One solution is to print an error message and terminate.
+  However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error.
+  One solution to this is to print an error message and terminate.
 
 ## Use Cases
 The use-cases will detail why and how end users might use this tool.  
@@ -266,3 +284,9 @@ These indicate if the tool will aim to handle searching/refactoring/etc of them.
   **Solution**: `method:def:add FROM MathHelper REFACTOR rename:addInt`
 * **Task (S)**: Change a method called `add`'s parameters from `(int x, int y)` to `(Number a, Number b)`.
   **Solution**: `method:def:add(int x, int y) REFACTOR changeparam:(Number a, Number b)`
+* **Task (U)**: Find and remove duplicates (by creating a new method with the appropriate signature and calling it).
+  **Solution**: `reducedups:'generated_method_name_format-%d'`
+* **Task (U)**: Move an element from one place to another.  
+  **Solution**: `method:def:static add REFACTOR move:'com.example.MathHelper' 'com.example.util.MathHelper'`  
+  Note: You don't need a `FROM` here if it is implied by the `move` parameters.  
+  Note: This does not work for all types, it depends on the context.
