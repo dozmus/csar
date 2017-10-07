@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.qmul.csar.code.CodeParser;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,8 +27,11 @@ public final class JavaCodeParser implements CodeParser {
     public Statement parse(Path file) throws IOException {
         JavaLexer lexer = new JavaLexer(CharStreams.fromPath(file));
         lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
+        lexer.addErrorListener(new ThrowRuntimeExceptionErrorListener("java"));
+
         JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+        parser.addErrorListener(new ThrowRuntimeExceptionErrorListener("java"));
 
         // Generate the code tree for it
         ParseTreeWalker walker = new ParseTreeWalker();

@@ -28,12 +28,13 @@ public final class CsarQueryFactory {
         // Create and configure parser
         CsarLexer lexer = new CsarLexer(CharStreams.fromString(query));
         lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
+        lexer.addErrorListener(new ThrowRuntimeExceptionErrorListener("csar query"));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
+
         CsarParser parser = new CsarParser(tokens);
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+        parser.addErrorListener(new ThrowRuntimeExceptionErrorListener("csar query"));
         parser.setErrorHandler(new BailErrorStrategy()); // terminate parsing early if a parsing error occurs
-        parser.addErrorListener(
-                new ThrowRuntimeExceptionErrorListener("csar query")); // throw runtime exception if a parsing error
 
         // Generate and return csar query
         ParseTreeWalker walker = new ParseTreeWalker();
