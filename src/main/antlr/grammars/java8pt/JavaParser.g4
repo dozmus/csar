@@ -523,7 +523,7 @@ primary
     ;
 
 methodReference
-    : (qualifiedName | typeType | (qualifiedName DOT)? SUPER ) COLONCOLON typeArguments? IDENTIFIER
+    : (qualifiedName | typeType | (qualifiedName DOT)? SUPER | THIS ) COLONCOLON typeArguments? IDENTIFIER
     | classType COLONCOLON typeArguments? NEW
     | typeType COLONCOLON NEW
     ;
