@@ -188,6 +188,7 @@ expr: content;
 * Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
 
 ## Problems with the Syntax
+* Cannot represent lots of statements
 * Cannot represent lambdas
 * Cannot represent goto
 * Cannot represent try-catch blocks
