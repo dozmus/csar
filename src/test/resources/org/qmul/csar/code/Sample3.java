@@ -1,5 +1,5 @@
-package grammars.java8pt
+package grammars.java8pt;
 
-public class Sample3<List extends Collection<String>, T> {
+public class Sample3<T0 extends Collection<String>, T1> {
 
 }

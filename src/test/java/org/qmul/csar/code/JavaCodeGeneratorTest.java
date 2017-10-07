@@ -219,7 +219,7 @@ public final class JavaCodeGeneratorTest {
     private static TypeStatement sample3() {
         return createClass(ClassDescriptor.Builder.allFalse("Sample3")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .typeParameters(Arrays.asList("List extends Collection<String>", "T"))
+                .typeParameters(Arrays.asList("T0 extends Collection<String>", "T1"))
                 .build());
     }
 
