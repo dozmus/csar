@@ -1,4 +1,4 @@
-# Query Language (Draft #2.0.0) - WILL NOT BE IMPLEMENTED!
+# Query Language (Draft #2.0.0)
 ## Syntax (ANTLR4)
 ```
 /**
