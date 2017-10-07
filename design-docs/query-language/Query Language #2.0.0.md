@@ -24,6 +24,9 @@ NOT: 'NOT' | 'not';
 CLASS_NV: 'CLASS' | 'cls' | 'c';
 CLASS_V: 'class'; // separated the java keyword from the non-keywords
 METHOD: 'METHOD' | 'method' | 'm' | 'FUNCTION' | 'function' | 'func' | 'fn' | 'f';
+ENUM_NV: 'ENUM' | 'e';
+ENUM_V: 'enum'; // separated the java keyword from the non-keywords
+ANNOTATION: 'annotation' | 'anon' | 'a';
 CONSTRUCTOR: 'CONSTRUCTOR' | 'constructor' | 'cons';
 STATIC_CONSTRUCTOR: 'STATICCONSTRUCTOR' | 'staticconstructor' | 'staticcons';
 
@@ -69,9 +72,14 @@ MOVE: 'move';
 REDUCE_DUPLICATES: 'reducedups';
 
 // Misc
+ENUM_CONST: 'enumconst' | 'enum_c' | 'enumc' | 'ec';
 TRANSIENT: 'transient';
 VOLATILE: 'volatile';
 JAVADOC: 'javadoc';
+LAMBDA: 'lambda';
+TRY_CATCH: 'trycatch';
+TRY_WRES_CATCH: 'trywres';
+CATCHES: 'catches';
 
 // Symbols
 SPACE: ' ';
@@ -112,36 +120,41 @@ parser grammar CsarParser;
 
 // Csar query (top-level)
 csarQuery: (SELECT SPACE)? elementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
-containsQuery: CONTAINS SPACE (NOT SPACE)? elementDescriptor containsQueryRest*;
-containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? elementDescriptor;
+containsQuery: CONTAINS SPACE containsQueryBody;
 fromQuery: FROM SPACE typeList;
 refactorQuery: REFACTOR SPACE refactorElement;
 
-elementDescriptor: clazz | method | variable | constructor | conditional | comment;
+containsQueryBody: containsQueryBody
+                | LPAREN SPACE* containsQueryBody SPACE* RPAREN
+                | (NOT SPACE)? elementDescriptor
+                | containsQueryBody SPACE (AND | OR) SPACE containsQueryBody;
+
+
+elementDescriptor: typeDecl | method | variable | constructor | controlFlow | statement | comment;
 refactorElement: rename | changeParameters | reduceDuplicates | move;
 
-// Class
-clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers identifierName superClassList?;
-classModifiers: ((ABSTRACT | INTERFACE) SPACE)? (STRICTFP SPACE)? (ANONYMOUS SPACE)? (INNER SPACE)?;
+// Type declaration
+typeDecl: (ENUM_NV | ENUM | ANNOTATION | CLASS_NV | CLASS_V) commonModifiers typeDeclModifiers identifierName superClassList?;
+typeDeclModifiers: (NOT? (ABSTRACT | INTERFACE) SPACE)? (NOT? STRICTFP SPACE)? (NOT? ANONYMOUS SPACE)? (NOT? INNER SPACE)?;
 superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 
 // Method
 method
-    : METHOD commonModifiers (OVERRIDDEN SPACE)? (ABSTRACT SPACE)? (STRICTFP SPACE)? (DEFAULT SPACE)?
+    : METHOD commonModifiers (NOT? OVERRIDDEN SPACE)? (NOT? ABSTRACT SPACE)? (NOT? STRICTFP SPACE)? (NOT? DEFAULT SPACE)?
      (type SPACE)? identifierName (SPACE? methodParameters)? (SPACE methodThrownExceptions)?
      (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
 methodThrownExceptions: THROWS SPACE* LPAREN SPACE* typeList SPACE* RPAREN;
-paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest* paramTypeListEnd?;
-paramTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type;
-paramTypeListEnd: SPACE* COMMA (FINAL SPACE)? SPACE* type ELLIPSIS?;
-paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest* paramTypeListEnd?;
-paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifierName;
-paramNamedTypeListEnd: SPACE* COMMA (FINAL SPACE)? SPACE* type ELLIPSIS? SPACE+ identifierName;
+paramTypeList: (NOT? FINAL SPACE)? SPACE* type paramTypeListRest* paramTypeListEnd?;
+paramTypeListRest: SPACE* COMMA (NOT? FINAL SPACE)? SPACE* type;
+paramTypeListEnd: SPACE* COMMA (NOT? FINAL SPACE)? SPACE* type ELLIPSIS?;
+paramNamedTypeList: (NOT? FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest* paramTypeListEnd?;
+paramNamedTypeListRest: SPACE* COMMA (NOT? FINAL SPACE)? SPACE* type SPACE+ identifierName;
+paramNamedTypeListEnd: SPACE* COMMA (NOT? FINAL SPACE)? SPACE* type ELLIPSIS? SPACE+ identifierName;
 
 // Constructor
-constructor: CONSTRUCTOR commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
+constructor: CONSTRUCTOR commonModifiers (NOT? OVERRIDDEN SPACE)? (type SPACE)? identifierName
      (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
     ;
 
@@ -151,22 +164,30 @@ staticConstructor: STATIC_CONSTRUCTOR;
 // Variable
 variable: instanceVariable | localVariable | paramVariable;
 instanceVariable: INSTANCE commonModifiers instanceVariableModifiers (type SPACE)? identifierName;
-instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
-localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
-paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
+instanceVariableModifiers: (NOT? (TRANSIENT | VOLATILE) SPACE)?;
+localVariable: LOCAL COLON searchType COLON (NOT? FINAL SPACE)? (type SPACE)? identifierName;
+paramVariable: PARAM COLON searchType COLON (NOT? FINAL SPACE)? (type SPACE)? identifierName;
 
-// Conditional
-conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0 | goto0 | throw0;
-if0: IF (LPAREN expr RPAREN)?;
-switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
-while0: WHILE (LPAREN expr RPAREN)?;
-dowhile: DOWHILE (LPAREN expr RPAREN)?;
+// Control Flow
+controlFlow: if0 | switch0 | while0 | dowhile | for0 | foreach | tryCatch | tryWithResCatch;
+if0: IF (exprParen)?;
+switch0: SWITCH (exprParen | COLON identifierName)?;
+while0: WHILE (exprParen)?;
+dowhile: DOWHILE (exprParen)?;
 for0: FOR;
 foreach: FOREACH (COLON identifierName)?;
-ternary: TERNARY;
-synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
+tryCatch: TRY_CATCH (CATCHES caughtList)?;
+tryWithResCatch: TRY_WRES_CATCH (LPAREN expr RPAREN (CATCHES caughtList)?)?;
+caughtList: NUMBER | paramTypeList | paramNamedTypeList;
+
+// Statements
+statement: synchronized0 | goto0 | throw0 | lambda | enumConst | ternary;
+synchronized0: SYNCHRONIZED (exprParen | COLON identifierName)?;
 goto0: GOTO (COLON identifierName)?;
 throw0: THROW (COLON identifierName SPACE? (methodParameters? | LPAREN RPAREN) (SPACE methodThrownExceptions)?);
+lambda: LAMBDA (COLON methodParameters)?;
+enumConst: ENUM_CONST ((COLON searchType)? COLON identifierName methodParameters?)?;
+ternary: TERNARY;
 
 // Comment
 comment: singleLineComment | multiLineComment;
@@ -180,7 +201,8 @@ move: MOVE COLON SPACE* (S_QUOTE content S_QUOTE) SPACE+ (S_QUOTE content S_QUOT
 reduceDuplicates: REDUCE_DUPLICATES COLON SPACE* (S_QUOTE content S_QUOTE);
 
 // Helpers
-commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPACE)? (FINAL SPACE)?;
+searchType: DEF | USE;
+commonModifiers: COLON searchType COLON (NOT? visibilityModifier SPACE)? (NOT? STATIC SPACE)? (NOT? FINAL SPACE)?;
 visibilityModifier: PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE;
 
 type: identifierName (LBRACK RBRACK)*;
@@ -190,8 +212,11 @@ identifierName
     : IDENTIFIER_NAME | SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | DOWHILE | TERNARY | RENAME
     | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
     | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | MOVE | REDUCE_DUPLICATES | CONSTRUCTOR
-    | STATIC_CONSTRUCTOR
+    | STATIC_CONSTRUCTOR | LAMBDA | ENUM_NV | ANNOTATION | ENUM_CONST | TRY_CATCH | TRY_WRES_CATCH | CATCHES
     ;
+
+expr: content;
+exprParen: LPAREN expr RPAREN;
 
 content
     : (SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | CLASS_NV | CLASS_V | METHOD | INSTANCE
@@ -200,23 +225,14 @@ content
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
         | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES | GOTO | DEFAULT | CONSTRUCTOR | STATIC_CONSTRUCTOR | THROW
-        | ELLIPSIS
+        | ELLIPSIS | LAMBDA | ENUM_NV | ENUM_V | ANNOTATION | ENUM_CONST | TRY_CATCH | TRY_WRES_CATCH | CATCHES
       )*
     ;
-expr: content;
 ```
 
-## Problems with the Implementation
-* The `expr` rule is very lenient, this is because the definition of an expression depends on a target programming language. This is intended to be parsed further at a language-specific level.
-* Explicitly allowing the escaping of single quote in the comment rules would be optimal, but it works anyway.
-* Allow more usage of `NOT`for increased expressiveness, i.e. `not final`, `not static`.
-* Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
-
 ## Problems with the Syntax
-* Cannot represent lambdas
-* Cannot represent try-catch blocks
-* Cannot represent enums
-* Cannot represent annotations (definitions and usages)
+* Cannot represent lots of statements
+* Cannot represent annotations (usages)
 * Cannot represent type parameters (generics) for classes/interfaces/methods
 * Cannot represent identifiers with generic types, i.e. `List<String>`
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
