@@ -28,6 +28,7 @@ public class ProjectCodeParser {
     private final Iterator<Path> it;
     private boolean errorOccurred = false;
     private boolean running = false;
+    private ProjectCodeParserErrorListener errorListener;
 
     /**
      * Creates a new {@link ProjectCodeParser} with the argument iterator and a <tt>threadCount</tt> of <tt>1</tt>.
@@ -80,41 +81,35 @@ public class ProjectCodeParser {
 
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
-                String fileName = "";
-                Statement root;
+                Path file = null;
+                Statement root = null;
 
                 try {
                     while (hasNext() && !Thread.currentThread().isInterrupted()) {
                         // Get the next file
-                        Path file = next();
-                        fileName = file.getFileName().toString();
+                        file = next();
+                        String fileName = file.getFileName().toString();
                         LOGGER.debug("Parsing {}", fileName);
 
-                        // Parse file
                         try {
+                            // Parse file and put in the map
                             root = CodeParserFactory.create(file).parse(file);
                             map.put(file, root);
-                        } catch (IOException | RuntimeException ex) {
-                            String phrase = (ex instanceof IOException) ? "read" : "parse";
-                            LOGGER.error("Failed to {} file {} because {}", phrase, fileName, ex.getMessage());
 
+                            // Print code tree
                             if (LOGGER.isTraceEnabled()) {
-                                ex.printStackTrace();
+                                LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                             }
-                            continue;
-                        }
-
-                        // Print code tree
-                        if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
+                        } catch (IOException | RuntimeException ex) {
+                            if (errorListener != null) {
+                                errorListener.parsingError(file, ex);
+                            }
                         }
                         LOGGER.debug("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
-                    LOGGER.error("Parsing terminated {} because {}", fileName, ex.getMessage());
-
-                    if (LOGGER.isTraceEnabled()) {
-                        ex.printStackTrace();
+                    if (errorListener != null) {
+                        errorListener.unknownError(file, ex);
                     }
                     setErrorOccurred();
                     executor.shutdownNow();
@@ -142,6 +137,14 @@ public class ProjectCodeParser {
             running = false;
         }
         return map;
+    }
+
+    public ProjectCodeParserErrorListener getErrorListener() {
+        return errorListener;
+    }
+
+    public void setErrorListener(ProjectCodeParserErrorListener errorListener) {
+        this.errorListener = errorListener;
     }
 
     /**

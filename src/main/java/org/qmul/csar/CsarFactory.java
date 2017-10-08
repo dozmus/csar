@@ -1,5 +1,6 @@
 package org.qmul.csar;
 
+import org.qmul.csar.code.parse.DefaultProjectCodeParserErrorListener;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.ProjectIteratorFactory;
@@ -12,7 +13,8 @@ import java.util.Iterator;
 public final class CsarFactory {
 
     /**
-     * Creates a {@link Csar} with the details contained in the argument.
+     * Creates a {@link Csar} with the details contained in the argument. The {@link ProjectCodeParser} created will
+     * have the {@link DefaultProjectCodeParserErrorListener} set as its error listener.
      *
      * @param ctx the details of the instance to create
      * @return a {@link Csar} with the details contained in the argument
@@ -28,7 +30,8 @@ public final class CsarFactory {
         } else {
             it = ProjectIteratorFactory.createFilteredIterator(ctx.getProjectDirectory(), ctx.isNarrowSearch());
         }
-        return new Csar(ctx.getQuery(), new ProjectCodeParser(it, ctx.getThreads()), new ProjectCodeSearcher(),
-                ctx.getResultFormatter());
+        ProjectCodeParser parser = new ProjectCodeParser(it, ctx.getThreads());
+        parser.setErrorListener(new DefaultProjectCodeParserErrorListener());
+        return new Csar(ctx.getQuery(), parser, new ProjectCodeSearcher(), ctx.getResultFormatter());
     }
 }
