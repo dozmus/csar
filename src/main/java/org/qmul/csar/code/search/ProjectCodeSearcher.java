@@ -10,9 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ProjectCodeSearcher extends AbstractProjectCodeSearcher { // TODO multi-thread
+/**
+ * A single-threaded project code searcher.
+ */
+public class ProjectCodeSearcher {
+    // TODO multi-thread
+    // TODO document
 
-    @Override
     public List<Statement> search(CsarQuery query, Map<Path, Statement> code) {
         Descriptor desc = query.getSearchTarget().getDescriptor();
 
@@ -43,7 +47,6 @@ public class ProjectCodeSearcher extends AbstractProjectCodeSearcher { // TODO m
         return results;
     }
 
-    @Override
     public boolean errorOccurred() {
         return false;
     }

@@ -1,6 +1,6 @@
 package org.qmul.csar;
 
-import org.qmul.csar.code.ProjectCodeParser;
+import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.ProjectIteratorFactory;
 

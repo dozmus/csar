@@ -1,6 +1,5 @@
-package org.qmul.csar.code;
+package org.qmul.csar.code.parse;
 
-import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
@@ -8,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -17,9 +17,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A multi-threaded project code parser.
+ * A multi-threaded project-wide code parser.
  */
-public final class ProjectCodeParser extends AbstractProjectCodeParser {
+public class ProjectCodeParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeParser.class);
     private final ExecutorService executor;
@@ -54,7 +54,8 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
     }
 
     /**
-     * Submits tasks to the underlying thread pool to begin processing code files, this is a blocking operation.
+     * Submits tasks to the underlying thread pool to begin processing code files, this is a blocking operation, and
+     * upon completion returns a map with parsed files as keys, and the output statements as values.
      * If a fatal error occurs then all parsing is gracefully terminated, then {@link #errorOccurred()} is set to
      * <tt>true</tt> and returns partial results.
      * If {@link #it} contains no files then an empty map is returned.
@@ -62,7 +63,6 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
      * @return a map with parsed files as keys, and the output statements as values.
      * @throws IllegalStateException if it has already been called on this instance, or if it is currently running
      */
-    @Override
     public Map<Path, Statement> results() {
         // Check if ready to run
         if (runningCount() == 0) {
@@ -70,7 +70,7 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
         } else if (running) {
             throw new IllegalStateException("already running");
         } else if (!it.hasNext()) {
-            return new ConcurrentHashMap<>();
+            return new HashMap<>();
         }
         running = true;
 
@@ -144,7 +144,11 @@ public final class ProjectCodeParser extends AbstractProjectCodeParser {
         return map;
     }
 
-    @Override
+    /**
+     * Returns <tt>true</tt> if an error occurred within {@link #results()} which did not result in an exception being
+     * thrown.
+     * @return <tt>true</tt> if an error occurred within {@link #results()}
+     */
     public boolean errorOccurred() {
         return errorOccurred;
     }

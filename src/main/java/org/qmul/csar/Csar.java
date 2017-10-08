@@ -1,7 +1,7 @@
 package org.qmul.csar;
 
-import org.qmul.csar.code.AbstractProjectCodeParser;
-import org.qmul.csar.code.search.AbstractProjectCodeSearcher;
+import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
@@ -17,13 +17,13 @@ import java.util.Map;
 /**
  * A code search and refactor tool instance.
  */
-public final class Csar {
+public class Csar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final String query;
-    private final AbstractProjectCodeParser parser;
+    private final ProjectCodeParser parser;
     private final ResultFormatter resultFormatter;
-    private final AbstractProjectCodeSearcher searcher;
+    private final ProjectCodeSearcher searcher;
     private CsarQuery csarQuery;
     private Map<Path, Statement> code;
     private List<Result> results;
@@ -35,8 +35,7 @@ public final class Csar {
      * @param searcher the project searcher to use
      * @param resultFormatter the result formatter to use
      */
-    public Csar(String query, AbstractProjectCodeParser parser, AbstractProjectCodeSearcher searcher,
-            ResultFormatter resultFormatter) {
+    public Csar(String query, ProjectCodeParser parser, ProjectCodeSearcher searcher, ResultFormatter resultFormatter) {
         this.query = query;
         this.parser = parser;
         this.searcher = searcher;
