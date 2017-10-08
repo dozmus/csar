@@ -133,4 +133,15 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and intuitive (like SQL). You can define strings as regex patterns, this is a powerful feature. The language is verbose and thus does not resonate with csar's competitors, which use single line queries. However, declarations and response messages can be useful for creating complex tools with csar (i.e. code convention checks).
 
 # Time Plan
-TODO write
+TODO write about the following:
+* Project Deadlines
+  * 13 October - Title
+  * 30 October - Specification & Time Plan
+  * 8 December - Interim Report & Risk Assessment
+  * 19 March - Draft final report
+  * 23 April - Final report
+  * 25 April - Presentation slides
+  * 30 April - 11 May - Demonstration & Presentation
+* Features (Left) - Ask MT If I should include the ones I've already done
+  * Search
+  * Refactor
