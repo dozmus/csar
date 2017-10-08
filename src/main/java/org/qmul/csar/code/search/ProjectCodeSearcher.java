@@ -18,12 +18,12 @@ public class ProjectCodeSearcher {
     // TODO document
 
     public List<Statement> search(CsarQuery query, Map<Path, Statement> code) {
-        Descriptor desc = query.getSearchTarget().getDescriptor();
+        Descriptor targetDescriptor = query.getSearchTarget().getDescriptor();
 
-        if (desc instanceof MethodDescriptor) {
+        if (targetDescriptor instanceof MethodDescriptor) {
             return methodSearch(query, code);
         } else {
-            throw new UnsupportedOperationException("invalid search target: " + desc.getClass().getName());
+            throw new UnsupportedOperationException("invalid search target: " + targetDescriptor.getClass().getName());
         }
     }
 
