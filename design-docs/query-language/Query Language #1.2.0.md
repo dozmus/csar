@@ -106,7 +106,7 @@ parser grammar CsarParser;
 csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
 containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*;
 containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
-fromQuery: FROM SPACE typeList;
+fromQuery: FROM SPACE typeList; // types to search within
 refactorQuery: REFACTOR SPACE refactorDescriptor;
 
 statementDescriptor: clazz | method | variable | conditional | comment;
@@ -189,7 +189,7 @@ expr: content;
 * Allow more usage of `NOT`for increased expressiveness, i.e. `not final`, `not static`.
 * Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
 * Allow fully qualified types
-* Figure out how `fromQuery` can be most useful
+* More leniency in csar query grammar?
 * Cannot represent lots of statements
 * Cannot represent lambdas
 * Cannot represent goto
@@ -209,6 +209,7 @@ expr: content;
 * Cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
   However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error. One solution is to print an error message and terminate.
+* Note: The syntax will need to be modified for each language we wish to handle.
 
 ## Use Cases
 The use-cases will detail why and how end users might use this tool.  
