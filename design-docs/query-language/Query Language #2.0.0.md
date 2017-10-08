@@ -59,11 +59,13 @@ STRICTFP: 'strictfp';
 ANONYMOUS: 'anonymous' | 'anon';
 INNER: 'inner';
 SUPER: 'super';
+EXTENDS: 'extends';
 OVERRIDDEN: 'overridden';
 THROWS: 'throws';
 GOTO: 'goto';
 DEFAULT: 'default';
 THROW: 'throw';
+PKG: 'pkg';
 
 // Refactor
 RENAME: 'rename';
@@ -88,6 +90,9 @@ COMMA: ',';
 S_QUOTE: '\'';
 LPAREN: '(';
 RPAREN: ')';
+LT: '<';
+GT: '>';
+QUESTION: '?';
 ELLIPSIS: '...';
 
 // Language elements
@@ -121,27 +126,33 @@ parser grammar CsarParser;
 // Csar query (top-level)
 csarQuery: (SELECT SPACE)? elementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
 containsQuery: CONTAINS SPACE containsQueryBody;
-fromQuery: FROM SPACE typeList;
+fromQuery: FROM SPACE fromQueryBody;
 refactorQuery: REFACTOR SPACE refactorDescriptor;
 
 containsQueryBody: containsQueryBody
                 | LPAREN SPACE* containsQueryBody SPACE* RPAREN
                 | (NOT SPACE)? elementDescriptor
-                | containsQueryBody SPACE (AND | OR) SPACE containsQueryBody;
+                | containsQueryBody SPACE (AND | OR) SPACE containsQueryBody
+                ;
+
+fromQueryBody: fromQueryTarget (SPACE* COMMA SPACE* fromQueryTarget)*;
+fromQueryTarget: (PKG COLON identifierName) | (classLexerRule COLON identifierName); // packages/types to search within
 
 
 elementDescriptor: typeDecl | method | variable | constructor | controlFlow | statement | comment;
 refactorDescriptor: rename | changeParameters | reduceDuplicates | move;
 
 // Type declaration
-typeDecl: (ENUM_NV | ENUM | ANNOTATION | CLASS_NV | CLASS_V) commonModifiers typeDeclModifiers identifierName superClassList?;
+typeDecl
+        : (ENUM_NV | ENUM_V | ANNOTATION | classLexerRule) commonModifiers typeDeclModifiers (genericTypeParameterList SPACE)?
+        identifierName superClassList?;
 typeDeclModifiers: (NOT? (ABSTRACT | INTERFACE) SPACE)? (NOT? STRICTFP SPACE)? (NOT? ANONYMOUS SPACE)? (NOT? INNER SPACE)?;
 superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 
 // Method
 method
     : METHOD commonModifiers (NOT? OVERRIDDEN SPACE)? (NOT? ABSTRACT SPACE)? (NOT? STRICTFP SPACE)? (NOT? DEFAULT SPACE)?
-     (type SPACE)? identifierName (SPACE? methodParameters)? (SPACE methodThrownExceptions)?
+     (type SPACE)? (genericTypeParameterList SPACE)? identifierName (SPACE? methodParameters)? (SPACE methodThrownExceptions)?
      (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
@@ -201,11 +212,12 @@ move: MOVE COLON SPACE* (S_QUOTE content S_QUOTE) SPACE+ (S_QUOTE content S_QUOT
 reduceDuplicates: REDUCE_DUPLICATES COLON SPACE* (S_QUOTE content S_QUOTE);
 
 // Helpers
+classLexerRule: CLASS_NV | CLASS_V;
 searchType: DEF | USE;
 commonModifiers: COLON searchType COLON (NOT? visibilityModifier SPACE)? (NOT? STATIC SPACE)? (NOT? FINAL SPACE)?;
 visibilityModifier: PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE;
 
-type: identifierName (LBRACK RBRACK)*;
+type: identifierName (LT genericIdentifierName GT)? (LBRACK RBRACK)*;
 typeList: type (SPACE* COMMA SPACE* type)*;
 namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ identifierName)*;
 identifierName
@@ -213,7 +225,12 @@ identifierName
     | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
     | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | MOVE | REDUCE_DUPLICATES | CONSTRUCTOR
     | STATIC_CONSTRUCTOR | LAMBDA | ENUM_NV | ANNOTATION | ENUM_CONST | TRY_CATCH | TRY_WRES_CATCH | CATCHES
+    | PKG
     ;
+
+genericIdentifierName: (QUESTION SPACE ((EXTENDS | SUPER) SPACE identifierName)?) | identifierName;
+genericTypeParameterList: LT (genericTypeParameter (SPACE* COMMA SPACE* genericTypeParameter)*)? GT;
+genericTypeParameter: identifierName (SPACE (EXTENDS | SUPER) SPACE identifierName)?;
 
 expr: content;
 exprParen: LPAREN expr RPAREN;
@@ -226,22 +243,22 @@ content
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
         | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES | GOTO | DEFAULT | CONSTRUCTOR | STATIC_CONSTRUCTOR | THROW
         | ELLIPSIS | LAMBDA | ENUM_NV | ENUM_V | ANNOTATION | ENUM_CONST | TRY_CATCH | TRY_WRES_CATCH | CATCHES
+        | PKG | LT | GT | EXTENDS | QUESTION
       )*
     ;
 ```
 
 ## Problems with the Syntax
+* More leniency in csar query grammar
 * Allow fully qualified types
-* Figure out how `fromQuery` can be most useful
-* Cannot represent lots of statements
+* Cannot represent a variety of statements
 * Cannot represent annotations (usages)
-* Cannot represent type parameters (generics) for classes/interfaces/methods
-* Cannot represent identifiers with generic types, i.e. `List<String>`
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
 * Cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
   However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error.
   One solution to this is to print an error message and terminate.
+* Note: The syntax will need to be modified for each language we wish to handle.
 
 ## Use Cases
 The use-cases will detail why and how end users might use this tool.  
