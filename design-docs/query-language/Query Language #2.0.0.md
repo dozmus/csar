@@ -122,7 +122,7 @@ parser grammar CsarParser;
 csarQuery: (SELECT SPACE)? elementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
 containsQuery: CONTAINS SPACE containsQueryBody;
 fromQuery: FROM SPACE typeList;
-refactorQuery: REFACTOR SPACE refactorElement;
+refactorQuery: REFACTOR SPACE refactorDescriptor;
 
 containsQueryBody: containsQueryBody
                 | LPAREN SPACE* containsQueryBody SPACE* RPAREN
@@ -131,7 +131,7 @@ containsQueryBody: containsQueryBody
 
 
 elementDescriptor: typeDecl | method | variable | constructor | controlFlow | statement | comment;
-refactorElement: rename | changeParameters | reduceDuplicates | move;
+refactorDescriptor: rename | changeParameters | reduceDuplicates | move;
 
 // Type declaration
 typeDecl: (ENUM_NV | ENUM | ANNOTATION | CLASS_NV | CLASS_V) commonModifiers typeDeclModifiers identifierName superClassList?;
