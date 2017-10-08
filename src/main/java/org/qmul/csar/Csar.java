@@ -2,7 +2,6 @@ package org.qmul.csar;
 
 import org.qmul.csar.code.AbstractProjectCodeParser;
 import org.qmul.csar.code.search.AbstractProjectCodeSearcher;
-import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
@@ -21,9 +20,10 @@ import java.util.Map;
 public final class Csar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
+    private final String query;
     private final AbstractProjectCodeParser parser;
     private final ResultFormatter resultFormatter;
-    private final String query;
+    private final AbstractProjectCodeSearcher searcher;
     private CsarQuery csarQuery;
     private Map<Path, Statement> code;
     private List<Result> results;
@@ -32,11 +32,14 @@ public final class Csar {
      * Constructs a new {@link Csar} with the given arguments.
      * @param query the csar query to perform
      * @param parser the project code parser to use
+     * @param searcher the project searcher to use
      * @param resultFormatter the result formatter to use
      */
-    public Csar(String query, AbstractProjectCodeParser parser, ResultFormatter resultFormatter) {
+    public Csar(String query, AbstractProjectCodeParser parser, AbstractProjectCodeSearcher searcher,
+            ResultFormatter resultFormatter) {
         this.query = query;
         this.parser = parser;
+        this.searcher = searcher;
         this.resultFormatter = resultFormatter;
     }
 
@@ -67,9 +70,8 @@ public final class Csar {
     }
 
     public boolean searchCode() {
-        AbstractProjectCodeSearcher searcher = new ProjectCodeSearcher(csarQuery, code); // TODO cons. inject this
         LOGGER.trace("Searching code...");
-        List<Statement> tmpResults = searcher.search();
+        List<Statement> tmpResults = searcher.search(csarQuery, code);
 
         // TODO remove temp printing below
         LOGGER.info("Search results (tmp):");

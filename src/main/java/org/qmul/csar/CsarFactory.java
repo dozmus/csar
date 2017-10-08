@@ -1,6 +1,7 @@
 package org.qmul.csar;
 
 import org.qmul.csar.code.ProjectCodeParser;
+import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.ProjectIteratorFactory;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public final class CsarFactory {
         } else {
             it = ProjectIteratorFactory.createFilteredIterator(ctx.getProjectDirectory(), ctx.isNarrowSearch());
         }
-        return new Csar(ctx.getQuery(), new ProjectCodeParser(it, ctx.getThreads()), ctx.getResultFormatter());
+        return new Csar(ctx.getQuery(), new ProjectCodeParser(it, ctx.getThreads()), new ProjectCodeSearcher(),
+                ctx.getResultFormatter());
     }
 }

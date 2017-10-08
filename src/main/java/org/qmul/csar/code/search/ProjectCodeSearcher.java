@@ -10,28 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ProjectCodeSearcher extends AbstractProjectCodeSearcher {
-
-    private final CsarQuery query;
-    private final Map<Path, Statement> code;
-
-    public ProjectCodeSearcher(CsarQuery query, Map<Path, Statement> code) {
-        this.query = query;
-        this.code = code;
-    }
+public class ProjectCodeSearcher extends AbstractProjectCodeSearcher { // TODO multi-thread
 
     @Override
-    public List<Statement> search() {
+    public List<Statement> search(CsarQuery query, Map<Path, Statement> code) {
         Descriptor desc = query.getSearchTarget().getDescriptor();
 
         if (desc instanceof MethodDescriptor) {
-            return methodSearch();
+            return methodSearch(query, code);
         } else {
             throw new UnsupportedOperationException("invalid search target: " + desc.getClass().getName());
         }
     }
 
-    private List<Statement> methodSearch() {
+    private List<Statement> methodSearch(CsarQuery query, Map<Path, Statement> code) {
         List<Statement> results = new ArrayList<>();
 
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
