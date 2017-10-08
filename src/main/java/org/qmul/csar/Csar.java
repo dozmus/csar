@@ -77,13 +77,15 @@ public final class Csar {
         tmpResults.forEach(s -> LOGGER.info("Result: " + s.toPseudoCode()));
 
         // TODO convert tmpResults->results
+        return !searcher.errorOccurred();
+    }
 
+    public void printResults() {
         try {
             LOGGER.info("Search results:");
-            LOGGER.info(resultFormatter.format(results)); // TODO move print to another method
+            LOGGER.info(resultFormatter.format(results));
         } catch (Exception ex) {
             LOGGER.error("error formatting search results: " + ex.getMessage());
         }
-        return !searcher.errorOccurred();
     }
 }

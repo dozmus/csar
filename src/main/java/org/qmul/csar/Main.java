@@ -77,6 +77,7 @@ public final class Main {
         if (!csar.searchCode()) {
             System.exit(4);
         }
+        csar.printResults();
 
         // TODO refactor, print results
     }
