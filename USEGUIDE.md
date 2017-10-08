@@ -8,4 +8,5 @@ Use Guide
 | 1 | Error parsing CLI arguments. |
 | 2 | Error parsing csar query. |
 | 3 | Error parsing code files. |
-| 4 | Error reading ignore file. |
+| 4 | Error searching code files. |
+| 5 | Error reading ignore file. |

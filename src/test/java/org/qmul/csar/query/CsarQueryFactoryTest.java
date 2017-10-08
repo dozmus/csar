@@ -87,6 +87,7 @@ public final class CsarQueryFactoryTest {
                         new ParameterVariableDescriptor(Optional.of("k"), Optional.of("int"), Optional.empty()),
                         new ParameterVariableDescriptor(Optional.of("t"), Optional.of("Thread"), Optional.empty()))
                 )
+                .hasParameters(true)
                 .build();
         expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.DEF), method1))
                 .refactor(new RefactorDescriptor.ChangeParameters(parameters1))
@@ -106,6 +107,7 @@ public final class CsarQueryFactoryTest {
                         new ParameterVariableDescriptor(Optional.empty(), Optional.of("float"), Optional.empty()),
                         new ParameterVariableDescriptor(Optional.empty(), Optional.of("char"), Optional.empty()))
                 )
+                .hasParameters(true)
                 .build();
         expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.DEF), method2))
                 .refactor(new RefactorDescriptor.ChangeParameters(parameters2))
@@ -125,6 +127,7 @@ public final class CsarQueryFactoryTest {
                         new ParameterVariableDescriptor(Optional.of("k"), Optional.of("int"), Optional.empty()),
                         new ParameterVariableDescriptor(Optional.of("r"), Optional.of("Runnable"), Optional.empty()))
                 )
+                .hasParameters(true)
                 .build();
         assertEquals("method:def:static double $sqrt_0(int k,  Runnable r )",
                 new CsarQuery(new TargetDescriptor(Optional.of(SearchType.DEF), desc2)));
@@ -133,6 +136,7 @@ public final class CsarQueryFactoryTest {
                 .staticModifier(true)
                 .returnType("byte")
                 .parameterCount(2)
+                .hasParameters(true)
                 .build();
         assertEquals("method:def:static byte add(2)",
                 new CsarQuery(new TargetDescriptor(Optional.of(SearchType.DEF), desc3)));
@@ -144,6 +148,7 @@ public final class CsarQueryFactoryTest {
                         new ParameterVariableDescriptor(Optional.empty(), Optional.of("float[]"), Optional.of(true)),
                         new ParameterVariableDescriptor(Optional.empty(), Optional.of("String"), Optional.empty()))
                 )
+                .hasParameters(true)
                 .build();
         assertEquals("method:def:static int add(final float[], String)",
                 new CsarQuery(new TargetDescriptor(Optional.of(SearchType.DEF), desc4)));

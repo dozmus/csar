@@ -1,5 +1,7 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.qmul.csar.lang.Descriptor;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,6 +24,11 @@ public class InstanceVariableDescriptor extends AbstractVariableDescriptor {
 
     public Optional<Boolean> getStaticModifier() {
         return staticModifier;
+    }
+
+    @Override
+    public boolean lenientEquals(Descriptor other) {
+        return false; // TODO impl
     }
 
     @Override
