@@ -74,8 +74,7 @@ public final class Csar {
         List<Statement> tmpResults = searcher.search(csarQuery, code);
 
         // TODO remove temp printing below
-        LOGGER.info("Search results (tmp):");
-        LOGGER.info("amt:" + tmpResults.size());
+        LOGGER.info("(Raw) Search results (size={}):", tmpResults.size());
         tmpResults.forEach(s -> LOGGER.info("Result: " + s.toPseudoCode()));
 
         // TODO convert tmpResults->results
