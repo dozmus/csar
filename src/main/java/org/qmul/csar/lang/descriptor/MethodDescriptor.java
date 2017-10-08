@@ -28,7 +28,6 @@ public class MethodDescriptor implements Descriptor {
     private final List<ParameterVariableDescriptor> parameters;
     private final List<String> thrownExceptions;
     private final List<String> typeParameters;
-    // TODO need hasThrownExceptions, hasParameters
 
     public MethodDescriptor(String identifierName, Optional<String> returnType,
             Optional<VisibilityModifier> visibilityModifier, Optional<Boolean> staticModifier,

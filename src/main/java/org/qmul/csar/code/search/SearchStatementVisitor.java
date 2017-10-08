@@ -31,7 +31,6 @@ public class SearchStatementVisitor extends StatementVisitor {
                 results.add(statement);
             }
         }
-        // TODO impl
     }
 
     @Override
