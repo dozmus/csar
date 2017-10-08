@@ -184,10 +184,12 @@ expr: content;
 ## Problems with the Implementation
 * The `expr` rule is very lenient, this is because the definition of an expression depends on a target programming language. This is intended to be parsed further at a language-specific level.
 * Explicitly allowing the escaping of single quote in the comment rules would be optimal, but it works anyway.
-* Allow more usage of `NOT`for increased expressiveness, i.e. `not final`, `not static`.
-* Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
 
 ## Problems with the Syntax
+* Allow more usage of `NOT`for increased expressiveness, i.e. `not final`, `not static`.
+* Allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
+* Allow fully qualified types
+* Figure out how `fromQuery` can be most useful
 * Cannot represent lots of statements
 * Cannot represent lambdas
 * Cannot represent goto

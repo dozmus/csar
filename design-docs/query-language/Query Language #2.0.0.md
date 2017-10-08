@@ -231,6 +231,8 @@ content
 ```
 
 ## Problems with the Syntax
+* Allow fully qualified types
+* Figure out how `fromQuery` can be most useful
 * Cannot represent lots of statements
 * Cannot represent annotations (usages)
 * Cannot represent type parameters (generics) for classes/interfaces/methods
