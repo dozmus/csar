@@ -14,4 +14,7 @@ public class Sample4 {
         A worker = new A();
         worker.run();
     }
+
+    void work2() throws IOException { // Test throws method signature
+    }
 }

@@ -285,16 +285,28 @@ public final class JavaCodeGeneratorTest {
                 new UnitExpression(IDENTIFIER, "worker"), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "run")),
                 new ArrayList<>()));
 
-        // Parent class
-        MethodStatement parentClassMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("work")
+        // Method #1
+        MethodStatement parentClassMethod1 = new MethodStatement(MethodDescriptor.Builder.allFalse("work")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
                 .parameterCount(0)
                 .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(localInterface, localClass, locals2,
                 methodCall2)), new ArrayList<>());
+
+        // Method #2
+        MethodStatement parentClassMethod2 = new MethodStatement(MethodDescriptor.Builder.allFalse("work2")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .returnType("void")
+                .parameterCount(0)
+                .thrownExceptions(Arrays.asList("IOException"))
+                .hasThrownExceptions(true)
+                .build(),
+                new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>());
+
+        // Parent class
         return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample4")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .build(), new BlockStatement(Arrays.asList(parentClassMethod)), new ArrayList<>());
+                .build(), new BlockStatement(Arrays.asList(parentClassMethod1, parentClassMethod2)), new ArrayList<>());
     }
 
     /**
