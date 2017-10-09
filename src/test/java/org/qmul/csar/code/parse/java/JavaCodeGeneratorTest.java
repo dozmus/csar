@@ -1,4 +1,4 @@
-package org.qmul.csar.code;
+package org.qmul.csar.code.parse.java;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
