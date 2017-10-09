@@ -599,12 +599,10 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 ClassDescriptor descriptor = ClassDescriptor.Builder.allFalse(identifierName)
                         .local(true)
                         .build();
-                BlockStatement statement = rest.classBody() != null
-                        ? parseClassBodyDeclaration(rest.classBody().classBodyDeclaration())
-                        : BlockStatement.EMPTY;
-                List<Annotation> annotations = new ArrayList<>();
-                return new InstantiateClassExpression(new ClassStatement(descriptor, statement, annotations), arguments,
-                        typeArgs, hasTypeArguments);
+                Optional<BlockStatement> statement = rest.classBody() != null
+                        ? Optional.of(parseClassBodyDeclaration(rest.classBody().classBodyDeclaration()))
+                        : Optional.empty();
+                return new InstantiateClassExpression(descriptor, statement, arguments, typeArgs, hasTypeArguments);
             } else { // createdName arrayCreatorRest
                 ArrayCreatorRestContext rest = creator.arrayCreatorRest();
                 List<Expression> contents = new ArrayList<>();

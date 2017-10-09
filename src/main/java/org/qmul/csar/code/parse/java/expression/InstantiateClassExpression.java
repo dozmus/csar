@@ -2,7 +2,6 @@ package org.qmul.csar.code.parse.java.expression;
 
 import org.qmul.csar.code.parse.java.statement.BlockStatement;
 import org.qmul.csar.lang.Expression;
-import org.qmul.csar.code.parse.java.statement.ClassStatement;
 import org.qmul.csar.lang.descriptor.ClassDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
@@ -10,28 +9,35 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class InstantiateClassExpression implements Expression { // TODO allow this to have an Optional<Body>
 
+    private final ClassDescriptor descriptor;
+    private final Optional<BlockStatement> block;
     private final List<Expression> arguments;
-    private final ClassStatement classStatement;
     private final List<String> typeArguments;
     private final boolean hasTypeArguments;
 
-    public InstantiateClassExpression(ClassStatement classStatement, List<Expression> arguments,
-            List<String> typeArguments, boolean hasTypeArguments) {
-        this.classStatement = classStatement;
+    public InstantiateClassExpression(ClassDescriptor descriptor, Optional<BlockStatement> block,
+            List<Expression> arguments, List<String> typeArguments, boolean hasTypeArguments) {
+        this.descriptor = descriptor;
+        this.block = block;
         this.arguments = Collections.unmodifiableList(arguments);
         this.typeArguments = Collections.unmodifiableList(typeArguments);
         this.hasTypeArguments = hasTypeArguments;
     }
 
-    public List<Expression> getArguments() {
-        return arguments;
+    public ClassDescriptor getDescriptor() {
+        return descriptor;
     }
 
-    public ClassStatement getClassStatement() {
-        return classStatement;
+    public Optional<BlockStatement> getBlock() {
+        return block;
+    }
+
+    public List<Expression> getArguments() {
+        return arguments;
     }
 
     public List<String> getTypeArguments() {
@@ -47,33 +53,28 @@ public class InstantiateClassExpression implements Expression { // TODO allow th
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InstantiateClassExpression that = (InstantiateClassExpression) o;
-        return hasTypeArguments == that.hasTypeArguments &&
-                Objects.equals(arguments, that.arguments) &&
-                Objects.equals(classStatement, that.classStatement) &&
-                Objects.equals(typeArguments, that.typeArguments);
+        return hasTypeArguments == that.hasTypeArguments
+                && Objects.equals(descriptor, that.descriptor)
+                && Objects.equals(block, that.block)
+                && Objects.equals(arguments, that.arguments)
+                && Objects.equals(typeArguments, that.typeArguments);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(arguments, classStatement, typeArguments, hasTypeArguments);
+        return Objects.hash(descriptor, block, arguments, typeArguments, hasTypeArguments);
     }
 
     @Override
     public String toString() {
-        return String.format("InstantiateClass{classStatement=%s, arguments=%s, typeArguments=%s, "
-                        + "hasTypeArguments=%s}", arguments, classStatement, typeArguments, hasTypeArguments);
+        return String.format("InstantiateClassExpression{descriptor=%s, block=%s, arguments=%s, typeArguments=%s, "
+                        + "hasTypeArguments=%s}", descriptor, block, arguments, typeArguments, hasTypeArguments);
     }
 
     @Override
     public String toPseudoCode(int indentation) { // TODO fix this
         StringBuilder builder = new StringBuilder();
-        ClassDescriptor descriptor = classStatement.getDescriptor();
-        BlockStatement block = classStatement.getBlock();
 
-        if (classStatement.getAnnotations().size() > 0) {
-            classStatement.getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
-                    .append(StringUtils.LINE_SEPARATOR));
-        }
         builder.append(StringUtils.indentation(indentation));
         builder.append("new ");
 
@@ -106,17 +107,12 @@ public class InstantiateClassExpression implements Expression { // TODO allow th
         } else {
             builder.append("()");
         }
-
-        if (block.equals(BlockStatement.EMPTY)) {
-            builder.append(" { }");
-        } else {
-            builder.append(" {")
-                    .append(StringUtils.LINE_SEPARATOR)
-                    .append(block.toPseudoCode(indentation + 1))
-                    .append(StringUtils.LINE_SEPARATOR)
-                    .append(StringUtils.indentation(indentation))
-                    .append("}");
-        }
+        block.ifPresent(blockStatement -> builder.append(" {")
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(blockStatement.toPseudoCode(indentation + 1))
+                .append(StringUtils.LINE_SEPARATOR)
+                .append(StringUtils.indentation(indentation))
+                .append("}"));
         return builder.toString();
     }
 }

@@ -23,6 +23,8 @@ import static org.qmul.csar.code.parse.java.expression.UnitExpression.ValueType.
 @RunWith(value = Parameterized.class)
 public final class JavaCodeGeneratorTest {
 
+    // TODO test instantiation class with a body
+
     private static final BinaryExpression SOUT_PRINTLN = new BinaryExpression(new BinaryExpression(
             new UnitExpression(IDENTIFIER, "System"), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")),
             BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
@@ -273,7 +275,8 @@ public final class JavaCodeGeneratorTest {
 
         // Instantiation
         ClassStatement calledClass = createClass(ClassDescriptor.Builder.allFalse("A").local(true).build());
-        Expression newClass = new InstantiateClassExpression(calledClass, new ArrayList<>(), new ArrayList<>(), false);
+        Expression newClass = new InstantiateClassExpression(calledClass.getDescriptor(), Optional.empty(),
+                new ArrayList<>(), new ArrayList<>(), false);
         LocalVariableStatement local2 = new LocalVariableStatement(new LocalVariableDescriptor.Builder("worker")
                 .finalModifier(false)
                 .identifierType("A")
@@ -763,10 +766,10 @@ public final class JavaCodeGeneratorTest {
         )));
 
         // Throw
-        b2.add(new ThrowStatement(new InstantiateClassExpression(createClass(
-                ClassDescriptor.Builder.allFalse("RuntimeException")
-                        .local(true)
-                        .build()),
+        ClassDescriptor st = ClassDescriptor.Builder.allFalse("RuntimeException")
+                .local(true)
+                .build();
+        b2.add(new ThrowStatement(new InstantiateClassExpression(st, Optional.empty(),
                 Arrays.asList(literalUnit("\"rtex\"")), new ArrayList<>(), false)));
 
         // Post-fixed
