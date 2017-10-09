@@ -2,9 +2,7 @@ Specification and Time Plan
 ========
 
 # Project Title
-Candidates:
-* CSAR: Versatile Code Search and Refactor Framework
-* CSAR: Query-Driven Code Search and Refactor Framework
+csar: Query-driven Code Search and Refactoring Framework
 
 # Problem
 There is a lack of tools which provide flexible searching for code, most offer plain-text and regular expression comparisons. This yields inaccurate results due to the rigidness of these comparison types.
@@ -27,7 +25,7 @@ CSAR will be developed in such a way that, it is very flexible in its programmin
 
 The project has a restricted window for completion, as such, not every intended feature will be fully completed.
 
-The query language will have two versions: 1.x.x (implemented) and ≥ 2.x.x (hypothetical improvements). The prior version is simpler than the latter, for implementation purposes. Implementing an exhaustive query language which can express any language element in any language would take very long (it would be an entire project in itself). These are open for future improvements.
+The query language has two versions: 1.x.x (implemented) and ≥ 2.x.x (hypothetical improvements). The prior version is simpler than the latter, for implementation purposes. Implementing an exhaustive query language which can express any language element in any language would take very long (it would be an entire project in itself), hence these are open for future improvements.
 
 Searching will be implemented to only work on methods for now. To implement it for the other language elements it would be as simple as copy-pasting the code for methods and changing the types and getters involved. Though this would be a greatly time consuming and tedious task.
 
@@ -47,15 +45,23 @@ The user will run the program from the command-line, as they would any other Jav
 i.e. `SELECT method:def:add --threads 4` – The first part is the search query, and the latter a `--threads` argument.
 
 # Programming Concepts/Techniques Used
-TODO write this, ideas below:
-* Multi-threading
-* Visitor design pattern
-* Factory design pattern
-* Dependency injection
-* OOP-related stuff
+* Dependency Injection (DI) - passing the dependencies of an object to it explicitly.  
+  This makes it easier to test objects, and makes their dependencies more visible.
+  I will mostly be utilizing the variant of this where we inject dependencies through the constructor, to keep the design very clear and simple (one point of injection).
+* Multi-threading - distributing tasks to multiple execution threads, to increase throughput.  
+  This will give us a huge performance boost, especially for very large code bases, with relatively little effort.
+* Visitor design pattern - a method of interacting with a complicated, nested object.  
+  This is used in the ANTLR code parsers, to generate POJO representing the parsed text.
+  This is also used in the search algorithm for comparisons.
+* Factory design pattern - an external object which creates a complicated object.  
+  This is used to generate the complicated arguments some of our objects may require, in particular because of DI.
+* Object-Oriented Programming principles - model the system as interactions amongst a set of objects (this is the consensus approach for Java development).  
+  The most used are polymorphism and the Liskov substitution principle throughout the project, for extensibility.
+
+TODO add onto this as appropriate
 
 # Technologies Used
-CSAR will be programmed in Java 8, this is because I am very well-versed in it, it bought forth a powerful directory walking API, it has lambda support, and because it is cross-platform.
+CSAR will be programmed in Java 8, this is because I am very well-versed in it, it bought forth a powerful directory walking API, it has lambda support, and it is cross-platform.
 
 There are many different language parsers available, but the most convenient to use (due to documentation, support and pre-written grammars) appears to be ANTLR4.
 
@@ -114,17 +120,17 @@ The syntax fails for dynamically-typed languages where types are not explicitly 
 Infer has developed a language called [AL](https://code.facebook.com/posts/277643589367408/) which it uses to define templates corresponding to code stink. Example below:  
 ```
 DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
-    
+
     LET name_contains_delegate = declaration_has_name(REGEXP("[dD]elegate"));
     LET name_does_not_contain_queue = NOT declaration_has_name(REGEXP("[qQ]ueue"));
-    
+
     SET report_when =
         WHEN
            name_contains_delegate
            AND name_does_not_contain_queue
            AND is_strong_property()
         HOLDS-IN-NODE ObjCPropertyDecl;
-    
+
     SET message = "Property or ivar %decl_name% declared strong";
     SET suggestion = "In general delegates should be declared weak or assign";
 };
