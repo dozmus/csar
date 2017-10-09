@@ -10,7 +10,7 @@ public interface ProjectCodeParserErrorListener {
      * @param path the file which was being parsed when the error occurred
      * @param ex the exception thrown
      */
-    void parsingError(Path path, Exception ex);
+    void reportParsingError(Path path, Exception ex);
 
     /**
      * Reports an unrecoverable, unknown error.
@@ -18,5 +18,5 @@ public interface ProjectCodeParserErrorListener {
      * @param path the file which was being parsed when the error occurred
      * @param ex the exception thrown
      */
-    void unknownError(Path path, Exception ex);
+    void reportUnknownError(Path path, Exception ex);
 }

@@ -4,6 +4,8 @@ import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
 import org.qmul.csar.query.CsarQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -14,17 +16,24 @@ import java.util.Map;
  * A single-threaded project code searcher.
  */
 public class ProjectCodeSearcher {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeSearcher.class);
+
     // TODO multi-thread
     // TODO document
 
     public List<Statement> search(CsarQuery query, Map<Path, Statement> code) {
+        LOGGER.info("Starting...");
+        List<Statement> results;
         Descriptor targetDescriptor = query.getSearchTarget().getDescriptor();
 
         if (targetDescriptor instanceof MethodDescriptor) {
-            return methodSearch(query, code);
+            results = methodSearch(query, code);
         } else {
             throw new UnsupportedOperationException("invalid search target: " + targetDescriptor.getClass().getName());
         }
+        LOGGER.info("Finished");
+        return results;
     }
 
     private List<Statement> methodSearch(CsarQuery query, Map<Path, Statement> code) {

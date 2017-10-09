@@ -97,19 +97,17 @@ public class ProjectCodeParser {
                             map.put(file, root);
 
                             // Print code tree
-                            if (LOGGER.isTraceEnabled()) {
-                                LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
-                            }
+                            LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                         } catch (IOException | RuntimeException ex) {
                             if (errorListener != null) {
-                                errorListener.parsingError(file, ex);
+                                errorListener.reportParsingError(file, ex);
                             }
                         }
                         LOGGER.debug("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
                     if (errorListener != null) {
-                        errorListener.unknownError(file, ex);
+                        errorListener.reportUnknownError(file, ex);
                     }
                     setErrorOccurred();
                     executor.shutdownNow();
