@@ -97,9 +97,7 @@ public class ProjectCodeParser {
                             map.put(file, root);
 
                             // Print code tree
-                            if (LOGGER.isTraceEnabled()) {
-                                LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
-                            }
+                            LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                         } catch (IOException | RuntimeException ex) {
                             if (errorListener != null) {
                                 errorListener.reportParsingError(file, ex);
