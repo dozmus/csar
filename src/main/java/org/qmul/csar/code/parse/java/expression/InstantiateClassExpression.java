@@ -86,9 +86,6 @@ public class InstantiateClassExpression implements Expression { // TODO allow th
         StringUtils.append(builder, descriptor.getFinalModifier(), "final ");
         StringUtils.append(builder, descriptor.getAbstractModifier(), "abstract ");
         StringUtils.append(builder, descriptor.getStrictfpModifier(), "strictfp ");
-//        StringUtils.append(builder, descriptor.getInner(), "(inner) ");
-//        StringUtils.append(builder, descriptor.getLocal(), "(local) ");
-//        StringUtils.append(builder, descriptor.getAnonymous(), "(anonymous) ");
 
         builder.append(descriptor.getIdentifierName());
 

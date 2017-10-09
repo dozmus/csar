@@ -9,7 +9,6 @@ options {
 }
 
 // Csar query (top-level)
-// TODO allow NOT in front of more elements, e.g. ABSTRACT
 csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
 containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*; // TODO allow parentheses
 containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
@@ -58,7 +57,7 @@ synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
 comment: singleLineComment | multiLineComment;
 singleLineComment: SINGLE_LINE_COMMENT (COLON S_QUOTE content S_QUOTE)?;
 multiLineComment: MULTI_LINE_COMMENT (COLON JAVADOC)? (COLON S_QUOTE content S_QUOTE)?;
-// TODO allow escaping S_QUOTE in comments? it doesnt seem to cause a problem though
+// XXX allow escaping S_QUOTE in comments? it doesnt seem to cause a problem though
 
 // Refactor
 rename: RENAME COLON SPACE* identifierName;
