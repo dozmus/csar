@@ -877,15 +877,15 @@ public final class JavaCodeGeneratorTest {
     }
 
     private static EnumConstantStatement createEnumConstant(String identifierName) {
-        return createEnumConstant(identifierName, BlockStatement.EMPTY);
+        return new EnumConstantStatement(identifierName, new ArrayList<>(), Optional.empty(), new ArrayList<>());
     }
 
     private static EnumConstantStatement createEnumConstant(String identifierName, List<Expression> expressions) {
-        return new EnumConstantStatement(identifierName, expressions, BlockStatement.EMPTY, new ArrayList<>());
+        return new EnumConstantStatement(identifierName, expressions, Optional.empty(), new ArrayList<>());
     }
 
     private static EnumConstantStatement createEnumConstant(String identifierName, BlockStatement block) {
-        return new EnumConstantStatement(identifierName, new ArrayList<>(), block, new ArrayList<>());
+        return new EnumConstantStatement(identifierName, new ArrayList<>(), Optional.of(block), new ArrayList<>());
     }
 
     @Test

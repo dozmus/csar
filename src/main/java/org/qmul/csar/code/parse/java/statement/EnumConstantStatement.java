@@ -7,6 +7,7 @@ import org.qmul.csar.util.StringUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * An enum constant.
@@ -15,10 +16,10 @@ public class EnumConstantStatement implements Statement {
 
     private final String identifierName;
     private final List<Expression> arguments;
-    private final BlockStatement block; // TODO make Optional
+    private final Optional<BlockStatement> block;
     private final List<Annotation> annotations;
 
-    public EnumConstantStatement(String identifierName, List<Expression> arguments, BlockStatement block,
+    public EnumConstantStatement(String identifierName, List<Expression> arguments, Optional<BlockStatement> block,
             List<Annotation> annotations) {
         this.identifierName = identifierName;
         this.arguments = Collections.unmodifiableList(arguments);
@@ -34,7 +35,7 @@ public class EnumConstantStatement implements Statement {
         return arguments;
     }
 
-    public BlockStatement getBlock() {
+    public Optional<BlockStatement> getBlock() {
         return block;
     }
 
@@ -86,13 +87,13 @@ public class EnumConstantStatement implements Statement {
             }
             builder.append(args).append(")");
         }
-
-        return builder.append(" {")
+        return block.map(blockStatement -> builder.append(" {")
                 .append(StringUtils.LINE_SEPARATOR)
-                .append(block.toPseudoCode(indentation + 1)) // TODO comma-delimiter constants properly
+                .append(blockStatement.toPseudoCode(indentation + 1))
                 .append(StringUtils.LINE_SEPARATOR)
                 .append(StringUtils.indentation(indentation))
                 .append("}")
-                .toString();
+                .toString())
+                .orElseGet(builder::toString);
     }
 }

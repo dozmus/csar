@@ -82,6 +82,7 @@ public class EnumStatement implements TypeStatement {
             builder.append("(").append(String.join(", ", descriptor.getSuperClasses())).append(")");
         }
 
+        // TODO comma-delimiter enum values properly
         if (block.equals(BlockStatement.EMPTY)) {
             builder.append(" { }");
         } else {

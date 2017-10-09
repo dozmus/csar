@@ -1104,8 +1104,8 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             }
 
             // Body
-            BlockStatement body = constantCtx.classBody() == null ? BlockStatement.EMPTY
-                    : parseClassBodyDeclaration(constantCtx.classBody().classBodyDeclaration());
+            Optional<BlockStatement> body = constantCtx.classBody() == null ? Optional.empty()
+                    : Optional.of(parseClassBodyDeclaration(constantCtx.classBody().classBodyDeclaration()));
 
             if (constantCtx.classBody() != null) {
                 parseClassBodyDeclaration(constantCtx.classBody().classBodyDeclaration());
