@@ -102,14 +102,14 @@ public class ProjectCodeParser {
                             }
                         } catch (IOException | RuntimeException ex) {
                             if (errorListener != null) {
-                                errorListener.parsingError(file, ex);
+                                errorListener.reportParsingError(file, ex);
                             }
                         }
                         LOGGER.debug("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
                     if (errorListener != null) {
-                        errorListener.unknownError(file, ex);
+                        errorListener.reportUnknownError(file, ex);
                     }
                     setErrorOccurred();
                     executor.shutdownNow();
