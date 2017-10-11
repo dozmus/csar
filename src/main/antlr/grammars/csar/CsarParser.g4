@@ -15,7 +15,7 @@ containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
 fromQuery: FROM SPACE typeList;
 refactorQuery: REFACTOR SPACE refactorDescriptor;
 
-statementDescriptor: clazz | method | variable | conditional | comment;
+statementDescriptor: clazz | method | variable | controlFlow | statement | comment;
 refactorDescriptor: rename | changeParameters;
 
 // Class
@@ -42,8 +42,8 @@ instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
 localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
 
-// Conditional
-conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
+// Control Flow
+controlFlow: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary;
 if0: IF (LPAREN expr RPAREN)?;
 switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
 while0: WHILE (LPAREN expr RPAREN)?;
@@ -51,6 +51,9 @@ dowhile: DOWHILE (LPAREN expr RPAREN)?;
 for0: FOR;
 foreach: FOREACH (COLON identifierName)?;
 ternary: TERNARY;
+
+// Statement
+statement: synchronized0;
 synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
 
 // Comment

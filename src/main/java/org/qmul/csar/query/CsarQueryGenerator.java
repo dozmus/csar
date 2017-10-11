@@ -53,8 +53,10 @@ class CsarQueryGenerator extends CsarParserBaseListener {
             return parseMethod(ctx.method());
         } else if (ctx.variable() != null) {
             return parseVariable(ctx.variable());
-        } else if (ctx.conditional() != null) {
-            return parseConditional(ctx.conditional());
+        } else if (ctx.controlFlow() != null) {
+            return parseConditional(ctx.controlFlow());
+        } else if (ctx.statement() != null) {
+            return parseStatement(ctx.statement());
         } else {
             return parseComment(ctx.comment());
         }
@@ -223,7 +225,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         }
     }
 
-    private static TargetDescriptor parseConditional(ConditionalContext ctx) {
+    private static TargetDescriptor parseConditional(ControlFlowContext ctx) {
         Descriptor descriptor;
 
         if (ctx.if0() != null) {
@@ -243,13 +245,18 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         } else if (ctx.foreach() != null) {
             descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR_EACH,
                     parseTextOrEmpty(ctx.foreach().identifierName()), Optional.empty());
-        } else if (ctx.ternary() != null) {
+        } else { // ternary
             descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.TERNARY, Optional.empty(),
                     Optional.empty());
-        } else { // synchronized
-            descriptor = parseControlflowDescriptor(ConditionalDescriptor.Type.SYNCHRONIZED,
-                    ctx.synchronized0().identifierName(), ctx.synchronized0().expr());
         }
+        return new TargetDescriptor(descriptor);
+    }
+
+    private static TargetDescriptor parseStatement(StatementContext ctx) {
+        Descriptor descriptor;
+        // synchronized
+        descriptor = parseControlflowDescriptor(ConditionalDescriptor.Type.SYNCHRONIZED,
+                ctx.synchronized0().identifierName(), ctx.synchronized0().expr());
         return new TargetDescriptor(descriptor);
     }
 
