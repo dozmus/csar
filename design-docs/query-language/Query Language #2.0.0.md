@@ -251,6 +251,7 @@ content
 
 ## Problems with the Syntax
 * More leniency in csar query grammar
+* Allow RegEx to be used to represent types and identifier names everywhere
 * Allow fully qualified types
 * Cannot represent a variety of statements
 * Cannot represent annotations (usages)
