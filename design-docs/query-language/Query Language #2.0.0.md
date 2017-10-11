@@ -140,7 +140,6 @@ containsQueryBody: containsQueryBody
 fromQueryBody: fromQueryTarget (SPACE* COMMA SPACE* fromQueryTarget)*;
 fromQueryTarget: (PKG COLON identifierName) | (classLexerRule COLON identifierName); // packages/types to search within
 
-
 elementDescriptor: typeDecl | method | variable | constructor | controlFlow | statement | comment;
 refactorDescriptor: rename | changeParameters | reduceDuplicates | move;
 
