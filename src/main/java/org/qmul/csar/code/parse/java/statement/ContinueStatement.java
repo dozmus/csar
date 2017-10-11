@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
 
@@ -32,6 +33,13 @@ public class ContinueStatement implements Statement {
     @Override
     public int hashCode() {
         return Objects.hash(identifier);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("identifier", identifier)
+                .toString();
     }
 
     @Override
