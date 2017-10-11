@@ -41,7 +41,7 @@ public final class CsarQueryFactoryTest {
     }
 
     @Test
-    public void testContainsQueryPart() {
+    public void testContainsQueryPart1() {
         MethodDescriptor desc = new MethodDescriptor.Builder("add").build();
         ContainsQuery containsQuery = new ContainsQuery.Builder()
                 .addLogicalOperator(LogicalOperator.NOT)
@@ -55,6 +55,19 @@ public final class CsarQueryFactoryTest {
                 .contains(containsQuery)
                 .build();
         assertEquals("SELECT method:use:add CONTAINS not class:use:MyClass OR class:def:inner SecondClass", expected);
+    }
+
+    @Test
+    public void testContainsQueryPart2() {
+        MethodDescriptor desc = new MethodDescriptor.Builder("add").build();
+        ContainsQuery containsQuery = new ContainsQuery.Builder()
+                .addTargetDescriptor(new TargetDescriptor(SearchType.USE, new MethodDescriptor.Builder("method")
+                        .build()))
+                .build();
+        CsarQuery expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.USE), desc))
+                .contains(containsQuery)
+                .build();
+        assertEquals("SELECT method:use:add CONTAINS method:use:method", expected);
     }
 
     @Test
