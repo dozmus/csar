@@ -23,6 +23,7 @@ public class MethodDescriptor implements Descriptor {
     private final Optional<Boolean> nativeModifier;
     private final Optional<Boolean> defaultModifier;
     private final Optional<Boolean> overridden;
+    private final Optional<Boolean> stub;
     private final Optional<Boolean> hasTypeArguments;
     private final Optional<Boolean> hasParameters;
     private final Optional<Boolean> hasThrownExceptions;
@@ -36,10 +37,9 @@ public class MethodDescriptor implements Descriptor {
             Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
             Optional<Boolean> strictfpModifier, Optional<Boolean> synchronizedModifier,
             Optional<Boolean> nativeModifier, Optional<Boolean> defaultModifier,
-            Optional<Boolean> overridden, Optional<Boolean> hasTypeArguments,
-            Optional<Integer> parameterCount, List<ParameterVariableDescriptor> parameters,
-            List<String> thrownExceptions, List<String> typeParameters,
-            Optional<Boolean> hasParameters, Optional<Boolean> hasThrownExceptions) {
+            Optional<Boolean> overridden, Optional<Boolean> hasTypeArguments, Optional<Integer> parameterCount,
+            List<ParameterVariableDescriptor> parameters, List<String> thrownExceptions, List<String> typeParameters,
+            Optional<Boolean> hasParameters, Optional<Boolean> hasThrownExceptions, Optional<Boolean> stub) {
         this.identifierName = identifierName;
         this.returnType = returnType;
         this.visibilityModifier = visibilityModifier;
@@ -58,6 +58,7 @@ public class MethodDescriptor implements Descriptor {
         this.typeParameters = typeParameters;
         this.hasParameters = hasParameters;
         this.hasThrownExceptions = hasThrownExceptions;
+        this.stub = stub;
     }
 
     public String getIdentifierName() {
@@ -104,6 +105,10 @@ public class MethodDescriptor implements Descriptor {
         return overridden;
     }
 
+    public Optional<Boolean> getStub() {
+        return stub;
+    }
+
     public Optional<Boolean> getHasTypeArguments() {
         return hasTypeArguments;
     }
@@ -148,6 +153,7 @@ public class MethodDescriptor implements Descriptor {
                 && OptionalUtils.lenientEquals(nativeModifier, that.nativeModifier)
                 && OptionalUtils.lenientEquals(defaultModifier, that.defaultModifier)
                 && OptionalUtils.lenientEquals(overridden, that.overridden)
+                && OptionalUtils.lenientEquals(stub, that.stub)
                 && OptionalUtils.lenientEquals(hasParameters, parameters, that.hasParameters, that.parameters)
                 && OptionalUtils.lenientEquals(hasThrownExceptions, thrownExceptions, that.hasThrownExceptions,
                         that.thrownExceptions)
@@ -171,6 +177,7 @@ public class MethodDescriptor implements Descriptor {
                 && Objects.equals(nativeModifier, that.nativeModifier)
                 && Objects.equals(defaultModifier, that.defaultModifier)
                 && Objects.equals(overridden, that.overridden)
+                && Objects.equals(stub, that.stub)
                 && Objects.equals(hasTypeArguments, that.hasTypeArguments)
                 && Objects.equals(hasParameters, that.hasParameters)
                 && Objects.equals(hasThrownExceptions, that.hasThrownExceptions)
@@ -202,6 +209,7 @@ public class MethodDescriptor implements Descriptor {
                 .append("nativeModifier", nativeModifier)
                 .append("defaultModifier", defaultModifier)
                 .append("overridden", overridden)
+                .append("stub", stub)
                 .append("hasTypeArguments", hasTypeArguments)
                 .append("hasParameters", hasParameters)
                 .append("hasThrownExceptions", hasThrownExceptions)
@@ -225,6 +233,7 @@ public class MethodDescriptor implements Descriptor {
         private Optional<Boolean> nativeModifier = Optional.empty();
         private Optional<Boolean> defaultModifier = Optional.empty();
         private Optional<Boolean> overridden = Optional.empty();
+        private Optional<Boolean> stub = Optional.empty();
         private Optional<Boolean> hasTypeArguments = Optional.empty();
         private Optional<Boolean> hasParameters = Optional.empty();
         private Optional<Boolean> hasThrownExceptions = Optional.empty();
@@ -243,6 +252,7 @@ public class MethodDescriptor implements Descriptor {
                     .nativeModifier(false)
                     .defaultModifier(false)
                     .overridden(false)
+                    .stub(false)
                     .hasTypeArguments(false)
                     .hasParameters(false)
                     .hasThrownExceptions(false);
@@ -302,6 +312,11 @@ public class MethodDescriptor implements Descriptor {
             return this;
         }
 
+        public Builder stub(boolean stub) {
+            this.stub = Optional.of(stub);
+            return this;
+        }
+
         public Builder hasTypeArguments(boolean hasTypeArguments) {
             this.hasTypeArguments = Optional.of(hasTypeArguments);
             return this;
@@ -341,7 +356,7 @@ public class MethodDescriptor implements Descriptor {
             return new MethodDescriptor(identifierName, returnType, visibilityModifier, staticModifier, finalModifier,
                     abstractModifier, strictfpModifier, synchronizedModifier, nativeModifier, defaultModifier,
                     overridden, hasTypeArguments, parameterCount, parameters, thrownExceptions, typeParameters,
-                    hasParameters, hasThrownExceptions);
+                    hasParameters, hasThrownExceptions, stub);
         }
     }
 }

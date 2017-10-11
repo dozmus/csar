@@ -100,6 +100,7 @@ public final class JavaCodeGeneratorTest {
                 .parameters(Arrays.asList(param21.getDescriptor(), param22.getDescriptor()))
                 .parameterCount(2)
                 .hasParameters(true)
+                .stub(true)
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Method #2
@@ -190,6 +191,7 @@ public final class JavaCodeGeneratorTest {
                 .hasParameters(true)
                 .typeParameters(Arrays.asList("E"))
                 .hasTypeArguments(true)
+                .stub(true)
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>());
 
         // Instance #1
@@ -211,6 +213,7 @@ public final class JavaCodeGeneratorTest {
                 .parameters(Arrays.asList(param31.getDescriptor()))
                 .parameterCount(1)
                 .hasParameters(true)
+                .stub(true)
                 .build(), Arrays.asList(param31), BlockStatement.EMPTY, new ArrayList<>());
 
         // Top-level class
@@ -244,6 +247,7 @@ public final class JavaCodeGeneratorTest {
         MethodStatement interfaceMethod = createMethod(MethodDescriptor.Builder.allFalse("run")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
+                .stub(true)
                 .parameterCount(0)
                 .build());
         ClassStatement localInterface = new ClassStatement(ClassDescriptor.Builder.allFalse("Runnable")

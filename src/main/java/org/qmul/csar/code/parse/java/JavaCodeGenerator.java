@@ -345,6 +345,9 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         // Modifiers
         modifiers.forEach(mod -> applyModifier(builder, mod, false));
 
+        // Stub
+        builder.stub(blockCtx == null);
+
         // Type parameters
         List<String> typeParameters = parseTypeParameters(typeParametersCtx);
         builder.typeParameters(typeParameters);
@@ -381,14 +384,17 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
     }
 
     private static MethodStatement parseInterfaceMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
-            List<ModifierContext> intBodyMods, List<InterfaceMethodModifierContext> modifiers, FormalParameterListContext parameterCtx,
-            QualifiedNameListContext throwsCtx, boolean overridden, BlockContext blockCtx,
-            TypeParametersContext typeParametersCtx) {
+            List<ModifierContext> intBodyMods, List<InterfaceMethodModifierContext> modifiers,
+            FormalParameterListContext parameterCtx, QualifiedNameListContext throwsCtx, boolean overridden,
+            BlockContext blockCtx, TypeParametersContext typeParametersCtx) {
         MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, overridden);
 
         // Modifiers
         intBodyMods.forEach(mod -> applyModifier(builder, mod, true));
         modifiers.forEach(mod -> applyModifier(builder, mod));
+
+        // Stub
+        builder.stub(blockCtx == null);
 
         // Type parameters
         List<String> typeParameters = parseTypeParameters(typeParametersCtx);
