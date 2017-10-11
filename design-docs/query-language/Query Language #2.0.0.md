@@ -11,6 +11,7 @@ SELECT: 'SELECT' | 'select';
 CONTAINS: 'CONTAINS' | 'contains';
 FROM: 'FROM' | 'from';
 REFACTOR: 'REFACTOR' | 'refactor';
+LENIENT: 'LENIENT';
 
 DEF: 'DEFINITION' | 'definition' | 'def' | 'd';
 USE: 'USAGE' | 'usage' | 'use' | 'u';
@@ -82,6 +83,7 @@ LAMBDA: 'lambda';
 TRY_CATCH: 'trycatch';
 TRY_WRES_CATCH: 'trywres';
 CATCHES: 'catches';
+STUB: 'stub';
 
 // Symbols
 SPACE: ' ';
@@ -124,7 +126,7 @@ fragment JAVA_LETTER
 parser grammar CsarParser;
 
 // Csar query (top-level)
-csarQuery: (SELECT SPACE)? elementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
+csarQuery: (SELECT SPACE)? elementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? (SPACE LENIENT)? EOF;
 containsQuery: CONTAINS SPACE containsQueryBody;
 fromQuery: FROM SPACE fromQueryBody;
 refactorQuery: REFACTOR SPACE refactorDescriptor;
@@ -152,8 +154,8 @@ superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 // Method
 method
     : METHOD commonModifiers (NOT? OVERRIDDEN SPACE)? (NOT? ABSTRACT SPACE)? (NOT? STRICTFP SPACE)? (NOT? DEFAULT SPACE)?
-     (type SPACE)? (genericTypeParameterList SPACE)? identifierName (SPACE? methodParameters)? (SPACE methodThrownExceptions)?
-     (SPACE SUPER SPACE* superClassList)?
+     (NOT? STUB SPACE)? (type SPACE)? (genericTypeParameterList SPACE)? identifierName (SPACE? methodParameters)?
+     (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
 methodThrownExceptions: THROWS SPACE* LPAREN SPACE* typeList SPACE* RPAREN;
@@ -225,7 +227,7 @@ identifierName
     | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
     | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | MOVE | REDUCE_DUPLICATES | CONSTRUCTOR
     | STATIC_CONSTRUCTOR | LAMBDA | ENUM_NV | ANNOTATION | ENUM_CONST | TRY_CATCH | TRY_WRES_CATCH | CATCHES
-    | PKG
+    | PKG | LENIENT | STUB
     ;
 
 genericIdentifierName: (QUESTION SPACE ((EXTENDS | SUPER) SPACE identifierName)?) | identifierName;
@@ -243,7 +245,7 @@ content
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
         | LBRACK | RBRACK | MOVE | REDUCE_DUPLICATES | GOTO | DEFAULT | CONSTRUCTOR | STATIC_CONSTRUCTOR | THROW
         | ELLIPSIS | LAMBDA | ENUM_NV | ENUM_V | ANNOTATION | ENUM_CONST | TRY_CATCH | TRY_WRES_CATCH | CATCHES
-        | PKG | LT | GT | EXTENDS | QUESTION
+        | PKG | LT | GT | EXTENDS | QUESTION | LENIENT | STUB
       )*
     ;
 ```
@@ -258,7 +260,7 @@ content
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
   However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error.
   One solution to this is to print an error message and terminate.
-* Note: The syntax will need to be modified for each language we wish to handle.
+* Note: The syntax will need to be extended to support each additional programming language.
 
 ## Use Cases
 The use-cases will detail why and how end users might use this tool.  
