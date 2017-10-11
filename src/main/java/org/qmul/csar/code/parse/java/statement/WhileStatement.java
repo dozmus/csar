@@ -52,7 +52,7 @@ public class WhileStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return String.format("%swhile(%s) {%s%s%s%s}", StringUtils.indentation(indentation), condition.toPseudoCode(),
+        return String.format("%swhile %s {%s%s%s%s}", StringUtils.indentation(indentation), condition.toPseudoCode(),
                 StringUtils.LINE_SEPARATOR, statement.toPseudoCode(indentation + 1), StringUtils.LINE_SEPARATOR,
                 StringUtils.indentation(indentation));
     }
