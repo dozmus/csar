@@ -143,7 +143,7 @@ public final class JavaCodeGeneratorTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .strictfpModifier(true)
                 .abstractModifier(true)
-                .superClasses(Arrays.asList("AbstractSample"))
+                .extendedClass("AbstractSample")
                 .build(),
                 new BlockStatement(Arrays.asList(constructor1, constructor2, var1, var2, method1, method2, method3)),
                 new ArrayList<>());
@@ -221,7 +221,7 @@ public final class JavaCodeGeneratorTest {
         return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample2")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .interfaceModifier(true)
-                .superClasses(Arrays.asList("Runnable"))
+                .implementedInterfaces(Arrays.asList("Runnable"))
                 .build(), block, new ArrayList<>());
     }
 
@@ -274,7 +274,7 @@ public final class JavaCodeGeneratorTest {
         ClassStatement localClass = new ClassStatement(ClassDescriptor.Builder.allFalse("A")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .local(true)
-                .superClasses(Arrays.asList("Runnable"))
+                .implementedInterfaces(Arrays.asList("Runnable"))
                 .build(), new BlockStatement(Arrays.asList(innerClassMethod)), new ArrayList<>());
 
         // Instantiation
@@ -341,7 +341,7 @@ public final class JavaCodeGeneratorTest {
                 .build(), params, BlockStatement.EMPTY, new ArrayList<>());
         ClassStatement innerClass = new ClassStatement(ClassDescriptor.Builder.allFalse("B")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .superClasses(Arrays.asList("A"))
+                .implementedInterfaces(Arrays.asList("A"))
                 .inner(true)
                 .build(), new BlockStatement(Arrays.asList(method)), new ArrayList<>());
 
@@ -361,7 +361,7 @@ public final class JavaCodeGeneratorTest {
         ClassStatement innerClass = createClass(ClassDescriptor.Builder.allFalse("A")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .inner(true)
-                .superClasses(Arrays.asList("Sample6"))
+                .implementedInterfaces(Arrays.asList("Sample6"))
                 .typeParameters(Arrays.asList("T0"))
                 .build());
 

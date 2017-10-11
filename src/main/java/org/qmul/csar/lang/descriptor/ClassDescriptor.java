@@ -21,14 +21,15 @@ public class ClassDescriptor implements Descriptor {
     private final Optional<Boolean> inner;
     private final Optional<Boolean> local;
     private final Optional<Boolean> anonymous;
+    private final Optional<String> extendedClass;
     private final List<String> typeParameters;
-    private final List<String> superClasses;
+    private final List<String> implementedInterfaces;
 
     public ClassDescriptor(String identifierName, Optional<VisibilityModifier> visibilityModifier,
             Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
             Optional<Boolean> strictfpModifier, Optional<Boolean> interfaceModifier, Optional<Boolean> inner,
             Optional<Boolean> local, Optional<Boolean> anonymous, List<String> typeParameters,
-            List<String> superClasses) {
+            List<String> implementedInterfaces, Optional<String> extendedClass) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;
@@ -40,7 +41,8 @@ public class ClassDescriptor implements Descriptor {
         this.local = local;
         this.anonymous = anonymous;
         this.typeParameters = typeParameters;
-        this.superClasses = superClasses;
+        this.implementedInterfaces = implementedInterfaces;
+        this.extendedClass = extendedClass;
     }
 
     public String getIdentifierName() {
@@ -83,12 +85,16 @@ public class ClassDescriptor implements Descriptor {
         return anonymous;
     }
 
+    public Optional<String> getExtendedClass() {
+        return extendedClass;
+    }
+
     public List<String> getTypeParameters() {
         return typeParameters;
     }
 
-    public List<String> getSuperClasses() {
-        return superClasses;
+    public List<String> getImplementedInterfaces() {
+        return implementedInterfaces;
     }
 
     @Override
@@ -112,13 +118,15 @@ public class ClassDescriptor implements Descriptor {
                 && Objects.equals(local, that.local)
                 && Objects.equals(anonymous, that.anonymous)
                 && Objects.equals(typeParameters, that.typeParameters)
-                && Objects.equals(superClasses, that.superClasses);
+                && Objects.equals(implementedInterfaces, that.implementedInterfaces)
+                && Objects.equals(extendedClass, that.extendedClass);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(identifierName, visibilityModifier, staticModifier, finalModifier, abstractModifier,
-                strictfpModifier, interfaceModifier, inner, local, anonymous, typeParameters, superClasses);
+                strictfpModifier, interfaceModifier, inner, local, anonymous, typeParameters, extendedClass,
+                implementedInterfaces);
     }
 
     @Override
@@ -135,7 +143,8 @@ public class ClassDescriptor implements Descriptor {
                 .append("local", local)
                 .append("anonymous", anonymous)
                 .append("typeParameters", typeParameters)
-                .append("superClasses", superClasses)
+                .append("implementedInterfaces", implementedInterfaces)
+                .append("extendedClass", extendedClass)
                 .toString();
     }
 
@@ -152,7 +161,8 @@ public class ClassDescriptor implements Descriptor {
         private Optional<Boolean> local = Optional.empty();
         private Optional<Boolean> anonymous = Optional.empty();
         private List<String> typeParameters = new ArrayList<>();
-        private List<String> superClasses = new ArrayList<>();
+        private List<String> implementedInterfaces = new ArrayList<>();
+        private Optional<String> extendedClass = Optional.empty();
 
         public static Builder allFalse(String identifierName) {
             return new Builder(identifierName)
@@ -220,15 +230,20 @@ public class ClassDescriptor implements Descriptor {
             return this;
         }
 
-        public Builder superClasses(List<String> superClasses) {
-            this.superClasses = superClasses;
+        public Builder extendedClass(String extendedClass) {
+            this.extendedClass = Optional.of(extendedClass);
+            return this;
+        }
+
+        public Builder implementedInterfaces(List<String> superClasses) {
+            this.implementedInterfaces = implementedInterfaces;
             return this;
         }
 
         public ClassDescriptor build() {
             return new ClassDescriptor(identifierName, visibilityModifier, staticModifier, finalModifier,
                     abstractModifier, strictfpModifier, interfaceModifier, inner, local, anonymous, typeParameters,
-                    superClasses);
+                    implementedInterfaces, extendedClass);
         }
     }
 }

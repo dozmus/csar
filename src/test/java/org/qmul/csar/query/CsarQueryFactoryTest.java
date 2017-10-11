@@ -179,7 +179,7 @@ public final class CsarQueryFactoryTest {
 
         ClassDescriptor desc2 = new ClassDescriptor.Builder("class12")
                 .interfaceModifier(true)
-                .superClasses(Arrays.asList("Runnable", "Printable", "Searchable"))
+                .implementedInterfaces(Arrays.asList("Runnable", "Printable", "Searchable"))
                 .build();
         assertEquals("class:def:interface class12(Runnable,Printable,Searchable)",
                 new CsarQuery(new TargetDescriptor(Optional.of(SearchType.DEF), desc2)));

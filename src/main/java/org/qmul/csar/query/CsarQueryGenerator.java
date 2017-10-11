@@ -95,7 +95,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
 
         // Build and return
         ClassDescriptor.Builder builder = new ClassDescriptor.Builder(identifierName)
-                .superClasses(superClasses);
+                .implementedInterfaces(superClasses);
         staticModifier.ifPresent(builder::staticModifier);
         finalModifier.ifPresent(builder::finalModifier);
         visibilityModifier.ifPresent(builder::visibilityModifier);

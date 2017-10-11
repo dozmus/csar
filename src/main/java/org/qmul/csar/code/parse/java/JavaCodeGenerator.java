@@ -1144,9 +1144,9 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         TypeTypeContext extendedClass = dec.typeType();
 
         if (extendedClass != null) {
-            superClasses.add(extendedClass.getText());
+            builder.extendedClass(extendedClass.getText());
         }
-        builder.superClasses(superClasses);
+        builder.implementedInterfaces(superClasses);
 
         // Body
         BlockStatement block = parseClassBodyDeclaration(dec.classBody().classBodyDeclaration());
@@ -1257,7 +1257,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         builder.typeParameters(parseTypeParameters(dec.typeParameters()));
 
         // Extended classes
-        builder.superClasses(parseTypesList(dec.typeList()));
+        builder.implementedInterfaces(parseTypesList(dec.typeList()));
 
         // Body
         BlockStatement block = parseInterfaceBodyDeclaration(dec.interfaceBody().interfaceBodyDeclaration());
