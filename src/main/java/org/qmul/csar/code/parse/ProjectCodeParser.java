@@ -43,12 +43,10 @@ public class ProjectCodeParser {
      * @param it the {@link Path} iterator whose contents to parse
      * @param threadCount the amount of threads to use
      * @throws IllegalArgumentException if <tt>threadCount</tt> is less than or equal to <tt>0</tt>
+     * @throws NullPointerException if <tt>it</tt> is <tt>null</tt>
      */
     public ProjectCodeParser(Iterator<Path> it, int threadCount) {
         this.it = Objects.requireNonNull(it);
-
-        if (threadCount <= 0)
-            throw new IllegalArgumentException("threads must be greater than 0");
         this.threadCount = threadCount;
         this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
         this.finishedLatch = new CountDownLatch(threadCount);
