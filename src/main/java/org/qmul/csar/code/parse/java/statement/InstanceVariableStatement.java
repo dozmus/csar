@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.InstanceVariableDescriptor;
@@ -56,8 +57,11 @@ public class InstanceVariableStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("InstanceVariableStatement{descriptor=%s, annotations=%s, valueExpression=%s}", descriptor,
-                annotations, valueExpression);
+        return new ToStringBuilder(this)
+                .append("descriptor", descriptor)
+                .append("annotations", annotations)
+                .append("valueExpression", valueExpression)
+                .toString();
     }
 
     @Override

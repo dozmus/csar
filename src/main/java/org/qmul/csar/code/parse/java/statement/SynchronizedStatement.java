@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
@@ -47,7 +48,10 @@ public class SynchronizedStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("SynchronizedStatement{element=%s, block=%s}", element, block);
+        return new ToStringBuilder(this)
+                .append("element", element)
+                .append("block", block)
+                .toString();
     }
 
     @Override

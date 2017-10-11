@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -41,7 +42,10 @@ public class UnitExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("UnitExpression{type=%s, value='%s'}", valueType, value);
+        return new ToStringBuilder(this)
+                .append("valueType", valueType)
+                .append("value", value)
+                .toString();
     }
 
     @Override

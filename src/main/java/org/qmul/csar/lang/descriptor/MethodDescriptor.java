@@ -1,5 +1,7 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.util.OptionalUtils;
 
@@ -188,15 +190,26 @@ public class MethodDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return String.format(
-                "MethodDescriptor{identifierName='%s', returnType=%s, visibilityModifier=%s, staticModifier=%s, "
-                        + "finalModifier=%s, abstractModifier=%s, strictfpModifier=%s, synchronizedModifier=%s, "
-                        + "nativeModifier=%s, defaultModifier=%s, overridden=%s, hasTypeArguments=%s, "
-                        + "hasParameters=%s, hasThrownExceptions=%s, parameterCount=%s, parameters=%s, "
-                        + "thrownExceptions=%s, typeParameters=%s}",
-                identifierName, returnType, visibilityModifier, staticModifier, finalModifier, abstractModifier,
-                strictfpModifier, synchronizedModifier, nativeModifier, defaultModifier, overridden, hasTypeArguments,
-                hasParameters, hasThrownExceptions, parameterCount, parameters, thrownExceptions, typeParameters);
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("identifierName", identifierName)
+                .append("returnType", returnType)
+                .append("visibilityModifier", visibilityModifier)
+                .append("staticModifier", staticModifier)
+                .append("finalModifier", finalModifier)
+                .append("abstractModifier", abstractModifier)
+                .append("strictfpModifier", strictfpModifier)
+                .append("synchronizedModifier", synchronizedModifier)
+                .append("nativeModifier", nativeModifier)
+                .append("defaultModifier", defaultModifier)
+                .append("overridden", overridden)
+                .append("hasTypeArguments", hasTypeArguments)
+                .append("hasParameters", hasParameters)
+                .append("hasThrownExceptions", hasThrownExceptions)
+                .append("parameterCount", parameterCount)
+                .append("parameters", parameters)
+                .append("thrownExceptions", thrownExceptions)
+                .append("typeParameters", typeParameters)
+                .toString();
     }
 
     public static class Builder {

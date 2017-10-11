@@ -1,5 +1,7 @@
 package org.qmul.csar.query;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -99,7 +101,9 @@ public class ContainsQuery {
 
     @Override
     public String toString() {
-        return String.format("ContainsQuery{elements=%s}", elements);
+        return new ToStringBuilder(this)
+                .append("elements", elements)
+                .toString();
     }
 
     public static class Builder {

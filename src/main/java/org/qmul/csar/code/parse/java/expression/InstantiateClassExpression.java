@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.statement.BlockStatement;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.descriptor.ClassDescriptor;
@@ -67,8 +68,13 @@ public class InstantiateClassExpression implements Expression { // TODO allow th
 
     @Override
     public String toString() {
-        return String.format("InstantiateClassExpression{descriptor=%s, block=%s, arguments=%s, typeArguments=%s, "
-                        + "hasTypeArguments=%s}", descriptor, block, arguments, typeArguments, hasTypeArguments);
+        return new ToStringBuilder(this)
+                .append("descriptor", descriptor)
+                .append("block", block)
+                .append("arguments", arguments)
+                .append("typeArguments", typeArguments)
+                .append("hasTypeArguments", hasTypeArguments)
+                .toString();
     }
 
     @Override

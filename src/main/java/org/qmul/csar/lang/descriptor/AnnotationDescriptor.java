@@ -1,5 +1,7 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.Objects;
@@ -65,9 +67,13 @@ public class AnnotationDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return String.format("AnnotationDescriptor{identifierName='%s', visibilityModifier=%s, abstractModifier=%s, "
-                        + "strictfpModifier=%s, inner=%s}",
-                identifierName, visibilityModifier, abstractModifier, strictfpModifier, inner);
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("identifierName", identifierName)
+                .append("visibilityModifier", visibilityModifier)
+                .append("abstractModifier", abstractModifier)
+                .append("strictfpModifier", strictfpModifier)
+                .append("inner", inner)
+                .toString();
     }
 
     public static class Builder {

@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -32,7 +33,9 @@ public class ParenthesisExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("ParenthesisExpression{expression=%s}", expression);
+        return new ToStringBuilder(this)
+                .append("expression", expression)
+                .toString();
     }
 
     @Override

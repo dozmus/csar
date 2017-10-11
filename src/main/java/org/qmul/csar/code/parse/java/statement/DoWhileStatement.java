@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
@@ -43,7 +44,10 @@ public class DoWhileStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("DoWhileStatement{condition=%s, statement=%s}", condition, statement);
+        return new ToStringBuilder(this)
+                .append("condition", condition)
+                .append("statement", statement)
+                .toString();
     }
 
     @Override

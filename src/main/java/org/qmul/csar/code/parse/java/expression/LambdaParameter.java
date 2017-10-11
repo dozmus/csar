@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.statement.ParameterVariableStatement;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.SerializableCode;
@@ -45,7 +46,9 @@ public interface LambdaParameter extends Expression {
 
         @Override
         public String toString() {
-            return String.format("Identifier{identifier='%s'}", identifier);
+            return new ToStringBuilder(this)
+                    .append("identifier", identifier)
+                    .toString();
         }
     }
 
@@ -81,7 +84,9 @@ public interface LambdaParameter extends Expression {
 
         @Override
         public String toString() {
-            return String.format("Identifiers{identifiers=%s}", identifiers);
+            return new ToStringBuilder(this)
+                    .append("identifiers", identifiers)
+                    .toString();
         }
     }
 
@@ -127,7 +132,9 @@ public interface LambdaParameter extends Expression {
 
         @Override
         public String toString() {
-            return String.format("ParameterVariables{variables=%s}", variables);
+            return new ToStringBuilder(this)
+                    .append("variables", variables)
+                    .toString();
         }
     }
 }

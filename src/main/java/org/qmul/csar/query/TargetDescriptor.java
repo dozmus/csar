@@ -1,5 +1,6 @@
 package org.qmul.csar.query;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.Objects;
@@ -46,6 +47,9 @@ public class TargetDescriptor {
 
     @Override
     public String toString() {
-        return String.format("TargetDescriptor{searchType=%s, descriptor=%s}", searchType, descriptor);
+        return new ToStringBuilder(this)
+                .append("searchType", searchType)
+                .append("descriptor", descriptor)
+                .toString();
     }
 }

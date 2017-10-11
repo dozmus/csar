@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.LocalVariableDescriptor;
@@ -55,8 +56,11 @@ public class LocalVariableStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("LocalVariableStatement{descriptor=%s, valueExpression=%s, annotations=%s}", descriptor,
-                valueExpression, annotations);
+        return new ToStringBuilder(this)
+                .append("descriptor", descriptor)
+                .append("valueExpression", valueExpression)
+                .append("annotations", annotations)
+                .toString();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -38,7 +39,10 @@ public class PrefixedExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("PrefixedExpression{expr=%s, prefix=%s}", expr, prefix);
+        return new ToStringBuilder(this)
+                .append("expr", expr)
+                .append("prefix", prefix)
+                .toString();
     }
 
     @Override

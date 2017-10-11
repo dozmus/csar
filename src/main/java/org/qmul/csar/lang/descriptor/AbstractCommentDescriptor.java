@@ -1,5 +1,6 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.Objects;
@@ -33,6 +34,8 @@ public abstract class AbstractCommentDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return String.format("AbstractCommentDescriptor{content=%s}", content);
+        return new ToStringBuilder(this)
+                .append("content", content)
+                .toString();
     }
 }

@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
@@ -45,7 +46,10 @@ public class ParameterVariableStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("ParameterVariableStatement{descriptor=%s, annotations=%s}", descriptor, annotations);
+        return new ToStringBuilder(this)
+                .append("descriptor", descriptor)
+                .append("annotations", annotations)
+                .toString();
     }
 
     @Override

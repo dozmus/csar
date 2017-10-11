@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
@@ -45,7 +46,10 @@ public class Annotation implements Statement {
 
     @Override
     public String toString() {
-        return String.format("Annotation{identifierName='%s', value=%s}", identifierName, value);
+        return new ToStringBuilder(this)
+                .append("identifierName", identifierName)
+                .append("value", value)
+                .toString();
     }
 
     @Override
@@ -90,7 +94,10 @@ public class Annotation implements Statement {
 
         @Override
         public String toString() {
-            return String.format("Value{identifierName=%s, value=%s}", identifierName, value);
+            return new ToStringBuilder(this)
+                    .append("identifierName", identifierName)
+                    .append("value", value)
+                    .toString();
         }
 
         @Override
@@ -133,7 +140,10 @@ public class Annotation implements Statement {
 
         @Override
         public String toString() {
-            return String.format("Value{identifierName=%s, value=%s}", identifierName, value);
+            return new ToStringBuilder(this)
+                    .append("identifierName", identifierName)
+                    .append("value", value)
+                    .toString();
         }
 
         @Override
@@ -176,7 +186,10 @@ public class Annotation implements Statement {
 
         @Override
         public String toString() {
-            return String.format("Values{identifierName=%s, values=%s}", identifierName, values);
+            return new ToStringBuilder(this)
+                    .append("identifierName", identifierName)
+                    .append("values", values)
+                    .toString();
         }
 
         @Override

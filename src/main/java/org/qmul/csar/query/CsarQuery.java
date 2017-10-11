@@ -1,5 +1,7 @@
 package org.qmul.csar.query;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.*;
 
 /**
@@ -63,8 +65,12 @@ public final class CsarQuery {
 
     @Override
     public String toString() {
-        return String.format("CsarQuery{searchTarget=%s, containsQuery=%s, fromTarget=%s, refactorDescriptor=%s}",
-                searchTarget, containsQuery, fromTarget, refactorDescriptor);
+        return new ToStringBuilder(this)
+                .append("searchTarget", searchTarget)
+                .append("containsQuery", containsQuery)
+                .append("fromTarget", fromTarget)
+                .append("refactorDescriptor", refactorDescriptor)
+                .toString();
     }
 
     public static final class Builder {

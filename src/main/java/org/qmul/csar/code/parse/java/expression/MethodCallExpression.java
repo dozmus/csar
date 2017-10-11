@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -45,7 +46,10 @@ public class MethodCallExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("MethodCallExpression{methodName=%s, arguments=%s}", methodName, arguments);
+        return new ToStringBuilder(this)
+                .append("methodName", methodName)
+                .append("arguments", arguments)
+                .toString();
     }
 
     @Override

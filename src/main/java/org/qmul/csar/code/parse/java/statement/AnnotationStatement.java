@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.descriptor.AnnotationDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.qmul.csar.lang.Statement;
@@ -55,8 +56,11 @@ public class AnnotationStatement implements TypeStatement {
 
     @Override
     public String toString() {
-        return String.format("AnnotationStatement{descriptor=%s, block=%s, annotations=%s}", descriptor, block,
-                annotations);
+        return new ToStringBuilder(this)
+                .append("descriptor", descriptor)
+                .append("block", block)
+                .append("annotations", annotations)
+                .toString();
     }
 
     @Override
@@ -152,9 +156,13 @@ public class AnnotationStatement implements TypeStatement {
 
         @Override
         public String toString() {
-            return String.format("AnnotationMethod{visibilityModifier=%s, abstractModifier=%s, identifierName='%s', "
-                            + "defaultValue=%s, annotations=%s}",
-                    visibilityModifier, abstractModifier, identifierName, defaultValue, annotations);
+            return new ToStringBuilder(this)
+                    .append("visibilityModifier", visibilityModifier)
+                    .append("abstractModifier", abstractModifier)
+                    .append("identifierName", identifierName)
+                    .append("defaultValue", defaultValue)
+                    .append("annotations", annotations)
+                    .toString();
         }
 
         @Override

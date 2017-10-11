@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
@@ -50,8 +51,11 @@ public class ForEachStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("ForEachStatement{variable=%s, collection=%s, statement=%s}", variable, collection,
-                statement);
+        return new ToStringBuilder(this)
+                .append("variable", variable)
+                .append("collection", collection)
+                .append("statement", statement)
+                .toString();
     }
 
     @Override

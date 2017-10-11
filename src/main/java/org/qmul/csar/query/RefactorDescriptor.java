@@ -1,5 +1,6 @@
 package org.qmul.csar.query;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.descriptor.*;
 
@@ -53,7 +54,9 @@ public interface RefactorDescriptor {
 
         @Override
         public String toString() {
-            return String.format("RenameRefactorElement{identifierName='%s'} %s", identifierName, super.toString());
+            return new ToStringBuilder(this)
+                    .append("identifierName", identifierName)
+                    .toString();
         }
     }
 
@@ -89,7 +92,9 @@ public interface RefactorDescriptor {
 
         @Override
         public String toString() {
-            return String.format("ChangeParametersRefactorElement{descriptors=%s} %s", descriptors, super.toString());
+            return new ToStringBuilder(this)
+                    .append("descriptors", descriptors)
+                    .toString();
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
 
@@ -44,7 +45,10 @@ public class CatchStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("CatchStatement{variable=%s, block=%s}", variable, block);
+        return new ToStringBuilder(this)
+                .append("variable", variable)
+                .append("block", block)
+                .toString();
     }
 
     @Override

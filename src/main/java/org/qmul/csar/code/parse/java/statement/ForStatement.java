@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
@@ -66,9 +67,13 @@ public class ForStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format(
-                "ForStatement{initVariables=%s, initExpressions=%s, condition=%s, updateExpressions=%s, statement=%s}",
-                initVariables, initExpressions, condition, updateExpressions, statement);
+        return new ToStringBuilder(this)
+                .append("initVariables", initVariables)
+                .append("initExpressions", initExpressions)
+                .append("condition", condition)
+                .append("updateExpressions", updateExpressions)
+                .append("statement", statement)
+                .toString();
     }
 
     @Override

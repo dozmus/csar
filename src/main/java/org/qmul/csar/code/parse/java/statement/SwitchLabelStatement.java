@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.expression.UnitExpression;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
@@ -41,7 +42,9 @@ public class SwitchLabelStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("SwitchLabelStatement{labelExpression=%s}", labelExpression);
+        return new ToStringBuilder(this)
+                .append("labelExpression", labelExpression)
+                .toString();
     }
 
     @Override

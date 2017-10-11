@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -46,7 +47,11 @@ public class BinaryExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("BinaryExpression{left=%s, op=%s, right=%s}", left, op, right);
+        return new ToStringBuilder(this)
+                .append("left", left)
+                .append("op", op)
+                .append("right", right)
+                .toString();
     }
 
     @Override

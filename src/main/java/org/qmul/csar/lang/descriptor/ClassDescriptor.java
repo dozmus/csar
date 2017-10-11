@@ -1,5 +1,7 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.ArrayList;
@@ -121,12 +123,20 @@ public class ClassDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return String.format(
-                "ClassDescriptor{identifierName='%s', visibilityModifier=%s, staticModifier=%s, finalModifier=%s, "
-                        + "abstractModifier=%s, strictfpModifier=%s, interfaceModifier=%s, inner=%s, local=%s, "
-                        + "anonymous=%s, typeParameters=%s, superClasses=%s}",
-                identifierName, visibilityModifier, staticModifier, finalModifier, abstractModifier, strictfpModifier,
-                interfaceModifier, inner, local, anonymous, typeParameters, superClasses);
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("identifierName", identifierName)
+                .append("visibilityModifier", visibilityModifier)
+                .append("staticModifier", staticModifier)
+                .append("finalModifier", finalModifier)
+                .append("abstractModifier", abstractModifier)
+                .append("strictfpModifier", strictfpModifier)
+                .append("interfaceModifier", interfaceModifier)
+                .append("inner", inner)
+                .append("local", local)
+                .append("anonymous", anonymous)
+                .append("typeParameters", typeParameters)
+                .append("superClasses", superClasses)
+                .toString();
     }
 
     public static class Builder {

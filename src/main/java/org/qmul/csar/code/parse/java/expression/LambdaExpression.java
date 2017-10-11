@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.statement.BlockStatement;
 import org.qmul.csar.code.parse.java.statement.ExpressionStatement;
 import org.qmul.csar.lang.Expression;
@@ -46,7 +47,10 @@ public class LambdaExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("LambdaExpression{parameter=%s, value=%s}", parameter, value);
+        return new ToStringBuilder(this)
+                .append("parameter", parameter)
+                .append("value", value)
+                .toString();
     }
 
     @Override

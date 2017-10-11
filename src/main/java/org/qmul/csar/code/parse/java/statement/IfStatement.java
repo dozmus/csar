@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
@@ -62,8 +63,11 @@ public class IfStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("IfStatement{condition=%s, statement=%s, elseStatement=%s}", condition, statement,
-                elseStatement);
+        return new ToStringBuilder(this)
+                .append("condition", condition)
+                .append("statement", statement)
+                .append("elseStatement", elseStatement)
+                .toString();
     }
 
     @Override

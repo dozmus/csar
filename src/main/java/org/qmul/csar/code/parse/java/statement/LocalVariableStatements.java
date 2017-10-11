@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.LocalVariableDescriptor;
@@ -43,7 +44,9 @@ public class LocalVariableStatements implements Statement {
 
     @Override
     public String toString() {
-        return String.format("LocalVariableStatements{locals=%s}", locals);
+        return new ToStringBuilder(this)
+                .append("locals", locals)
+                .toString();
     }
 
     /**

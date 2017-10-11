@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.qmul.csar.lang.Statement;
@@ -91,11 +92,16 @@ public class ConstructorStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format(
-                "ConstructorStatement{identifierName='%s', visibilityModifier=%s, parameterCount=%s, parameters=%s, "
-                        + "thrownExceptions=%s, typeParameters=%s, block=%s, annotations=%s}",
-                identifierName, visibilityModifier, parameterCount, parameters, thrownExceptions, typeParameters,
-                block, annotations);
+        return new ToStringBuilder(this)
+                .append("identifierName", identifierName)
+                .append("visibilityModifier", visibilityModifier)
+                .append("parameterCount", parameterCount)
+                .append("parameters", parameters)
+                .append("thrownExceptions", thrownExceptions)
+                .append("typeParameters", typeParameters)
+                .append("block", block)
+                .append("annotations", annotations)
+                .toString();
     }
 
     @Override

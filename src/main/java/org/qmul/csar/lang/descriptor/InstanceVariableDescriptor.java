@@ -1,5 +1,6 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.Objects;
@@ -47,8 +48,10 @@ public class InstanceVariableDescriptor extends AbstractVariableDescriptor {
 
     @Override
     public String toString() {
-        return String.format("InstanceVariableDescriptor{visibilityModifier=%s, staticModifier=%s} %s",
-                visibilityModifier, staticModifier, super.toString());
+        return new ToStringBuilder(this)
+                .append("visibilityModifier", visibilityModifier)
+                .append("staticModifier", staticModifier)
+                .toString();
     }
 
     public static class Builder {

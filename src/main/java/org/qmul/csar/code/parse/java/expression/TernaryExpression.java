@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -46,8 +47,11 @@ public class TernaryExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("TernaryExpression{condition=%s, valueIfTrue=%s, valueIfFalse=%s}", condition,
-                valueIfTrue, valueIfFalse);
+        return new ToStringBuilder(this)
+                .append("condition", condition)
+                .append("valueIfTrue", valueIfTrue)
+                .append("valueIfFalse", valueIfFalse)
+                .toString();
     }
 
     @Override

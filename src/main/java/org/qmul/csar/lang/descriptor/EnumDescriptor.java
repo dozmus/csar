@@ -1,5 +1,7 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.ArrayList;
@@ -91,11 +93,16 @@ public class EnumDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return String.format(
-                "EnumDescriptor{identifierName='%s', visibilityModifier=%s, staticModifier=%s, finalModifier=%s, "
-                        + "abstractModifier=%s, strictfpModifier=%s, inner=%s, superClasses=%s}",
-                identifierName, visibilityModifier, staticModifier, finalModifier, abstractModifier, strictfpModifier,
-                inner, superClasses);
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("identifierName", identifierName)
+                .append("visibilityModifier", visibilityModifier)
+                .append("staticModifier", staticModifier)
+                .append("finalModifier", finalModifier)
+                .append("abstractModifier", abstractModifier)
+                .append("strictfpModifier", strictfpModifier)
+                .append("inner", inner)
+                .append("superClasses", superClasses)
+                .toString();
     }
 
     public static class Builder {

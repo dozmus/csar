@@ -1,5 +1,6 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.Objects;
@@ -39,6 +40,8 @@ public class BlockCommentDescriptor extends AbstractCommentDescriptor {
 
     @Override
     public String toString() {
-        return String.format("BlockCommentDescriptor{javadoc=%s} %s", javadoc, super.toString());
+        return new ToStringBuilder(this)
+                .append("javadoc", javadoc)
+                .toString();
     }
 }

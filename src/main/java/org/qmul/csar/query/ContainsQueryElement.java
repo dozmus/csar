@@ -1,5 +1,7 @@
 package org.qmul.csar.query;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.Objects;
 
 public abstract class ContainsQueryElement {
@@ -31,10 +33,12 @@ public abstract class ContainsQueryElement {
         public int hashCode() {
             return Objects.hash(targetDescriptor);
         }
-    
+
         @Override
         public String toString() {
-            return String.format("ContainsQueryElement.TargetDescriptor{targetDescriptor=%s}", targetDescriptor);
+            return new ToStringBuilder(this)
+                    .append("targetDescriptor", targetDescriptor)
+                    .toString();
         }
     }
 
@@ -65,10 +69,12 @@ public abstract class ContainsQueryElement {
         public int hashCode() {
             return Objects.hash(logicalOperator);
         }
-    
+
         @Override
         public String toString() {
-            return String.format("ContainsQueryElement.LogicalOperator{logicalOperator=%s}", logicalOperator);
+            return new ToStringBuilder(this)
+                    .append("logicalOperator", logicalOperator)
+                    .toString();
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -38,7 +39,10 @@ public class ArrayAccessExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("ArrayAccessExpression{array=%s, index=%s}", array, index);
+        return new ToStringBuilder(this)
+                .append("array", array)
+                .append("index", index)
+                .toString();
     }
 
     @Override

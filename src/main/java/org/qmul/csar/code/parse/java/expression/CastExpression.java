@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.expression;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -38,7 +39,10 @@ public class CastExpression implements Expression {
 
     @Override
     public String toString() {
-        return String.format("CastExpression{apparentType='%s', expression=%s}", apparentType, expression);
+        return new ToStringBuilder(this)
+                .append("apparentType", apparentType)
+                .append("expression", expression)
+                .toString();
     }
 
     @Override

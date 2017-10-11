@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
@@ -62,8 +63,12 @@ public class MethodStatement implements Statement {
 
     @Override
     public String toString() {
-        return String.format("MethodStatement{descriptor=%s, params=%s, block=%s, annotations=%s}", descriptor, params,
-                block, annotations);
+        return new ToStringBuilder(this)
+                .append("descriptor", descriptor)
+                .append("params", params)
+                .append("block", block)
+                .append("annotations", annotations)
+                .toString();
     }
 
     @Override

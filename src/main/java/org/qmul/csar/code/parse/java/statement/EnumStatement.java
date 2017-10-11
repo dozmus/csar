@@ -1,5 +1,6 @@
 package org.qmul.csar.code.parse.java.statement;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.descriptor.EnumDescriptor;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
@@ -53,7 +54,11 @@ public class EnumStatement implements TypeStatement {
 
     @Override
     public String toString() {
-        return String.format("EnumStatement{descriptor=%s, block=%s, annotations=%s}", descriptor, block, annotations);
+        return new ToStringBuilder(this)
+                .append("descriptor", descriptor)
+                .append("block", block)
+                .append("annotations", annotations)
+                .toString();
     }
 
     @Override

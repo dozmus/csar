@@ -1,5 +1,6 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.Objects;
@@ -55,8 +56,11 @@ public class ConditionalDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return String.format("ConditionalDescriptor{controlFlowType=%s, expression=%s, identifierName=%s}",
-                controlFlowType, expression, identifierName);
+        return new ToStringBuilder(this)
+                .append("controlFlowType", controlFlowType)
+                .append("expression", expression)
+                .append("identifierName", identifierName)
+                .toString();
     }
 
     public enum Type {

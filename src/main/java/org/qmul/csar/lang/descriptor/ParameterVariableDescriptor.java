@@ -1,5 +1,6 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 
 import java.util.Objects;
@@ -56,8 +57,11 @@ public class ParameterVariableDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return String.format("ParameterVariableDescriptor{identifierName=%s, identifierType=%s, finalModifier=%s}",
-                identifierName, identifierType, finalModifier);
+        return new ToStringBuilder(this)
+                .append("identifierName", identifierName)
+                .append("identifierType", identifierType)
+                .append("finalModifier", finalModifier)
+                .toString();
     }
 
     public static class Builder {
