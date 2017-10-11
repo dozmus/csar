@@ -82,12 +82,18 @@ public class IfStatement implements Statement {
                 .append(StringUtils.LINE_SEPARATOR)
                 .append(StringUtils.indentation(indentation))
                 .append("}");
-        elseStatement.ifPresent(statement -> sb.append(" else {")
-                .append(StringUtils.LINE_SEPARATOR)
-                .append(statement.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
-                .append(StringUtils.indentation(indentation))
-                .append("}"));
+        elseStatement.ifPresent(statement -> {
+            if (statement instanceof IfStatement) {
+                sb.append(" else ").append(statement.toPseudoCode(indentation).trim());
+                return;
+            }
+            sb.append(" else {")
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(statement.toPseudoCode(indentation + 1))
+                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(StringUtils.indentation(indentation))
+                    .append("}");
+        });
         return sb.toString();
     }
 }
