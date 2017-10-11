@@ -20,7 +20,7 @@ public final class JavaCodeParser implements CodeParser {
      *
      * @param file the file to parse
      * @return the file as a {@link Statement}
-     * @throws RuntimeException if unhandled top-level element is encountered in the file
+     * @throws RuntimeException if syntax error is encountered in the file
      * @throws IOException if an I/O exception occurs
      */
     @Override

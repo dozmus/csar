@@ -1184,12 +1184,16 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             FieldDeclarationContext field = m.fieldDeclaration();
 
             if (method != null) { // method
+                if (!validateMethodContext(method))
+                    throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         classBody.modifier(), method.formalParameters().formalParameterList(),
                         method.qualifiedNameList(), false, method.methodBody().block());
                 statements.add(methodStatement);
             } else if (genericMethod != null) { // generic method
                 method = genericMethod.methodDeclaration();
+                if (!validateMethodContext(method))
+                    throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         classBody.modifier(), method.formalParameters().formalParameterList(),
                         method.qualifiedNameList(), false, method.methodBody().block(), genericMethod.typeParameters());
@@ -1283,12 +1287,16 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             AnnotationTypeDeclarationContext anonDecl = memberDec.annotationTypeDeclaration();
 
             if (method != null) { // method
+                if (!validateMethodContext(method))
+                    throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseInterfaceMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         intBody.modifier(), method.interfaceMethodModifier(),
                         method.formalParameters().formalParameterList(), method.qualifiedNameList(), false,
                         method.methodBody().block());
                 statements.add(methodStatement);
             } else if (genericMethod != null) { // generic method
+                if (!validateMethodContext(genericMethod))
+                    throw new RuntimeException("invalid method return type: null array");
                 method = genericMethod.interfaceMethodDeclaration();
                 MethodStatement methodStatement = parseInterfaceMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         intBody.modifier(), method.interfaceMethodModifier(),
@@ -1359,6 +1367,24 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         } else {
             root = parseAnnotationDefinition(ctx.classOrInterfaceModifier(), ctx.annotationTypeDeclaration());
         }
+    }
+
+    private static boolean validateMethodContext(GenericMethodDeclarationContext ctx) {
+        return validateMethodContext(ctx.methodDeclaration());
+    }
+
+    private static boolean validateMethodContext(GenericInterfaceMethodDeclarationContext ctx) {
+        return validateMethodContext(ctx.interfaceMethodDeclaration());
+    }
+
+    private static boolean validateMethodContext(InterfaceMethodDeclarationContext ctx) {
+        boolean hasBrackets = ctx.LBRACK().size() > 0 || ctx.RBRACK().size() > 0;
+        return !ctx.typeTypeOrVoid().getText().equals("void") || !hasBrackets;
+    }
+
+    private static boolean validateMethodContext(MethodDeclarationContext ctx) {
+        boolean hasBrackets = ctx.LBRACK().size() > 0 || ctx.RBRACK().size() > 0;
+        return !ctx.typeTypeOrVoid().getText().equals("void") || !hasBrackets;
     }
 
     public TypeStatement getRootStatement() {
