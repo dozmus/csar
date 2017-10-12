@@ -29,7 +29,17 @@ The query language has two versions: 1.x.x (implemented) and ≥ 2.x.x (hypothet
 
 Searching will be implemented to only work on methods for now. To implement it for the other language elements it would be as simple as copy-pasting the code for methods and changing the types and getters involved. Though this would be a greatly time consuming and tedious task.
 
-Refactoring will be implemented to only work on methods for renaming and changing parameters. Implementing renaming for other language elements would be done with copy-pasting, as mentioned before. Changing parameters does not apply to any other language element, so that doesn’t have to be considered.
+Refactoring will be implemented to only work on methods for changing parameters. Changing parameters applies to only methods, so it is trivial to implement.
+
+{TODO describe some others, like filtering git files by .gitignore}
+
+## Back-logged Requirements
+These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift:
+* Indexing project parsed code - {TODO how}
+* Support mercurial (hg) ignore files - {TODO how}
+* Support subversion (svn) ignore files - {TODO how}
+* Support for further searches - {TODO how}
+* Support for renaming - {TODO how}
 
 # User Interaction
 The user will run the program from the command-line, as they would any other Java JAR: `java -jar csar.jar [options]`. A preliminary list of options is listed below:
