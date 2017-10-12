@@ -3,19 +3,20 @@ package org.qmul.csar.lang.descriptor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
 
 import java.util.Objects;
 
 public class AnnotationDescriptor implements Descriptor {
 
-    private final String identifierName;
+    private final IdentifierName identifierName;
     private final VisibilityModifier visibilityModifier;
     private final boolean abstractModifier;
     private final boolean strictfpModifier;
     private final boolean inner;
 
-    public AnnotationDescriptor(String identifierName, VisibilityModifier visibilityModifier, boolean abstractModifier,
-            boolean strictfpModifier, boolean inner) {
+    public AnnotationDescriptor(IdentifierName identifierName, VisibilityModifier visibilityModifier,
+            boolean abstractModifier, boolean strictfpModifier, boolean inner) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.abstractModifier = abstractModifier;
@@ -23,7 +24,7 @@ public class AnnotationDescriptor implements Descriptor {
         this.inner = inner;
     }
 
-    public String getIdentifierName() {
+    public IdentifierName getIdentifierName() {
         return identifierName;
     }
 
@@ -78,13 +79,17 @@ public class AnnotationDescriptor implements Descriptor {
 
     public static class Builder {
 
-        private final String identifierName;
+        private final IdentifierName identifierName;
         private VisibilityModifier visibilityModifier;
         private boolean abstractModifier;
         private boolean strictfpModifier;
         private boolean inner;
 
         public Builder(String identifierName) {
+            this.identifierName = new IdentifierName.Static(identifierName);
+        }
+
+        public Builder(IdentifierName identifierName) {
             this.identifierName = identifierName;
         }
 

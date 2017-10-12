@@ -2,6 +2,7 @@ package org.qmul.csar.lang.descriptor;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -10,9 +11,10 @@ public class ConditionalDescriptor implements Descriptor {
 
     private final Type controlFlowType;
     private final Optional<String> expression;
-    private final Optional<String> identifierName;
+    private final Optional<IdentifierName> identifierName;
 
-    public ConditionalDescriptor(Type controlFlowType, Optional<String> identifierName, Optional<String> expression) {
+    public ConditionalDescriptor(Type controlFlowType, Optional<IdentifierName> identifierName,
+            Optional<String> expression) {
         this.controlFlowType = controlFlowType;
         this.identifierName = identifierName;
         this.expression = expression;
@@ -30,7 +32,7 @@ public class ConditionalDescriptor implements Descriptor {
         return expression;
     }
 
-    public Optional<String> getIdentifierName() {
+    public Optional<IdentifierName> getIdentifierName() {
         return identifierName;
     }
 

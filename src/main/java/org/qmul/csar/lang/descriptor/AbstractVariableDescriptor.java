@@ -2,24 +2,25 @@ package org.qmul.csar.lang.descriptor;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public abstract class AbstractVariableDescriptor implements Descriptor {
 
-    private final String identifierName;
+    private final IdentifierName identifierName;
     private final Optional<String> identifierType;
     private final Optional<Boolean> finalModifier;
 
-    public AbstractVariableDescriptor(String identifierName, Optional<String> identifierType,
+    public AbstractVariableDescriptor(IdentifierName identifierName, Optional<String> identifierType,
             Optional<Boolean> finalModifier) {
         this.identifierName = identifierName;
         this.identifierType = identifierType;
         this.finalModifier = finalModifier;
     }
 
-    public String getIdentifierName() {
+    public IdentifierName getIdentifierName() {
         return identifierName;
     }
 

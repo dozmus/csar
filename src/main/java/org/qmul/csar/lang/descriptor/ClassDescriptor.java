@@ -3,6 +3,7 @@ package org.qmul.csar.lang.descriptor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 public class ClassDescriptor implements Descriptor {
 
-    private final String identifierName;
+    private final IdentifierName identifierName;
     private final Optional<VisibilityModifier> visibilityModifier;
     private final Optional<Boolean> staticModifier;
     private final Optional<Boolean> finalModifier;
@@ -25,7 +26,7 @@ public class ClassDescriptor implements Descriptor {
     private final List<String> typeParameters;
     private final List<String> implementedInterfaces;
 
-    public ClassDescriptor(String identifierName, Optional<VisibilityModifier> visibilityModifier,
+    public ClassDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
             Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
             Optional<Boolean> strictfpModifier, Optional<Boolean> interfaceModifier, Optional<Boolean> inner,
             Optional<Boolean> local, Optional<Boolean> anonymous, List<String> typeParameters,
@@ -45,7 +46,7 @@ public class ClassDescriptor implements Descriptor {
         this.extendedClass = extendedClass;
     }
 
-    public String getIdentifierName() {
+    public IdentifierName getIdentifierName() {
         return identifierName;
     }
 
@@ -150,7 +151,7 @@ public class ClassDescriptor implements Descriptor {
 
     public static class Builder {
 
-        private final String identifierName;
+        private final IdentifierName identifierName;
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
@@ -177,6 +178,10 @@ public class ClassDescriptor implements Descriptor {
         }
 
         public Builder(String identifierName) {
+            this.identifierName = new IdentifierName.Static(identifierName);
+        }
+
+        public Builder(IdentifierName identifierName) {
             this.identifierName = identifierName;
         }
 
@@ -235,7 +240,7 @@ public class ClassDescriptor implements Descriptor {
             return this;
         }
 
-        public Builder implementedInterfaces(List<String> superClasses) {
+        public Builder implementedInterfaces(List<String> implementedInterfaces) {
             this.implementedInterfaces = implementedInterfaces;
             return this;
         }

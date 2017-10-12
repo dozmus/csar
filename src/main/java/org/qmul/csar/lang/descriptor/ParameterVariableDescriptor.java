@@ -2,28 +2,29 @@ package org.qmul.csar.lang.descriptor;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class ParameterVariableDescriptor implements Descriptor {
 
-    private final Optional<String> identifierName;
+    private final Optional<IdentifierName> identifierName;
     private final Optional<String> identifierType;
     private final Optional<Boolean> finalModifier;
 
-    public ParameterVariableDescriptor(Optional<String> identifierName, Optional<String> identifierType,
+    public ParameterVariableDescriptor(Optional<IdentifierName> identifierName, Optional<String> identifierType,
             Optional<Boolean> finalModifier) {
         this.identifierName = identifierName;
         this.identifierType = identifierType;
         this.finalModifier = finalModifier;
     }
 
-    public ParameterVariableDescriptor(String identifierName, String identifierType, boolean finalModifier) {
+    public ParameterVariableDescriptor(IdentifierName identifierName, String identifierType, boolean finalModifier) {
         this(Optional.of(identifierName), Optional.of(identifierType), Optional.of(finalModifier));
     }
 
-    public Optional<String> getIdentifierName() {
+    public Optional<IdentifierName> getIdentifierName() {
         return identifierName;
     }
 
@@ -66,11 +67,16 @@ public class ParameterVariableDescriptor implements Descriptor {
 
     public static class Builder {
 
-        private Optional<String> identifierName = Optional.empty();
+        private Optional<IdentifierName> identifierName = Optional.empty();
         private Optional<String> identifierType = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
 
         public Builder identifierName(String identifierName) {
+            this.identifierName = Optional.of(new IdentifierName.Static(identifierName));
+            return this;
+        }
+
+        public Builder identifierName(IdentifierName identifierName) {
             this.identifierName = Optional.of(identifierName);
             return this;
         }

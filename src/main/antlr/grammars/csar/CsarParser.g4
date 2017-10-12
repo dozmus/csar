@@ -19,13 +19,13 @@ statementDescriptor: clazz | method | variable | controlFlow | statement | comme
 refactorDescriptor: rename | changeParameters;
 
 // Class
-clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers identifierName superClassList?;
+clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers (identifierName | regexIdentifierName) superClassList?;
 classModifiers: ((ABSTRACT | INTERFACE) SPACE)? (STRICTFP SPACE)? (ANONYMOUS SPACE)? (INNER SPACE)?;
 superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 
 // Method
 method
-    : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
+    : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? (identifierName | regexIdentifierName)
      (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
@@ -75,8 +75,9 @@ namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ ident
 identifierName
     : IDENTIFIER_NAME | SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | DOWHILE | TERNARY | RENAME
     | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
-    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV
+    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | REGEXP
     ;
+regexIdentifierName: REGEXP LPAREN (content | identifierName) RPAREN;
 
 content
     : (SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | CLASS_NV | CLASS_V | METHOD | INSTANCE
@@ -84,7 +85,7 @@ content
         | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
-        | LBRACK | RBRACK
+        | LBRACK | RBRACK | REGEXP
       )*
     ;
 expr: content; // XXX this should be parsed further at a language-specific level

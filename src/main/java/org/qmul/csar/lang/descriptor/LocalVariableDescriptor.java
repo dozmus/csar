@@ -1,21 +1,27 @@
 package org.qmul.csar.lang.descriptor;
 
+import org.qmul.csar.lang.IdentifierName;
+
 import java.util.Optional;
 
 public class LocalVariableDescriptor extends AbstractVariableDescriptor {
 
-    public LocalVariableDescriptor(String identifierName, Optional<String> identifierType,
+    public LocalVariableDescriptor(IdentifierName identifierName, Optional<String> identifierType,
             Optional<Boolean> finalModifier) {
         super(identifierName, identifierType, finalModifier);
     }
 
     public static class Builder {
 
-        private final String identifierName;
+        private final IdentifierName identifierName;
         private Optional<String> identifierType = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();
 
         public Builder(String identifierName) {
+            this.identifierName = new IdentifierName.Static(identifierName);
+        }
+
+        public Builder(IdentifierName identifierName) {
             this.identifierName = identifierName;
         }
 

@@ -63,6 +63,7 @@ CHANGE_PARAMETERS: 'changeparam';
 TRANSIENT: 'transient';
 VOLATILE: 'volatile';
 JAVADOC: 'javadoc';
+REGEXP: 'REGEXP' | 'regexp' | 'REGEX' | 'regex';
 
 // Symbols
 SPACE: ' ';
@@ -75,7 +76,7 @@ LBRACK: '[';
 RBRACK: ']';
 
 // Language elements
-IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
+IDENTIFIER_NAME: JAVA_LETTER (JAVA_LETTER | DIGIT)*;
 NUMBER: DIGIT+;
 
 // Fall-back rule
@@ -84,7 +85,6 @@ CATCH_ALL: (.)+?;
 // Fragments
 fragment TEXT: [a-zA-Z];
 fragment DIGIT: [0-9];
-fragment REGEX_WC: '*' | '_';
 
 // The following rule is taken from: https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
 fragment JAVA_LETTER

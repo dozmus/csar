@@ -2,12 +2,14 @@ package org.qmul.csar.query;
 
 import org.junit.Test;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.descriptor.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public final class CsarQueryFactoryTest {
 
@@ -90,15 +92,19 @@ public final class CsarQueryFactoryTest {
 
         // Change parameters #1
         List<ParameterVariableDescriptor> parameters1 = new ArrayList<>();
-        parameters1.add(new ParameterVariableDescriptor(Optional.of("k"), Optional.of("int"), Optional.empty()));
-        parameters1.add(new ParameterVariableDescriptor(Optional.of("r"), Optional.of("Runnable"), Optional.empty()));
+        parameters1.add(new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("k")),
+                Optional.of("int"), Optional.empty()));
+        parameters1.add(new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("r")),
+                Optional.of("Runnable"), Optional.empty()));
 
         MethodDescriptor method1 = new MethodDescriptor.Builder("SELECT")
                 .staticModifier(true)
                 .returnType("boolean")
                 .parameters(Arrays.asList(
-                        new ParameterVariableDescriptor(Optional.of("k"), Optional.of("int"), Optional.empty()),
-                        new ParameterVariableDescriptor(Optional.of("t"), Optional.of("Thread"), Optional.empty()))
+                        new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("k")),
+                                Optional.of("int"), Optional.empty()),
+                        new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("t")),
+                                Optional.of("Thread"), Optional.empty()))
                 )
                 .hasParameters(true)
                 .build();
@@ -137,8 +143,10 @@ public final class CsarQueryFactoryTest {
                 .staticModifier(true)
                 .returnType("double")
                 .parameters(Arrays.asList(
-                        new ParameterVariableDescriptor(Optional.of("k"), Optional.of("int"), Optional.empty()),
-                        new ParameterVariableDescriptor(Optional.of("r"), Optional.of("Runnable"), Optional.empty()))
+                        new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("k")),
+                                Optional.of("int"), Optional.empty()),
+                        new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("r")),
+                                Optional.of("Runnable"), Optional.empty()))
                 )
                 .hasParameters(true)
                 .build();
@@ -250,7 +258,8 @@ public final class CsarQueryFactoryTest {
         desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SWITCH);
         assertEquals("switch", new CsarQuery(new TargetDescriptor(desc)));
 
-        desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SWITCH, Optional.of("int"), Optional.empty());
+        desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SWITCH,
+                Optional.of(new IdentifierName.Static("int")), Optional.empty());
         assertEquals("switch:int", new CsarQuery(new TargetDescriptor(desc)));
 
         desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SWITCH, Optional.empty(),
@@ -284,7 +293,8 @@ public final class CsarQueryFactoryTest {
         desc = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR_EACH);
         assertEquals("foreach", new CsarQuery(new TargetDescriptor(desc)));
 
-        desc = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR_EACH, Optional.of("String"), Optional.empty());
+        desc = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR_EACH,
+                Optional.of(new IdentifierName.Static("String")), Optional.empty());
         assertEquals("foreach:String", new CsarQuery(new TargetDescriptor(desc)));
 
         // Ternary
@@ -295,8 +305,8 @@ public final class CsarQueryFactoryTest {
         desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SYNCHRONIZED);
         assertEquals("synchronized", new CsarQuery(new TargetDescriptor(desc)));
 
-        desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SYNCHRONIZED, Optional.of("Object"),
-                Optional.empty());
+        desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SYNCHRONIZED,
+                Optional.of(new IdentifierName.Static("Object")), Optional.empty());
         assertEquals("synchronized:Object", new CsarQuery(new TargetDescriptor(desc)));
 
         desc = new ConditionalDescriptor(ConditionalDescriptor.Type.SYNCHRONIZED, Optional.empty(),
@@ -307,21 +317,28 @@ public final class CsarQueryFactoryTest {
     @Test
     public void testRegexIdentifierNames() {
         CsarQuery expected = new CsarQuery(new TargetDescriptor(Optional.of(SearchType.USE),
-                new MethodDescriptor.Builder("*").build()));
-        assertEquals("SELECT method:use:*", expected);
+                new MethodDescriptor.Builder(new IdentifierName.Regex(Pattern.compile(".*"))).build()));
+        assertEquals("SELECT method:use:REGEX(.*)", expected);
 
         expected = new CsarQuery(new TargetDescriptor(Optional.of(SearchType.USE),
-                new MethodDescriptor.Builder("check*").build()));
-        assertEquals("SELECT method:use:check*", expected);
+                new MethodDescriptor.Builder(new IdentifierName.Regex(Pattern.compile("check.*"))).build()));
+        assertEquals("SELECT method:use:REGEXP(check.*)", expected);
 
         expected = new CsarQuery(new TargetDescriptor(Optional.of(SearchType.USE),
-                new MethodDescriptor.Builder("pre*_hook")
-                        .build()));
-        assertEquals("SELECT method:use:pre*_hook", expected);
+                new MethodDescriptor.Builder(new IdentifierName.Regex(Pattern.compile("pre.*_hook"))).build()));
+        assertEquals("SELECT method:use:regex(pre.*_hook)", expected);
 
         expected = new CsarQuery(new TargetDescriptor(Optional.of(SearchType.USE),
-                new MethodDescriptor.Builder("ch_ck").build()));
-        assertEquals("SELECT method:use:ch_ck", expected);
+                new MethodDescriptor.Builder(new IdentifierName.Regex(Pattern.compile("ch.ck"))).build()));
+        assertEquals("SELECT method:use:regexp(ch.ck)", expected);
+
+        expected = new CsarQuery(new TargetDescriptor(Optional.of(SearchType.USE),
+                new MethodDescriptor.Builder(new IdentifierName.Regex(Pattern.compile("\\\\add"))).build()));
+        assertEquals("SELECT method:use:regexp(\\\\add)", expected);
+
+        expected = new CsarQuery(new TargetDescriptor(Optional.of(SearchType.USE),
+                new MethodDescriptor.Builder(new IdentifierName.Regex(Pattern.compile("[Aa]dd"))).build()));
+        assertEquals("SELECT method:use:regexp([Aa]dd)", expected);
     }
 
     @Test

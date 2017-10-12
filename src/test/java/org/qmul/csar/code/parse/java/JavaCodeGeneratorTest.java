@@ -7,6 +7,7 @@ import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.java.expression.*;
 import org.qmul.csar.code.parse.java.statement.*;
 import org.qmul.csar.lang.Expression;
+import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.*;
@@ -875,8 +876,8 @@ public final class JavaCodeGeneratorTest {
     }
 
     private static ParameterVariableStatement createParameter(String type, String identifier, boolean finalModifier) {
-        return new ParameterVariableStatement(new ParameterVariableDescriptor(identifier, type, finalModifier),
-                new ArrayList<>());
+        return new ParameterVariableStatement(new ParameterVariableDescriptor(new IdentifierName.Static(identifier),
+                type, finalModifier), new ArrayList<>());
     }
 
     private static LocalVariableStatements createLocals(LocalVariableStatement... locals) {

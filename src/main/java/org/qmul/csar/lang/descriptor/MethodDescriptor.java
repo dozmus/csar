@@ -3,6 +3,7 @@ package org.qmul.csar.lang.descriptor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.util.OptionalUtils;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 public class MethodDescriptor implements Descriptor {
 
-    private final String identifierName;
+    private final IdentifierName identifierName;
     private final Optional<String> returnType;
     private final Optional<VisibilityModifier> visibilityModifier;
     private final Optional<Boolean> staticModifier;
@@ -32,7 +33,7 @@ public class MethodDescriptor implements Descriptor {
     private final List<String> thrownExceptions;
     private final List<String> typeParameters;
 
-    public MethodDescriptor(String identifierName, Optional<String> returnType,
+    public MethodDescriptor(IdentifierName identifierName, Optional<String> returnType,
             Optional<VisibilityModifier> visibilityModifier, Optional<Boolean> staticModifier,
             Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
             Optional<Boolean> strictfpModifier, Optional<Boolean> synchronizedModifier,
@@ -61,7 +62,7 @@ public class MethodDescriptor implements Descriptor {
         this.stub = stub;
     }
 
-    public String getIdentifierName() {
+    public IdentifierName getIdentifierName() {
         return identifierName;
     }
 
@@ -142,7 +143,7 @@ public class MethodDescriptor implements Descriptor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MethodDescriptor that = (MethodDescriptor) o;
-        return Objects.equals(identifierName, that.identifierName) // TODO compare using regex
+        return identifierName.nameEquals(that.identifierName)
                 && OptionalUtils.lenientEquals(returnType, that.returnType)
                 && OptionalUtils.lenientEquals(visibilityModifier, that.visibilityModifier)
                 && OptionalUtils.lenientEquals(staticModifier, that.staticModifier)
@@ -222,7 +223,7 @@ public class MethodDescriptor implements Descriptor {
 
     public static class Builder {
 
-        private String identifierName;
+        private IdentifierName identifierName;
         private Optional<String> returnType = Optional.empty();
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();
@@ -259,6 +260,10 @@ public class MethodDescriptor implements Descriptor {
         }
 
         public Builder(String identifierName) {
+            this.identifierName = new IdentifierName.Static(identifierName);
+        }
+
+        public Builder(IdentifierName identifierName) {
             this.identifierName = identifierName;
         }
 

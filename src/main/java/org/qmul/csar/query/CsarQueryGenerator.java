@@ -3,8 +3,9 @@ package org.qmul.csar.query;
 import grammars.csar.CsarParserBaseListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.qmul.csar.lang.descriptor.*;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.IdentifierName;
+import org.qmul.csar.lang.descriptor.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,18 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         return node != null ? Optional.of(true) : Optional.empty();
     }
 
+    private static Optional<IdentifierName> parseIdentifierNameOrEmpty(IdentifierNameContext ctx) {
+        return ctx != null ? Optional.of(new IdentifierName.Static(ctx.getText())) : Optional.empty();
+    }
+
+    private static IdentifierName parseRegexIdentifier(RegexIdentifierNameContext ctx) {
+        if (ctx.content() != null) {
+            return new IdentifierName.Regex(ctx.content().getText());
+        } else {
+            return new IdentifierName.Regex(ctx.identifierName().getText());
+        }
+    }
+
     private static TargetDescriptor parseTargetDescriptor(StatementDescriptorContext ctx) {
         if (ctx.clazz() != null) {
             return parseClazz(ctx.clazz());
@@ -82,7 +95,13 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         Optional<Boolean> innerModifier = parseOptionalTrueOrEmpty(classModsCtx.INNER());
 
         // identifier name
-        String identifierName = ctx.identifierName().getText();
+        IdentifierName identifierName;
+
+        if (ctx.identifierName() != null) {
+            identifierName = new IdentifierName.Static(ctx.identifierName().getText());
+        } else {
+            identifierName = parseRegexIdentifier(ctx.regexIdentifierName());
+        }
 
         // superClassList
         List<String> superClasses = new ArrayList<>();
@@ -124,7 +143,13 @@ class CsarQueryGenerator extends CsarParserBaseListener {
         Optional<String> returnType = parseTextOrEmpty(ctx.type());
 
         // identifier name
-        String identifierName = ctx.identifierName().getText();
+        IdentifierName identifierName;
+
+        if (ctx.identifierName() != null) {
+            identifierName = new IdentifierName.Static(ctx.identifierName().getText());
+        } else {
+            identifierName = parseRegexIdentifier(ctx.regexIdentifierName());
+        }
 
         // methodParameters
         Optional<Integer> parameterCount = Optional.empty();
@@ -193,7 +218,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
     private static ParameterVariableDescriptor parseParameterVariableDescriptor(IdentifierNameContext identifierNameCtx,
             TypeContext typeCtx, TerminalNode finalNode) {
         Optional<Boolean> isFinal = finalNode != null ? Optional.of(true) : Optional.empty();
-        return new ParameterVariableDescriptor(Optional.of(identifierNameCtx.getText()),
+        return new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static(identifierNameCtx.getText())),
                 Optional.of(typeCtx.getText()), isFinal);
     }
 
@@ -212,7 +237,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
             return new TargetDescriptor(Optional.of(t), builder.build());
         } else if (ctx.localVariable() != null) {
             LocalVariableContext lctx = ctx.localVariable();
-            Descriptor descriptor = new LocalVariableDescriptor(lctx.identifierName().getText(),
+            Descriptor descriptor = new LocalVariableDescriptor(
+                    new IdentifierName.Static(lctx.identifierName().getText()),
                     parseTextOrEmpty(lctx.type()), parseOptionalTrueOrEmpty(lctx.FINAL()));
             return new TargetDescriptor(Optional.of(parseSearchType(lctx.DEF(), lctx.USE())), descriptor);
         } else { // param
@@ -244,7 +270,7 @@ class CsarQueryGenerator extends CsarParserBaseListener {
             descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR, Optional.empty(), Optional.empty());
         } else if (ctx.foreach() != null) {
             descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.FOR_EACH,
-                    parseTextOrEmpty(ctx.foreach().identifierName()), Optional.empty());
+                    parseIdentifierNameOrEmpty(ctx.foreach().identifierName()), Optional.empty());
         } else { // ternary
             descriptor = new ConditionalDescriptor(ConditionalDescriptor.Type.TERNARY, Optional.empty(),
                     Optional.empty());
@@ -262,7 +288,8 @@ class CsarQueryGenerator extends CsarParserBaseListener {
 
     private static ConditionalDescriptor parseControlflowDescriptor(ConditionalDescriptor.Type type,
             IdentifierNameContext identifierNameCtx, ExprContext expressionCtx) {
-        return new ConditionalDescriptor(type, parseTextOrEmpty(identifierNameCtx), parseTextOrEmpty(expressionCtx));
+        return new ConditionalDescriptor(type, parseIdentifierNameOrEmpty(identifierNameCtx),
+                parseTextOrEmpty(expressionCtx));
     }
 
     private static TargetDescriptor parseComment(CommentContext ctx) {
