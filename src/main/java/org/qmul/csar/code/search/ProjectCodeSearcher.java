@@ -28,10 +28,10 @@ public class ProjectCodeSearcher {
     private ExecutorService executor;
     private CountDownLatch finishedLatch;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
-    private boolean errorOccurred = false;
-    private boolean running = false;
     private PathProcessorErrorListener errorListener;
     private CsarQuery query;
+    private boolean errorOccurred = false;
+    private boolean running = false;
     private boolean initialized = false;
 
     /**
@@ -40,22 +40,26 @@ public class ProjectCodeSearcher {
      */
     public ProjectCodeSearcher(int threadCount) {
         this.threadCount = threadCount;
+        this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-search-%d"));
+        this.finishedLatch = new CountDownLatch(threadCount);
     }
 
     /**
-     * Initializes the state of the searcher.
+     * Sets the csar query to search for.
      *
      * @param query the search query
+     */
+    public void setCsarQuery(CsarQuery query) {
+        this.query = Objects.requireNonNull(query);
+    }
+
+    /**
+     * Sets the iterator whose contents to search
+     *
      * @param it the iterator whose contents to search
      */
-    public void init(CsarQuery query, Iterator<Map.Entry<Path, Statement>> it) {
-        if (initialized)
-            throw new IllegalStateException("cannot init twice");
-        initialized = true;
-        this.query = query;
+    public void setIterator(Iterator<Map.Entry<Path, Statement>> it) {
         this.it = new ConcurrentIterator<>(Objects.requireNonNull(it));
-        this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-search-%d"));
-        this.finishedLatch = new CountDownLatch(threadCount);
     }
 
     /**
@@ -71,11 +75,11 @@ public class ProjectCodeSearcher {
             throw new IllegalStateException("already finished running");
         } else if (running) {
             throw new IllegalStateException("already running");
-        } else if (!initialized) {
-            throw new IllegalStateException("not initialized");
         } else if (!it.hasNext()) {
             return new ArrayList<>();
         }
+        Objects.requireNonNull(query);
+        Objects.requireNonNull(it);
         running = true;
 
         // Submit tasks
@@ -86,7 +90,7 @@ public class ProjectCodeSearcher {
             executor.submit(() -> {
                 Map.Entry<Path, Statement> entry;
                 Path file = null;
-                Statement statement = null;
+                Statement statement;
 
                 try {
                     while (it.hasNext() && !Thread.currentThread().isInterrupted()) {

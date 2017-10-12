@@ -30,6 +30,7 @@ public class Csar {
 
     /**
      * Constructs a new {@link Csar} with the given arguments.
+     *
      * @param query the csar query to perform
      * @param parser the project code parser to use
      * @param searcher the project searcher to use
@@ -69,7 +70,8 @@ public class Csar {
     }
 
     public boolean searchCode() {
-        searcher.init(csarQuery, code.entrySet().iterator());
+        searcher.setCsarQuery(csarQuery);
+        searcher.setIterator(code.entrySet().iterator());
         LOGGER.trace("Searching code...");
         List<Statement> tmpResults = searcher.results();
 
