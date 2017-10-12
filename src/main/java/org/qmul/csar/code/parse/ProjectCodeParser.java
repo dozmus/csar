@@ -1,6 +1,8 @@
 package org.qmul.csar.code.parse;
 
+import org.qmul.csar.code.PathProcessorErrorListener;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +27,10 @@ public class ProjectCodeParser {
     private final ExecutorService executor;
     private final CountDownLatch finishedLatch;
     private final int threadCount;
-    private final Iterator<Path> it;
+    private final ConcurrentIterator<Path> it;
     private boolean errorOccurred = false;
     private boolean running = false;
-    private ProjectCodeParserErrorListener errorListener;
+    private PathProcessorErrorListener errorListener;
 
     /**
      * Creates a new {@link ProjectCodeParser} with the argument iterator and a <tt>threadCount</tt> of <tt>1</tt>.
@@ -46,7 +48,7 @@ public class ProjectCodeParser {
      * @throws NullPointerException if <tt>it</tt> is <tt>null</tt>
      */
     public ProjectCodeParser(Iterator<Path> it, int threadCount) {
-        this.it = Objects.requireNonNull(it);
+        this.it = new ConcurrentIterator<>(Objects.requireNonNull(it));
         this.threadCount = threadCount;
         this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
         this.finishedLatch = new CountDownLatch(threadCount);
@@ -83,9 +85,9 @@ public class ProjectCodeParser {
                 Statement root = null;
 
                 try {
-                    while (hasNext() && !Thread.currentThread().isInterrupted()) {
+                    while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
                         // Get the next file
-                        file = next();
+                        file = it.next();
                         String fileName = file.getFileName().toString();
                         LOGGER.debug("Parsing {}", fileName);
 
@@ -98,14 +100,14 @@ public class ProjectCodeParser {
                             LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                         } catch (IOException | RuntimeException ex) {
                             if (errorListener != null) {
-                                errorListener.reportParsingError(file, ex);
+                                errorListener.reportRecoverableError(file, ex);
                             }
                         }
                         LOGGER.debug("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
                     if (errorListener != null) {
-                        errorListener.reportUnknownError(file, ex);
+                        errorListener.reportUnrecoverableError(file, ex);
                     }
                     setErrorOccurred();
                     executor.shutdownNow();
@@ -135,11 +137,11 @@ public class ProjectCodeParser {
         return map;
     }
 
-    public ProjectCodeParserErrorListener getErrorListener() {
+    public PathProcessorErrorListener getErrorListener() {
         return errorListener;
     }
 
-    public void setErrorListener(ProjectCodeParserErrorListener errorListener) {
+    public void setErrorListener(PathProcessorErrorListener errorListener) {
         this.errorListener = errorListener;
     }
 
@@ -150,29 +152,6 @@ public class ProjectCodeParser {
      */
     public boolean errorOccurred() {
         return errorOccurred;
-    }
-
-    /**
-     * Thread-safe.
-     * @return {@link #it#hasNext()}
-     */
-    private boolean hasNext() {
-        synchronized (it) {
-            return it.hasNext();
-        }
-    }
-
-    /**
-     * Thread-safe.
-     * @return {@link #it#next()}
-     */
-    private Path next() {
-        synchronized (it) {
-            if (it.hasNext()) {
-                return it.next();
-            }
-        }
-        throw new IllegalStateException("ran out of code files");
     }
 
     private synchronized void updateRunning() {

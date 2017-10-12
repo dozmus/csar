@@ -69,8 +69,9 @@ public class Csar {
     }
 
     public boolean searchCode() {
+        searcher.init(csarQuery, code.entrySet().iterator());
         LOGGER.trace("Searching code...");
-        List<Statement> tmpResults = searcher.search(csarQuery, code);
+        List<Statement> tmpResults = searcher.results();
 
         // TODO remove temp printing below
         LOGGER.info("(Raw) Search results (size={}):", tmpResults.size());

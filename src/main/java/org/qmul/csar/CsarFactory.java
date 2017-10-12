@@ -1,6 +1,6 @@
 package org.qmul.csar;
 
-import org.qmul.csar.code.parse.DefaultProjectCodeParserErrorListener;
+import org.qmul.csar.code.DefaultProjectCodeParserErrorListener;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.ProjectIteratorFactory;
@@ -21,8 +21,9 @@ public final class CsarFactory {
      * @throws IOException if an I/O error occurs while reading an ignore file
      */
     public static Csar create(CsarContext ctx) throws IOException {
-        Iterator<Path> it;
         Path ignoreFile = ctx.getIgnoreFile();
+        int threads = ctx.getThreads();
+        Iterator<Path> it;
 
         if (Files.exists(ignoreFile)) {
             it = ProjectIteratorFactory.createFilteredIterator(ctx.getProjectDirectory(), ctx.isNarrowSearch(),
@@ -30,8 +31,9 @@ public final class CsarFactory {
         } else {
             it = ProjectIteratorFactory.createFilteredIterator(ctx.getProjectDirectory(), ctx.isNarrowSearch());
         }
-        ProjectCodeParser parser = new ProjectCodeParser(it, ctx.getThreads());
+        ProjectCodeParser parser = new ProjectCodeParser(it, threads);
         parser.setErrorListener(new DefaultProjectCodeParserErrorListener());
-        return new Csar(ctx.getQuery(), parser, new ProjectCodeSearcher(), ctx.getResultFormatter());
+        ProjectCodeSearcher searcher = new ProjectCodeSearcher(threads);
+        return new Csar(ctx.getQuery(), parser, searcher, ctx.getResultFormatter());
     }
 }
