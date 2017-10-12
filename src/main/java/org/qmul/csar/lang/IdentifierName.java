@@ -49,9 +49,7 @@ public abstract class IdentifierName {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(this)
-                    .append("identifierName", identifierName)
-                    .toString();
+            return identifierName;
         }
     }
 
