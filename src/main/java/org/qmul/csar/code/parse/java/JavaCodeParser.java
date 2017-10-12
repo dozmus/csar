@@ -42,6 +42,8 @@ public final class JavaCodeParser implements CodeParser {
 
     @Override
     public boolean accepts(Path file) {
-        return file.getFileName().endsWith(".java");
+        // XXX ignores package-info.java
+        String fileName = file.getFileName().toString();
+        return !fileName.equals("package-info.java") && fileName.endsWith(".java");
     }
 }
