@@ -5,41 +5,65 @@ Specification and Time Plan
 csar: Query-driven Code Search and Refactoring Framework
 
 # Problem
-There is a lack of tools which provide flexible searching for code, most offer plain-text and regular expression comparisons. This yields inaccurate results due to the rigidness of these comparison types.
+There is a lack of tools which provide accurate and versatile searching for code, most offer plain-text and regular expression comparisons. These yield inaccurate results due to their excess flexibility.
 
-Furthermore, there is a lack of tools which combine refactoring with searching. These two operations are closely intertwined and creating separate software solutions for them makes it harder for developers to use them effectively. This is because they need to learn how to use two pieces of software instead of one.
+Furthermore, there is a lack of tools which combine refactoring with searching. These two operations are closely intertwined and creating separate software solutions for them reduces efficiency and makes it harder for developers to use them effectively. This is because they need to learn how to use two pieces of software instead of one.
 
-CSAR aims to provide a versatile and unified framework to address both these issues. A newly devised query language will be used to describe searches and refactors in terms of descriptions. This creates a versatile, descriptive framework which can target any programming language without the developer needing to know about the programming language itself.
+csar aims to provide a versatile and unified framework to address both these issues. A newly devised query language will be used to describe searches and refactors in terms of descriptions. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
 
-CSAR will be developed in such a way that, it is very flexible in its programming as well. With the proper use of subclasses, a third-party developer can easily customize its behavior to fit their specific needs. Most of its internal API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
+csar will be designed to be very flexible code-wise as well. With the proper use of subclasses, a third-party developer should be able to easily customize its behaviour to fit their specific needs. Most of its API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
 
 # User Requirements
 ## General Requirements
 * A user guide detailing how to use the tool and its query language.
+* A custom query language to describe the operations to carry out.
+* Parsing of code.
 * Language-agnostic searching.
 * Language-agnostic refactoring.
-* Custom search destinations.
+* Flexible program output.
+* Custom search domains.
 * High efficiency.
 
 ## Selected Requirements
-
-The project has a restricted window for completion, as such, not every intended feature will be fully completed.
+The project has strict deadlines, and as such, not every feature will be fully implemented.
 
 The query language has two versions: 1.x.x (implemented) and ≥ 2.x.x (hypothetical improvements). The prior version is simpler than the latter, for implementation purposes. Implementing an exhaustive query language which can express any language element in any language would take very long (it would be an entire project in itself), hence these are open for future improvements.
 
-Searching will be implemented to only work on methods for now. To implement it for the other language elements it would be as simple as copy-pasting the code for methods and changing the types and getters involved. Though this would be a greatly time consuming and tedious task.
+For now only java code will be parsed, the system will be designed so that other programming languages can easily be integrated into the current structure. You will just need to write a parser for them, analogously to how the java parser will be written.
 
-Refactoring will be implemented to only work on methods for changing parameters. Changing parameters applies to only methods, so it is trivial to implement.
+Searching will be implemented to only work on methods for now. To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved. This would be a greatly time consuming and tedious task.
 
-{TODO describe some others, like filtering git files by .gitignore}
+The program output could technically support thousands of formats, but for simplicity (and reduced binary size) it will only support two: plain text and JSON. If you require alternatives, you should be able to subclass a result formatter.
+
+Refactoring is very complicated and time consuming, so we will only consider two operations.  
+The first is changing method parameters, this involves resolving all usages of the method in question (in various contexts), modifying the method calls and its definition and ensuring no naming collisions occur.  
+The second is renaming methods, this should follow from changing method parameters, since if we resolve all method usages we should be able to simply rename them all and ensure no naming collisions occur.
+
+Efficiency will mainly be addressed by introducing multi-threading where possible, algorithmic solutions to this are currently unknown, but may become available as details of the implementation are gradually addressed.
+
+It will also support narrowing the search domain by a `.gitignore` file for directories which are git repositories, and by custom `.csarignore` file. Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.  
+The git implementation will require calling the git binary with a specific argument and reading the output, which will reveal which files it is currently tracking.
 
 ## Back-logged Requirements
 These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift:
-* Indexing project parsed code - {TODO how}
-* Support mercurial (hg) ignore files - {TODO how}
-* Support subversion (svn) ignore files - {TODO how}
-* Support for further searches - {TODO how}
-* Support for renaming - {TODO how}
+
+### Indexing parsed project code
+* Store a `(Path, LastModified, Code)` relation somewhere, preferably in a `.csar` directory.
+* The `LastModified` date is the last time that file was modified, as of when it was parsed.
+  We can use this to determine which files need updating. This can be error-prone, since
+  last modified dates can be spoofed, but it would offer no advantage to an attacker.
+* Approach 1: Flat Files  
+  Either map files to a parallel hierarchy in `.csar`, or, store them in files where their names are the hashes of the input files.
+* Approach 2: Database (i.e. SQLite)  
+  Store the aforementioned relation here.
+
+### Supporting Mercurial (hg)/Subversion (svn) repositories
+This would be done how the git implementation is, but the program arguments we use may be some of the following:
+* Hg - `hg status --all`
+* Svn - `svn list -R` or `svn status`
+
+### Support for further searching
+The process for this is described earlier, I would simply have to repeat the process for each additional element I want to support searching for.
 
 # User Interaction
 The user will run the program from the command-line, as they would any other Java JAR: `java -jar csar.jar [options]`. A preliminary list of options is listed below:
@@ -68,12 +92,12 @@ i.e. `SELECT method:def:add --threads 4` – The first part is the search query,
 * Object-Oriented Programming principles - model the system as interactions amongst a set of objects (this is the consensus approach for Java development).  
   The most used are polymorphism and the Liskov substitution principle throughout the project, for extensibility.
 
-TODO add onto this as appropriate
+{TODO add onto this as appropriate}
 
 # Technologies Used
-CSAR will be programmed in Java 8, this is because I am very well-versed in it, it bought forth a powerful directory walking API, it has lambda support, and it is cross-platform.
+CSAR will be programmed in Java 8, this is because I am well-versed in it, it introduced a powerful directory walking API (which my project relies upon), it has lambda support (which is very useful), and it is cross-platform.
 
-There are many different language parsers available, but the most convenient to use (due to documentation, support and pre-written grammars) appears to be ANTLR4.
+There are many different language parsers available, but the most convenient to use due to the availability of documentation, support, and pre-written grammars appears to be ANTLR4.
 
 It will use JUnit for unit testing because it is industry standard and thus supported by the most popular IDEs. Mockito/PowerMockito may also be used for advanced testing if necessary.
 
@@ -149,7 +173,7 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and intuitive (like SQL). You can define strings as regex patterns, this is a powerful feature. The language is verbose and thus does not resonate with csar's competitors, which use single line queries. However, declarations and response messages can be useful for creating complex tools with csar (i.e. code convention checks).
 
 # Time Plan
-TODO write about the following:
+{TODO write about the following}
 * Project Deadlines
   * 13 October - Title
   * 30 October - Specification & Time Plan
