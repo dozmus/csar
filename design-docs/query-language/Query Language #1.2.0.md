@@ -65,6 +65,7 @@ CHANGE_PARAMETERS: 'changeparam';
 TRANSIENT: 'transient';
 VOLATILE: 'volatile';
 JAVADOC: 'javadoc';
+REGEXP: 'REGEXP' | 'regexp' | 'REGEX' | 'regex';
 
 // Symbols
 SPACE: ' ';
@@ -75,7 +76,7 @@ LPAREN: '(';
 RPAREN: ')';
 
 // Language elements
-IDENTIFIER_NAME: ((JAVA_LETTER | REGEX_WC) (JAVA_LETTER | DIGIT | REGEX_WC)*);
+IDENTIFIER_NAME: JAVA_LETTER (JAVA_LETTER | DIGIT)*;
 NUMBER: DIGIT+;
 
 // Fall-back rule
@@ -84,7 +85,6 @@ CATCH_ALL: (.)+?;
 // Fragments
 fragment TEXT: [a-zA-Z];
 fragment DIGIT: [0-9];
-fragment REGEX_WC: '*' | '_';
 
 // The following rule is taken from: https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
 fragment JAVA_LETTER
@@ -113,13 +113,13 @@ statementDescriptor: clazz | method | variable | conditional | comment;
 refactorDescriptor: rename | changeParameters;
 
 // Class
-clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers identifierName superClassList?;
+clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers (identifierName | regexIdentifierName) superClassList?;
 classModifiers: ((ABSTRACT | INTERFACE) SPACE)? (STRICTFP SPACE)? (ANONYMOUS SPACE)? (INNER SPACE)?;
 superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
 
 // Method
 method
-    : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? identifierName
+    : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? (identifierName | regexIdentifierName)
      (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
     ;
 methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
@@ -166,8 +166,9 @@ namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ ident
 identifierName
     : IDENTIFIER_NAME | SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | DOWHILE | TERNARY | RENAME
     | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
-    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV
+    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | REGEXP
     ;
+regexIdentifierName: REGEXP LPAREN (content | identifierName) RPAREN;
 
 content
     : (SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | CLASS_NV | CLASS_V | METHOD | INSTANCE
@@ -175,7 +176,7 @@ content
         | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
         | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
         | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
-        | LBRACK | RBRACK
+        | LBRACK | RBRACK | REGEXP
       )*
     ;
 expr: content;
@@ -205,6 +206,8 @@ expr: content;
 * Cannot represent varargs in method parameters
 * Cannot represent identifiers with generic types, i.e. `List<String>`
 * Cannot have methods which are abstract or strictfp
+* `REGEXP` rules can be swallowed by others, so make sure its used strictly for regex characters and not string literals
+* Cannot use regex expressions everywhere
 * Cannot represent computation/arithmetic (i.e. assignment, and addition)
 * Cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity)
 * Cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
