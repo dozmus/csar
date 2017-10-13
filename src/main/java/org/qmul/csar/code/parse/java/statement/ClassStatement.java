@@ -94,10 +94,7 @@ public class ClassStatement implements TypeStatement {
         if (descriptor.getTypeParameters().size() > 0) {
             builder.append("<").append(String.join(", ", descriptor.getTypeParameters())).append(">");
         }
-
-        if (descriptor.getExtendedClass().isPresent()) {
-            builder.append(" extends ").append(descriptor.getExtendedClass()).append(" ");
-        }
+        descriptor.getExtendedClass().ifPresent(ec -> builder.append(" extends ").append(ec));
 
         if (descriptor.getImplementedInterfaces().size() > 0) {
             builder.append(" implements(").append(String.join(", ", descriptor.getImplementedInterfaces())).append(")");
