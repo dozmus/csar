@@ -22,11 +22,13 @@ import static grammars.java8pt.JavaParser.*;
 public final class JavaCodeGenerator extends JavaParserBaseListener {
 
     /**
-     * The root <tt>TypeStatement</tt> of the parsed document.
+     * The root <tt>TopLevelTypeStatement</tt> of the parsed document.
      *
-     * @see TypeStatement
+     * @see TopLevelTypeStatement
      */
-    private TypeStatement root = null;
+    private TopLevelTypeStatement root = null;
+    private Optional<PackageStatement> packageStatement = Optional.empty();
+    private final List<ImportStatement> imports = new ArrayList<>();
     /**
      * This is used to make sure {@link #enterTypeDeclaration(TypeDeclarationContext)} is only called once, since it
      * sets the {@link #root} property. Other type declarations are parsed elsewhere.
@@ -1341,12 +1343,16 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
     @Override
     public void enterPackageDeclaration(PackageDeclarationContext ctx) {
-        // TODO impl
+        List<Annotation> annotations = parseAnnotations(ctx.annotation());
+        String qualifiedName = ctx.qualifiedName().getText();
+        packageStatement = Optional.of(new PackageStatement(qualifiedName, annotations));
     }
 
     @Override
     public void enterImportDeclaration(ImportDeclarationContext ctx) {
-        // TODO impl
+        String qualifiedName = ctx.qualifiedName().getText() + (ctx.DOT() != null && ctx.MUL() != null ? ".*" : "");
+        boolean staticModifier = ctx.STATIC() != null;
+        imports.add(new ImportStatement(qualifiedName, staticModifier));
     }
 
     @Override
@@ -1359,13 +1365,15 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
         // Generate node and add node
         if (ctx.classDeclaration() != null) {
-            root = parseClass(ctx);
+            root = new TopLevelTypeStatement(packageStatement, imports, parseClass(ctx));
         } else if (ctx.interfaceDeclaration() != null) {
-            root = parseInterface(ctx);
+            root = new TopLevelTypeStatement(packageStatement, imports, parseInterface(ctx));
         } else if (ctx.enumDeclaration() != null) {
-            root = parseEnum(ctx);
+            root = new TopLevelTypeStatement(packageStatement, imports, parseEnum(ctx));
         } else {
-            root = parseAnnotationDefinition(ctx.classOrInterfaceModifier(), ctx.annotationTypeDeclaration());
+            AnnotationStatement anon = parseAnnotationDefinition(ctx.classOrInterfaceModifier(),
+                    ctx.annotationTypeDeclaration());
+            root = new TopLevelTypeStatement(packageStatement, imports, anon);
         }
     }
 

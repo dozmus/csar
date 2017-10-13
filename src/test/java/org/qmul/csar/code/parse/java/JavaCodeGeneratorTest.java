@@ -140,7 +140,7 @@ public final class JavaCodeGeneratorTest {
                 Arrays.asList(param31), new BlockStatement(Arrays.asList(local, assignmentExpr)), new ArrayList<>());
 
         // Top-level class
-        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample1")
+        ClassStatement clazz = new ClassStatement(ClassDescriptor.Builder.allFalse("Sample1")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .strictfpModifier(true)
                 .abstractModifier(true)
@@ -148,6 +148,8 @@ public final class JavaCodeGeneratorTest {
                 .build(),
                 new BlockStatement(Arrays.asList(constructor1, constructor2, var1, var2, method1, method2, method3)),
                 new ArrayList<>());
+        return new TopLevelTypeStatement(Optional.of(new PackageStatement("grammars.java8pt", new ArrayList<>())),
+                new ArrayList<>(), clazz);
     }
 
     /**
@@ -219,11 +221,13 @@ public final class JavaCodeGeneratorTest {
 
         // Top-level class
         BlockStatement block = new BlockStatement(Arrays.asList(var1, method1, method2, var2, method3));
-        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample2")
-                .visibilityModifier(VisibilityModifier.PUBLIC)
-                .interfaceModifier(true)
-                .implementedInterfaces(Arrays.asList("Runnable"))
-                .build(), block, new ArrayList<>());
+        List<ImportStatement> imports = Arrays.asList(new ImportStatement("java.lang.Runnable", false));
+        return new TopLevelTypeStatement(Optional.empty(), imports,
+                new ClassStatement(ClassDescriptor.Builder.allFalse("Sample2")
+                        .visibilityModifier(VisibilityModifier.PUBLIC)
+                        .interfaceModifier(true)
+                        .implementedInterfaces(Arrays.asList("Runnable"))
+                        .build(), block, new ArrayList<>()));
     }
 
     /**
@@ -232,10 +236,12 @@ public final class JavaCodeGeneratorTest {
      * @return
      */
     private static TypeStatement sample3() {
-        return createClass(ClassDescriptor.Builder.allFalse("Sample3")
-                .visibilityModifier(VisibilityModifier.PUBLIC)
-                .typeParameters(Arrays.asList("T0 extends Collection<String>", "T1"))
-                .build());
+        List<ImportStatement> imports = Arrays.asList(new ImportStatement("a.Enum", true));
+        return new TopLevelTypeStatement(Optional.empty(), imports,
+                createClass(ClassDescriptor.Builder.allFalse("Sample3")
+                        .visibilityModifier(VisibilityModifier.PUBLIC)
+                        .typeParameters(Arrays.asList("T0 extends Collection<String>", "T1"))
+                        .build()));
     }
 
     /**
@@ -312,9 +318,10 @@ public final class JavaCodeGeneratorTest {
                 new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>());
 
         // Parent class
-        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample4")
+        return createTopLevelStatement(new ClassStatement(ClassDescriptor.Builder.allFalse("Sample4")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .build(), new BlockStatement(Arrays.asList(parentClassMethod1, parentClassMethod2)), new ArrayList<>());
+                .build(), new BlockStatement(Arrays.asList(parentClassMethod1, parentClassMethod2)),
+                new ArrayList<>()));
     }
 
     /**
@@ -347,9 +354,9 @@ public final class JavaCodeGeneratorTest {
                 .build(), new BlockStatement(Arrays.asList(method)), new ArrayList<>());
 
         // Top-level class
-        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample5")
+        return createTopLevelStatement(new ClassStatement(ClassDescriptor.Builder.allFalse("Sample5")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .build(), new BlockStatement(Arrays.asList(innerInterface, innerClass)), new ArrayList<>());
+                .build(), new BlockStatement(Arrays.asList(innerInterface, innerClass)), new ArrayList<>()));
     }
 
     /**
@@ -367,10 +374,10 @@ public final class JavaCodeGeneratorTest {
                 .build());
 
         // Top-level interface
-        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample6")
+        return createTopLevelStatement(new ClassStatement(ClassDescriptor.Builder.allFalse("Sample6")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .interfaceModifier(true)
-                .build(), new BlockStatement(Arrays.asList(innerClass)), new ArrayList<>());
+                .build(), new BlockStatement(Arrays.asList(innerClass)), new ArrayList<>()));
     }
 
     /**
@@ -388,7 +395,7 @@ public final class JavaCodeGeneratorTest {
         EnumDescriptor desc = EnumDescriptor.Builder.allFalse("Season")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .build();
-        return new EnumStatement(desc, block, new ArrayList<>());
+        return createTopLevelStatement(new EnumStatement(desc, block, new ArrayList<>()));
     }
 
     /**
@@ -429,7 +436,8 @@ public final class JavaCodeGeneratorTest {
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .superClasses(Arrays.asList("Operator<Integer>"))
                 .build();
-        return new EnumStatement(desc, new BlockStatement(Arrays.asList(const1, const2)), new ArrayList<>());
+        return createTopLevelStatement(new EnumStatement(desc, new BlockStatement(Arrays.asList(const1, const2)),
+                new ArrayList<>()));
     }
 
     /**
@@ -480,7 +488,7 @@ public final class JavaCodeGeneratorTest {
         EnumDescriptor desc = EnumDescriptor.Builder.allFalse("Currency")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .build();
-        return new EnumStatement(desc, block, new ArrayList<>());
+        return createTopLevelStatement(new EnumStatement(desc, block, new ArrayList<>()));
     }
 
     /**
@@ -510,12 +518,12 @@ public final class JavaCodeGeneratorTest {
                 Arrays.asList(new Annotation("Deprecated", Optional.empty())));
 
         // Top-level annotation type
-        return new AnnotationStatement(new AnnotationDescriptor.Builder("FileChange")
+        return createTopLevelStatement(new AnnotationStatement(new AnnotationDescriptor.Builder("FileChange")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .inner(false)
                 .abstractModifier(false)
                 .strictfpModifier(false)
-                .build(), new BlockStatement(Arrays.asList(author, date)), Arrays.asList(apiClassAnnotation));
+                .build(), new BlockStatement(Arrays.asList(author, date)), Arrays.asList(apiClassAnnotation)));
     }
 
     /**
@@ -587,9 +595,12 @@ public final class JavaCodeGeneratorTest {
                 new ArrayList<>());
 
         // Top-level class
-        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample11")
+        List<ImportStatement> imports = Arrays.asList(new ImportStatement("p.a", false), new ImportStatement("p.b",
+                false));
+        return new TopLevelTypeStatement(Optional.empty(), imports,
+                new ClassStatement(ClassDescriptor.Builder.allFalse("Sample11")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .build(), new BlockStatement(Arrays.asList(mainMethod)), new ArrayList<>());
+                .build(), new BlockStatement(Arrays.asList(mainMethod)), new ArrayList<>()));
     }
 
     /**
@@ -828,9 +839,9 @@ public final class JavaCodeGeneratorTest {
 
         // Top-level class
         BlockStatement classBlock = new BlockStatement(Arrays.asList(staticBlock1, staticBlock2, method1, method2));
-        return new ClassStatement(ClassDescriptor.Builder.allFalse("Sample12")
+        return createTopLevelStatement(new ClassStatement(ClassDescriptor.Builder.allFalse("Sample12")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
-                .build(), classBlock, new ArrayList<>());
+                .build(), classBlock, new ArrayList<>()));
     }
 
     @Parameterized.Parameters(name = "{index}: \"{1}\"")
@@ -894,6 +905,10 @@ public final class JavaCodeGeneratorTest {
 
     private static EnumConstantStatement createEnumConstant(String identifierName, BlockStatement block) {
         return new EnumConstantStatement(identifierName, new ArrayList<>(), Optional.of(block), new ArrayList<>());
+    }
+
+    private static TopLevelTypeStatement createTopLevelStatement(TypeStatement typeStatement) {
+        return new TopLevelTypeStatement(Optional.empty(), new ArrayList<>(), typeStatement);
     }
 
     @Test

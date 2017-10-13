@@ -1,5 +1,3 @@
-package grammars.java8pt;
-
 import java.lang.Runnable;
 
 public interface Sample2 extends Runnable {
