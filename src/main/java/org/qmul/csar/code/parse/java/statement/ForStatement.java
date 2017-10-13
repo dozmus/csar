@@ -104,9 +104,9 @@ public class ForStatement implements Statement {
                 .append("for (")
                 .append(forHeader)
                 .append(") {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(statement.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}")
                 .toString();

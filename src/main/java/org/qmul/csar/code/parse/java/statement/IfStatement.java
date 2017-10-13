@@ -77,9 +77,9 @@ public class IfStatement implements Statement {
                 .append("if ")
                 .append(condition.toPseudoCode())
                 .append(" {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(statement.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}");
         elseStatement.ifPresent(statement -> {
@@ -88,9 +88,9 @@ public class IfStatement implements Statement {
                 return;
             }
             sb.append(" else {")
-                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(System.lineSeparator())
                     .append(statement.toPseudoCode(indentation + 1))
-                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(System.lineSeparator())
                     .append(StringUtils.indentation(indentation))
                     .append("}");
         });

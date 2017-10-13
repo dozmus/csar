@@ -44,7 +44,7 @@ public class StaticBlockStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        return String.format("%sstatic {%s%s%s%s}", StringUtils.indentation(indentation), StringUtils.LINE_SEPARATOR,
-                block.toPseudoCode(indentation + 1), StringUtils.LINE_SEPARATOR, StringUtils.indentation(indentation));
+        return String.format("%sstatic {%s%s%s%s}", StringUtils.indentation(indentation), System.lineSeparator(),
+                block.toPseudoCode(indentation + 1), System.lineSeparator(), StringUtils.indentation(indentation));
     }
 }

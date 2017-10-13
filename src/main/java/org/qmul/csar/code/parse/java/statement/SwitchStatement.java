@@ -57,7 +57,7 @@ public class SwitchStatement implements Statement {
     @Override
     public String toPseudoCode(int indentation) {
         String i = StringUtils.indentation(indentation);
-        return String.format("%sswitch(%s) {%s%s%s%s}", i, argument.toPseudoCode(), StringUtils.LINE_SEPARATOR,
-                block.toPseudoCode(indentation + 1), StringUtils.LINE_SEPARATOR, i);
+        return String.format("%sswitch(%s) {%s%s%s%s}", i, argument.toPseudoCode(), System.lineSeparator(),
+                block.toPseudoCode(indentation + 1), System.lineSeparator(), i);
     }
 }

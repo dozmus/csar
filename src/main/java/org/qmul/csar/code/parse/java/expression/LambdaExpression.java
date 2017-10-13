@@ -60,8 +60,8 @@ public class LambdaExpression implements Expression {
         if (value instanceof ExpressionStatement) {
             return String.format("%s(%s) -> %s", i, parameter.toPseudoCode(), value.toPseudoCode());
         } else {
-            return String.format("%s(%s) -> {%s%s%s%s}", i, parameter.toPseudoCode(), StringUtils.LINE_SEPARATOR,
-                    value.toPseudoCode(indentation + 1), StringUtils.LINE_SEPARATOR, i);
+            return String.format("%s(%s) -> {%s%s%s%s}", i, parameter.toPseudoCode(), System.lineSeparator(),
+                    value.toPseudoCode(indentation + 1), System.lineSeparator(), i);
         }
     }
 }

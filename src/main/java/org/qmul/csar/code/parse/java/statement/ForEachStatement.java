@@ -67,9 +67,9 @@ public class ForEachStatement implements Statement {
                 .append(" : ")
                 .append(collection.toPseudoCode())
                 .append(") {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(statement.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}")
                 .toString();

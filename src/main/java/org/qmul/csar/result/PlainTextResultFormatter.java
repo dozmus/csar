@@ -1,7 +1,5 @@
 package org.qmul.csar.result;
 
-import org.qmul.csar.util.StringUtils;
-
 import java.util.List;
 
 /**
@@ -19,7 +17,7 @@ public final class PlainTextResultFormatter implements ResultFormatter {
                     .append(" ").append(result.getCodeFragment());
 
             if (i + 1 < results.size())
-                sb.append(StringUtils.LINE_SEPARATOR);
+                sb.append(System.lineSeparator());
         }
         return sb.toString();
     }

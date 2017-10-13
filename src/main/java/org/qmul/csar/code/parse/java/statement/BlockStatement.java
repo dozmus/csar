@@ -62,6 +62,6 @@ public class BlockStatement implements Statement {
     public String toPseudoCode(int indentation) {
         return statements.stream()
                 .map(st -> st.toPseudoCode(indentation))
-                .collect(Collectors.joining(StringUtils.LINE_SEPARATOR));
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 }

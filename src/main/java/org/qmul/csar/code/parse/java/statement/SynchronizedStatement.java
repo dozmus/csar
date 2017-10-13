@@ -61,9 +61,9 @@ public class SynchronizedStatement implements Statement {
                 .append("synchronized(")
                 .append(element.toPseudoCode())
                 .append(") {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(block.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}")
                 .toString();

@@ -66,9 +66,9 @@ public class TryStatement implements Statement {
         StringBuilder builder = new StringBuilder()
                 .append(StringUtils.indentation(indentation))
                 .append("try {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(block.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}");
 
@@ -79,9 +79,9 @@ public class TryStatement implements Statement {
 
         // Finally
         finallyBlock.ifPresent(blockStatement -> builder.append(" finally {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(blockStatement.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}"));
         return builder.toString();

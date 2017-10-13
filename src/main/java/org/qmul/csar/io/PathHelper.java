@@ -1,7 +1,5 @@
 package org.qmul.csar.io;
 
-import org.qmul.csar.util.StringUtils;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +28,6 @@ public final class PathHelper {
      * @throws IOException if an I/O error occurs
      */
     public static String read(Path path) throws IOException {
-        return String.join(StringUtils.LINE_SEPARATOR, Files.readAllLines(path));
+        return String.join(System.lineSeparator(), Files.readAllLines(path));
     }
 }

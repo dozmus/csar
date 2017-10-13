@@ -69,7 +69,7 @@ public class LocalVariableStatement implements Statement {
 
         if (getAnnotations().size() > 0) {
             getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
-                    .append(StringUtils.LINE_SEPARATOR));
+                    .append(System.lineSeparator()));
         }
         builder.append(StringUtils.indentation(indentation));
         StringUtils.append(builder, descriptor.getFinalModifier(), "final ");

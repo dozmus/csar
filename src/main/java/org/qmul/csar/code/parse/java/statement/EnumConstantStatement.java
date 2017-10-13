@@ -76,7 +76,7 @@ public class EnumConstantStatement implements Statement {
 
         if (getAnnotations().size() > 0) {
             getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
-                    .append(StringUtils.LINE_SEPARATOR));
+                    .append(System.lineSeparator()));
         }
         builder.append(StringUtils.indentation(indentation));
         builder.append(identifierName);
@@ -93,9 +93,9 @@ public class EnumConstantStatement implements Statement {
             builder.append(args).append(")");
         }
         return block.map(blockStatement -> builder.append(" {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(blockStatement.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}")
                 .toString())

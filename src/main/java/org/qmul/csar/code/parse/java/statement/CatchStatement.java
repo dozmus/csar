@@ -74,9 +74,9 @@ public class CatchStatement implements Statement {
         }
 
         builder.append(" catch(").append(catchVariableString).append(") {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(block.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}");
         return builder.toString();

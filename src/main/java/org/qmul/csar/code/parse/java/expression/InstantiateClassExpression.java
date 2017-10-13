@@ -114,9 +114,9 @@ public class InstantiateClassExpression implements Expression { // TODO allow th
             builder.append("()");
         }
         block.ifPresent(blockStatement -> builder.append(" {")
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(blockStatement.toPseudoCode(indentation + 1))
-                .append(StringUtils.LINE_SEPARATOR)
+                .append(System.lineSeparator())
                 .append(StringUtils.indentation(indentation))
                 .append("}"));
         return builder.toString();

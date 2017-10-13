@@ -110,7 +110,7 @@ public class ConstructorStatement implements Statement {
 
         if (getAnnotations().size() > 0) {
             getAnnotations().forEach(annotation -> builder.append(annotation.toPseudoCode(indentation))
-                    .append(StringUtils.LINE_SEPARATOR));
+                    .append(System.lineSeparator()));
         }
         builder.append(StringUtils.indentation(indentation));
 
@@ -140,9 +140,9 @@ public class ConstructorStatement implements Statement {
             builder.append(" { }");
         } else {
             builder.append(" {")
-                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(System.lineSeparator())
                     .append(block.toPseudoCode(indentation + 1))
-                    .append(StringUtils.LINE_SEPARATOR)
+                    .append(System.lineSeparator())
                     .append(StringUtils.indentation(indentation))
                     .append("}");
         }
