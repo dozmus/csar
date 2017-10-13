@@ -523,15 +523,16 @@ primary
     ;
 
 methodReference
-    : (typeType | qualifiedName (DOT (SUPER | THIS | methodReferenceMethodCall))?
-      | (SUPER | THIS | methodReferenceMethodCall))
+    : (typeType | qualifiedName (DOT accessorOrMethodRefCall)? | accessorOrMethodRefCall)
       COLONCOLON typeArguments? IDENTIFIER
     | classType COLONCOLON typeArguments? NEW
     | typeType COLONCOLON NEW
     ;
 
-methodReferenceMethodCall
-    : IDENTIFIER LPAREN expressionList? RPAREN (DOT IDENTIFIER LPAREN expressionList? RPAREN)*
+accessorOrMethodRefCall
+    : SUPER
+    | THIS
+    | IDENTIFIER LPAREN expressionList? RPAREN (DOT IDENTIFIER LPAREN expressionList? RPAREN)*
     ;
 
 classType
