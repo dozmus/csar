@@ -1,8 +1,6 @@
 package org.qmul.csar.code.search;
 
-import org.qmul.csar.code.parse.java.statement.Annotation;
 import org.qmul.csar.code.parse.java.statement.MethodStatement;
-import org.qmul.csar.code.parse.java.statement.ParameterVariableStatement;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.StatementVisitor;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
@@ -31,14 +29,6 @@ public class SearchStatementVisitor extends StatementVisitor {
                 results.add(statement);
             }
         }
-    }
-
-    @Override
-    public void visitParameterVariableStatements(List<ParameterVariableStatement> statements) {
-    }
-
-    @Override
-    public void visitAnnotations(List<Annotation> statement) {
     }
 
     public List<Statement> getResults() {
