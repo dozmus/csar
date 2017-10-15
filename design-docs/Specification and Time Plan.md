@@ -84,13 +84,17 @@ i.e. `SELECT method:def:add --threads 4` – The first part is the search query,
   I will mostly be utilizing the variant of this where we inject dependencies through the constructor, to keep the design very clear and simple (one point of injection).
 * Multi-threading - distributing tasks to multiple execution threads, to increase throughput.  
   This will give us a huge performance boost, especially for very large code bases, with relatively little effort.
-* Visitor design pattern - a method of interacting with a complicated, nested object.  
-  This is used in the ANTLR code parsers, to generate POJO representing the parsed text.
+* Visitor design pattern - a method of interacting with each internal 'part' of a complicated object.  
+  This is used in the ANTLR code parsers, to generate Java objects representing the parsed text.
   This is also used in the search algorithm for comparisons.
 * Factory design pattern - an external object which creates a complicated object.  
   This is used to generate the complicated arguments some of our objects may require, in particular because of DI.
-* Object-Oriented Programming principles - model the system as interactions amongst a set of objects (this is the consensus approach for Java development).  
+* Object-Oriented Programming principles - model the system as interactions between a set of objects (this is the consensus approach for Java development).  
   The most used are polymorphism and the Liskov substitution principle throughout the project, for extensibility.
+* Unit testing - complicated modules are coupled with unit tests, which ensure they give the correct output for each tested input.
+* Loggers - to aid debugging.
+* Lambdas - for powerful and easy multi-threaded operations on collections.
+* Immutability - to keep everything simple and easier to test.
 
 {TODO add onto this as appropriate}
 
@@ -184,4 +188,5 @@ It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and 
   * 30 April - 11 May - Demonstration & Presentation
 * Features (Left) - Ask MT If I should include the ones I've already done
   * Search
+  * Post-processing
   * Refactor
