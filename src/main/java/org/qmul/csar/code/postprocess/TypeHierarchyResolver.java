@@ -19,7 +19,6 @@ import java.util.*;
 public class TypeHierarchyResolver {
 
     // TODO parse java api classes properly
-    // TODO how do no package stuff work - i.e. do they??
 
     /**
      * The node which all others are a child of, in java this is 'java.lang.Object'.
