@@ -41,6 +41,7 @@ public class TypeHierarchyResolver {
 
         // Iterate all code files
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+            Path path = entry.getKey();
             Statement statement = entry.getValue();
 
             if (!(statement instanceof TopLevelTypeStatement))
@@ -52,7 +53,7 @@ public class TypeHierarchyResolver {
                 continue;
             String currentPkg = topStatement.getPackageStatement().map(p -> p.getPackageName() + ".").orElse("");
 
-            TypeResolver resolver = new TypeResolver(code, tmp, currentPkg, topStatement.getImports(),
+            TypeResolver resolver = new TypeResolver(code, tmp, path, currentPkg, topStatement.getImports(),
                     topStatement.getPackageStatement());
             resolver.visit(typeStatement);
         }
@@ -80,10 +81,10 @@ public class TypeHierarchyResolver {
         }
     }
 
-    private String resolveQualifiedName(Map<Path, Statement> code, Optional<PackageStatement> currentPackage,
+    private String resolveQualifiedName(Map<Path, Statement> code, Path path, Optional<PackageStatement> currentPackage,
             List<ImportStatement> imports, String name) {
         // Resolve against classes in same package
-        String s = resolvedInCurrentPackage(code, currentPackage, name);
+        String s = resolveInCurrentPackage(code, currentPackage, name);
 
         if (s != null)
             return s;
@@ -94,11 +95,17 @@ public class TypeHierarchyResolver {
         if (s2 != null)
             return s2;
 
+        // Resolve against default package
+        String s3 = resolveInDefaultPackage(code, path, currentPackage, name);
+
+        if (s3 != null)
+            return s3;
+
         // If name contains dots, we assume it is a fully qualified name
         // TODO check this properly
         if (name.contains("."))
             return name;
-        throw new RuntimeException("could not resolve qualified name for  " + name);
+        throw new RuntimeException("could not resolve qualified name for " + name);
     }
 
     private String resolveInOtherPackages(Map<Path, Statement> code, List<ImportStatement> imports, String name) {
@@ -132,7 +139,7 @@ public class TypeHierarchyResolver {
         return null;
     }
 
-    private String resolvedInCurrentPackage(Map<Path, Statement> code, Optional<PackageStatement> currentPackage,
+    private String resolveInCurrentPackage(Map<Path, Statement> code, Optional<PackageStatement> currentPackage,
             String name) {
         if (!currentPackage.isPresent())
             return null;
@@ -151,6 +158,33 @@ public class TypeHierarchyResolver {
 
                 if (targetContainsName(currentPkg, otherPkg, typeStatement, name))
                     return otherPkg + "." + String.join("$", name.split("\\."));
+            }
+        }
+        return null;
+    }
+
+    private String resolveInDefaultPackage(Map<Path, Statement> code, Path path,
+            Optional<PackageStatement> currentPackage, String name) {
+        if (!currentPackage.isPresent()) {
+            for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+                Statement statement = entry.getValue();
+
+                if (!(statement instanceof TopLevelTypeStatement))
+                    continue;
+                TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
+                TypeStatement typeStatement = topStatement.getTypeStatement();
+
+                // they have to both have no package statement, and be in the same folder
+                if (!topStatement.getPackageStatement().isPresent()
+                        && path.getParent().equals(entry.getKey().getParent())) {
+                    // Perform search in target
+                    searcher.resetState(name);
+                    searcher.visit(typeStatement);
+
+                    if (searcher.isMatched()) {
+                        return String.join("$", name.split("\\."));
+                    }
+                }
             }
         }
         return null;
@@ -179,11 +213,11 @@ public class TypeHierarchyResolver {
         return searcher.isMatched();
     }
 
-    private void placeInList(List<TypeNode> list, Map<Path, Statement> code,
+    private void placeInList(List<TypeNode> list, Map<Path, Statement> code, Path path,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports, String child,
             List<String> superClasses) {
         for (String superClass : superClasses) {
-            String resolvedSuperClassName = resolveQualifiedName(code, packageStatement, imports, superClass);
+            String resolvedSuperClassName = resolveQualifiedName(code, path, packageStatement, imports, superClass);
 
             // add to tmp structure, if you cant place it then add it as a new child
             if (!placeInList(list, resolvedSuperClassName, child)) {
@@ -374,13 +408,15 @@ public class TypeHierarchyResolver {
         private final List<ImportStatement> imports;
         private final Optional<PackageStatement> packageStatement;
         private final Map<Integer, String> map = new HashMap<>(); // maps 'nesting number' to 'prefix' at that nesting
+        private final Path path;
         private String currentIdentifierName;
         private int nesting = 0;
 
-        TypeResolver(Map<Path, Statement> code, List<TypeNode> tmp, String currentPkg,
+        TypeResolver(Map<Path, Statement> code, List<TypeNode> tmp, Path path, String currentPkg,
                 List<ImportStatement> imports, Optional<PackageStatement> packageStatement) {
             this.code = code;
             this.tmp = tmp;
+            this.path = path;
             this.imports = imports;
             this.packageStatement = packageStatement;
             this.currentIdentifierName = currentPkg;
@@ -408,12 +444,12 @@ public class TypeHierarchyResolver {
             if (!map.containsKey(nesting)) {
                 map.put(nesting, currentIdentifierName);
             }
-            currentIdentifierName = map.get (nesting) + (nesting > 0 ? "$" : "") + identifierName;
+            currentIdentifierName = map.get(nesting) + (nesting > 0 ? "$" : "") + identifierName;
 
             if (superClasses.size() == 0) {
                 root.children.add(getFromListOrDefault(tmp, currentIdentifierName));
             } else {
-                placeInList(tmp, code, packageStatement, imports, currentIdentifierName, superClasses);
+                placeInList(tmp, code, path, packageStatement, imports, currentIdentifierName, superClasses);
             }
             nesting++;
         }

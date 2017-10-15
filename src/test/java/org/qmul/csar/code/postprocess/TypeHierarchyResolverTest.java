@@ -28,63 +28,79 @@ public class TypeHierarchyResolverTest {
         resolver.resolve(code);
     }
 
-    private void assertSubtypeOfObject(String qualifiedName) {
-        assertTrue(resolver.isSubtype("java.lang.Object", qualifiedName));
+    private void assertIsSubtypeOfObject(String type2) {
+        assertTrue(resolver.isSubtype("java.lang.Object", type2));
+    }
+
+    private void assertIsSubtype(String type1, String type2) {
+        assertTrue(resolver.isSubtype(type1, type2));
+    }
+
+    private void assertIsNotSubtype(String type1, String type2) {
+        assertFalse(resolver.isSubtype(type1, type2));
     }
 
     @Test
     public void testIsSubtype() {
         // Extending in the current package
-        assertTrue(resolver.isSubtype("base.A", "base.B"));
-        assertTrue(resolver.isSubtype("base.A", "base.C"));
-        assertFalse(resolver.isSubtype("base.B", "base.A"));
-        assertFalse(resolver.isSubtype("base.B", "base.C"));
+        assertIsSubtype("base.A", "base.B");
+        assertIsSubtype("base.A", "base.C");
+        assertIsNotSubtype("base.B", "base.A");
+        assertIsNotSubtype("base.B", "base.C");
 
         // Extending from another package
-        assertTrue(resolver.isSubtype("base.A", "base.base2.D1"));
-        assertTrue(resolver.isSubtype("base.A", "base.base2.D2"));
+        assertIsSubtype("base.A", "base.base2.D1");
+        assertIsSubtype("base.A", "base.base2.D2");
 
         // Extending an inner-interface
-        assertTrue(resolver.isSubtype("base.E$IE", "base.F"));
-        assertTrue(resolver.isSubtype("base.E$IE2", "base.G"));
-        assertTrue(resolver.isSubtype("base.E$IEX$I", "base.H"));
+        assertIsSubtype("base.E$IE", "base.F");
+        assertIsSubtype("base.E$IE2", "base.G");
+        assertIsSubtype("base.E$IEX$I", "base.H");
 
         // Multiple-inheritance
-        assertTrue(resolver.isSubtype("base.A", "base.I"));
-        assertTrue(resolver.isSubtype("base.B", "base.I"));
+        assertIsSubtype("base.A", "base.I");
+        assertIsSubtype("base.B", "base.I");
 
         // Enums
-        assertTrue(resolver.isSubtype("base.A", "base.K"));
+        assertIsSubtype("base.A", "base.K");
 
         // Java API
-        assertTrue(resolver.isSubtype("java.lang.Runnable", "base.L"));
+        assertIsSubtype("java.lang.Runnable", "base.L");
 
         // Fully qualified name
-        assertTrue(resolver.isSubtype("java.lang.Runnable", "base.L"));
+        assertIsSubtype("java.lang.Runnable", "base.L");
+
+        // Default package
+        assertIsSubtype("base.A", "P");
+        assertIsSubtype("N", "O");
     }
 
     @Test
     public void testIsSubtypeOfObject() {
-        assertSubtypeOfObject("base.A");
-        assertSubtypeOfObject("base.B");
-        assertSubtypeOfObject("base.C");
-        assertSubtypeOfObject("base.E");
-        assertSubtypeOfObject("base.E$IE");
-        assertSubtypeOfObject("base.E$IE2");
-        assertSubtypeOfObject("base.E$IEX");
-        assertSubtypeOfObject("base.E$IEX$I");
-        assertSubtypeOfObject("base.F");
-        assertSubtypeOfObject("base.base2.D1");
-        assertSubtypeOfObject("base.base2.D2");
-        assertSubtypeOfObject("base.I");
-        assertSubtypeOfObject("base.J");
-        assertSubtypeOfObject("base.K");
-        assertSubtypeOfObject("base.L");
-        assertSubtypeOfObject("base.M");
+        assertIsSubtypeOfObject("base.A");
+        assertIsSubtypeOfObject("base.B");
+        assertIsSubtypeOfObject("base.C");
+        assertIsSubtypeOfObject("base.E");
+        assertIsSubtypeOfObject("base.E$IE");
+        assertIsSubtypeOfObject("base.E$IE2");
+        assertIsSubtypeOfObject("base.E$IEX");
+        assertIsSubtypeOfObject("base.E$IEX$I");
+        assertIsSubtypeOfObject("base.F");
+        assertIsSubtypeOfObject("base.base2.D1");
+        assertIsSubtypeOfObject("base.base2.D2");
+        assertIsSubtypeOfObject("base.I");
+        assertIsSubtypeOfObject("base.J");
+        assertIsSubtypeOfObject("base.K");
+        assertIsSubtypeOfObject("base.L");
+        assertIsSubtypeOfObject("base.M");
+        assertIsSubtypeOfObject("N");
+        assertIsSubtypeOfObject("P");
+        assertIsSubtypeOfObject("O");
     }
 
     @Test
     public void testIsSubtypeSameArgument() {
-        assertTrue(resolver.isSubtype("base.B", "base.B"));
+        assertIsSubtype("B", "B");
+        assertIsSubtype("base.B", "base.B");
     }
 }
