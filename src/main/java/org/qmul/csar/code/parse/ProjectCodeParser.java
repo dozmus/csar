@@ -82,7 +82,7 @@ public class ProjectCodeParser {
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 Path file = null;
-                Statement root = null;
+                Statement root;
 
                 try {
                     while (it.hasNext() && !Thread.currentThread().isInterrupted()) {

@@ -24,9 +24,9 @@ import java.util.concurrent.Executors;
 public class ProjectCodeSearcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectCodeSearcher.class);
+    private final CountDownLatch finishedLatch;
     private final int threadCount;
     private ExecutorService executor;
-    private CountDownLatch finishedLatch;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
     private PathProcessorErrorListener errorListener;
     private CsarQuery query;

@@ -126,7 +126,8 @@ public class TypeHierarchyResolver {
 
                     if (topStatement.getTypeStatement() instanceof AnnotationStatement)
                         continue;
-                    String otherPkg = topStatement.getPackageStatement().map(p -> p.getPackageName()).orElse("");
+                    String otherPkg = topStatement.getPackageStatement()
+                            .map(PackageStatement::getPackageName).orElse("");
 
                     if (targetContainsName(currentPkg, otherPkg, typeStatement, name))
                         return otherPkg + "." + String.join("$", name.split("\\."));

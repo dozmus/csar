@@ -25,10 +25,6 @@ public class OptionalUtils {
 
     public static <T> boolean lenientEquals(Optional<Boolean> present, List<T> elements, Optional<Boolean> otherPresent,
             List<T> otherElements) {
-        if (!present.isPresent()) {
-            return false; // XXX bad arguments
-        } else {
-            return !otherPresent.isPresent() || elements.equals(otherElements);
-        }
+        return present.isPresent() && (!otherPresent.isPresent() || elements.equals(otherElements));
     }
 }

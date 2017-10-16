@@ -3,7 +3,6 @@ package org.qmul.csar.code.parse.java.statement;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

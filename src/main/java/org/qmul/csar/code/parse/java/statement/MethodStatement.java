@@ -1,6 +1,7 @@
 package org.qmul.csar.code.parse.java.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
@@ -102,7 +103,8 @@ public class MethodStatement implements Statement {
 
         if (params.size() > 0) {
             builder.append("(")
-                    .append(String.join(", ", params.stream().map(p -> p.toPseudoCode()).collect(Collectors.toList())))
+                    .append(String.join(", ", params.stream()
+                            .map(SerializableCode::toPseudoCode).collect(Collectors.toList())))
                     .append(")");
         } else {
             builder.append("()");
