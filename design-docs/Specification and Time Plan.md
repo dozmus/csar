@@ -90,13 +90,16 @@ i.e. `SELECT method:def:add --threads 4` – The first part is the search query,
 * Factory design pattern - an external object which creates a complicated object.  
   This is used to generate the complicated arguments some of our objects may require, in particular because of DI.
 * Object-Oriented Programming principles - model the system as interactions between a set of objects (this is the consensus approach for Java development).  
-  The most used are polymorphism and the Liskov substitution principle throughout the project, for extensibility.
+  The most used are modularity, abstraction, encapsulation, polymorphism, Open/Close principle, high cohesion, low coupling, and the Liskov substitution principle throughout the project, for extensibility.
+* Helper classes/objects - to help enable high cohesion, in a language which does not support first-order functions.
+* Modelling - used to define new components and discern how they will fit into the system.
 * Unit testing - complicated modules are coupled with unit tests, which ensure they give the correct output for each tested input.
 * Loggers - to aid debugging.
 * Lambdas - for powerful and easy multi-threaded operations on collections.
 * Immutability - to keep everything simple and easier to test.
-
-{TODO add onto this as appropriate}
+* Software configuration management (Gradle, Git, etc.) - to enable correct, efficient development.
+* Bug tracking software (Github issues) - to keep track of defects and issues.
+* Note-keeping software (Boostnote) - to keep track of my working notes and next tasks to complete.
 
 # Technologies Used
 CSAR will be programmed in Java 8, this is because I am well-versed in it, it introduced a powerful directory walking API (which my project relies upon), it has lambda support (which is very useful), and it is cross-platform.
