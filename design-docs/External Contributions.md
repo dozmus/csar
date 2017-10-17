@@ -5,3 +5,8 @@ External Contributions
 * Disallow local enums/annotations in Java8PT grammar - [pr#886](https://github.com/antlr/grammars-v4/pull/886) [pr#887](https://github.com/antlr/grammars-v4/pull/887)
 * Allow method reference leading with `this` in Java8PT grammar + minor reformatting - [pr#898](https://github.com/antlr/grammars-v4/pull/898)
 * Improve Java8PT methodReference rule - [pr#901](https://github.com/antlr/grammars-v4/pull/901)
+
+# [JCommander](https://github.com/cbeust/jcommander)
+* Fix misc.xml - [pr#407](https://github.com/cbeust/jcommander/pull/407)
+* Flexible usage formatting - [pr#408](https://github.com/cbeust/jcommander/pull/408)
+* Java 7 compliance - [pr#409](https://github.com/cbeust/jcommander/pull/409)
