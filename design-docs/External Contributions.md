@@ -10,3 +10,5 @@ External Contributions
 * Fix misc.xml - [pr#407](https://github.com/cbeust/jcommander/pull/407)
 * Flexible usage formatting - [pr#408](https://github.com/cbeust/jcommander/pull/408)
 * Java 7 compliance - [pr#409](https://github.com/cbeust/jcommander/pull/409)
+* Fix locale-related issues in usage formatter tests - [pr#410](https://github.com/cbeust/jcommander/pull/410)
+* Add documentation for usage formatter - [pr#411](https://github.com/cbeust/jcommander/pull/411)
