@@ -187,7 +187,7 @@ Completed Goals
 * Java code parsing
 * Narrowing search domain based on `.gitignore` and `.csarignore`
 
-Major Goals
+Remaining Goals
 * Post-processing
   * 23/10/2017 - Fix type hierarchy resolving
   * 13/11/2017 - Implement overridden flag detecting
