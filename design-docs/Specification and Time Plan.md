@@ -21,11 +21,9 @@ Thirdly, let's take a look at articles available on [library.qmplus](http://qmul
 Finally, I have a few responses from some software developers.
 "An ast aware/semantic search would be nice but i think in practice i can produce a suitable regexp quickly (and good luck building an effective one".
 "I would legit use an ast/syntax-aware grep tool, not sure if id use the refactoring but its usually things like, i find a vulnerable decode() method, there are 50 billion methods named decode in the codebase, i want to see if input can get to this specific one".  
-It seems that a semantics-based search tool may have a place in the software development ecosystem. I also ran a survey on a small number of people, and every single one listed the following requirements for such a tool: "language-agnosticism" and "refactoring capabilities".
+I also ran a survey on a small number of people, and every single one listed the following requirements for such a tool: "language-agnosticism" and "refactoring capabilities". It seems that a semantics-based search tool with refactoring capabilities might have a place in the software development ecosystem. 
 
-Furthermore, there is a lack of tools which combine refactoring with searching. These two operations are closely intertwined and creating separate software solutions for them reduces efficiency and makes it harder for developers to use them effectively. This is because they need to learn how to use two pieces of software instead of one.
-
-csar aims to provide a versatile and unified framework to address both these issues. A newly devised query language will be used to describe searches and refactors in terms of descriptions. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
+csar aims to provide a versatile and unified framework to address these issues. A newly devised query language will be used to describe searches and refactors in terms of descriptions. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
 
 csar will be designed to be very flexible code-wise as well. With the proper use of subclasses, a third-party developer should be able to easily customize its behaviour to fit their specific needs. Most of its API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
 
