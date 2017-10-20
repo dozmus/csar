@@ -18,7 +18,10 @@ Secondly, let's take a look at stack overflow, we can gauge interest in search t
 
 Thirdly, let's take a look at articles available on [library.qmplus](http://qmul.summon.serialssolutions.com/search?utf8=%E2%9C%93&s.q=code+search#!/search?ho=t&l=en-UK&q=%22code%20search%22). We see 3,300 search rules for the phrase `"code search"` indicating the level of interest for this subject.
 
-Finally, { TODO write survey results }.
+Finally, I have a few responses from some software developers.
+"An ast aware/semantic search would be nice but i think in practice i can produce a suitable regexp quickly (and good luck building an effective one".
+"I would legit use an ast/syntax-aware grep tool, not sure if id use the refactoring but its usually things like, i find a vulnerable decode() method, there are 50 billion methods named decode in the codebase, i want to see if input can get to this specific one".  
+It seems that a semantics-based search tool may have a place in the software development ecosystem. I also ran a survey on a small number of people, and every single one listed the following requirements for such a tool: "language-agnosticism" and "refactoring capabilities".
 
 Furthermore, there is a lack of tools which combine refactoring with searching. These two operations are closely intertwined and creating separate software solutions for them reduces efficiency and makes it harder for developers to use them effectively. This is because they need to learn how to use two pieces of software instead of one.
 
