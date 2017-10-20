@@ -7,11 +7,26 @@ csar: Query-driven Code Search and Refactoring Framework
 # Problem
 There is a lack of tools which provide accurate and versatile searching for code, most offer plain-text and regular expression comparisons. These yield inaccurate results due to their excess flexibility.
 
+Firstly, let's take a look at the most popular code searching repository on github, that is [the silver searcher](https://github.com/ggreer/the_silver_searcher) with 13,500+ stars.
+Clearly the demand is there for a good search tool, but this is not it, with  240+ open issues.
+
+It has many bugs such as: [duplicate matches using symlinks](https://github.com/ggreer/the_silver_searcher/issues/1152), command-line parsing issues [[1]](https://github.com/ggreer/the_silver_searcher/issues/1129), not handling .gitignore properly [[1]](https://github.com/ggreer/the_silver_searcher/issues/1097) [[2]](https://github.com/ggreer/the_silver_searcher/issues/1136) [[3]](https://github.com/ggreer/the_silver_searcher/issues/1139), and plenty of unexpected matches [[1]](https://github.com/ggreer/the_silver_searcher/issues/1153) [[2]](https://github.com/ggreer/the_silver_searcher/issues/881) [[3]](https://github.com/ggreer/the_silver_searcher/issues/885).
+
+The first three issues mentioned do not occur in csar, the latter is yet to be implemented.
+
+Secondly, let's take a look at stack overflow, we can gauge interest in search tools by seeing how much response questions regarding them get. We can see [this](https://stackoverflow.com/questions/2928584/how-to-grep-search-committed-code-in-the-git-history) post which has generated 950+ up-votes and 230,000+ views.
+
+Thirdly, let's take a look at articles available on [library.qmplus](http://qmul.summon.serialssolutions.com/search?utf8=%E2%9C%93&s.q=code+search#!/search?ho=t&l=en-UK&q=%22code%20search%22). We see 3,300 search rules for the phrase `"code search"` indicating the level of interest for this subject.
+
+Finally, { TODO write survey results }.
+
 Furthermore, there is a lack of tools which combine refactoring with searching. These two operations are closely intertwined and creating separate software solutions for them reduces efficiency and makes it harder for developers to use them effectively. This is because they need to learn how to use two pieces of software instead of one.
 
 csar aims to provide a versatile and unified framework to address both these issues. A newly devised query language will be used to describe searches and refactors in terms of descriptions. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
 
 csar will be designed to be very flexible code-wise as well. With the proper use of subclasses, a third-party developer should be able to easily customize its behaviour to fit their specific needs. Most of its API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
+
+Note: the data from this section was last updated 20/10/2017.
 
 # User Requirements
 ## General Requirements
