@@ -1,5 +1,5 @@
 package base;
 
-public class C implements A {
+public class C implements base.A {
 
 }
