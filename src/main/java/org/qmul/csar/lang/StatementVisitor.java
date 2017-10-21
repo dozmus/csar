@@ -15,10 +15,13 @@ public abstract class StatementVisitor {
 
         if (statement instanceof ClassStatement) {
             visitClassStatement((ClassStatement)statement);
+            exitClassStatement((ClassStatement)statement);
         } else if (statement instanceof MethodStatement) {
             visitMethodStatement((MethodStatement)statement);
+            exitMethodStatement((MethodStatement)statement);
         } else if (statement instanceof EnumStatement) {
             visitEnumStatement((EnumStatement)statement);
+            exitEnumStatement((EnumStatement)statement);
         }
         // TODO let user pick what should happen if unsupported node encountered, optimally we should support them all
     }
@@ -28,15 +31,24 @@ public abstract class StatementVisitor {
         visitAnnotations(statement.getAnnotations());
     }
 
+    public void exitEnumStatement(EnumStatement statement) {
+    }
+
     public void visitClassStatement(ClassStatement statement) {
         visitBlockStatement(statement.getBlock());
         visitAnnotations(statement.getAnnotations());
+    }
+
+    public void exitClassStatement(ClassStatement statement) {
     }
 
     public void visitMethodStatement(MethodStatement statement) {
         visitParameterVariableStatements(statement.getParams());
         visitBlockStatement(statement.getBlock());
         visitAnnotations(statement.getAnnotations());
+    }
+
+    public void exitMethodStatement(MethodStatement statement) {
     }
 
     public void visitBlockStatement(BlockStatement statement) {

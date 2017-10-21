@@ -32,6 +32,10 @@ public class MethodDescriptor implements Descriptor {
     private final List<ParameterVariableDescriptor> parameters;
     private final List<String> thrownExceptions;
     private final List<String> typeParameters;
+    /**
+     * Lazily initialized when {@link #signature()} is first called.
+     */
+    private String signature;
 
     public MethodDescriptor(IdentifierName identifierName, Optional<String> returnType,
             Optional<VisibilityModifier> visibilityModifier, Optional<Boolean> staticModifier,
@@ -136,6 +140,38 @@ public class MethodDescriptor implements Descriptor {
 
     public Optional<Boolean> getHasThrownExceptions() {
         return hasThrownExceptions;
+    }
+
+    public boolean signatureEquals(MethodDescriptor descriptor) {
+        // TODO generics in return types
+        // TODO check for return types that are subtypes
+        return identifierName.equals(descriptor.getIdentifierName())
+                && returnType.isPresent() && returnType.equals(descriptor.getReturnType())
+                && ParameterVariableDescriptor.parametersSignatureEquals(parameters, descriptor.getParameters());
+    }
+
+    /**
+     * Returns the signature of this method. This does not apply type erasure or translate varargs into array notation.
+     *
+     * @return the signature of this method
+     */
+    public String signature() {
+        if (signature != null)
+            return signature;
+        StringBuilder builder = new StringBuilder()
+                .append(returnType.get()).append(" ")
+                .append(identifierName.toString()).append("(");
+
+        for (int i = 0; i < parameters.size(); i++) {
+            ParameterVariableDescriptor param = parameters.get(i);
+            builder.append(param.getIdentifierType().get());
+
+            if (i + 1 < parameters.size())
+                builder.append(",");
+        }
+        builder.append(")");
+        signature = builder.toString();
+        return signature;
     }
 
     @Override

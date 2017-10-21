@@ -25,9 +25,9 @@ public class TypeHierarchyResolver {
      */
     private final TypeNode root = new TypeNode("java.lang.Object");
     /**
-     * The target type searcher to use.
+     * The qualified name resolver to use.
      */
-    private final TargetTypeSearcher searcher = new TargetTypeSearcher();
+    private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
 
     /**
      * Resolves the type hierarchy of the argument, and stores it in {@link #root}. If a type hierarchy cannot be
@@ -80,144 +80,13 @@ public class TypeHierarchyResolver {
         }
     }
 
-    private String resolveQualifiedName(Map<Path, Statement> code, Path path, Optional<PackageStatement> currentPackage,
-            List<ImportStatement> imports, String name) {
-        // Resolve against classes in same package
-        String s = resolveInCurrentPackage(code, currentPackage, name);
-
-        if (s != null)
-            return s;
-
-        // Resolve against imports
-        String s2 = resolveInOtherPackages(code, imports, name);
-
-        if (s2 != null)
-            return s2;
-
-        // Resolve against default package
-        String s3 = resolveInDefaultPackage(code, path, currentPackage, name);
-
-        if (s3 != null)
-            return s3;
-
-        // If name contains dots, we assume it is a fully qualified name
-        // TODO check this properly
-        if (name.contains("."))
-            return name;
-        throw new RuntimeException("could not resolve qualified name for " + name);
-    }
-
-    private String resolveInOtherPackages(Map<Path, Statement> code, List<ImportStatement> imports, String name) {
-        for (ImportStatement importStatement : imports) {
-            if (importStatement.isStaticImport())
-                continue;
-            String importQualifiedName = importStatement.getQualifiedName();
-
-            if (importQualifiedName.endsWith(".*")) { // wildcard import
-                String currentPkg = importQualifiedName.substring(0, importQualifiedName.length() - 2);
-
-                for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-                    Statement statement = entry.getValue();
-
-                    if (!(statement instanceof TopLevelTypeStatement))
-                        continue;
-                    TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
-                    TypeStatement typeStatement = topStatement.getTypeStatement();
-
-                    if (topStatement.getTypeStatement() instanceof AnnotationStatement)
-                        continue;
-                    String otherPkg = topStatement.getPackageStatement()
-                            .map(PackageStatement::getPackageName).orElse("");
-
-                    if (targetContainsName(currentPkg, otherPkg, typeStatement, name))
-                        return otherPkg + "." + String.join("$", name.split("\\."));
-                }
-            } else if (importQualifiedName.endsWith("." + name)) { // specific import
-                return importQualifiedName;
-            }
-        }
-        return null;
-    }
-
-    private String resolveInCurrentPackage(Map<Path, Statement> code, Optional<PackageStatement> currentPackage,
-            String name) {
-        if (!currentPackage.isPresent())
-            return null;
-        String currentPkg = currentPackage.get().getPackageName();
-
-        for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-            Statement statement = entry.getValue();
-
-            if (!(statement instanceof TopLevelTypeStatement))
-                continue;
-            TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
-            TypeStatement typeStatement = topStatement.getTypeStatement();
-
-            if (topStatement.getPackageStatement().isPresent()) {
-                String otherPkg = topStatement.getPackageStatement().get().getPackageName();
-
-                if (targetContainsName(currentPkg, otherPkg, typeStatement, name))
-                    return otherPkg + "." + String.join("$", name.split("\\."));
-            }
-        }
-        return null;
-    }
-
-    private String resolveInDefaultPackage(Map<Path, Statement> code, Path path,
-            Optional<PackageStatement> currentPackage, String name) {
-        if (!currentPackage.isPresent()) {
-            for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-                Statement statement = entry.getValue();
-
-                if (!(statement instanceof TopLevelTypeStatement))
-                    continue;
-                TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
-                TypeStatement typeStatement = topStatement.getTypeStatement();
-
-                // they have to both have no package statement, and be in the same folder
-                if (!topStatement.getPackageStatement().isPresent()
-                        && path.getParent().equals(entry.getKey().getParent())) {
-                    // Perform search in target
-                    searcher.resetState(name);
-                    searcher.visit(typeStatement);
-
-                    if (searcher.isMatched()) {
-                        return String.join("$", name.split("\\."));
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns <tt>true</tt> if the target type statement contains the given qualified name. If <tt>currentPkg</tt>
-     * and <tt>otherPkg</tt> are not equal, then <tt>false</tt> is returned.
-     *
-     * @param currentPkg the package <tt>qualifiedName</tt> is defined in
-     * @param otherPkg the package target is in
-     * @param target the target type statement
-     * @param qualifiedName the qualified name to check is contained in the target
-     * @return returns <tt>true</tt> if the target type statement contains the given qualified name
-     * @see TargetTypeSearcher
-     * @see #searcher
-     */
-    private boolean targetContainsName(String currentPkg, String otherPkg, TypeStatement target, String qualifiedName) {
-        // Compare packages
-        if (!otherPkg.equals(currentPkg))
-            return false;
-
-        // Perform search in target
-        searcher.resetState(qualifiedName);
-        searcher.visit(target);
-        return searcher.isMatched();
-    }
-
     private void placeInList(List<TypeNode> list, Map<Path, Statement> code, Path path,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports, String child,
             List<String> superClasses) {
         for (String superClass : superClasses) {
-            String resolvedSuperClassName = resolveQualifiedName(code, path, packageStatement, imports, superClass);
+            QualifiedNameResolver.QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path,
+                    packageStatement, imports, superClass);
+            String resolvedSuperClassName = resolvedType.getQualifiedName();
 
             // add to tmp structure, if you cant place it then add it as a new child
             if (!placeInList(list, resolvedSuperClassName, child)) {
@@ -349,55 +218,6 @@ public class TypeHierarchyResolver {
                 }
             }
             return false;
-        }
-    }
-
-    private static final class TargetTypeSearcher extends StatementVisitor {
-
-        private String[] targetName;
-        private int matches = 0;
-        private int nesting = -1;
-        private boolean cancelled;
-
-        public void resetState(String targetName) {
-            this.targetName = targetName.split("\\.");
-            matches = 0;
-            nesting = -1;
-            cancelled = false;
-        }
-
-        public void visit(Statement statement) {
-            if (isMatched() || cancelled) // early termination (optimization)
-                return;
-            super.visit(statement);
-        }
-
-        @Override
-        public void visitClassStatement(ClassStatement statement) {
-            nesting++;
-            attemptMatch(statement.getDescriptor().getIdentifierName());
-            super.visitClassStatement(statement);
-            nesting--;
-        }
-
-        @Override
-        public void visitEnumStatement(EnumStatement statement) {
-            nesting++;
-            attemptMatch(statement.getDescriptor().getIdentifierName());
-            super.visitEnumStatement(statement);
-            nesting--;
-        }
-
-        private void attemptMatch(IdentifierName identifierName) {
-            if (nesting >= targetName.length) {
-                cancelled = true;
-            } else if (!isMatched() && identifierName.toString().equals(targetName[nesting])) {
-                matches++; // XXX this may be error prone, check some stuff w this w diff nesting interleaving
-            }
-        }
-
-        boolean isMatched() {
-            return matches == targetName.length;
         }
     }
 

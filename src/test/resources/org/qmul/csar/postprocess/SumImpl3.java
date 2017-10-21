@@ -1,6 +1,6 @@
 package base;
 
-public class A {
+public class SumImpl3 implements ProxySumInterface {
 
     public int add(int a, int b) {
         return a + b;
