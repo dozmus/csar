@@ -213,12 +213,17 @@ Completed Goals
 * csar query parsing
 * Java code parsing
 * Narrowing search domain based on `.gitignore` and `.csarignore`
+* Type hierarchy resolving
 
 Remaining Goals
+* 30/10/2017 - Specification and time plan
 * Post-processing
-  * 23/10/2017 - Fix type hierarchy resolving
   * 13/11/2017 - Implement overridden flag detecting
   * 18/12/2017 - Mapping method usages
-* 08/01/2017 - Implement searching method usages
-* 12/02/2017 - Implement refactoring
-* 01/03/2017 - Implement full language-agnosticism
+* 08/12/2017 - Interim report and risk assessment (begin after Implement overridden flag detecting)
+* 08/01/2018 - Implement searching method usages
+* 12/02/2018 - Implement refactoring
+* 01/03/2018 - Implement full language-agnosticism
+* 19/03/2018 - Draft final report (begin after Implement refactoring)
+* 23/04/2018 - Final report
+* 25/04/2018 - Presentation slides
