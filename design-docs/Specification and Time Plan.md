@@ -81,6 +81,17 @@ This would be done how the git implementation is, but the program arguments we u
 ### Support for further searching
 The process for this is described earlier, I would simply have to repeat the process for each additional element I want to support searching for.
 
+### IntelliJ IDEA Integration
+csar can be integrated into this IDE in one of two ways:
+* Internally - csar can be implemented as an alternative to IDEA's structural search,
+  this would enable it to carry out the following tasks:
+  identifier usage finding, overridden method finding, type hierarchy resolving, refactoring,
+  and semantics-based searching.  
+  This requires placing our code in
+  [`platform/structuralsearch/.../structuralsearch`](https://github.com/JetBrains/intellij-community/tree/master/platform/structuralsearch/source/com/intellij/structuralsearch) and creating adapters to enable our code to provide the same interface as the current IDEA ones, to ensure maximum compatibility.
+* Plugin - csar can be implemented as a third-party plugin which introduces a new query field.
+  This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
+
 # User Interaction
 The user will run the program from the command-line, as they would any other Java JAR: `java -jar csar.jar [options]`. A preliminary list of options is listed below:
 * The search query, this does not correspond to an option flag, since it is required.
