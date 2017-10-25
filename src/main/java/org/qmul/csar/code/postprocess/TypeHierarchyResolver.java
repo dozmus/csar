@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * A type hierarchy resolver for a {@link Map} of {@link Path} to {@link Statement}.
+ * A type hierarchy resolver for a code base, represented as a mapping of {@link Path} to {@link Statement}.
  */
 public class TypeHierarchyResolver {
 
@@ -33,10 +33,10 @@ public class TypeHierarchyResolver {
      * Resolves the type hierarchy of the argument, and stores it in {@link #root}. If a type hierarchy cannot be
      * fully resolved it will be added as a partial hierarchy anyway (a non-extensive hierarchy).
      *
-     * @param code the code to resolve for
+     * @param code the code base to resolve for
      */
     public void resolve(Map<Path, Statement> code) {
-        List<TypeNode> tmp = new ArrayList<>();
+        List<TypeNode> partialHierarchies = new ArrayList<>();
 
         // Iterate all code files
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
@@ -52,13 +52,13 @@ public class TypeHierarchyResolver {
                 continue;
             String currentPkg = topStatement.getPackageStatement().map(p -> p.getPackageName() + ".").orElse("");
 
-            TypeResolver resolver = new TypeResolver(code, tmp, path, currentPkg, topStatement.getImports(),
-                    topStatement.getPackageStatement());
+            TypeResolver resolver = new TypeResolver(code, partialHierarchies, path, currentPkg,
+                    topStatement.getImports(), topStatement.getPackageStatement());
             resolver.visit(typeStatement);
         }
 
         // Merge in any left over partial trees in tmp
-        mergePartialTrees(root, tmp);
+        mergePartialTrees(root, partialHierarchies);
     }
 
     /**
@@ -80,6 +80,18 @@ public class TypeHierarchyResolver {
         }
     }
 
+    /**
+     * Resolves each super class of <tt>child</tt> in <tt>superClasses</tt> and then places them in the type hierarchy
+     * list, each with a child entry of <tt>child</tt>.
+     *
+     * @param list the type hierarchy list
+     * @param code the code base
+     * @param path the path of the child
+     * @param packageStatement the package statement of the child class
+     * @param imports the imports of the child class
+     * @param child the name of the child class
+     * @param superClasses the superclasses of the child class
+     */
     private void placeInList(List<TypeNode> list, Map<Path, Statement> code, Path path,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports, String child,
             List<String> superClasses) {
@@ -88,7 +100,7 @@ public class TypeHierarchyResolver {
                     packageStatement, imports, superClass);
             String resolvedSuperClassName = resolvedType.getQualifiedName();
 
-            // add to tmp structure, if you cant place it then add it as a new child
+            // Add to tmp structure, if there is no place for it it then add it as a new child
             if (!placeInList(list, resolvedSuperClassName, child)) {
                 TypeNode node = new TypeNode(resolvedSuperClassName);
                 node.children.add(new TypeNode(child));
@@ -221,6 +233,9 @@ public class TypeHierarchyResolver {
         }
     }
 
+    /**
+     * Resolves the type hierarchy of a given statement.
+     */
     private final class TypeResolver extends StatementVisitor {
 
         private final Map<Path, Statement> code;
