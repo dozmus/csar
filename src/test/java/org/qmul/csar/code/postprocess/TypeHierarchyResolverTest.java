@@ -1,5 +1,6 @@
 package org.qmul.csar.code.postprocess;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.io.ProjectIteratorFactory;
@@ -18,7 +19,8 @@ public class TypeHierarchyResolverTest {
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final TypeHierarchyResolver resolver = new TypeHierarchyResolver();
 
-    static {
+    @BeforeClass
+    public static void setUp() {
         // Parse sample directory
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false);
         ProjectCodeParser parser = new ProjectCodeParser(it);
@@ -41,50 +43,52 @@ public class TypeHierarchyResolverTest {
     }
 
     @Test
-    public void testIsSubtype() {
-        // Extending in the current package
+    public void testIsSubtypeExtendingFromCurrentPackage() {
         assertIsSubtype("base.A", "base.B");
         assertIsSubtype("base.A", "base.C");
         assertIsNotSubtype("base.B", "base.A");
         assertIsNotSubtype("base.B", "base.C");
+        assertIsNotSubtype("base.B", "O");
 
-        // Extending from another package
-        assertIsSubtype("base.A", "base.base2.D1");
-        assertIsSubtype("base.A", "base.base2.D2");
-
-        // Extending an inner-interface
-        assertIsSubtype("base.E$IE", "base.F");
-        assertIsSubtype("base.E$IE2", "base.G");
-        assertIsSubtype("base.E$IEX$I", "base.H");
+        // Enum
+        assertIsSubtype("base.A", "base.K");
 
         // Multiple-inheritance
         assertIsSubtype("base.A", "base.I");
         assertIsSubtype("base.B", "base.I");
 
-        // Enums
-        assertIsSubtype("base.A", "base.K");
-
-        // Java API
+        // External API
         assertIsSubtype("java.lang.Runnable", "base.L");
 
         // Fully qualified name
         assertIsSubtype("java.lang.Runnable", "base.L");
+    }
 
-        // Default package
+    @Test
+    public void testIsSubtypeExtendingInnerInterfaces() {
+        assertIsSubtype("base.E$IE", "base.F");
+        assertIsSubtype("base.E$IE2", "base.G");
+        assertIsSubtype("base.E$IEX$I", "base.H");
+    }
+
+    @Test
+    public void testIsSubtypeExtendingFromAnotherPackage() {
+        assertIsSubtype("base.A", "base.base2.D1");
+        assertIsSubtype("base.A", "base.base2.D2");
+    }
+
+    @Test
+    public void testIsSubtypeDefaultPackageClasses() {
         assertIsSubtype("base.A", "P");
         assertIsSubtype("N", "O");
     }
 
     @Test
-    public void testIsSubtypeOfObject() {
+    public void testIsSubtypeOfObjectTopLevelClasses() {
         assertIsSubtypeOfObject("base.A");
         assertIsSubtypeOfObject("base.B");
         assertIsSubtypeOfObject("base.C");
         assertIsSubtypeOfObject("base.E");
-        assertIsSubtypeOfObject("base.E$IE");
-        assertIsSubtypeOfObject("base.E$IE2");
-        assertIsSubtypeOfObject("base.E$IEX");
-        assertIsSubtypeOfObject("base.E$IEX$I");
         assertIsSubtypeOfObject("base.F");
         assertIsSubtypeOfObject("base.base2.D1");
         assertIsSubtypeOfObject("base.base2.D2");
@@ -93,6 +97,18 @@ public class TypeHierarchyResolverTest {
         assertIsSubtypeOfObject("base.K");
         assertIsSubtypeOfObject("base.L");
         assertIsSubtypeOfObject("base.M");
+    }
+
+    @Test
+    public void testIsSubtypeOfObjectInnerClasses() {
+        assertIsSubtypeOfObject("base.E$IE");
+        assertIsSubtypeOfObject("base.E$IE2");
+        assertIsSubtypeOfObject("base.E$IEX");
+        assertIsSubtypeOfObject("base.E$IEX$I");
+    }
+
+    @Test
+    public void testIsSubtypeOfObjectDefaultPackageClasses() {
         assertIsSubtypeOfObject("N");
         assertIsSubtypeOfObject("P");
         assertIsSubtypeOfObject("O");
