@@ -8,6 +8,8 @@ import org.qmul.csar.lang.descriptor.ClassDescriptor;
 import org.qmul.csar.lang.descriptor.EnumDescriptor;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -16,8 +18,9 @@ public class OverriddenMethodsResolver {
 
     // TODO handle methods overridden from java api classes?
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OverriddenMethodsResolver.class);
     /**
-     * This maps a method's full signature to whether it's overridden or not.
+     * Maps a method's full signature to whether it's overridden or not.
      * e.g. 'com.example.MyClass#int add(int,int)' -> 'true'.
      */
     private final Map<String, Boolean> map = new HashMap<>();
@@ -27,6 +30,7 @@ public class OverriddenMethodsResolver {
     private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
 
     public void resolve(Map<Path, Statement> code) {
+        long startTime = System.currentTimeMillis();
         MethodStatementVisitor visitor = new MethodStatementVisitor(code);
 
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
@@ -40,6 +44,8 @@ public class OverriddenMethodsResolver {
                 visitor.visit(topLevelTypeStatement.getTypeStatement());
             }
         }
+        LOGGER.info("Resolved {} overridden methods from {} files in {}ms", map.size(), code.size(),
+                (System.currentTimeMillis() - startTime));
     }
 
     public boolean isOverridden(String methodSignature) {

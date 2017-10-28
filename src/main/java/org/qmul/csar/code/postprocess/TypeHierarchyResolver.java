@@ -9,6 +9,8 @@ import org.qmul.csar.lang.StatementVisitor;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.ClassDescriptor;
 import org.qmul.csar.lang.descriptor.EnumDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -20,6 +22,7 @@ public class TypeHierarchyResolver {
 
     // TODO parse java api classes properly
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TypeHierarchyResolver.class);
     /**
      * The node which all others are a child of, in java this is 'java.lang.Object'.
      */
@@ -36,6 +39,7 @@ public class TypeHierarchyResolver {
      * @param code the code base to resolve for
      */
     public void resolve(Map<Path, Statement> code) {
+        long startTime = System.currentTimeMillis();
         List<TypeNode> partialHierarchies = new ArrayList<>();
 
         // Iterate all code files
@@ -59,6 +63,8 @@ public class TypeHierarchyResolver {
 
         // Merge in any left over partial trees in tmp
         mergePartialTrees(root, partialHierarchies);
+        LOGGER.info("Resolved type hierarchies from {} files in {}ms", code.size(),
+                (System.currentTimeMillis() - startTime));
     }
 
     /**
