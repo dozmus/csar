@@ -20,6 +20,12 @@ public class QualifiedNameResolver {
 
     public QualifiedType resolve(Map<Path, Statement> code, Path path, Optional<PackageStatement> currentPackage,
             List<ImportStatement> imports, String name) {
+        // If the name contains generic arguments, we omit it
+        int leftAngleBracketIdx = name.indexOf('<');
+
+        if (leftAngleBracketIdx != -1)
+            name = name.substring(0, leftAngleBracketIdx);
+
         // Resolve against classes in same package
         QualifiedType t1 = resolveInCurrentPackage(code, currentPackage, name);
 
@@ -51,7 +57,6 @@ public class QualifiedNameResolver {
             if (importStatement.isStaticImport())
                 continue;
             String importQualifiedName = importStatement.getQualifiedName();
-
             String currentPkg = "";
 
             if (importQualifiedName.endsWith(".*")) { // wildcard import
