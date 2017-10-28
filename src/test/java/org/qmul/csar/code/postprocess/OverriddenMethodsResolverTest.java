@@ -1,5 +1,6 @@
 package org.qmul.csar.code.postprocess;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.io.ProjectIteratorFactory;
@@ -18,7 +19,8 @@ public class OverriddenMethodsResolverTest {
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final OverriddenMethodsResolver resolver = new OverriddenMethodsResolver();
 
-    static {
+    @BeforeClass
+    public static void setUp() {
         // Parse sample directory
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false);
         ProjectCodeParser parser = new ProjectCodeParser(it);
@@ -28,41 +30,60 @@ public class OverriddenMethodsResolverTest {
         resolver.resolve(code);
     }
 
-    private void assertIsOverridden(String methodSignature) {
+    private static void assertIsOverridden(String methodSignature) {
         assertTrue(resolver.isOverridden(methodSignature));
     }
 
-    private void assertIsNotOverridden(String methodSignature) {
+    private static void assertIsNotOverridden(String methodSignature) {
         assertFalse(resolver.isOverridden(methodSignature));
     }
 
     @Test
-    public void testOverridden() {
-        // Check overridden methods
+    public void testOverriddenForRegularOverriddenMethods() {
         assertIsOverridden("base.SumImpl1#int add(int,int)");
         assertIsOverridden("base.SumImpl2#int add(int,int)");
         assertIsOverridden("base.SumImpl3#int add(int,int)");
         assertIsOverridden("base.base2.D4#int add(int,int)");
+    }
 
-        // Check methods with similar signatures which aren't overridden
+    @Test
+    public void testOverriddenForMethodsWithSimilarSignaturesWhichArentOverridden() {
         assertIsNotOverridden("base.SumImpl1#String add(int,int)");
         assertIsNotOverridden("base.SumImpl1#int add(String,String)");
+    }
 
-        // Check classes with identical methods, which don't extend the interface
+    @Test
+    public void testOverriddenForMethodsWithIdenticalSignaturesWhichArentOverridden() {
         assertIsNotOverridden("base.A#int add(int,int)");
         assertIsNotOverridden("base.base2.D3#int add(int,int)");
+    }
 
-        // Check overridden methods with generic arguments
+    @Test
+    public void testOverriddenForMethodsWithGenericArguments() {
         assertIsOverridden("base.GenericFnArgInterfaceImpl1#void sort(List<String>)");
         assertIsOverridden("base.GenericFnArgInterfaceImpl2#void sort(List)");
+    }
 
-        // Check methods with generic arguments with similar signatures which aren't overridden
+    @Test
+    public void testOverriddenForMethodsWithGenericArgumentsWithSimilarSignaturesWhichArentOverridden() {
         assertIsNotOverridden("base.GenericFnArgInterfaceImpl3#void sort(List<? super String>)");
         assertIsNotOverridden("base.GenericFnArgInterfaceImpl4#void sort(List<? extends String>)");
         assertIsNotOverridden("base.GenericFnArgInterfaceImpl5#void sort(List<?>)");
+    }
 
-        // Check overridden methods with varargs arguments
+    @Test
+    public void testOverriddenForMethodsWithVarArgsArguments() {
         assertIsOverridden("base.VarArgsInterfaceImpl1#void print(String...)");
         assertIsOverridden("base.VarArgsInterfaceImpl2#void print(String[])");
+    }
+
+    @Test
+    public void testOverriddenForMethodsInInnerClasses() {
+        assertIsOverridden("base.SumImpl4$InnerImpl#int add(int,int)");
+    }
+
+    @Test
+    public void testOverriddenForInnerClassInMethod() {
+        assertIsOverridden("base.SumImpl5#void method()$InnerImpl#int add(int,int)");
     }
 }

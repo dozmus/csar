@@ -27,7 +27,6 @@ public class OverriddenMethodsResolver {
     private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
 
     public void resolve(Map<Path, Statement> code) {
-        System.out.println("size(code)=" + code.size());
         MethodStatementVisitor visitor = new MethodStatementVisitor(code);
 
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
@@ -47,12 +46,8 @@ public class OverriddenMethodsResolver {
         return map.getOrDefault(methodSignature, false);
     }
 
-    private boolean calculateOverridden(Map<Path, Statement> code, Path path, TopLevelTypeStatement parentType,
-            MethodStatement method) {
-        // TODO parentType might have to change to support methods overridden within local/inner classes
-        TypeStatement typeStatement = parentType.getTypeStatement();
-        Optional<PackageStatement> packageStatement = parentType.getPackageStatement();
-        List<ImportStatement> imports = parentType.getImports();
+    private boolean calculateOverridden(Map<Path, Statement> code, Path path, Optional<PackageStatement> pkg,
+            List<ImportStatement> imports, TypeStatement typeStatement, MethodStatement method) {
 
         // Check if @Override annotation present
         for (Annotation annotation : method.getAnnotations()) {
@@ -70,37 +65,19 @@ public class OverriddenMethodsResolver {
 
             if (!descriptor.getExtendedClass().isPresent() && descriptor.getImplementedInterfaces().size() == 0)
                 return false;
-            List<String> superClasses = new ArrayList<>();
-            descriptor.getExtendedClass().ifPresent(superClasses::add);
-            superClasses.addAll(descriptor.getImplementedInterfaces());
-            return calculateOverridden(code, packageStatement, imports, superClasses, path, typeStatement, method);
+            List<String> superClasses = superClasses(classStatement);
+            return calculateOverridden(code, pkg, imports, superClasses, path, typeStatement, method);
         } else if (typeStatement instanceof EnumStatement) {
             EnumStatement enumStatement = (EnumStatement)typeStatement;
             EnumDescriptor descriptor = enumStatement.getDescriptor();
 
             if (descriptor.getSuperClasses().size() == 0)
                 return false;
-            return calculateOverridden(code, packageStatement, imports, descriptor.getSuperClasses(), path,
+            return calculateOverridden(code, pkg, imports, descriptor.getSuperClasses(), path,
                     typeStatement, method);
         }
         // NOTE annotation types cannot have superclasses
         return false;
-    }
-
-    private List<String> superClasses(TypeStatement typeStatement) {
-        if (typeStatement instanceof ClassStatement) {
-            ClassStatement classStatement = (ClassStatement)typeStatement;
-            ClassDescriptor descriptor = classStatement.getDescriptor();
-            List<String> superClasses = new ArrayList<>();
-            descriptor.getExtendedClass().ifPresent(superClasses::add);
-            superClasses.addAll(descriptor.getImplementedInterfaces());
-            return Collections.unmodifiableList(superClasses);
-        } else if (typeStatement instanceof EnumStatement) {
-            EnumStatement enumStatement = (EnumStatement)typeStatement;
-            EnumDescriptor descriptor = enumStatement.getDescriptor();
-            return Collections.unmodifiableList(descriptor.getSuperClasses());
-        }
-        return Collections.unmodifiableList(new ArrayList<>());
     }
 
     private boolean calculateOverridden(Map<Path, Statement> code, Optional<PackageStatement> packageStatement,
@@ -149,6 +126,22 @@ public class OverriddenMethodsResolver {
         return false;
     }
 
+    private static List<String> superClasses(TypeStatement typeStatement) {
+        if (typeStatement instanceof ClassStatement) {
+            ClassStatement classStatement = (ClassStatement)typeStatement;
+            ClassDescriptor descriptor = classStatement.getDescriptor();
+            List<String> superClasses = new ArrayList<>();
+            descriptor.getExtendedClass().ifPresent(superClasses::add);
+            superClasses.addAll(descriptor.getImplementedInterfaces());
+            return Collections.unmodifiableList(superClasses);
+        } else if (typeStatement instanceof EnumStatement) {
+            EnumStatement enumStatement = (EnumStatement)typeStatement;
+            EnumDescriptor descriptor = enumStatement.getDescriptor();
+            return Collections.unmodifiableList(descriptor.getSuperClasses());
+        }
+        return Collections.unmodifiableList(new ArrayList<>());
+    }
+
     private static boolean isAccessible(MethodDescriptor childDesc, MethodDescriptor superDesc,
             Optional<PackageStatement> childPkg, Optional<PackageStatement> superPkg, TypeStatement superType) {
         // is the super class an interface
@@ -178,12 +171,14 @@ public class OverriddenMethodsResolver {
         return false;
     }
 
-    private final class MethodStatementVisitor extends StatementVisitor { // TODO create signature for local/inner classes properly
+    private final class MethodStatementVisitor extends StatementVisitor {
 
         private final Map<Path, Statement> code;
         private final Deque<String> traversalHierarchy = new ArrayDeque<>();
-        private TopLevelTypeStatement topLevelTypeStatement;
+        private final Deque<TypeStatement> traversedTypeStatements = new ArrayDeque<>();
         private Path path;
+        private Optional<PackageStatement> packageStatement;
+        private List<ImportStatement> imports;
 
         private MethodStatementVisitor(Map<Path, Statement> code) {
             this.code = code;
@@ -191,54 +186,71 @@ public class OverriddenMethodsResolver {
 
         @Override
         public void visitEnumStatement(EnumStatement statement) {
-            traversalHierarchy.addLast(statement.getDescriptor().getIdentifierName().toString());
+            traversalHierarchy.addLast(prefix() + statement.getDescriptor().getIdentifierName().toString());
+            traversedTypeStatements.addLast(statement);
             super.visitEnumStatement(statement);
         }
 
         @Override
         public void exitEnumStatement(EnumStatement statement) {
             traversalHierarchy.removeLast();
+            traversedTypeStatements.removeLast();
         }
 
         @Override
         public void visitClassStatement(ClassStatement statement) {
-            traversalHierarchy.addLast(statement.getDescriptor().getIdentifierName().toString());
+            traversalHierarchy.addLast(prefix() + statement.getDescriptor().getIdentifierName().toString());
+            traversedTypeStatements.addLast(statement);
             super.visitClassStatement(statement);
         }
 
         @Override
         public void exitClassStatement(ClassStatement statement) {
             traversalHierarchy.removeLast();
+            traversedTypeStatements.removeLast();
         }
 
         @Override
         public void visitMethodStatement(MethodStatement statement) {
-            super.visitMethodStatement(statement);
+            traversalHierarchy.addLast("#" + statement.getDescriptor().signature());
             mapOverridden(statement);
+            super.visitMethodStatement(statement);
         }
 
         private void mapOverridden(MethodStatement method) {
-            if (calculateOverridden(code, path, topLevelTypeStatement, method)) {
-                map.put(createSignature(method), true);
+            if (calculateOverridden(code, path, packageStatement, imports, traversedTypeStatements.getLast(), method)) {
+                map.put(createSignature(), true);
             }
         }
 
-        private String createSignature(MethodStatement method) { // TODO is this right
-            String parent = String.join(".", traversalHierarchy);
-            String methodSignature = method.getDescriptor().signature();
-            System.out.println("create_signature() => " + parent + "#" + methodSignature);
-            return parent + "#" + methodSignature;
+        private String prefix() {
+            if (traversalHierarchy.size() == 0)
+                return "";
+            return (traversedTypeStatements.size() == 1) ? "." : "$";
+        }
+
+        private String createSignature() {
+            String signature = String.join("", traversalHierarchy);
+            return signature;
         }
 
         private void setTopLevelTypeStatement(TopLevelTypeStatement topLevelTypeStatement) {
-            this.topLevelTypeStatement = topLevelTypeStatement;
+            traversedTypeStatements.clear();
             traversalHierarchy.clear();
+            traversedTypeStatements.addLast(topLevelTypeStatement);
+            packageStatement = topLevelTypeStatement.getPackageStatement();
+            imports = topLevelTypeStatement.getImports();
 
             if (topLevelTypeStatement.getPackageStatement().isPresent()) {
                 PackageStatement pkg = topLevelTypeStatement.getPackageStatement().get();
+                String[] pkgParts = pkg.getPackageName().split("\\.");
 
-                for (String pkgPart : pkg.getPackageName().split("\\.")) {
-                    traversalHierarchy.addLast(pkgPart);
+                for (int i = 0; i < pkgParts.length; i++) {
+                    String s = pkgParts[i];
+
+                    if (i > 0)
+                        s = "." + s;
+                    traversalHierarchy.addLast(s);
                 }
             }
         }
