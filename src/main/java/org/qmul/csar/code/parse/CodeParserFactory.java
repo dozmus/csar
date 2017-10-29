@@ -13,9 +13,14 @@ public final class CodeParserFactory {
      * An array of handled code file extensions.
      */
     private static final String[] HANDLED_CODE_FILE_EXTENSIONS = {".java"};
+    /**
+     * This is used to determine if the JCG accepts a given file, a new instance of this is returned instead though.
+     */
+    private static final JavaCodeParser javaParser = new JavaCodeParser();
 
     /**
      * Returns a suitable {@link CodeParser} for the argument, or throws an exception.
+     *
      * @param file the file for which a {@link CodeParser} is needed
      * @return a suitable {@link CodeParser} for the argument
      * @throws IllegalArgumentException if the argument is a directory, does not exist, or is not handled.
@@ -27,10 +32,10 @@ public final class CodeParserFactory {
         if (!Files.exists(file))
             throw new IllegalArgumentException("file must exist");
 
-        if (file.getFileName().toString().endsWith(".java")) {
+        if (javaParser.accepts(file)) {
             return new JavaCodeParser();
         }
-        throw new IllegalArgumentException("file extension not handled");
+        throw new IllegalArgumentException("file not handled");
     }
 
     /**
