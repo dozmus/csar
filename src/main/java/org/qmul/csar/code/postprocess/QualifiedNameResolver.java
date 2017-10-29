@@ -17,14 +17,29 @@ public class QualifiedNameResolver {
      * The target type searcher to use.
      */
     private final TargetTypeSearcher searcher = new TargetTypeSearcher();
+    private final TargetTypeSearcherForInnerClass innerSearcher = new TargetTypeSearcherForInnerClass();
 
-    public QualifiedType resolve(Map<Path, Statement> code, Path path, Optional<PackageStatement> currentPackage,
-            List<ImportStatement> imports, String name) {
+    public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
+            TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
+            String name) {
+
         // If the name contains generic arguments, we omit it
         int leftAngleBracketIdx = name.indexOf('<');
 
         if (leftAngleBracketIdx != -1)
             name = name.substring(0, leftAngleBracketIdx);
+
+        // Resolve against inner classes in current class
+        QualifiedType t0 = resolveInCurrentClass(parent, topLevelParent, currentPackage, name);
+
+        if (t0 != null)
+            return t0;
+
+        // Resolve against inner classes in top-level parent class
+        QualifiedType t = resolveInCurrentClass(topLevelParent, topLevelParent, currentPackage, name);
+
+        if (t != null)
+            return t;
 
         // Resolve against classes in same package
         QualifiedType t1 = resolveInCurrentPackage(code, currentPackage, name);
@@ -49,10 +64,32 @@ public class QualifiedNameResolver {
         if (name.contains(".")) {
             return new QualifiedType(name, null);
         }
-        throw new RuntimeException("could not resolve qualified name for " + name);
+        throw new RuntimeException("could not resolve qualified name for " + name + " in " + path.toString());
     }
 
-    private QualifiedType resolveInOtherPackages(Map<Path, Statement> code, List<ImportStatement> imports, String name) {
+    private QualifiedType resolveInCurrentClass(TypeStatement parent, TypeStatement topLevelParent,
+            Optional<PackageStatement> pkg, String name) {
+        if (parent instanceof TopLevelTypeStatement) {
+            parent = ((TopLevelTypeStatement)parent).getTypeStatement();
+        }
+        if (topLevelParent instanceof TopLevelTypeStatement) {
+            topLevelParent = ((TopLevelTypeStatement)topLevelParent).getTypeStatement();
+        }
+
+        innerSearcher.resetState(name, topLevelParent);
+        innerSearcher.visit(parent);
+
+        if (innerSearcher.isMatched()) {
+            String parentIdentifier = ((ClassStatement) parent).getDescriptor().getIdentifierName().toString();
+            String currentPkgName = pkg.isPresent() ? pkg.get().getPackageName() + "." : "";
+            String qualifiedName = currentPkgName + parentIdentifier + "$" + name;
+            return new QualifiedType(qualifiedName, parent);
+        }
+        return null;
+    }
+
+    private QualifiedType resolveInOtherPackages(Map<Path, Statement> code, List<ImportStatement> imports,
+            String name) {
         for (ImportStatement importStatement : imports) {
             if (importStatement.isStaticImport())
                 continue;
@@ -84,7 +121,7 @@ public class QualifiedNameResolver {
                 }
             }
 
-            // Fall-back, assume it exists (for java api sake)
+            // Fall-back, assume it exists (handles external APIs by assuming they exist)
             if (importQualifiedName.endsWith("." + name)) {
                 return new QualifiedType(importQualifiedName, null);
             }
@@ -132,11 +169,7 @@ public class QualifiedNameResolver {
                 // they have to both have no package statement, and be in the same folder
                 if (!topStatement.getPackageStatement().isPresent()
                         && path.getParent().equals(entry.getKey().getParent())) {
-                    // Perform search in target
-                    searcher.resetState(name);
-                    searcher.visit(typeStatement);
-
-                    if (searcher.isMatched()) {
+                    if (targetContainsName("", "", typeStatement, name)) {
                         String qualifiedName = String.join("$", name.split("\\."));
                         return new QualifiedType(qualifiedName, statement);
                     }
@@ -205,7 +238,7 @@ public class QualifiedNameResolver {
         }
 
         public void visit(Statement statement) {
-            if (isMatched() || cancelled) // early termination (optimization)
+            if (isMatched() || cancelled) // TODO is early termination erroneous (optimization)
                 return;
             super.visit(statement);
         }
@@ -230,7 +263,62 @@ public class QualifiedNameResolver {
             if (nesting >= targetName.length) {
                 cancelled = true;
             } else if (!isMatched() && identifierName.toString().equals(targetName[nesting])) {
-                matches++; // XXX this may be error prone, check some stuff w this w diff nesting interleaving
+                matches++; // XXX is error prone, check some stuff w this w diff nesting interleaving
+            }
+        }
+
+        boolean isMatched() {
+            return matches == targetName.length;
+        }
+    }
+
+    private static final class TargetTypeSearcherForInnerClass extends StatementVisitor {
+
+        private String[] targetName;
+        private int matches = 0;
+        private int nesting = -1;
+        private boolean cancelled;
+        private TypeStatement parent;
+
+        public void resetState(String targetName, TypeStatement parent) {
+            this.targetName = targetName.split("\\.");
+            this.parent = parent;
+            matches = 0;
+            nesting = -1;
+            cancelled = false;
+        }
+
+        public void visit(Statement statement) {
+            if (isMatched() || cancelled) // TODO is early termination erroneous (optimization)
+                return;
+            super.visit(statement);
+        }
+
+        @Override
+        public void visitClassStatement(ClassStatement statement) {
+            if (!statement.equals(parent)) {
+                nesting++;
+                attemptMatch(statement.getDescriptor().getIdentifierName());
+                super.visitClassStatement(statement);
+                nesting--;
+            } else {
+                super.visitClassStatement(statement);
+            }
+        }
+
+        @Override
+        public void visitEnumStatement(EnumStatement statement) {
+            nesting++;
+            attemptMatch(statement.getDescriptor().getIdentifierName());
+            super.visitEnumStatement(statement);
+            nesting--;
+        }
+
+        private void attemptMatch(IdentifierName identifierName) {
+            if (nesting >= targetName.length) {
+                cancelled = true;
+            } else if (!isMatched() && identifierName.toString().equals(targetName[nesting])) {
+                matches++; // XXX is error prone, check some stuff w this w diff nesting interleaving
             }
         }
 

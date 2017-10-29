@@ -72,6 +72,17 @@ public class TypeHierarchyResolverTest {
     }
 
     @Test
+    public void testIsSubtypeExtendingSuperClass() {
+        assertIsSubtype("base.Q", "base.Q$ChildOfQ");
+    }
+
+    @Test
+    public void testIsSubtypeExtendingAnotherInnerClass() {
+        assertIsSubtype("base.R$Interface", "base.R$ChildOfInterface");
+        assertIsSubtype("base.R$Interface.Inner", "base.R$ChildOfInnerInterface");
+    }
+
+    @Test
     public void testIsSubtypeExtendingFromAnotherPackage() {
         assertIsSubtype("base.A", "base.base2.D1");
         assertIsSubtype("base.A", "base.base2.D2");

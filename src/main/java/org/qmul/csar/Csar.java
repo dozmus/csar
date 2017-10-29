@@ -1,6 +1,7 @@
 package org.qmul.csar;
 
 import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.postprocess.CodeAnalysisUtils;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
@@ -19,6 +20,8 @@ import java.util.Map;
  */
 public class Csar {
 
+    // TODO make sure these methods cant be run in an incorrect order
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final String query;
     private final ProjectCodeParser parser;
@@ -27,6 +30,7 @@ public class Csar {
     private CsarQuery csarQuery;
     private Map<Path, Statement> code;
     private List<Result> results;
+    private CodeAnalysisUtils codeAnalysisUtils;
 
     /**
      * Constructs a new {@link Csar} with the given arguments.
@@ -67,6 +71,11 @@ public class Csar {
         LOGGER.trace("Parsing code...");
         code = parser.results();
         return !parser.errorOccurred();
+    }
+
+    public void postProcess() {
+        codeAnalysisUtils = new CodeAnalysisUtils(code);
+        codeAnalysisUtils.analyze();
     }
 
     public boolean searchCode() {

@@ -74,6 +74,8 @@ public final class Main {
             System.exit(3);
         }
 
+        csar.postProcess();
+
         if (!csar.searchCode()) {
             System.exit(4);
         }

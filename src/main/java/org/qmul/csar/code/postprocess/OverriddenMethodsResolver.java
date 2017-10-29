@@ -30,6 +30,7 @@ public class OverriddenMethodsResolver {
     private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
 
     public void resolve(Map<Path, Statement> code) {
+        LOGGER.info("Resolving overridden methods");
         long startTime = System.currentTimeMillis();
         MethodStatementVisitor visitor = new MethodStatementVisitor(code);
 
@@ -53,7 +54,7 @@ public class OverriddenMethodsResolver {
     }
 
     private boolean calculateOverridden(Map<Path, Statement> code, Path path, Optional<PackageStatement> pkg,
-            List<ImportStatement> imports, TypeStatement typeStatement, MethodStatement method) {
+            List<ImportStatement> imports, TypeStatement typeStatement, TypeStatement parent, MethodStatement method) {
 
         // Check if @Override annotation present
         for (Annotation annotation : method.getAnnotations()) {
@@ -72,15 +73,15 @@ public class OverriddenMethodsResolver {
             if (!descriptor.getExtendedClass().isPresent() && descriptor.getImplementedInterfaces().size() == 0)
                 return false;
             List<String> superClasses = superClasses(classStatement);
-            return calculateOverridden(code, pkg, imports, superClasses, path, typeStatement, method);
+            return calculateOverridden(code, pkg, imports, superClasses, path, typeStatement, parent, method);
         } else if (typeStatement instanceof EnumStatement) {
             EnumStatement enumStatement = (EnumStatement)typeStatement;
             EnumDescriptor descriptor = enumStatement.getDescriptor();
 
             if (descriptor.getSuperClasses().size() == 0)
                 return false;
-            return calculateOverridden(code, pkg, imports, descriptor.getSuperClasses(), path,
-                    typeStatement, method);
+            return calculateOverridden(code, pkg, imports, descriptor.getSuperClasses(), path, typeStatement, parent,
+                    method);
         }
         // NOTE annotation types cannot have superclasses
         return false;
@@ -88,12 +89,12 @@ public class OverriddenMethodsResolver {
 
     private boolean calculateOverridden(Map<Path, Statement> code, Optional<PackageStatement> packageStatement,
             List<ImportStatement> imports, List<String> superClasses, Path path, TypeStatement parent,
-            MethodStatement method) {
+            TypeStatement topLevelParent, MethodStatement method) {
         MethodDescriptor desc = method.getDescriptor();
 
         for (String superClass : superClasses) {
-            QualifiedNameResolver.QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path,
-                    packageStatement, imports, superClass);
+            QualifiedNameResolver.QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent,
+                    topLevelParent, packageStatement, imports, superClass);
             Statement resolvedStatement = resolvedType.getStatement();
 
             if (resolvedStatement != null && resolvedStatement instanceof TopLevelTypeStatement) {
@@ -125,8 +126,10 @@ public class OverriddenMethodsResolver {
                 }
 
                 // Check super classes of super class
-                if (calculateOverridden(code, packageStatement, imports, superClasses(s2), path, parent, method))
+                if (calculateOverridden(code, s.getPackageStatement(), s.getImports(), superClasses(s2), path, parent,
+                        s, method)) { // TODO some args passed here are incorrect i.e. path
                     return true;
+                }
             }
         }
         return false;
@@ -224,7 +227,8 @@ public class OverriddenMethodsResolver {
         }
 
         private void mapOverridden(MethodStatement method) {
-            if (calculateOverridden(code, path, packageStatement, imports, traversedTypeStatements.getLast(), method)) {
+            if (calculateOverridden(code, path, packageStatement, imports, traversedTypeStatements.getLast(),
+                    traversedTypeStatements.getFirst(), method)) {
                 map.put(createSignature(), true);
             }
         }
@@ -236,8 +240,7 @@ public class OverriddenMethodsResolver {
         }
 
         private String createSignature() {
-            String signature = String.join("", traversalHierarchy);
-            return signature;
+            return String.join("", traversalHierarchy);
         }
 
         private void setTopLevelTypeStatement(TopLevelTypeStatement topLevelTypeStatement) {

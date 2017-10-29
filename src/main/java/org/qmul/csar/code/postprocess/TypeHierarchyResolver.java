@@ -39,6 +39,7 @@ public class TypeHierarchyResolver {
      * @param code the code base to resolve for
      */
     public void resolve(Map<Path, Statement> code) {
+        LOGGER.info("Resolving type hierarchies");
         long startTime = System.currentTimeMillis();
         List<TypeNode> partialHierarchies = new ArrayList<>();
 
@@ -57,7 +58,7 @@ public class TypeHierarchyResolver {
             String currentPkg = topStatement.getPackageStatement().map(p -> p.getPackageName() + ".").orElse("");
 
             TypeResolver resolver = new TypeResolver(code, partialHierarchies, path, currentPkg,
-                    topStatement.getImports(), topStatement.getPackageStatement());
+                    topStatement.getImports(), topStatement.getPackageStatement(), typeStatement);
             resolver.visit(typeStatement);
         }
 
@@ -98,11 +99,11 @@ public class TypeHierarchyResolver {
      * @param child the name of the child class
      * @param superClasses the superclasses of the child class
      */
-    private void placeInList(List<TypeNode> list, Map<Path, Statement> code, Path path,
+    private void placeInList(List<TypeNode> list, Map<Path, Statement> code, Path path, TypeStatement parent,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports, String child,
             List<String> superClasses) {
         for (String superClass : superClasses) {
-            QualifiedNameResolver.QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path,
+            QualifiedNameResolver.QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, parent,
                     packageStatement, imports, superClass);
             String resolvedSuperClassName = resolvedType.getQualifiedName();
 
@@ -250,17 +251,20 @@ public class TypeHierarchyResolver {
         private final Optional<PackageStatement> packageStatement;
         private final Map<Integer, String> map = new HashMap<>(); // maps 'nesting number' to 'prefix' at that nesting
         private final Path path;
+        private final TypeStatement parent;
         private String currentIdentifierName;
         private int nesting = 0;
 
         TypeResolver(Map<Path, Statement> code, List<TypeNode> tmp, Path path, String currentPkg,
-                List<ImportStatement> imports, Optional<PackageStatement> packageStatement) {
+                List<ImportStatement> imports, Optional<PackageStatement> packageStatement,
+                TypeStatement parent) {
             this.code = code;
             this.tmp = tmp;
             this.path = path;
             this.imports = imports;
             this.packageStatement = packageStatement;
             this.currentIdentifierName = currentPkg;
+            this.parent = parent;
         }
 
         @Override
@@ -290,7 +294,7 @@ public class TypeHierarchyResolver {
             if (superClasses.size() == 0) {
                 root.children.add(getFromListOrDefault(tmp, currentIdentifierName));
             } else {
-                placeInList(tmp, code, path, packageStatement, imports, currentIdentifierName, superClasses);
+                placeInList(tmp, code, path, parent, packageStatement, imports, currentIdentifierName, superClasses);
             }
             nesting++;
         }
