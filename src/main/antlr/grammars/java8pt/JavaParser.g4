@@ -48,6 +48,7 @@ packageDeclaration
 
 importDeclaration
     : IMPORT STATIC? qualifiedName (DOT MUL)? SEMI
+    | SEMI
     ;
 
 typeDeclaration
