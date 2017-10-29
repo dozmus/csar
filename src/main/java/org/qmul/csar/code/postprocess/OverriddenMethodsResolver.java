@@ -242,6 +242,7 @@ public class OverriddenMethodsResolver {
             traversalHierarchy.addLast("#" + statement.getDescriptor().signature());
             mapOverridden(statement);
             super.visitMethodStatement(statement);
+            traversalHierarchy.removeLast();
         }
 
         private void mapOverridden(MethodStatement method) {
