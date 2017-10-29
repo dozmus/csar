@@ -28,9 +28,21 @@ public class OverriddenMethodsResolver {
      * The qualified name resolver to use.
      */
     private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+    /**
+     * If benchmarking output should be printed.
+     */
+    private final boolean benchmarking;
+
+    public OverriddenMethodsResolver() {
+        this(false);
+    }
+
+    public OverriddenMethodsResolver(boolean benchmarking) {
+        this.benchmarking = benchmarking;
+    }
 
     public void resolve(Map<Path, Statement> code) {
-        LOGGER.info("Resolving overridden methods");
+        LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
         MethodStatementVisitor visitor = new MethodStatementVisitor(code);
 
@@ -45,8 +57,14 @@ public class OverriddenMethodsResolver {
                 visitor.visit(topLevelTypeStatement.getTypeStatement());
             }
         }
-        LOGGER.info("Resolved {} overridden methods from {} files in {}ms", map.size(), code.size(),
-                (System.currentTimeMillis() - startTime));
+
+        // Log completion message
+        if (benchmarking) {
+            LOGGER.info("Finished (found {} overridden methods from {} files in {}ms)", map.size(), code.size(),
+                    (System.currentTimeMillis() - startTime));
+        } else {
+            LOGGER.info("Finished");
+        }
     }
 
     public boolean isOverridden(String methodSignature) {

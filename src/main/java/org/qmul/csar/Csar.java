@@ -39,12 +39,15 @@ public class Csar {
      * @param parser the project code parser to use
      * @param searcher the project searcher to use
      * @param resultFormatter the result formatter to use
+     * @param codeAnalysisUtils the code analysis utils to use
      */
-    public Csar(String query, ProjectCodeParser parser, ProjectCodeSearcher searcher, ResultFormatter resultFormatter) {
+    public Csar(String query, ProjectCodeParser parser, ProjectCodeSearcher searcher, ResultFormatter resultFormatter,
+            CodeAnalysisUtils codeAnalysisUtils) {
         this.query = query;
         this.parser = parser;
         this.searcher = searcher;
         this.resultFormatter = resultFormatter;
+        this.codeAnalysisUtils = codeAnalysisUtils;
     }
 
     /**
@@ -74,7 +77,7 @@ public class Csar {
     }
 
     public void postProcess() {
-        codeAnalysisUtils = new CodeAnalysisUtils(code);
+        codeAnalysisUtils.setCode(code);
         codeAnalysisUtils.analyze();
     }
 

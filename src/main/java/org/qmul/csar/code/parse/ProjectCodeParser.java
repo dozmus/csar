@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,12 +29,17 @@ public class ProjectCodeParser {
     private final CountDownLatch finishedLatch;
     private final int threadCount;
     private final ConcurrentIterator<Path> it;
+    /**
+     * If benchmarking output should be printed.
+     */
+    private final boolean benchmarking;
     private boolean errorOccurred = false;
     private boolean running = false;
     private PathProcessorErrorListener errorListener;
 
     /**
      * Creates a new {@link ProjectCodeParser} with the argument iterator and a <tt>threadCount</tt> of <tt>1</tt>.
+     *
      * @param it the {@link Path} iterator whose contents to parse
      */
     public ProjectCodeParser(Iterator<Path> it) {
@@ -41,14 +47,30 @@ public class ProjectCodeParser {
     }
 
     /**
+     * Creates a new {@link ProjectCodeParser} with the argument iterator and a <tt>threadCount</tt> of <tt>1</tt>.
      * Creates a new {@link ProjectCodeParser} with the arguments.
+     *
      * @param it the {@link Path} iterator whose contents to parse
      * @param threadCount the amount of threads to use
      * @throws IllegalArgumentException if <tt>threadCount</tt> is less than or equal to <tt>0</tt>
      * @throws NullPointerException if <tt>it</tt> is <tt>null</tt>
      */
     public ProjectCodeParser(Iterator<Path> it, int threadCount) {
+        this(it, threadCount, false);
+    }
+
+    /**
+     * Creates a new {@link ProjectCodeParser} with the arguments.
+     *
+     * @param it the {@link Path} iterator whose contents to parse
+     * @param threadCount the amount of threads to use
+     * @param benchmarking if benchmarking statistics should be printed
+     * @throws IllegalArgumentException if <tt>threadCount</tt> is less than or equal to <tt>0</tt>
+     * @throws NullPointerException if <tt>it</tt> is <tt>null</tt>
+     */
+    public ProjectCodeParser(Iterator<Path> it, int threadCount, boolean benchmarking) {
         this.it = new ConcurrentIterator<>(Objects.requireNonNull(it));
+        this.benchmarking = benchmarking;
         this.threadCount = threadCount;
         this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
         this.finishedLatch = new CountDownLatch(threadCount);
@@ -77,6 +99,8 @@ public class ProjectCodeParser {
 
         // Submit tasks
         final ConcurrentHashMap<Path, Statement> map = new ConcurrentHashMap<>();
+        long startTime = System.currentTimeMillis();
+        TotalFileSizes totalFileSizes = new TotalFileSizes();
         LOGGER.info("Starting...");
 
         for (int i = 0; i < threadCount; i++) {
@@ -95,6 +119,13 @@ public class ProjectCodeParser {
                             // Parse file and put in the map
                             root = CodeParserFactory.create(file).parse(file);
                             map.put(file, root);
+
+                            // Append to statistics
+                            if (benchmarking) {
+                                synchronized (totalFileSizes) {
+                                    totalFileSizes.add(Files.size(file));
+                                }
+                            }
 
                             // Print code tree
                             LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
@@ -129,7 +160,14 @@ public class ProjectCodeParser {
             LOGGER.error(msg);
             executor.shutdownNow();
         }
-        LOGGER.info("Finished");
+
+        // Log completion message
+        if (benchmarking) {
+            LOGGER.info("Finished (parsed {}kb of code in {}ms)", totalFileSizes.sizeKb,
+                    (System.currentTimeMillis() - startTime));
+        } else {
+            LOGGER.info("Finished");
+        }
 
         synchronized (this) {
             running = false;
@@ -173,6 +211,15 @@ public class ProjectCodeParser {
     private void countDown() {
         synchronized (finishedLatch) {
             finishedLatch.countDown();
+        }
+    }
+
+    private static final class TotalFileSizes {
+
+        private long sizeKb = 0;
+
+        public void add(long sizeBytes) {
+            sizeKb += Math.round((double)sizeBytes / 1000D);
         }
     }
 }

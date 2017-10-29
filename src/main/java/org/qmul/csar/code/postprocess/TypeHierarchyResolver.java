@@ -31,6 +31,18 @@ public class TypeHierarchyResolver {
      * The qualified name resolver to use.
      */
     private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+    /**
+     * If benchmarking output should be printed.
+     */
+    private final boolean benchmarking;
+
+    public TypeHierarchyResolver() {
+        this(false);
+    }
+
+    public TypeHierarchyResolver(boolean benchmarking) {
+        this.benchmarking = benchmarking;
+    }
 
     /**
      * Resolves the type hierarchy of the argument, and stores it in {@link #root}. If a type hierarchy cannot be
@@ -39,7 +51,7 @@ public class TypeHierarchyResolver {
      * @param code the code base to resolve for
      */
     public void resolve(Map<Path, Statement> code) {
-        LOGGER.info("Resolving type hierarchies");
+        LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
         List<TypeNode> partialHierarchies = new ArrayList<>();
 
@@ -64,8 +76,13 @@ public class TypeHierarchyResolver {
 
         // Merge in any left over partial trees in tmp
         mergePartialTrees(root, partialHierarchies);
-        LOGGER.info("Resolved type hierarchies from {} files in {}ms", code.size(),
-                (System.currentTimeMillis() - startTime));
+
+        // Log completion message
+        if (benchmarking) {
+            LOGGER.info("Finished (processed {} files in {}ms)", code.size(), (System.currentTimeMillis() - startTime));
+        } else {
+            LOGGER.info("Finished");
+        }
     }
 
     /**

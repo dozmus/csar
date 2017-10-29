@@ -7,11 +7,17 @@ import java.util.Map;
 
 public class CodeAnalysisUtils {
 
-    private final TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver();
-    private final OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver();
-    private final Map<Path, Statement> code;
+    private final TypeHierarchyResolver typeHierarchyResolver;
+    private final OverriddenMethodsResolver overriddenMethodsResolver;
+    private Map<Path, Statement> code;
 
-    public CodeAnalysisUtils(Map<Path, Statement> code) {
+    public CodeAnalysisUtils(TypeHierarchyResolver typeHierarchyResolver,
+            OverriddenMethodsResolver overriddenMethodsResolver) {
+        this.typeHierarchyResolver = typeHierarchyResolver;
+        this.overriddenMethodsResolver = overriddenMethodsResolver;
+    }
+
+    public void setCode(Map<Path, Statement> code) {
         this.code = code;
     }
 

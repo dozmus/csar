@@ -41,9 +41,11 @@ public class CsarContext {
     private boolean narrowSearch = true;
     @Parameter(names = {"--ignore-file"}, description = "Ignore file", order = 7, converter = PathConverter.class)
     private Path ignoreFile;
-    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 8)
+    @Parameter(names = {"--benchmark"}, description = "Print benchmarking values", order = 8)
+    private boolean benchmarking;
+    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 9)
     private boolean printProjectUrl;
-    @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 9, help = true)
+    @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 10, help = true)
     private boolean printHelp;
 
     /**
@@ -74,12 +76,12 @@ public class CsarContext {
         return String.join(" ", query);
     }
 
-    public Level getLogLevel() {
-        return logLevel;
-    }
-
     public int getThreads() {
         return threads;
+    }
+
+    public Level getLogLevel() {
+        return logLevel;
     }
 
     public ResultFormatter getResultFormatter() {
@@ -94,16 +96,20 @@ public class CsarContext {
         return narrowSearch;
     }
 
+    public Path getIgnoreFile() {
+        return ignoreFile;
+    }
+
+    public boolean isBenchmarking() {
+        return benchmarking;
+    }
+
     public boolean isPrintHelp() {
         return printHelp;
     }
 
     public boolean isPrintProjectUrl() {
         return printProjectUrl;
-    }
-
-    public Path getIgnoreFile() {
-        return ignoreFile;
     }
 
     /**

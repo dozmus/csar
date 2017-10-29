@@ -104,6 +104,8 @@ public final class Main {
                 + "      Narrow search domain (default: true)\n"
                 + "    --ignore-file\n"
                 + "      Ignore file (default: .csarignore)\n"
+                + "    --benchmark\n"
+                + "      Print benchmarking values (default: false)\n"
                 + "    --project-url, --url\n"
                 + "      Print project URL\n"
                 + "    --help, -h\n"
