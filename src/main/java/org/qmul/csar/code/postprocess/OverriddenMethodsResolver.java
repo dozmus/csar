@@ -43,6 +43,7 @@ public class OverriddenMethodsResolver {
 
     public void resolve(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
+        QualifiedNameResolver.reset();
         long startTime = System.currentTimeMillis();
         MethodStatementVisitor visitor = new MethodStatementVisitor(code);
 
@@ -62,6 +63,7 @@ public class OverriddenMethodsResolver {
         if (benchmarking) {
             LOGGER.info("Finished (found {} overridden methods from {} files in {}ms)", map.size(), code.size(),
                     (System.currentTimeMillis() - startTime));
+            System.out.println(QualifiedNameResolver.bench());
         } else {
             LOGGER.info("Finished");
         }

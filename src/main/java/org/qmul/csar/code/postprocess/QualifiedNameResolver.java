@@ -1,5 +1,6 @@
 package org.qmul.csar.code.postprocess;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.statement.*;
 import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.Statement;
@@ -11,18 +12,34 @@ import java.util.*;
 
 public class QualifiedNameResolver {
 
+    public static long CC = 0;
+    public static long CPC = 0;
+    public static long SP = 0;
+    public static long OP = 0;
+    public static long DP = 0;
+
+    public static void reset() {
+        CC = CPC = SP = OP = DP = 0;
+    }
+
+    public static String bench() {
+        return String.format("curCls: %dms, curParCls: %dms, samePkg: %dms, oPkg: %dms, defPkg: %dms", CC, CPC, SP, OP,
+                DP);
+    }
+
     /**
      * The target type searcher to use.
      */
     private final TargetTypeSearcher searcher = new TargetTypeSearcher();
     private final TargetTypeSearcherForInnerClass innerSearcher = new TargetTypeSearcherForInnerClass();
     private final Map<CurrentPackageEntry, QualifiedType> currentPackageCache = new HashMap<>();
-    private final Map<OtherPackagesEntry, QualifiedType> otherPackagesCache = new HashMap<>();
+    private final Map<OtherPackagesEntry, List<ResolvedTypesList>> otherPackagesCache = new HashMap<>();
     private final Map<DefaultPackageEntry, QualifiedType> defaultPackageCache = new HashMap<>();
 
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name) {
+        long start = 0;
 
         // If the name contains generic arguments, we omit it
         int leftAngleBracketIdx = name.indexOf('<');
@@ -31,31 +48,41 @@ public class QualifiedNameResolver {
             name = name.substring(0, leftAngleBracketIdx);
 
         // Resolve against inner classes in current class
+        start = System.currentTimeMillis();
         QualifiedType t0 = resolveInCurrentClass(parent, currentPackage, name);
+        CC += (System.currentTimeMillis() - start);
 
         if (t0 != null)
             return t0;
 
         // Resolve against inner classes in top-level parent class
+        start = System.currentTimeMillis();
         QualifiedType t = resolveInCurrentClass(topLevelParent, currentPackage, name);
+        CPC += (System.currentTimeMillis() - start);
 
         if (t != null)
             return t;
 
         // Resolve against classes in same package
+        start = System.currentTimeMillis();
         QualifiedType t1 = resolveInCurrentPackage(code, currentPackage, name);
+        SP += (System.currentTimeMillis() - start);
 
         if (t1 != null)
             return t1;
 
         // Resolve against imports
+        start = System.currentTimeMillis();
         QualifiedType t2 = resolveInOtherPackages(code, imports, name);
+        OP += (System.currentTimeMillis() - start);
 
         if (t2 != null)
             return t2;
 
         // Resolve against default package
+        start = System.currentTimeMillis();
         QualifiedType t3 = resolveInDefaultPackage(code, path, currentPackage, name);
+        DP += (System.currentTimeMillis() - start);
 
         if (t3 != null)
             return t3;
@@ -94,54 +121,78 @@ public class QualifiedNameResolver {
 
     private QualifiedType resolveInOtherPackages(Map<Path, Statement> code, List<ImportStatement> imports,
             String name) {
+        String normalizedName = name.replace("$", ".");
+        String nameWithoutSubIdentifiers = name.indexOf('.') == -1 ? name : name.substring(0, name.indexOf('.'));
+
+        System.out.println("-- TRYRESP --");
         for (ImportStatement importStatement : imports) {
-            if (importStatement.isStaticImport())
-                continue;
+            System.out.println("ROP:" + importStatement.getQualifiedName());
+            QualifiedType type = resolveInOtherPackages(code, importStatement, name, normalizedName,
+                    nameWithoutSubIdentifiers);
 
-            // Check cache
-            OtherPackagesEntry otherPackagesEntry = new OtherPackagesEntry(importStatement, name);
-
-            if (otherPackagesCache.containsKey(otherPackagesEntry)) {
-                return otherPackagesCache.get(otherPackagesEntry);
-            }
-
-            // Compute
-            String importQualifiedName = importStatement.getQualifiedName();
-            String currentPkg = "";
-
-            if (importQualifiedName.endsWith(".*")) { // wildcard import
-                currentPkg = importQualifiedName.substring(0, importQualifiedName.length() - 2);
-            } else if (importQualifiedName.endsWith("." + name)) { // specific import
-                currentPkg = importQualifiedName.substring(0, importQualifiedName.lastIndexOf("." + name));
-            }
-
-            for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-                Statement statement = entry.getValue();
-
-                if (!(statement instanceof TopLevelTypeStatement))
-                    continue;
-                TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
-                TypeStatement typeStatement = topStatement.getTypeStatement();
-
-                if (topStatement.getTypeStatement() instanceof AnnotationStatement)
-                    continue;
-                String otherPkg = topStatement.getPackageStatement()
-                        .map(PackageStatement::getPackageName).orElse("");
-
-                if (targetContainsName(currentPkg, otherPkg, typeStatement, name)) {
-                    String qualifiedName = otherPkg + "." + String.join("$", name.split("\\."));
-                    QualifiedType type = new QualifiedType(qualifiedName, statement);
-                    otherPackagesCache.put(otherPackagesEntry, type);
-                    return type;
-                }
-            }
-
-            // Fall-back, assume it exists (handles external APIs by assuming they exist)
-            if (importQualifiedName.endsWith("." + name)) {
-                QualifiedType type = new QualifiedType(importQualifiedName, null);
-                otherPackagesCache.put(otherPackagesEntry, type);
+            if (type != null) {
+                System.out.println("RESP:" + type.getQualifiedName() + " (assumed=" + (type.getStatement() == null) + ")");
                 return type;
             }
+        }
+        System.out.println("-- NORESP --");
+        return null;
+    }
+
+    private QualifiedType resolveInOtherPackages(Map<Path, Statement> code, ImportStatement importStatement,
+            String name, String normalizedName, String nameWithoutSubIdentifiers) {
+        if (importStatement.isStaticImport())
+            return null;
+
+        // Compute
+        final String importQualifiedName = importStatement.getQualifiedName();
+        String currentPkg = "";
+
+        if (importQualifiedName.endsWith(".*")) { // wildcard import
+            currentPkg = importQualifiedName.substring(0, importQualifiedName.length() - 2);
+        } else if (importQualifiedName.endsWith("." + name)) { // specific import
+            currentPkg = importQualifiedName.substring(0, importQualifiedName.lastIndexOf("." + name));
+        } else if (!nameWithoutSubIdentifiers.equals(name)
+                && importQualifiedName.endsWith("." + nameWithoutSubIdentifiers)) { // import inner class
+            int endIdx = importQualifiedName.lastIndexOf("." + nameWithoutSubIdentifiers);
+            currentPkg = importQualifiedName.substring(0, endIdx);
+        } else { // fall-back: cannot be the import we are looking for
+            return null;
+        }
+
+        for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+            Statement statement = entry.getValue();
+
+            if (!(statement instanceof TopLevelTypeStatement))
+                continue;
+            TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
+            TypeStatement typeStatement = topStatement.getTypeStatement();
+
+            if (topStatement.getTypeStatement() instanceof AnnotationStatement)
+                continue;
+            String otherPkg = topStatement.getPackageStatement()
+                    .map(PackageStatement::getPackageName).orElse("");
+
+            // Compare packages
+            if (!otherPkg.equals(currentPkg))
+                continue;
+
+            // Perform search in target
+            innerSearcher.resetStatePkgName(currentPkg);
+            innerSearcher.visit(typeStatement);
+
+            for (String foundQualifiedName : innerSearcher.types) {
+                String normalizedQn = foundQualifiedName.replace("$", ".");
+
+                if (normalizedQn.endsWith("." + normalizedName) || normalizedQn.endsWith("$" + normalizedName)) {
+                    return new QualifiedType(foundQualifiedName, statement);
+                }
+            }
+        }
+
+        // Fall-back: assume it exists if it looks like a fully qualified name (handles external APIs in a loose way)
+        if (importQualifiedName.endsWith("." + name)) {
+            return new QualifiedType(importQualifiedName, null);
         }
         return null;
     }
@@ -272,11 +323,9 @@ public class QualifiedNameResolver {
     private static final class OtherPackagesEntry {
 
         private final ImportStatement importStatement;
-        private final String name;
 
-        public OtherPackagesEntry(ImportStatement importStatement, String name) {
+        public OtherPackagesEntry(ImportStatement importStatement) {
             this.importStatement = importStatement;
-            this.name = name;
         }
 
         @Override
@@ -284,12 +333,44 @@ public class QualifiedNameResolver {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             OtherPackagesEntry that = (OtherPackagesEntry) o;
-            return Objects.equals(importStatement, that.importStatement) && Objects.equals(name, that.name);
+            return Objects.equals(importStatement, that.importStatement);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(importStatement, name);
+            return Objects.hash(importStatement);
+        }
+    }
+
+    private static final class ResolvedTypesList {
+
+        private final Statement statement;
+        private final List<String> types;
+
+        public ResolvedTypesList(Statement statement, List<String> types) {
+            this.statement = statement;
+            this.types = types;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ResolvedTypesList that = (ResolvedTypesList) o;
+            return Objects.equals(statement, that.statement) && Objects.equals(types, that.types);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(statement, types);
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("statement", statement)
+                    .append("types", types)
+                    .toString();
         }
     }
 
@@ -405,8 +486,19 @@ public class QualifiedNameResolver {
             inner = false;
 
             if (packageStatement.isPresent()) {
-                PackageStatement pkg = packageStatement.get();
-                String[] pkgParts = pkg.getPackageName().split("\\.");
+                resetStatePkgName(packageStatement.get().getPackageName());
+            } else {
+                resetStatePkgName(null);
+            }
+        }
+
+        public void resetStatePkgName(String pkg) {
+            traversalHierarchy.clear();
+            types.clear();
+            inner = false;
+
+            if (pkg != null && !pkg.isEmpty()) {
+                String[] pkgParts = pkg.split("\\.");
 
                 for (int i = 0; i < pkgParts.length; i++) {
                     String s = pkgParts[i];
@@ -433,10 +525,15 @@ public class QualifiedNameResolver {
         }
 
         private void appendCurrentIdentifier(IdentifierName identifierName) {
-            String prefix = inner ? "$" : ".";
-            traversalHierarchy.addLast(prefix + identifierName.toString());
+            traversalHierarchy.addLast(prefix() + identifierName.toString());
             types.add(String.join("", traversalHierarchy));
             inner = true;
+        }
+
+        private String prefix() {
+            if (traversalHierarchy.size() == 0)
+                return "";
+            return inner ? "$" : ".";
         }
     }
 }

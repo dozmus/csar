@@ -80,6 +80,7 @@ public class TypeHierarchyResolverTest {
     public void testIsSubtypeExtendingAnotherInnerClass() {
         assertIsSubtype("base.R$Interface", "base.R$ChildOfInterface");
         assertIsSubtype("base.R$Interface$Inner", "base.R$ChildOfInnerInterface");
+        assertIsSubtype("base.base2.D5$Inner", "base.S");
     }
 
     @Test
