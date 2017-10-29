@@ -88,7 +88,7 @@ public final class Main {
      * Prints CLI usage. This is hardcoded and should be updated as the CLI changes.
      */
     private static void printUsage() {
-        String s = "Usage: java -jar csar.jar [options] search-query\n"
+        String usage = "Usage: java -jar csar.jar [options] search-query\n"
                 + "  Options:\n"
                 + "    --threads, -t\n"
                 + "      Thread count (default: 1)\n"
@@ -108,6 +108,6 @@ public final class Main {
                 + "      Print project URL\n"
                 + "    --help, -h\n"
                 + "      Print help information";
-        System.out.println(s);
+        System.out.println(usage);
     }
 }
