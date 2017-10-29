@@ -1234,8 +1234,8 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             } else if (innerClass != null) { // inner class
                 statements.add(parseClass(parseNonTypeModifiers(classBody.modifier()), innerClass, false, true));
             } else if (innerInterface != null) { // inner interface
-                statements.add(
-                        parseInterface(parseNonTypeModifiers(classBody.modifier()), innerInterface, false, true));
+                statements.add(parseInterface(parseNonTypeModifiers(classBody.modifier()), innerInterface, false,
+                        true));
             } else if (innerEnum != null) { // inner enum
                 statements.add(parseEnum(parseNonTypeModifiers(classBody.modifier()), innerEnum, true));
             }
@@ -1280,10 +1280,12 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
         for (InterfaceBodyDeclarationContext intBody : ctxs) {
             InterfaceMemberDeclarationContext memberDec = intBody.interfaceMemberDeclaration();
+
             InterfaceMethodDeclarationContext method = memberDec.interfaceMethodDeclaration();
             GenericInterfaceMethodDeclarationContext genericMethod
                     = memberDec.genericInterfaceMethodDeclaration();
             ClassDeclarationContext classDec = memberDec.classDeclaration();
+            InterfaceDeclarationContext intDec = memberDec.interfaceDeclaration();
             ConstDeclarationContext constDecl = memberDec.constDeclaration();
             EnumDeclarationContext enumDec = memberDec.enumDeclaration();
             AnnotationTypeDeclarationContext anonDecl = memberDec.annotationTypeDeclaration();
@@ -1326,6 +1328,8 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 }
             } else if (classDec != null) { // inner class
                 statements.add(parseClass(parseNonTypeModifiers(intBody.modifier()), classDec, false, true));
+            } else if (intDec != null) { // inner interface
+                statements.add(parseInterface(parseNonTypeModifiers(intBody.modifier()), intDec, false, true));
             } else if (enumDec != null) { // inner enum
                 statements.add(parseEnum(parseNonTypeModifiers(intBody.modifier()), enumDec, true));
             } else if (anonDecl != null) { // inner annotation def
