@@ -76,7 +76,6 @@ public class TypeHierarchyResolver {
 
         // Merge in any left over partial trees in tmp
         mergePartialTrees(root, partialHierarchies);
-        System.out.println(partialHierarchies);
 
         // Log completion message
         if (benchmarking) {

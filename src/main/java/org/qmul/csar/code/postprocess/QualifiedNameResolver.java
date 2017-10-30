@@ -1,6 +1,5 @@
 package org.qmul.csar.code.postprocess;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.statement.*;
 import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.Statement;
@@ -33,7 +32,7 @@ public class QualifiedNameResolver {
     private final TargetTypeSearcher searcher = new TargetTypeSearcher();
     private final TargetTypeSearcherForInnerClass innerSearcher = new TargetTypeSearcherForInnerClass();
     private final Map<CurrentPackageEntry, QualifiedType> currentPackageCache = new HashMap<>();
-    private final Map<OtherPackagesEntry, List<ResolvedTypesList>> otherPackagesCache = new HashMap<>();
+    private final Map<OtherPackagesEntry, QualifiedType> otherPackagesCache = new HashMap<>();
     private final Map<DefaultPackageEntry, QualifiedType> defaultPackageCache = new HashMap<>();
 
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
@@ -124,18 +123,23 @@ public class QualifiedNameResolver {
         String normalizedName = name.replace("$", ".");
         String nameWithoutSubIdentifiers = name.indexOf('.') == -1 ? name : name.substring(0, name.indexOf('.'));
 
-        System.out.println("-- TRYRESP --");
         for (ImportStatement importStatement : imports) {
-            System.out.println("ROP:" + importStatement.getQualifiedName());
+            OtherPackagesEntry otherPackagesEntry = new OtherPackagesEntry(importStatement, name);
+
+            // Check cache
+            if (otherPackagesCache.containsKey(otherPackagesEntry)) {
+                return otherPackagesCache.get(otherPackagesEntry);
+            }
+
+            // Compute
             QualifiedType type = resolveInOtherPackages(code, importStatement, name, normalizedName,
                     nameWithoutSubIdentifiers);
+            otherPackagesCache.put(otherPackagesEntry, type);
 
             if (type != null) {
-                System.out.println("RESP:" + type.getQualifiedName() + " (assumed=" + (type.getStatement() == null) + ")");
                 return type;
             }
         }
-        System.out.println("-- NORESP --");
         return null;
     }
 
@@ -323,9 +327,11 @@ public class QualifiedNameResolver {
     private static final class OtherPackagesEntry {
 
         private final ImportStatement importStatement;
+        private final String name;
 
-        public OtherPackagesEntry(ImportStatement importStatement) {
+        public OtherPackagesEntry(ImportStatement importStatement, String name) {
             this.importStatement = importStatement;
+            this.name = name;
         }
 
         @Override
@@ -333,44 +339,13 @@ public class QualifiedNameResolver {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             OtherPackagesEntry that = (OtherPackagesEntry) o;
-            return Objects.equals(importStatement, that.importStatement);
+            return Objects.equals(importStatement, that.importStatement)
+                    && Objects.equals(name, that.name);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(importStatement);
-        }
-    }
-
-    private static final class ResolvedTypesList {
-
-        private final Statement statement;
-        private final List<String> types;
-
-        public ResolvedTypesList(Statement statement, List<String> types) {
-            this.statement = statement;
-            this.types = types;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ResolvedTypesList that = (ResolvedTypesList) o;
-            return Objects.equals(statement, that.statement) && Objects.equals(types, that.types);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(statement, types);
-        }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this)
-                    .append("statement", statement)
-                    .append("types", types)
-                    .toString();
+            return Objects.hash(importStatement, name);
         }
     }
 
