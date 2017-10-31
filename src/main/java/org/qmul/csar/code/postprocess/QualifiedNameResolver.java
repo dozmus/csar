@@ -11,19 +11,41 @@ import java.util.*;
 
 public class QualifiedNameResolver {
 
-    public static long CC = 0;
-    public static long CPC = 0;
-    public static long SP = 0;
-    public static long OP = 0;
-    public static long DP = 0;
+    /**
+     * Run-time statistics for {@link QualifiedNameResolver}.
+     */
+    public static final class Statistics {
 
-    public static void reset() {
-        CC = CPC = SP = OP = DP = 0;
-    }
+        private long startTime = 0;
+        private long currentClassTimeTaken = 0;
+        private long currentParentClassTimeTaken = 0;
+        private long samePackageTimeTaken = 0;
+        private long otherPackageTimeTaken = 0;
+        private long defaultPackageTimeTaken = 0;
 
-    public static String bench() {
-        return String.format("curCls: %dms, curParCls: %dms, samePkg: %dms, oPkg: %dms, defPkg: %dms", CC, CPC, SP, OP,
-                DP);
+        private void prepare() {
+            startTime = System.nanoTime();
+        }
+
+        private double diff() {
+            return (System.nanoTime() - startTime) / 1000000;
+        }
+
+        public void reset() {
+            startTime = 0;
+            currentClassTimeTaken = 0;
+            currentParentClassTimeTaken = 0;
+            samePackageTimeTaken = 0;
+            otherPackageTimeTaken = 0;
+            defaultPackageTimeTaken = 0;
+        }
+
+        public String toString() {
+            return String.format("CurrentClass: %dms, CurrentParentClass: %dms, SamePackage: %dms, OtherPackage: %dms, "
+                            + "DefaultPackage: %dms",
+                    currentClassTimeTaken, currentParentClassTimeTaken, samePackageTimeTaken, otherPackageTimeTaken,
+                    defaultPackageTimeTaken);
+        }
     }
 
     /**
@@ -34,12 +56,11 @@ public class QualifiedNameResolver {
     private final Map<CurrentPackageEntry, QualifiedType> currentPackageCache = new HashMap<>();
     private final Map<OtherPackagesEntry, QualifiedType> otherPackagesCache = new HashMap<>();
     private final Map<DefaultPackageEntry, QualifiedType> defaultPackageCache = new HashMap<>();
+    private final Statistics statistics = new Statistics();
 
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name) {
-        long start;
-
         // If the name contains generic arguments, we omit it
         int leftAngleBracketIdx = name.indexOf('<');
 
@@ -47,44 +68,44 @@ public class QualifiedNameResolver {
             name = name.substring(0, leftAngleBracketIdx);
 
         // Resolve against inner classes in current class
-        start = System.currentTimeMillis();
+        statistics.prepare();
         QualifiedType t0 = resolveInCurrentClass(parent, currentPackage, name);
-        CC += (System.currentTimeMillis() - start);
+        statistics.currentClassTimeTaken += statistics.diff();
 
         if (t0 != null)
             return t0;
 
         // Resolve against inner classes in top-level parent class
-        start = System.currentTimeMillis();
-        QualifiedType t = resolveInCurrentClass(topLevelParent, currentPackage, name);
-        CPC += (System.currentTimeMillis() - start);
-
-        if (t != null)
-            return t;
-
-        // Resolve against classes in same package
-        start = System.currentTimeMillis();
-        QualifiedType t1 = resolveInCurrentPackage(code, currentPackage, name);
-        SP += (System.currentTimeMillis() - start);
+        statistics.prepare();
+        QualifiedType t1 = resolveInCurrentClass(topLevelParent, currentPackage, name);
+        statistics.currentParentClassTimeTaken += statistics.diff();
 
         if (t1 != null)
             return t1;
 
-        // Resolve against imports
-        start = System.currentTimeMillis();
-        QualifiedType t2 = resolveInOtherPackages(code, imports, name);
-        OP += (System.currentTimeMillis() - start);
+        // Resolve against classes in same package
+        statistics.prepare();
+        QualifiedType t2 = resolveInCurrentPackage(code, currentPackage, name);
+        statistics.samePackageTimeTaken += statistics.diff();
 
         if (t2 != null)
             return t2;
 
-        // Resolve against default package
-        start = System.currentTimeMillis();
-        QualifiedType t3 = resolveInDefaultPackage(code, path, currentPackage, name);
-        DP += (System.currentTimeMillis() - start);
+        // Resolve against imports
+        statistics.prepare();
+        QualifiedType t3 = resolveInOtherPackages(code, imports, name);
+        statistics.otherPackageTimeTaken += statistics.diff();
 
         if (t3 != null)
             return t3;
+
+        // Resolve against default package
+        statistics.prepare();
+        QualifiedType t4 = resolveInDefaultPackage(code, path, currentPackage, name);
+        statistics.defaultPackageTimeTaken += statistics.diff();
+
+        if (t4 != null)
+            return t4;
 
         // If name contains dots, we assume it is a fully qualified name
         // TODO check this properly
@@ -298,6 +319,10 @@ public class QualifiedNameResolver {
         searcher.resetState(qualifiedName);
         searcher.visit(target);
         return searcher.isMatched();
+    }
+
+    public Statistics getStatistics() {
+        return statistics;
     }
 
     private static final class CurrentPackageEntry {

@@ -80,6 +80,7 @@ public class TypeHierarchyResolver {
         // Log completion message
         if (benchmarking) {
             LOGGER.info("Finished (processed {} files in {}ms)", code.size(), (System.currentTimeMillis() - startTime));
+            LOGGER.info("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         } else {
             LOGGER.info("Finished");
         }
