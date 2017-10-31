@@ -108,7 +108,7 @@ public class EnumDescriptor implements Descriptor {
 
     public static class Builder {
 
-        private IdentifierName identifierName;
+        private final IdentifierName identifierName;
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();
         private Optional<Boolean> finalModifier = Optional.empty();

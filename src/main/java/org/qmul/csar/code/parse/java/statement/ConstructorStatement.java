@@ -151,7 +151,7 @@ public class ConstructorStatement implements Statement {
 
     public static class Builder {
 
-        private String identifierName;
+        private final String identifierName;
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private Optional<Integer> parameterCount = Optional.empty();
         private List<ParameterVariableStatement> parameters = new ArrayList<>();

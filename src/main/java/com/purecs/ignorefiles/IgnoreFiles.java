@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class IgnoreFiles {
@@ -42,7 +42,7 @@ public class IgnoreFiles {
      * @return returns if the path is ignored by the rule
      */
     public static boolean ignored(Path path, Rule rule) {
-        return ignored(path, Arrays.asList(rule));
+        return ignored(path, Collections.singletonList(rule));
     }
 
     /**

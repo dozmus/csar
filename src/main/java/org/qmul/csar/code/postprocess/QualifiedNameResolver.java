@@ -38,7 +38,7 @@ public class QualifiedNameResolver {
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name) {
-        long start = 0;
+        long start;
 
         // If the name contains generic arguments, we omit it
         int leftAngleBracketIdx = name.indexOf('<');
@@ -150,7 +150,7 @@ public class QualifiedNameResolver {
 
         // Compute
         final String importQualifiedName = importStatement.getQualifiedName();
-        String currentPkg = "";
+        String currentPkg;
 
         if (importQualifiedName.endsWith(".*")) { // wildcard import
             currentPkg = importQualifiedName.substring(0, importQualifiedName.length() - 2);

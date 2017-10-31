@@ -12,7 +12,7 @@ import java.util.List;
 public class SearchStatementVisitor extends StatementVisitor {
 
     private final TargetDescriptor target;
-    private List<Statement> results = new ArrayList<>();
+    private final List<Statement> results = new ArrayList<>();
 
     public SearchStatementVisitor(TargetDescriptor target) {
         this.target = target;

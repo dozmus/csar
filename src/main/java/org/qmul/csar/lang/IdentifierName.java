@@ -11,7 +11,7 @@ public abstract class IdentifierName {
 
     public static class Static extends IdentifierName {
 
-        private String identifierName;
+        private final String identifierName;
 
         public Static(String identifierName) {
             this.identifierName = identifierName;
@@ -55,7 +55,7 @@ public abstract class IdentifierName {
 
     public static class Regex extends IdentifierName {
 
-        private Pattern pattern;
+        private final Pattern pattern;
 
         public Regex(String pattern) {
             this.pattern = Pattern.compile(pattern);

@@ -259,7 +259,7 @@ public class MethodDescriptor implements Descriptor {
 
     public static class Builder {
 
-        private IdentifierName identifierName;
+        private final IdentifierName identifierName;
         private Optional<String> returnType = Optional.empty();
         private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
         private Optional<Boolean> staticModifier = Optional.empty();

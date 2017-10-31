@@ -9,8 +9,8 @@ import java.nio.file.PathMatcher;
  */
 public class FlexibleRule extends Rule {
 
-    private String dirText;
-    private PathMatcher dirMatcher;
+    private final String dirText;
+    private final PathMatcher dirMatcher;
 
     /**
      * Creates a new {@link FlexibleRule}. This is a rule for which the <tt>String</tt> argument may represent a

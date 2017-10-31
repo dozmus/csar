@@ -18,7 +18,7 @@ public class ProjectIterator implements Iterator<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectIterator.class);
     private final Path directory;
-    private List<Path> files = new ArrayList<>(); // the element collection
+    private final List<Path> files = new ArrayList<>(); // the element collection
     private int cursor = 0; // the index of the next element to return
     protected boolean initialized;
 

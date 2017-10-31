@@ -10,7 +10,7 @@ public final class NamedThreadFactory implements ThreadFactory {
 
     private static final String DEFAULT_NAME_FORMAT = "thread-%d";
     private final AtomicInteger threadNumber = new AtomicInteger(0);
-    private String nameFormat;
+    private final String nameFormat;
 
     /**
      * Constructs a new NamedThreadFactory with the specified name format.
