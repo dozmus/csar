@@ -26,16 +26,18 @@ public final class CodeParserFactory {
      * @throws IllegalArgumentException if the argument is a directory, does not exist, or is not handled.
      */
     public static CodeParser create(Path file) throws IOException {
-        if (Files.isDirectory(file))
+        if (Files.isDirectory(file)) {
             throw new IllegalArgumentException("path must not be a directory");
+        }
 
-        if (!Files.exists(file))
-            throw new IllegalArgumentException("file must exist");
+        if (!Files.exists(file)) {
+            throw new IllegalArgumentException("file does not exist");
+        }
 
         if (javaParser.accepts(file)) {
             return new JavaCodeParser();
         }
-        throw new IllegalArgumentException("file not handled");
+        throw new IllegalArgumentException("unhanded file");
     }
 
     /**
@@ -46,8 +48,9 @@ public final class CodeParserFactory {
      * @see #HANDLED_CODE_FILE_EXTENSIONS
      */
     public static boolean accepts(Path path) {
-        if (Files.isDirectory(path))
+        if (Files.isDirectory(path)) {
             return false;
+        }
         String fileName = path.getFileName().toString();
         return Arrays.stream(HANDLED_CODE_FILE_EXTENSIONS).anyMatch(fileName::endsWith);
     }
