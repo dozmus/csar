@@ -30,17 +30,18 @@ public class TypeHierarchyResolver {
     /**
      * The qualified name resolver to use.
      */
-    private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+    private final QualifiedNameResolver qualifiedNameResolver;
     /**
      * If benchmarking output should be printed.
      */
     private final boolean benchmarking;
 
     public TypeHierarchyResolver() {
-        this(false);
+        this(new QualifiedNameResolver(), false);
     }
 
-    public TypeHierarchyResolver(boolean benchmarking) {
+    public TypeHierarchyResolver(QualifiedNameResolver qualifiedNameResolver, boolean benchmarking) {
+        this.qualifiedNameResolver = qualifiedNameResolver;
         this.benchmarking = benchmarking;
     }
 

@@ -4,6 +4,7 @@ import org.qmul.csar.code.DefaultProjectCodeParserErrorListener;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.postprocess.CodeAnalysisUtils;
 import org.qmul.csar.code.postprocess.OverriddenMethodsResolver;
+import org.qmul.csar.code.postprocess.QualifiedNameResolver;
 import org.qmul.csar.code.postprocess.TypeHierarchyResolver;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.ProjectIteratorFactory;
@@ -38,9 +39,12 @@ public final class CsarFactory {
         parser.setErrorListener(new DefaultProjectCodeParserErrorListener());
         ProjectCodeSearcher searcher = new ProjectCodeSearcher(threads);
 
-        // Code analysis utils
-        TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(ctx.isBenchmarking());
-        OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver(ctx.isBenchmarking());
+        // Code analysis utils, we share the QualifiedNameResolver instance to speed up OverriddenMethodsResolver
+        QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+        TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver,
+                ctx.isBenchmarking());
+        OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver(qualifiedNameResolver,
+                ctx.isBenchmarking());
         CodeAnalysisUtils codeAnalysisUtils = new CodeAnalysisUtils(typeHierarchyResolver, overriddenMethodsResolver);
         return new Csar(ctx.getQuery(), parser, searcher, ctx.getResultFormatter(), codeAnalysisUtils);
     }
