@@ -1301,11 +1301,10 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
             } else if (genericMethod != null) { // generic method
                 if (!validateMethodContext(genericMethod))
                     throw new RuntimeException("invalid method return type: null array");
-                method = genericMethod.interfaceMethodDeclaration();
-                MethodStatement methodStatement = parseInterfaceMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
-                        intBody.modifier(), method.interfaceMethodModifier(),
-                        method.formalParameters().formalParameterList(), method.qualifiedNameList(), false,
-                        method.methodBody().block(), genericMethod.typeParameters());
+                MethodStatement methodStatement = parseInterfaceMethod(genericMethod.IDENTIFIER(),
+                        genericMethod.typeTypeOrVoid(), intBody.modifier(), genericMethod.interfaceMethodModifier(),
+                        genericMethod.formalParameters().formalParameterList(), genericMethod.qualifiedNameList(),
+                        false, genericMethod.methodBody().block(), genericMethod.typeParameters());
                 statements.add(methodStatement);
             } else if (constDecl != null) { // constant
                 final String identifierType = constDecl.typeType().getText();
@@ -1386,7 +1385,8 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
     }
 
     private static boolean validateMethodContext(GenericInterfaceMethodDeclarationContext ctx) {
-        return validateMethodContext(ctx.interfaceMethodDeclaration());
+        boolean hasBrackets = ctx.LBRACK().size() > 0 || ctx.RBRACK().size() > 0;
+        return !ctx.typeTypeOrVoid().getText().equals("void") || !hasBrackets;
     }
 
     private static boolean validateMethodContext(InterfaceMethodDeclarationContext ctx) {

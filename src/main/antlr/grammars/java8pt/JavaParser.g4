@@ -220,8 +220,11 @@ interfaceMethodModifier
     | STRICTFP
     ;
 
+// see matching of [] comment in methodDeclaratorRest
+// methodBody from Java 8
 genericInterfaceMethodDeclaration
-    : typeParameters interfaceMethodDeclaration
+    : interfaceMethodModifier* typeParameters typeTypeOrVoid IDENTIFIER formalParameters (LBRACK RBRACK)*
+      (THROWS qualifiedNameList)? methodBody
     ;
 
 variableDeclarators
