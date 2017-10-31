@@ -99,7 +99,7 @@ public class ProjectCodeSearcher {
                         file = entry.getKey();
                         statement = entry.getValue();
                         String fileName = file.getFileName().toString();
-                        LOGGER.debug("Searching {}", fileName);
+                        LOGGER.trace("Searching {}", fileName);
 
                         try {
                             // Search file and store the results
@@ -118,7 +118,7 @@ public class ProjectCodeSearcher {
                                 errorListener.reportRecoverableError(file, ex);
                             }
                         }
-                        LOGGER.debug("Searched {}", fileName);
+                        LOGGER.trace("Searched {}", fileName);
                     }
                 } catch (Exception ex) {
                     if (errorListener != null) {

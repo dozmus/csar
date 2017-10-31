@@ -113,7 +113,7 @@ public class ProjectCodeParser {
                         // Get the next file
                         file = it.next();
                         String fileName = file.getFileName().toString();
-                        LOGGER.debug("Parsing {}", fileName);
+                        LOGGER.trace("Parsing {}", fileName);
 
                         try {
                             // Parse file and put in the map
@@ -134,7 +134,7 @@ public class ProjectCodeParser {
                                 errorListener.reportRecoverableError(file, ex);
                             }
                         }
-                        LOGGER.debug("Parsed {}", fileName);
+                        LOGGER.trace("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
                     if (errorListener != null) {

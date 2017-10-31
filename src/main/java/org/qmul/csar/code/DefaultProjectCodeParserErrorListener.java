@@ -13,13 +13,13 @@ public class DefaultProjectCodeParserErrorListener implements PathProcessorError
     @Override
     public void reportRecoverableError(Path path, Exception ex) {
         String phrase = (ex instanceof IOException) ? "read" : "parse";
-        LOGGER.error("Failed to {} file {} because {}", phrase, path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("ParsingError", ex);
+        LOGGER.warn("Failed to {} file {} because {}", phrase, path.getFileName().toString(), ex.getMessage());
+        LOGGER.debug("Parsing Error (Recoverable)", ex);
     }
 
     @Override
     public void reportUnrecoverableError(Path path, Exception ex) {
         LOGGER.error("Parsing terminated {} because {}", path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("UnknownError", ex);
+        LOGGER.debug("Parsing Error (Unrecoverable)", ex);
     }
 }
