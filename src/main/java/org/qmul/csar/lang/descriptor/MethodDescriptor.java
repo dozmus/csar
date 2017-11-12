@@ -23,7 +23,7 @@ public class MethodDescriptor implements Descriptor {
     private final Optional<Boolean> synchronizedModifier;
     private final Optional<Boolean> nativeModifier;
     private final Optional<Boolean> defaultModifier;
-    private final Optional<Boolean> overridden;
+    private Optional<Boolean> overridden;
     private final Optional<Boolean> stub;
     private final Optional<Boolean> hasTypeArguments;
     private final Optional<Boolean> hasParameters;
@@ -140,6 +140,10 @@ public class MethodDescriptor implements Descriptor {
 
     public Optional<Boolean> getHasThrownExceptions() {
         return hasThrownExceptions;
+    }
+
+    public void setOverridden(Optional<Boolean> overridden) {
+        this.overridden = overridden;
     }
 
     public boolean signatureEquals(MethodDescriptor descriptor) {

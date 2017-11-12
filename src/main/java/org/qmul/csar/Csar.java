@@ -82,9 +82,9 @@ public class Csar {
     }
 
     public boolean searchCode() {
+        LOGGER.trace("Searching code...");
         searcher.setCsarQuery(csarQuery);
         searcher.setIterator(code.entrySet().iterator());
-        LOGGER.trace("Searching code...");
         List<Statement> tmpResults = searcher.results();
 
         // TODO remove temp printing below

@@ -78,8 +78,6 @@ public class ProjectCodeSearcher {
         } else if (!it.hasNext()) {
             return new ArrayList<>();
         }
-        Objects.requireNonNull(query);
-        Objects.requireNonNull(it);
         running = true;
 
         // Submit tasks

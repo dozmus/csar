@@ -55,7 +55,7 @@ public class OverriddenMethodsResolver {
                 TopLevelTypeStatement topLevelTypeStatement = (TopLevelTypeStatement) statement;
                 visitor.setPath(path);
                 visitor.setTopLevelTypeStatement(topLevelTypeStatement);
-                visitor.visit(topLevelTypeStatement.getTypeStatement());
+                visitor.visit(topLevelTypeStatement);
             }
         }
 
@@ -117,6 +117,7 @@ public class OverriddenMethodsResolver {
                     topLevelParent, packageStatement, imports, superClass);
             Statement resolvedStatement = resolvedType.getStatement();
 
+            // NOTE we ignore (fully) un-resolved statements here
             if (resolvedStatement != null && resolvedStatement instanceof TopLevelTypeStatement) {
                 TopLevelTypeStatement s = (TopLevelTypeStatement)resolvedStatement;
                 TypeStatement s2 = s.getTypeStatement();
@@ -137,9 +138,9 @@ public class OverriddenMethodsResolver {
                             continue;
                         MethodStatement m2 = (MethodStatement)statement;
                         MethodDescriptor desc2 = m2.getDescriptor();
+                        boolean accessible = isAccessible(desc, desc2, packageStatement, s.getPackageStatement(), s2);
 
-                        if (!desc2.getStaticModifier().get() && desc2.signatureEquals(desc)
-                                && isAccessible(desc, desc2, packageStatement, s.getPackageStatement(), s2)) {
+                        if (!desc2.getStaticModifier().get() && desc2.signatureEquals(desc) && accessible) {
                             return !desc2.getFinalModifier().get();
                         }
                     }
@@ -250,7 +251,10 @@ public class OverriddenMethodsResolver {
         private void mapOverridden(MethodStatement method) {
             if (calculateOverridden(code, path, packageStatement, imports, traversedTypeStatements.getLast(),
                     traversedTypeStatements.getFirst(), method)) {
+                method.getDescriptor().setOverridden(Optional.of(true));
                 map.put(createSignature(), true);
+            } else {
+                method.getDescriptor().setOverridden(Optional.of(false));
             }
         }
 

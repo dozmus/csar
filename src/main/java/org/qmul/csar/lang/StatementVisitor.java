@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class StatementVisitor {
 
@@ -13,7 +14,10 @@ public abstract class StatementVisitor {
     public void visit(Statement statement) {
         LOGGER.trace("Visit: {}", statement.getClass().toString());
 
-        if (statement instanceof ClassStatement) {
+        if (statement instanceof TopLevelTypeStatement) {
+            visitTopLevelTypeStatement((TopLevelTypeStatement)statement);
+            exitTopLevelTypeStatement((TopLevelTypeStatement)statement);
+        } else if (statement instanceof ClassStatement) {
             visitClassStatement((ClassStatement)statement);
             exitClassStatement((ClassStatement)statement);
         } else if (statement instanceof MethodStatement) {
@@ -24,6 +28,15 @@ public abstract class StatementVisitor {
             exitEnumStatement((EnumStatement)statement);
         }
         // TODO let user pick what should happen if unsupported node encountered, optimally we should support them all
+    }
+
+    private void visitTopLevelTypeStatement(TopLevelTypeStatement statement) {
+        visitPackageStatement(statement.getPackageStatement());
+        visitImportStatements(statement.getImports());
+        visit(statement.getTypeStatement());
+    }
+
+    private void exitTopLevelTypeStatement(TopLevelTypeStatement statement) {
     }
 
     public void visitEnumStatement(EnumStatement statement) {
@@ -61,5 +74,11 @@ public abstract class StatementVisitor {
     }
 
     public void visitAnnotations(List<Annotation> statement) {
+    }
+
+    private void visitImportStatements(List<ImportStatement> imports) {
+    }
+
+    private void visitPackageStatement(Optional<PackageStatement> statement) {
     }
 }
