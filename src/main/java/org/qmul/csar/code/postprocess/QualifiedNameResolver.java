@@ -149,7 +149,13 @@ public class QualifiedNameResolver {
 
             // Check cache
             if (otherPackagesCache.containsKey(otherPackagesEntry)) {
-                return otherPackagesCache.get(otherPackagesEntry);
+                QualifiedType qualifiedType = otherPackagesCache.get(otherPackagesEntry);
+
+                if (qualifiedType == null) {
+                    continue;
+                } else {
+                    return qualifiedType;
+                }
             }
 
             // Compute
