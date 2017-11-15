@@ -9,6 +9,8 @@ Supervisor: Michael Tautschnig
 
 # Work Plan
 TODO write: summary of progress so far (2 A4 max), revised work plan for semester 2 (2 A4 max)
+The work completed so far can be seen in full in the Github [commits](https://github.research.its.qmul.ac.uk/ec15116/csar/commits/master).  
+A concise description is that: the command-line interface, csar query language parsing, Java code parsing, and search (partially) are completed.
 
 # Interim Report
 TODO write: chapter structure, chapters: bg materials, references, reqs, design so far
