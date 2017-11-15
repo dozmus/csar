@@ -218,3 +218,4 @@ A concise description is that: the command-line interface, csar query language p
 | Code defects | Inadequate program functionality. | Medium | Medium | Try to fix them, if not possible then write about them in the report and leave them. |
 | Code bugs | Inadequate program quality. | Medium | Low | Try to fix them, if not possible then write about them in the report and leave them. Do not pretend they do not exist. |
 | Code quality | More difficult development. | Low | Low | Incremental development should help prevent this. |
+| Incomplete design | Pre-requisite to implementation. | Medium | High | Schedule work on the design to keep up with the pace of the programming. |
