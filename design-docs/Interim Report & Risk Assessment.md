@@ -7,7 +7,11 @@ Supervisor: Michael Tautschnig
 
 <!-- TODO before converting to PDF, make sure this is on its own page -->
 
-TODO write: chapter structure, chapters: references, design so far
+# Design
+TODO write
+
+# References
+TODO write
 
 # User Requirements
 ## General Requirements
