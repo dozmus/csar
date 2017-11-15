@@ -14,10 +14,11 @@ TODO write: summary of progress so far (2 A4 max), revised work plan for semeste
 TODO write: chapter structure, chapters: bg materials, references, reqs, design so far
 
 # Risk Assessment
-TODO write about:
-* Risk register (2 A4 max)
-  * A table containing: description of risk, description of impact, likelihood rating, impact rating, preventative actions identified - e.g. https://i.imgur.com/Lwg1KZe.png
-  * Identify risks to successful completion of project
-  * Risk management: analyse risks (probability), address risks (avoid/minimize), monitor/manage risk (revise probability and mitigation)
-  * Risk categories: project risk (re. schedule/resources), product list (re. quality/performance of product), business risk (re. staff - i.e. me)
-  * Examples: failure to access required info, software not suitable for purpose, failure to build software, testing inadequate, poor time management, etc.
+| Description of risk | Description of impact | Likelihood rating | Impact rating | Preventative actions |
+|--|--|--|--|--|
+| Low motivation/Burn out | Overdue/incomplete work | Medium | High | Schedule project work carefully, leave time for entertainment. |
+| Busy schedule/Poor time management | Overdue/incomplete work | Medium | High | Schedule carefully, try to get work done on time as necessary. |
+| Advisor has busy schedule | Inadequate work quality. | Medium | Low | Take initiative as necessary, use library resources to fill in gaps in knowledge. |
+| Code defects | Inadequate program functionality. | Medium | Medium | Try to fix them, if not possible then write about them in the report and leave them. |
+| Code bugs | Inadequate program quality. | Medium | Low | Try to fix them, if not possible then write about them in the report and leave them. Do not pretend they do not exist. |
+| Code quality | More difficult development. | Low | Low | Incremental development should help prevent this. |
