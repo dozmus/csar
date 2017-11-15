@@ -9,7 +9,7 @@ import java.util.*;
  * This is comprised of four parts, but only the first is required:
  * <ul>
  *     <li>searchTarget - The element to select.</li>
- *     <li>containsQuery - What searchTarget should contain within it..</li>
+ *     <li>containsQuery - What searchTarget should contain within it.</li>
  *     <li>fromTarget - Where searchTarget should be found.</li>
  *     <li>refactorDescriptor - The transformation to apply to searchTarget.</li>
  * </ul>
