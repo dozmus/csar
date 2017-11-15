@@ -11,7 +11,12 @@ Supervisor: Michael Tautschnig
 TODO write
 
 # References
-TODO write
+* Ignore files syntax - https://git-scm.com/docs/gitignore, https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
+* Test cases for ignore files - https://www.atlassian.com/git/tutorials/gitignore
+* Git repository integration - https://git-scm.com/docs/git-ls-files
+* `CsarLexer`'s `JAVA_LETTER` rule - https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
+
+TODO finish
 
 # User Requirements
 ## General Requirements
