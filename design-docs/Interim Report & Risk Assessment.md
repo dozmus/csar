@@ -61,6 +61,9 @@ Finally, csar terminates.
 * Test cases for ignore files - https://www.atlassian.com/git/tutorials/gitignore
 * Git repository integration - https://git-scm.com/docs/git-ls-files
 * `CsarLexer`'s `JAVA_LETTER` rule - https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
+* Using JCommander parameters in `CsarContext` - http://jcommander.org/
+* ANTLR settings in `build.gradle` - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
+* JaCoCo in `build.gradle` - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
 
 <!-- TODO finish -->
 
