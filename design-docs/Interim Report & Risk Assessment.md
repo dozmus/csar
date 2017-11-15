@@ -7,13 +7,21 @@ Supervisor: Michael Tautschnig
 
 <!-- TODO before converting to PDF, make sure this is on its own page -->
 
+TODO write: chapter structure, chapters: bg materials, references, reqs, design so far
+
 # Work Plan
-TODO write: summary of progress so far (2 A4 max), revised work plan for semester 2 (2 A4 max)
 The work completed so far can be seen in full in the Github [commits](https://github.research.its.qmul.ac.uk/ec15116/csar/commits/master).  
 A concise description is that: the command-line interface, csar query language parsing, Java code parsing, and search (partially) are completed.
 
-# Interim Report
-TODO write: chapter structure, chapters: bg materials, references, reqs, design so far
+* 18/12/2017 - Mapping method usages to method definitions
+* 08/12/2017 - Interim report and risk assessment
+* 08/01/2018 - Implement searching method usages
+* 11/01/2018 - Finish searching (supporting from and contains query clauses)
+* 12/02/2018 - Implement refactoring
+* 01/03/2018 - Implement full language-agnosticism
+* 19/03/2018 - Draft final report (begin after Implement refactoring)
+* 23/04/2018 - Final report
+* 25/04/2018 - Presentation slides
 
 # Risk Assessment
 | Description of risk | Description of impact | Likelihood rating | Impact rating | Preventative actions |
