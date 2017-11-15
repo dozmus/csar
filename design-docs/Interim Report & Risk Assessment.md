@@ -8,7 +8,53 @@ Supervisor: Michael Tautschnig
 <!-- TODO before converting to PDF, make sure this is on its own page -->
 
 # Design
-TODO write
+The application is initialized through a set of command-line arguments. The usage format is shown below:
+```
+Usage: java -jar csar.jar [options] Search query
+  Options:
+    --threads, -t
+      Thread count (default: 1)
+    --log-level
+      Log level (default: INFO)
+      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
+    --format, -f
+      Output format (default: PlainText)
+      Possible Values: PlainText, JSON
+    --output, -o
+      Output file name
+    --narrow-search
+      Narrow search domain (default: true)
+    --ignore-file
+      Ignore file (default: .csarignore)
+    --benchmark
+      Print benchmarking values (default: false)
+    --project-url, --url
+      Print project URL
+    --help, -h
+      Print help information
+```
+
+If an error occurs at any of the following major stages, said error will be displayed and csar will terminate.
+
+Firstly, the command-line arguments are translated into objects which will fulfil the contract which corresponds to the given csar query.
+
+Secondly, the csar query will be parsed using an ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
+ * `searchTarget` - The element to select.
+ * `containsQuery` - What `searchTarget` should contain within it.
+ * `fromTarget` - Where `searchTarget` should be found.
+ * `refactorDescriptor` - The transformation to apply to `searchTarget`.
+
+Thirdly, the project code will be parsed. This is after csar query is parsed because it typically takes longer, and an invalid csar query terminates the system.
+
+Fourthly, the parsed project code is post-processed for further information. This currently includes type hierarchy resolving and overridden methods resolving. It will soon also map method usages to method definitions.
+
+Then, the parsed project code is searched using the visitor design pattern. The search results are then printed.
+
+Then, the parsed project code will be refactored, and changes will be written to source code files - this is not yet implemented. The refactor results are then printed.
+
+Finally, csar terminates.
+
+<!-- TODO finish -->
 
 # References
 * Ignore files syntax - https://git-scm.com/docs/gitignore, https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
@@ -16,7 +62,7 @@ TODO write
 * Git repository integration - https://git-scm.com/docs/git-ls-files
 * `CsarLexer`'s `JAVA_LETTER` rule - https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
 
-TODO finish
+<!-- TODO finish -->
 
 # User Requirements
 ## General Requirements
