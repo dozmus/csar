@@ -9,7 +9,7 @@ Supervisor: Michael Tautschnig
 
 TODO write: chapter structure, chapters: bg materials, references, reqs, design so far
 
-# Work Plan
+# Time Plan
 The work completed so far can be seen in full in the Github [commits](https://github.research.its.qmul.ac.uk/ec15116/csar/commits/master).  
 A concise description is that: the command-line interface, csar query language parsing, Java code parsing, and search (partially) are completed.
 
