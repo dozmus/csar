@@ -8,7 +8,9 @@ Supervisor: Michael Tautschnig
 <!-- TODO before converting to PDF, make sure this is on its own page -->
 
 # Design
-The application is initialized through a set of command-line arguments. The usage format is shown below:
+Firstly, csar receives some command-line arguments including a non-optional search query.
+These determine what tasks csar will execute.
+Its usage format is shown below:
 ```
 Usage: java -jar csar.jar [options] Search query
   Options:
@@ -34,25 +36,38 @@ Usage: java -jar csar.jar [options] Search query
       Print help information
 ```
 
-If an error occurs at any of the following major stages, said error will be displayed and csar will terminate.
+These values are stored in an instance of `CsarContext` using JCommander.
+JCommander will try to match the command-line arguments with fields in said object using the values in their `@Parameter` annotations.
 
-Firstly, the command-line arguments are translated into objects which will fulfil the contract which corresponds to the given csar query.
+Then, `CsarFactory` will use this instance of `CsarContext` to create a corresponding instance of `Csar`.
+At this stage, a project iterator which determines files to parse is also created.
 
-Secondly, the csar query will be parsed using an ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
+Secondly, the csar query in `CsarContext` will be parsed using the corresponding ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
  * `searchTarget` - The element to select.
  * `containsQuery` - What `searchTarget` should contain within it.
  * `fromTarget` - Where `searchTarget` should be found.
  * `refactorDescriptor` - The transformation to apply to `searchTarget`.
 
-Thirdly, the project code will be parsed. This is after csar query is parsed because it typically takes longer, and an invalid csar query terminates the system.
+Thirdly, the project code will be parsed (currently only Java 8 is supported).
+This is after csar query is parsed because it typically takes longer, and an invalid csar query terminates the system.
+It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
 
-Fourthly, the parsed project code is post-processed for further information. This currently includes type hierarchy resolving and overridden methods resolving. It will soon also map method usages to method definitions.
+Fourthly, the parsed project code is post-processed to get us information we may need for searching, which we do not possess already.
+This currently includes type hierarchy resolving and overridden methods resolving.
+This willalso map method usages to method definitions (unimplemented).
 
-Then, the parsed project code is searched using the visitor design pattern. The search results are then printed.
+Fifthly, the parsed project code is searched using the visitor design pattern.
+Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
+This will soon also handle the `FROM` and `CONTAINS` clauses from csar query (unimplemented).
+The search results are then printed.
 
-Then, the parsed project code will be refactored, and changes will be written to source code files - this is not yet implemented. The refactor results are then printed.
+Sixthly, the parsed project code will be refactored, and changes will be written to source code files (unimplemented).
+The refactor results are then printed.
 
 Finally, csar terminates.
+
+Note: If an unrecoverable error occurs at any of the aforementioned stages, the error will be displayed in a user-friendly format and csar will terminate.
+The user may be able to override this behaviour through sub-classing.
 
 <!-- TODO finish -->
 
