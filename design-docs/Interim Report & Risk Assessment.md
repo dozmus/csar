@@ -123,7 +123,7 @@ It will also perform some code validation because the Java 8 ANTLR4 grammar reli
 
 Fourthly, the parsed project code is post-processed to get us information we may need for searching, which we do not possess already.
 This currently includes type hierarchy resolving and overridden methods resolving.
-This willalso map method usages to method definitions (unimplemented).
+This will also map method usages to method definitions (unimplemented).
 
 Fifthly, the parsed project code is searched using the visitor design pattern.
 Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
