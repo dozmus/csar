@@ -7,80 +7,9 @@ Supervisor: Michael Tautschnig
 
 <!-- TODO before converting to PDF, make sure this is on its own page -->
 
-# Design
-Firstly, csar receives some command-line arguments including a non-optional search query.
-These determine what tasks csar will execute.
-Its usage format is shown below:
-```
-Usage: java -jar csar.jar [options] Search query
-  Options:
-    --threads, -t
-      Thread count (default: 1)
-    --log-level
-      Log level (default: INFO)
-      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
-    --format, -f
-      Output format (default: PlainText)
-      Possible Values: PlainText, JSON
-    --output, -o
-      Output file name
-    --narrow-search
-      Narrow search domain (default: true)
-    --ignore-file
-      Ignore file (default: .csarignore)
-    --benchmark
-      Print benchmarking values (default: false)
-    --project-url, --url
-      Print project URL
-    --help, -h
-      Print help information
-```
-
-These values are stored in an instance of `CsarContext` using JCommander.
-JCommander will try to match the command-line arguments with fields in said object using the values in their `@Parameter` annotations.
-
-Then, `CsarFactory` will use this instance of `CsarContext` to create a corresponding instance of `Csar`.
-At this stage, a project iterator which determines files to parse is also created.
-
-Secondly, the csar query in `CsarContext` will be parsed using the corresponding ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
- * `searchTarget` - The element to select.
- * `containsQuery` - What `searchTarget` should contain within it.
- * `fromTarget` - Where `searchTarget` should be found.
- * `refactorDescriptor` - The transformation to apply to `searchTarget`.
-
-Thirdly, the project code will be parsed (currently only Java 8 is supported).
-This is after csar query is parsed because it typically takes longer, and an invalid csar query terminates the system.
-It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
-
-Fourthly, the parsed project code is post-processed to get us information we may need for searching, which we do not possess already.
-This currently includes type hierarchy resolving and overridden methods resolving.
-This willalso map method usages to method definitions (unimplemented).
-
-Fifthly, the parsed project code is searched using the visitor design pattern.
-Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
-This will soon also handle the `FROM` and `CONTAINS` clauses from csar query (unimplemented).
-The search results are then printed.
-
-Sixthly, the parsed project code will be refactored, and changes will be written to source code files (unimplemented).
-The refactor results are then printed.
-
-Finally, csar terminates.
-
-Note: If an unrecoverable error occurs at any of the aforementioned stages, the error will be displayed in a user-friendly format and csar will terminate.
-The user may be able to override this behaviour through sub-classing.
-
-<!-- TODO finish -->
-
-# References
-* Ignore files syntax - https://git-scm.com/docs/gitignore, https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
-* Test cases for ignore files - https://www.atlassian.com/git/tutorials/gitignore
-* Git repository integration - https://git-scm.com/docs/git-ls-files
-* `CsarLexer`'s `JAVA_LETTER` rule - https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
-* Using JCommander parameters in `CsarContext` - http://jcommander.org/
-* ANTLR settings in `build.gradle` - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
-* JaCoCo in `build.gradle` - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
-
-<!-- TODO finish -->
+# Introduction
+...
+<!-- TODO write -->
 
 # User Requirements
 ## General Requirements
@@ -145,8 +74,72 @@ csar can be integrated into this IDE in one of two ways:
 * Plugin - csar can be implemented as a third-party plugin which introduces a new query field.
   This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
 
+# Design
+<!-- Overview of main components (maybe with a diagram too) -->
+<!-- TODO explain with respect to a running example -->
+Firstly, csar receives some command-line arguments including a non-optional search query.
+These determine what tasks csar will execute.
+Its usage format is shown below:
+```
+Usage: java -jar csar.jar [options] Search query
+  Options:
+    --threads, -t
+      Thread count (default: 1)
+    --log-level
+      Log level (default: INFO)
+      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
+    --format, -f
+      Output format (default: PlainText)
+      Possible Values: PlainText, JSON
+    --output, -o
+      Output file name
+    --narrow-search
+      Narrow search domain (default: true)
+    --ignore-file
+      Ignore file (default: .csarignore)
+    --benchmark
+      Print benchmarking values (default: false)
+    --project-url, --url
+      Print project URL
+    --help, -h
+      Print help information
+```
+
+These values are stored in an instance of `CsarContext` using JCommander.
+JCommander will try to match the command-line arguments with fields in said object using the values in their `@Parameter` annotations.
+
+Then, `CsarFactory` will use this instance of `CsarContext` to create a corresponding instance of `Csar`.
+At this stage, a project iterator which determines files to parse is also created.
+
+Secondly, the csar query in `CsarContext` will be parsed using the corresponding ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
+ * `searchTarget` - The element to select.
+ * `containsQuery` - What `searchTarget` should contain within it.
+ * `fromTarget` - Where `searchTarget` should be found.
+ * `refactorDescriptor` - The transformation to apply to `searchTarget`.
+
+Thirdly, the project code will be parsed (currently only Java 8 is supported).
+This is after csar query is parsed because it typically takes longer, and an invalid csar query terminates the system.
+It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
+
+Fourthly, the parsed project code is post-processed to get us information we may need for searching, which we do not possess already.
+This currently includes type hierarchy resolving and overridden methods resolving.
+This willalso map method usages to method definitions (unimplemented).
+
+Fifthly, the parsed project code is searched using the visitor design pattern.
+Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
+This will soon also handle the `FROM` and `CONTAINS` clauses from csar query (unimplemented).
+The search results are then printed.
+
+Sixthly, the parsed project code will be refactored, and changes will be written to source code files (unimplemented).
+The refactor results are then printed.
+
+Finally, csar terminates.
+
+Note: If an unrecoverable error occurs at any of the aforementioned stages, the error will be displayed in a user-friendly format and csar will terminate.
+The user may be able to override this behaviour through sub-classing.
+
 # Background Material
-# Related Academic Works
+## Related Academic Works
 * [Ge X, Shepherd D, Damevski K, Murphy-Hill E. "Design and evaluation of a multi-recommendation system for local code search." International Journal of Computer Applications 138.6 (2016): 9-13.](http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y)  
   This work is regarding plain-text code search in local projects and includes various ideas for optimisations.
 * [Wang S, Lo D, Jiang L. "AutoQuery: Automatic Construction of Dependency Queries for Code Search." Automated Software Engineering 23.3 (2016): 393-425.](https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2)  
@@ -209,6 +202,17 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 ```
 
 It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and intuitive (like SQL). You can define strings as regex patterns, this is a powerful feature. The language is verbose and thus does not resonate with csar's competitors, which use single line queries. However, declarations and response messages can be useful for creating complex tools with csar (i.e. code convention checks).
+
+## References
+* Ignore files syntax - https://git-scm.com/docs/gitignore, https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
+* Test cases for ignore files - https://www.atlassian.com/git/tutorials/gitignore
+* Git repository integration - https://git-scm.com/docs/git-ls-files
+* `CsarLexer`'s `JAVA_LETTER` rule - https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
+* Using JCommander parameters in `CsarContext` - http://jcommander.org/
+* ANTLR settings in `build.gradle` - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
+* JaCoCo in `build.gradle` - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
+
+<!-- TODO add on to as appropriate -->
 
 # Time Plan
 The work completed so far can be seen in full in the Github [commits](https://github.research.its.qmul.ac.uk/ec15116/csar/commits/master).  
