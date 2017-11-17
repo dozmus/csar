@@ -142,7 +142,7 @@ JCommander will be used for command-line interface (CLI) parsing, because it use
 Gradle will be used for configuration management because it has a powerful ANTLR plugin and is simple to use. Git will be used for revision control and IntelliJ will be my choice of IDE because they are objectively superior to the rest.
 
 # Background Material
-# Related Academic Works
+## Related Academic Works
 * [Ge X, Shepherd D, Damevski K, Murphy-Hill E. "Design and evaluation of a multi-recommendation system for local code search." International Journal of Computer Applications 138.6 (2016): 9-13.](http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y)  
   This work is regarding plain-text code search in local projects and includes various ideas for optimisations.
 * [Wang S, Lo D, Jiang L. "AutoQuery: Automatic Construction of Dependency Queries for Code Search." Automated Software Engineering 23.3 (2016): 393-425.](https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2)  
