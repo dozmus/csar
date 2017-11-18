@@ -139,13 +139,12 @@ The csar query in `CsarContext` will be parsed using the corresponding ANTLR4 gr
 
 Project Code Parser:  
 The project code will be parsed (currently only Java 8 is supported).
-This is after csar query is parsed because it typically takes longer, and an invalid csar query terminates the system.
+This is after csar query is parsed because typically it takes longer, and an invalid csar query causes early.
 It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
 
 Code Post-processors:  
-The parsed project code is post-processed to get us information we may need for searching, which we do not possess already.
-This currently includes type hierarchy resolving and overridden methods resolving.
-This will also map method usages to method definitions (unimplemented).
+The parsed project code is post-processed for extra information which may be needed for searching.
+This includes type hierarchy resolving, overridden methods resolving, and mapping method usages to method definitions (unimplemented).
 
 Search:  
 The parsed project code is searched using the visitor design pattern.
@@ -162,22 +161,18 @@ Note: If an unrecoverable error occurs at any of the aforementioned stages, the 
 The user may be able to override this behaviour through sub-classing.
 
 ## Running Example
-Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def:overridden parse -t 1`.
+Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def:overridden parse REFACTOR RENAME:parse2 -t 1`.
 
-Firstly, these command-line arguments will be parsed, here we have the tasks: execute the csar query `SELECT method:def:overridden parse` and set the thread count to 1.
-An instance of `Csar` will be created with these arguments and it will attempt to fulfil this task.
+Firstly, these command-line arguments will be parsed and be used to instantiate a corresponding instance of `Csar`.
 
-Secondly, the csar query will be parsed into an equivalent `CsarQuery` object.
+Secondly, the project code will be parsed and then post-processed.
 
-Thirdly, the project code will be parsed and stored in a map.
+Thirdly, the search will be performed. In this case method definitions which are overridden from a super-class and have the name `parse` will be stored in a search results list.
 
-Fourthly, the parsed project code will be post-processed.
+Fourthly, the refactor will be performed. In this case all definitions and corresponding usages in the search results list will have their identifier names changed to `parse2`.
+These changes will then be written to the relevant source code files.
 
-Fifthly, the search will be executed and method definitions who are overridden from a super-class and have the name `parse` will be stored in a search results list.
-
-Sixthly, this query defines no refactoring, so the refactoring step will be skipped.
-
-Finally, csar terminates.
+Finally, the search and refactor results are printed and csar terminates.
 
 <!-- TODO finish -->
 
