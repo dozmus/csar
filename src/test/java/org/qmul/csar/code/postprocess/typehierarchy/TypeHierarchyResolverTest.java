@@ -1,4 +1,4 @@
-package org.qmul.csar.code.postprocess;
+package org.qmul.csar.code.postprocess.typehierarchy;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
