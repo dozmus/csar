@@ -164,10 +164,10 @@ The user may be able to override this behaviour through sub-classing.
 ## Running Example
 Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def:overridden parse -t 1`.
 
-Firstly, these command-line arguments will be parsed: the first is to execute the csar query `SELECT method:def:overridden parse` and the second is to set the thread count to 1.
+Firstly, these command-line arguments will be parsed, here we have the tasks: execute the csar query `SELECT method:def:overridden parse` and set the thread count to 1.
 An instance of `Csar` will be created with these arguments and it will attempt to fulfil this task.
 
-Secondly, the csar query will be parsed into an equivalent `CsarQuery` object. 
+Secondly, the csar query will be parsed into an equivalent `CsarQuery` object.
 
 Thirdly, the project code will be parsed and stored in a map.
 
