@@ -8,8 +8,24 @@ Supervisor: Michael Tautschnig
 <!-- TODO before converting to PDF, make sure this is on its own page -->
 
 # Introduction
-...
-<!-- TODO write -->
+## csar
+csar aims to provide a unified framework to address code searching and refactoring. A newly devised query language called the csar query language will be used to describe searches and refactors. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
+
+csar will be designed to be very flexible code-wise as well. With the proper use of subclasses, a third-party developer should be able to easily customize its behaviour to fit their specific needs. Most of its API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
+
+## Pre-requisite Knowledge
+Definition: Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software.<sup>[1](#footnote1)</sup>
+
+Definition: Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar.<sup>[2](#footnote2)</sup>
+
+Definition: The visitor design pattern is a way of separating an algorithm from an object structure on which it operates.<sup>[3](#footnote3)</sup>
+
+Definition: ANTLR is a parser-generator.<sup>[4](#footnote4)</sup>
+
+Definition: A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist.<sup>[5](#footnote5)</sup>
+
+<!-- TODO finish -->
+
 
 # User Requirements
 ## General Requirements
@@ -238,3 +254,11 @@ A concise description is that: the command-line interface, csar query language p
 | Code bugs | Inadequate program quality. | Medium | Low | Try to fix them, if not possible then write about them in the report and leave them. Do not pretend they do not exist. |
 | Code quality | More difficult development. | Low | Low | Incremental development should help prevent this. |
 | Incomplete design | Pre-requisite to implementation. | Medium | High | Schedule work on the design to keep up with the pace of the programming. |
+| IDE crash | Lost work | Low | High | Save often, use version control. |
+
+# Bibliography
+* <a name="footnote1">1</a>: Wikipedia (2017) *Code refactoring - Wikipedia*. Available at: https://en.wikipedia.org/wiki/Code_refactoring (Accessed: 18 November 2017)
+* <a name="footnote2">2</a>: Wikipedia (2017) *Parsing - Wikipedia*. Available at: https://en.wikipedia.org/wiki/Parsing (Accessed: 18 November 2017)
+* <a name="footnote3">3</a>: Wikipedia (2017) *Visit pattern - Wikipedia*. Available at https://en.wikipedia.org/wiki/Visitor_pattern (Accessed: 18 November 2017)
+* <a name="footnote4">4</a>: Wikipedia (2017) *ANTLR - Wikipedia*. Available at https://en.wikipedia.org/wiki/ANTLR (Accessed: 18 November 2017)
+* <a name="footnote5">5</a>: Wikipedia (2017) *Compiler-compiler - Wikipedia*. Available at https://en.wikipedia.org/wiki/Compiler-compiler (Accessed: 18 November 2017)
