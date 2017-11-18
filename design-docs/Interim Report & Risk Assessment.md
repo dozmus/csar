@@ -256,8 +256,8 @@ It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and 
 The work completed so far can be seen in full in the Github [commits](https://github.research.its.qmul.ac.uk/ec15116/csar/commits/master).  
 A concise description is that: the command-line interface, csar query language parsing, Java code parsing, and search (partially) are completed.
 
-* 18/12/2017 - Mapping method usages to method definitions
 * 08/12/2017 - Interim report and risk assessment
+* 18/12/2017 - Mapping method usages to method definitions
 * 08/01/2018 - Implement searching method usages
 * 11/01/2018 - Finish searching (supporting from and contains query clauses)
 * 12/02/2018 - Implement refactoring
