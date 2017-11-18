@@ -26,7 +26,6 @@ Definition: A compiler-compiler (also known as a parser-generator) is a programm
 
 <!-- TODO finish -->
 
-
 # User Requirements
 ## General Requirements
 * A user guide detailing how to use the tool and its query language.
@@ -91,10 +90,14 @@ csar can be integrated into this IDE in one of two ways:
   This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
 
 # Design
-<!-- Overview of main components (maybe with a diagram too) -->
-<!-- TODO explain with respect to a running example -->
-Firstly, csar receives some command-line arguments including a non-optional search query.
+## Component Overview
+Overview:  
+CLI &rightarrow; Csar Query Parser &rightarrow; Project Code Parser &rightarrow; Code Post-processors &rightarrow; Search &rightarrow; Refactor &rightarrow; Results
+
+CLI:  
+csar receives some command-line arguments including a non-optional search query.
 These determine what tasks csar will execute.
+
 Its usage format is shown below:
 ```
 Usage: java -jar csar.jar [options] Search query
@@ -127,32 +130,56 @@ JCommander will try to match the command-line arguments with fields in said obje
 Then, `CsarFactory` will use this instance of `CsarContext` to create a corresponding instance of `Csar`.
 At this stage, a project iterator which determines files to parse is also created.
 
-Secondly, the csar query in `CsarContext` will be parsed using the corresponding ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
+Csar Query Parser:  
+The csar query in `CsarContext` will be parsed using the corresponding ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
  * `searchTarget` - The element to select.
  * `containsQuery` - What `searchTarget` should contain within it.
  * `fromTarget` - Where `searchTarget` should be found.
  * `refactorDescriptor` - The transformation to apply to `searchTarget`.
 
-Thirdly, the project code will be parsed (currently only Java 8 is supported).
+Project Code Parser:  
+The project code will be parsed (currently only Java 8 is supported).
 This is after csar query is parsed because it typically takes longer, and an invalid csar query terminates the system.
 It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
 
-Fourthly, the parsed project code is post-processed to get us information we may need for searching, which we do not possess already.
+Code Post-processors:  
+The parsed project code is post-processed to get us information we may need for searching, which we do not possess already.
 This currently includes type hierarchy resolving and overridden methods resolving.
 This will also map method usages to method definitions (unimplemented).
 
-Fifthly, the parsed project code is searched using the visitor design pattern.
+Search:  
+The parsed project code is searched using the visitor design pattern.
 Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
 This will soon also handle the `FROM` and `CONTAINS` clauses from csar query (unimplemented).
-The search results are then printed.
 
-Sixthly, the parsed project code will be refactored, and changes will be written to source code files (unimplemented).
-The refactor results are then printed.
+Refactor:  
+The parsed project code will be refactored, and changes will be written to source code files (unimplemented).
 
-Finally, csar terminates.
+Results:  
+The search and refactor results are printed.
 
 Note: If an unrecoverable error occurs at any of the aforementioned stages, the error will be displayed in a user-friendly format and csar will terminate.
 The user may be able to override this behaviour through sub-classing.
+
+## Running Example
+Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def:overridden parse -t 1`.
+
+Firstly, these command-line arguments will be parsed: the first is to execute the csar query `SELECT method:def:overridden parse` and the second is to set the thread count to 1.
+An instance of `Csar` will be created with these arguments and it will attempt to fulfil this task.
+
+Secondly, the csar query will be parsed into an equivalent `CsarQuery` object. 
+
+Thirdly, the project code will be parsed and stored in a map.
+
+Fourthly, the parsed project code will be post-processed.
+
+Fifthly, the search will be executed and method definitions who are overridden from a super-class and have the name `parse` will be stored in a search results list.
+
+Sixthly, this query defines no refactoring, so the refactoring step will be skipped.
+
+Finally, csar terminates.
+
+<!-- TODO finish -->
 
 # Background Material
 ## Related Academic Works
@@ -262,3 +289,5 @@ A concise description is that: the command-line interface, csar query language p
 * <a name="footnote3">3</a>: Wikipedia (2017) *Visit pattern - Wikipedia*. Available at https://en.wikipedia.org/wiki/Visitor_pattern (Accessed: 18 November 2017)
 * <a name="footnote4">4</a>: Wikipedia (2017) *ANTLR - Wikipedia*. Available at https://en.wikipedia.org/wiki/ANTLR (Accessed: 18 November 2017)
 * <a name="footnote5">5</a>: Wikipedia (2017) *Compiler-compiler - Wikipedia*. Available at https://en.wikipedia.org/wiki/Compiler-compiler (Accessed: 18 November 2017)
+
+<!-- TODO do i need to cite my specification, since I copy-pasted from it -->
