@@ -20,8 +20,6 @@ import java.util.Map;
  */
 public class Csar {
 
-    // TODO make sure these methods cant be run in an incorrect order
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final String query;
     private final ProjectCodeParser parser;
