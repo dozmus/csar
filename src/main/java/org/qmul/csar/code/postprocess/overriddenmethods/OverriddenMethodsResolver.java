@@ -1,7 +1,8 @@
 package org.qmul.csar.code.postprocess.overriddenmethods;
 
 import org.qmul.csar.code.parse.java.statement.*;
-import org.qmul.csar.code.postprocess.QualifiedNameResolver;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.ClassDescriptor;
@@ -158,7 +159,7 @@ public class OverriddenMethodsResolver {
         MethodDescriptor desc = method.getDescriptor();
 
         for (String superClass : superClasses) {
-            QualifiedNameResolver.QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent,
+            QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent,
                     topLevelParent, packageStatement, imports, superClass);
             Statement resolvedStatement = resolvedType.getStatement();
 

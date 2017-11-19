@@ -5,7 +5,7 @@ import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.postprocess.CodeAnalysisUtils;
 import org.qmul.csar.code.postprocess.MethodUsageResolver;
 import org.qmul.csar.code.postprocess.overriddenmethods.OverriddenMethodsResolver;
-import org.qmul.csar.code.postprocess.QualifiedNameResolver;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.ProjectIteratorFactory;

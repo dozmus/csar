@@ -4,7 +4,8 @@ import org.qmul.csar.code.parse.java.statement.AnnotationStatement;
 import org.qmul.csar.code.parse.java.statement.ImportStatement;
 import org.qmul.csar.code.parse.java.statement.PackageStatement;
 import org.qmul.csar.code.parse.java.statement.TopLevelTypeStatement;
-import org.qmul.csar.code.postprocess.QualifiedNameResolver;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.slf4j.Logger;
@@ -165,7 +166,7 @@ public class TypeHierarchyResolver {
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports, String child,
             List<String> superClasses) {
         for (String superClass : superClasses) {
-            QualifiedNameResolver.QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, parent,
+            QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, parent,
                     packageStatement, imports, superClass);
             String resolvedSuperClassName = resolvedType.getQualifiedName();
 

@@ -1,9 +1,7 @@
-package org.qmul.csar.code.postprocess;
+package org.qmul.csar.code.postprocess.qualifiedname;
 
 import org.qmul.csar.code.parse.java.statement.*;
-import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.lang.StatementVisitor;
 import org.qmul.csar.lang.TypeStatement;
 
 import java.nio.file.Path;
@@ -120,8 +118,7 @@ public class QualifiedNameResolver {
     }
 
     private QualifiedType resolveInCurrentClass(TypeStatement parent, Optional<PackageStatement> pkg, String name) {
-        // NOTE need to test this thoroughly
-        // results look good though
+        // TODO make sure this works: results look good though
         if (parent instanceof TopLevelTypeStatement) {
             parent = ((TopLevelTypeStatement)parent).getTypeStatement();
         }
@@ -131,7 +128,7 @@ public class QualifiedNameResolver {
         innerSearcher.resetState(pkg);
         innerSearcher.visit(parent);
 
-        for (String foundQualifiedName : innerSearcher.types) {
+        for (String foundQualifiedName : innerSearcher.getTypes()) {
             if (foundQualifiedName.endsWith("." + name) || foundQualifiedName.endsWith("$" + name)) {
                 return new QualifiedType(foundQualifiedName, parent);
             }
@@ -212,7 +209,7 @@ public class QualifiedNameResolver {
             innerSearcher.resetStatePkgName(currentPkg);
             innerSearcher.visit(typeStatement);
 
-            for (String foundQualifiedName : innerSearcher.types) {
+            for (String foundQualifiedName : innerSearcher.getTypes()) {
                 String normalizedQn = foundQualifiedName.replace("$", ".");
 
                 if (normalizedQn.endsWith("." + normalizedName) || normalizedQn.endsWith("$" + normalizedName)) {
@@ -409,137 +406,4 @@ public class QualifiedNameResolver {
         }
     }
 
-    /**
-     * A resolved qualified type.
-     */
-    public static final class QualifiedType {
-
-        private final String qualifiedName;
-        private final Statement statement;
-
-        public QualifiedType(String qualifiedName, Statement statement) {
-            this.qualifiedName = qualifiedName;
-            this.statement = statement;
-        }
-
-        public String getQualifiedName() {
-            return qualifiedName;
-        }
-
-        public Statement getStatement() {
-            return statement;
-        }
-    }
-
-    private static final class TargetTypeSearcher extends StatementVisitor {
-
-        private String[] targetName;
-        private int matches = 0;
-        private int nesting = -1;
-        private boolean cancelled;
-
-        public void resetState(String targetName) {
-            this.targetName = targetName.split("\\.");
-            matches = 0;
-            nesting = -1;
-            cancelled = false;
-        }
-
-        public void visit(Statement statement) {
-            if (isMatched() || cancelled) // TODO is early termination erroneous (optimization)
-                return;
-            super.visit(statement);
-        }
-
-        @Override
-        public void visitClassStatement(ClassStatement statement) {
-            nesting++;
-            attemptMatch(statement.getDescriptor().getIdentifierName());
-            super.visitClassStatement(statement);
-            nesting--;
-        }
-
-        @Override
-        public void visitEnumStatement(EnumStatement statement) {
-            nesting++;
-            attemptMatch(statement.getDescriptor().getIdentifierName());
-            super.visitEnumStatement(statement);
-            nesting--;
-        }
-
-        private void attemptMatch(IdentifierName identifierName) {
-            if (nesting >= targetName.length) {
-                cancelled = true;
-            } else if (!isMatched() && identifierName.toString().equals(targetName[nesting])) {
-                matches++; // XXX is error prone, check some stuff w this w diff nesting interleaving
-            }
-        }
-
-        boolean isMatched() {
-            return matches == targetName.length;
-        }
-    }
-
-    private static final class TargetTypeSearcherForInnerClass extends StatementVisitor {
-
-        private final Deque<String> traversalHierarchy = new ArrayDeque<>();
-        private final List<String> types = new ArrayList<>();
-        private boolean inner = false;
-
-        public void resetState(Optional<PackageStatement> packageStatement) {
-            traversalHierarchy.clear();
-            types.clear();
-            inner = false;
-
-            if (packageStatement.isPresent()) {
-                resetStatePkgName(packageStatement.get().getPackageName());
-            } else {
-                resetStatePkgName(null);
-            }
-        }
-
-        public void resetStatePkgName(String pkg) {
-            traversalHierarchy.clear();
-            types.clear();
-            inner = false;
-
-            if (pkg != null && !pkg.isEmpty()) {
-                String[] pkgParts = pkg.split("\\.");
-
-                for (int i = 0; i < pkgParts.length; i++) {
-                    String s = pkgParts[i];
-
-                    if (i > 0)
-                        s = "." + s;
-                    traversalHierarchy.addLast(s);
-                }
-            }
-        }
-
-        @Override
-        public void visitClassStatement(ClassStatement statement) {
-            appendCurrentIdentifier(statement.getDescriptor().getIdentifierName());
-            super.visitClassStatement(statement);
-            traversalHierarchy.removeLast();
-        }
-
-        @Override
-        public void visitEnumStatement(EnumStatement statement) {
-            appendCurrentIdentifier(statement.getDescriptor().getIdentifierName());
-            super.visitEnumStatement(statement);
-            traversalHierarchy.removeLast();
-        }
-
-        private void appendCurrentIdentifier(IdentifierName identifierName) {
-            traversalHierarchy.addLast(prefix() + identifierName.toString());
-            types.add(String.join("", traversalHierarchy));
-            inner = true;
-        }
-
-        private String prefix() {
-            if (traversalHierarchy.size() == 0)
-                return "";
-            return inner ? "$" : ".";
-        }
-    }
 }
