@@ -11,12 +11,15 @@ public class CodeAnalysisUtils {
 
     private final TypeHierarchyResolver typeHierarchyResolver;
     private final OverriddenMethodsResolver overriddenMethodsResolver;
+    private final MethodUsageResolver methodUsageResolver;
     private Map<Path, Statement> code;
 
     public CodeAnalysisUtils(TypeHierarchyResolver typeHierarchyResolver,
-            OverriddenMethodsResolver overriddenMethodsResolver) {
+            OverriddenMethodsResolver overriddenMethodsResolver,
+            MethodUsageResolver methodUsageResolver) {
         this.typeHierarchyResolver = typeHierarchyResolver;
         this.overriddenMethodsResolver = overriddenMethodsResolver;
+        this.methodUsageResolver = methodUsageResolver;
     }
 
     public void setCode(Map<Path, Statement> code) {
@@ -29,5 +32,6 @@ public class CodeAnalysisUtils {
     public void analyze() {
         typeHierarchyResolver.resolve(code);
         overriddenMethodsResolver.resolve(code);
+        methodUsageResolver.resolve(code);
     }
 }
