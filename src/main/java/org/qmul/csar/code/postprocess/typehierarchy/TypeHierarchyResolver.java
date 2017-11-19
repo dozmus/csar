@@ -135,7 +135,7 @@ public class TypeHierarchyResolver {
 
             TypeResolver resolver = new TypeResolver(this, code, partialHierarchies, path, currentPkg,
                     topStatement.getImports(), topStatement.getPackageStatement(), typeStatement);
-            resolver.visit(typeStatement);
+            resolver.visitStatement(typeStatement);
         }
 
         // Merge in any left over partial trees in tmp

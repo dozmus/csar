@@ -10,7 +10,7 @@ public abstract class StatementVisitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatementVisitor.class);
 
-    public void visit(Statement statement) {
+    public void visitStatement(Statement statement) {
         LOGGER.trace("Visit: {}", statement.getClass().toString());
 
         if (statement instanceof Annotation) {
@@ -50,6 +50,7 @@ public abstract class StatementVisitor {
             visitEnumStatement((EnumStatement)statement);
             exitEnumStatement((EnumStatement)statement);
         } else if (statement instanceof ExpressionStatement) {
+            // TODO this might cause enterThrowStatement to not be called
             visitExpressionStatement((ExpressionStatement)statement);
             exitExpressionStatement((ExpressionStatement)statement);
         } else if (statement instanceof ForEachStatement) {
@@ -144,7 +145,7 @@ public abstract class StatementVisitor {
 
     public void visitBlockStatement(BlockStatement statement) {
         for (Statement s : statement.getStatements()) {
-            visit(s);
+            visitStatement(s);
         }
     }
 
@@ -193,7 +194,7 @@ public abstract class StatementVisitor {
     }
 
     public void visitDoWhileStatement(DoWhileStatement statement) {
-        visit(statement.getStatement());
+        visitStatement(statement.getStatement());
     }
 
     public void exitDoWhileStatement(DoWhileStatement statement) {
@@ -228,7 +229,7 @@ public abstract class StatementVisitor {
     public void visitForEachStatement(ForEachStatement statement) {
         visitLocalVariableStatement(statement.getVariable());
         exitLocalVariableStatement(statement.getVariable());
-        visit(statement.getStatement());
+        visitStatement(statement.getStatement());
     }
 
     public void exitForEachStatement(ForEachStatement statement) {
@@ -239,15 +240,15 @@ public abstract class StatementVisitor {
             visitLocalVariableStatements(l);
             exitLocalVariableStatements(l);
         });
-        visit(statement.getStatement());
+        visitStatement(statement.getStatement());
     }
 
     public void exitForStatement(ForStatement statement) {
     }
 
     public void visitIfStatement(IfStatement statement) {
-        visit(statement.getStatement());
-        statement.getElseStatement().ifPresent(this::visit);
+        visitStatement(statement.getStatement());
+        statement.getElseStatement().ifPresent(this::visitStatement);
     }
 
     public void exitIfStatement(IfStatement statement) {
@@ -290,7 +291,7 @@ public abstract class StatementVisitor {
     }
 
     public void visitMethodStatement(MethodStatement statement) {
-        visitParameterVariableStatements(statement.getParams());
+        visitParameterVariableStatements(statement.getParameters());
         visitBlockStatement(statement.getBlock());
         exitBlockStatement(statement.getBlock());
         visitAnnotations(statement.getAnnotations());
@@ -367,7 +368,7 @@ public abstract class StatementVisitor {
             exitPackageStatement(pkg);
         });
         visitImports(statement.getImports());
-        visit(statement.getTypeStatement());
+        visitStatement(statement.getTypeStatement());
     }
 
     public void exitTopLevelTypeStatement(TopLevelTypeStatement statement) {
@@ -397,7 +398,7 @@ public abstract class StatementVisitor {
     }
 
     public void visitWhileStatement(WhileStatement statement) {
-        visit(statement.getStatement());
+        visitStatement(statement.getStatement());
     }
 
     public void exitWhileStatement(WhileStatement statement) {

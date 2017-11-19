@@ -126,7 +126,7 @@ public class QualifiedNameResolver {
 
         // Compute
         innerSearcher.resetState(pkg);
-        innerSearcher.visit(parent);
+        innerSearcher.visitStatement(parent);
 
         for (String foundQualifiedName : innerSearcher.getTypes()) {
             if (foundQualifiedName.endsWith("." + name) || foundQualifiedName.endsWith("$" + name)) {
@@ -207,7 +207,7 @@ public class QualifiedNameResolver {
 
             // Perform search in target
             innerSearcher.resetStatePkgName(currentPkg);
-            innerSearcher.visit(typeStatement);
+            innerSearcher.visitStatement(typeStatement);
 
             for (String foundQualifiedName : innerSearcher.getTypes()) {
                 String normalizedQn = foundQualifiedName.replace("$", ".");
@@ -320,7 +320,7 @@ public class QualifiedNameResolver {
 
         // Perform search in target
         searcher.resetState(qualifiedName);
-        searcher.visit(target);
+        searcher.visitStatement(target);
         return searcher.isMatched();
     }
 

@@ -1,5 +1,6 @@
 package org.qmul.csar.code.postprocess;
 
+import org.qmul.csar.code.postprocess.methodusage.MethodUsageResolver;
 import org.qmul.csar.code.postprocess.overriddenmethods.OverriddenMethodsResolver;
 import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;

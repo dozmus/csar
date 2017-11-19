@@ -20,10 +20,10 @@ final class TargetTypeSearcher extends StatementVisitor {
         cancelled = false;
     }
 
-    public void visit(Statement statement) {
+    public void visitStatement(Statement statement) {
         if (isMatched() || cancelled) // TODO is early termination erroneous (optimization)?
             return;
-        super.visit(statement);
+        super.visitStatement(statement);
     }
 
     @Override

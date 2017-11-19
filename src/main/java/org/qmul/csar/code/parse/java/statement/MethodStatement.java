@@ -1,12 +1,14 @@
 package org.qmul.csar.code.parse.java.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.qmul.csar.code.parse.java.expression.MethodCallExpression;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +23,10 @@ public class MethodStatement implements Statement {
     private final List<ParameterVariableStatement> params;
     private final BlockStatement block;
     private final List<Annotation> annotations;
+    /**
+     * Updated by {@link org.qmul.csar.code.postprocess.methodusage.MethodUsageResolver} in post-processing.
+     */
+    private final List<MethodCallExpression> methodUsages = new ArrayList<>();
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
             List<Annotation> annotations) {
@@ -34,7 +40,7 @@ public class MethodStatement implements Statement {
         return descriptor;
     }
 
-    public List<ParameterVariableStatement> getParams() {
+    public List<ParameterVariableStatement> getParameters() {
         return params;
     }
 
@@ -46,6 +52,10 @@ public class MethodStatement implements Statement {
         return annotations;
     }
 
+    public List<MethodCallExpression> getMethodUsages() {
+        return methodUsages;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,12 +64,13 @@ public class MethodStatement implements Statement {
         return Objects.equals(descriptor, that.descriptor)
                 && Objects.equals(params, that.params)
                 && Objects.equals(block, that.block)
-                && Objects.equals(annotations, that.annotations);
+                && Objects.equals(annotations, that.annotations)
+                && Objects.equals(methodUsages, that.methodUsages);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor, params, block, annotations);
+        return Objects.hash(descriptor, params, block, annotations, methodUsages);
     }
 
     @Override
@@ -69,6 +80,7 @@ public class MethodStatement implements Statement {
                 .append("params", params)
                 .append("block", block)
                 .append("annotations", annotations)
+                .append("methodUsages", methodUsages)
                 .toString();
     }
 

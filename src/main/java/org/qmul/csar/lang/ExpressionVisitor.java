@@ -56,87 +56,116 @@ public abstract class ExpressionVisitor {
         }
     }
 
-    private void visitArrayAccessExpression(ArrayAccessExpression expression) {
+    public void visitArrayAccessExpression(ArrayAccessExpression expression) {
+        visitExpression(expression.getArray());
+        visitExpression(expression.getIndex());
     }
 
-    private void exitArrayAccessExpression(ArrayAccessExpression expression) {
+    public void exitArrayAccessExpression(ArrayAccessExpression expression) {
     }
 
-    private void visitArrayExpression(ArrayExpression expression) {
+    public void visitArrayExpression(ArrayExpression expression) {
+        for (Expression expr : expression.getExpressions()) {
+            visitExpression(expr);
+        }
     }
 
-    private void exitArrayExpression(ArrayExpression expression) {
+    public void exitArrayExpression(ArrayExpression expression) {
     }
 
-    private void visitArrayInitializationExpression(ArrayInitializationExpression expression) {
+    public void visitArrayInitializationExpression(ArrayInitializationExpression expression) {
+        for (Expression expr : expression.getExpressions()) {
+            visitExpression(expr);
+        }
     }
 
-    private void exitArrayInitializationExpression(ArrayInitializationExpression expression) {
+    public void exitArrayInitializationExpression(ArrayInitializationExpression expression) {
     }
 
-    private void visitBinaryExpression(BinaryExpression expression) {
+    public void visitBinaryExpression(BinaryExpression expression) {
+        visitExpression(expression.getLeft());
+        visitExpression(expression.getRight());
     }
 
-    private void exitBinaryExpression(BinaryExpression expression) {
+    public void exitBinaryExpression(BinaryExpression expression) {
     }
 
-    private void visitCastExpression(CastExpression expression) {
+    public void visitCastExpression(CastExpression expression) {
+        visitExpression(expression.getExpression());
     }
 
-    private void exitCastExpression(CastExpression expression) {
+    public void exitCastExpression(CastExpression expression) {
     }
 
-    private void visitInstantiateClassExpression(InstantiateClassExpression expression) {
+    public void visitInstantiateClassExpression(InstantiateClassExpression expression) {
+        // TODO visit block statement
+
+        for (Expression expr : expression.getArguments()) {
+            visitExpression(expr);
+        }
     }
 
-    private void exitInstantiateClassExpression(InstantiateClassExpression expression) {
+    public void exitInstantiateClassExpression(InstantiateClassExpression expression) {
     }
 
-    private void visitLambdaExpression(LambdaExpression expression) {
+    public void visitLambdaExpression(LambdaExpression expression) {
+        // TODO visit parameter and value
     }
 
-    private void exitLambdaExpression(LambdaExpression expression) {
+    public void exitLambdaExpression(LambdaExpression expression) {
     }
 
-    private void visitPostfixedExpression(PostfixedExpression expression) {
+    public void visitPostfixedExpression(PostfixedExpression expression) {
+        visitExpression(expression.getExpr());
     }
 
-    private void exitPostfixedExpression(PostfixedExpression expression) {
+    public void exitPostfixedExpression(PostfixedExpression expression) {
     }
 
-    private void visitParenthesisExpression(ParenthesisExpression expression) {
+    public void visitParenthesisExpression(ParenthesisExpression expression) {
+        visitExpression(expression.getExpression());
     }
 
-    private void exitParenthesisExpression(ParenthesisExpression expression) {
+    public void exitParenthesisExpression(ParenthesisExpression expression) {
     }
 
-    private void visitMethodCallExpression(MethodCallExpression expression) {
+    public void visitMethodCallExpression(MethodCallExpression expression) {
+        visitExpression(expression.getMethodName());
+
+        for (Expression expr : expression.getArguments()) {
+            visitExpression(expr);
+        }
     }
 
-    private void exitMethodCallExpression(MethodCallExpression expression) {
+    public void exitMethodCallExpression(MethodCallExpression expression) {
     }
 
-    private void visitPrefixedExpression(PrefixedExpression expression) {
+    public void visitPrefixedExpression(PrefixedExpression expression) {
+        visitExpression(expression.getExpr());
     }
 
-    private void exitPrefixedExpression(PrefixedExpression expression) {
+    public void exitPrefixedExpression(PrefixedExpression expression) {
     }
 
-    private void visitSquareBracketsExpression(SquareBracketsExpression expression) {
+    public void visitSquareBracketsExpression(SquareBracketsExpression expression) {
+        expression.getExpression().ifPresent(this::visitExpression);
     }
 
-    private void exitSquareBracketsExpression(SquareBracketsExpression expression) {
+    public void exitSquareBracketsExpression(SquareBracketsExpression expression) {
     }
 
-    private void visitTernaryExpression(TernaryExpression expression) {
+    public void visitTernaryExpression(TernaryExpression expression) {
+        visitExpression(expression.getCondition());
+        visitExpression(expression.getValueIfTrue());
+        visitExpression(expression.getValueIfFalse());
     }
 
-    private void exitTernaryExpression(TernaryExpression expression) {
+    public void exitTernaryExpression(TernaryExpression expression) {
     }
 
-    private void visitUnitExpression(UnitExpression expression) {
+    public void visitUnitExpression(UnitExpression expression) {
     }
 
-    private void exitUnitExpression(UnitExpression expression) {
+    public void exitUnitExpression(UnitExpression expression) {
     }
 }

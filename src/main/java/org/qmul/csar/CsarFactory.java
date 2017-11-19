@@ -3,7 +3,7 @@ package org.qmul.csar;
 import org.qmul.csar.code.DefaultProjectCodeParserErrorListener;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.postprocess.CodeAnalysisUtils;
-import org.qmul.csar.code.postprocess.MethodUsageResolver;
+import org.qmul.csar.code.postprocess.methodusage.MethodUsageResolver;
 import org.qmul.csar.code.postprocess.overriddenmethods.OverriddenMethodsResolver;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
