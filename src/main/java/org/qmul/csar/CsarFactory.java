@@ -3,6 +3,7 @@ package org.qmul.csar;
 import org.qmul.csar.code.DefaultProjectCodeParserErrorListener;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.postprocess.CodeAnalysisUtils;
+import org.qmul.csar.code.postprocess.MethodUsageResolver;
 import org.qmul.csar.code.postprocess.overriddenmethods.OverriddenMethodsResolver;
 import org.qmul.csar.code.postprocess.QualifiedNameResolver;
 import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
@@ -45,7 +46,9 @@ public final class CsarFactory {
                 ctx.isBenchmarking());
         OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver(qualifiedNameResolver,
                 ctx.isBenchmarking());
-        CodeAnalysisUtils codeAnalysisUtils = new CodeAnalysisUtils(typeHierarchyResolver, overriddenMethodsResolver);
+        MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
+        CodeAnalysisUtils codeAnalysisUtils = new CodeAnalysisUtils(typeHierarchyResolver, overriddenMethodsResolver,
+                methodUsageResolver);
         return new Csar(ctx.getQuery(), parser, searcher, ctx.getResultFormatter(), codeAnalysisUtils);
     }
 }
