@@ -1,10 +1,16 @@
 package org.qmul.csar.lang;
 
 import org.qmul.csar.code.parse.java.expression.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ExpressionVisitor {
+public abstract class ExpressionVisitor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionVisitor.class);
 
     public void visitExpression(Expression expression) {
+        LOGGER.trace("Visit: {}", expression.getClass().toString());
+
         if (expression instanceof ArrayAccessExpression) {
             visitArrayAccessExpression((ArrayAccessExpression)expression);
             exitArrayAccessExpression((ArrayAccessExpression)expression);
