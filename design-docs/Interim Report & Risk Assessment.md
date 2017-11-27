@@ -16,11 +16,12 @@ csar will also be designed to be very flexible code-wise. With the proper use of
 ## Pre-requisite Knowledge
 Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software.<sup>[1](#footnote1)</sup>
 
-Semantics-based search (in this document we refer to this as code search, or search) seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results.<sup>[6](#footnote6)</sup>
+Semantics-based search (elsewhere in this document we refer to this as code search, or search) seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results.<sup>[6](#footnote6)</sup>
 
 The previous two issues are fundamental in increasing developer productivity.<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup>
-They are hard to implement because one of the requirements for both is language-agnosticism<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup> which creates a trade-off scenario, expressiveness vs. how language-agnostic you want the system to be.
-There have been attempts to solve both, but they have failed for a variety of reasons including: the degree of automation, reliability, configurability and openness, coverage, scalability and language independence.<sup>[7](#footnote7)</sup>
+They are hard to implement because one of the requirements for both is language-agnosticism<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup> which creates a trade-off scenario, expressiveness vs. how language-agnostic you want the system to be.  
+There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and using inaccurate searching methods.<sup>[8](#footnote8)</sup>  
+There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence.<sup>[7](#footnote7)</sup>
 
 Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar.<sup>[2](#footnote2)</sup>
 
