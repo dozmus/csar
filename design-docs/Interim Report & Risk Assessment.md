@@ -168,8 +168,9 @@ Note: If an unrecoverable error occurs at any of the aforementioned stages, the 
 The user may be able to override this behaviour through sub-classing.
 
 ## Running Example
-Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def: parse REFACTOR RENAME:parse2 -t 1`.
-Furthermore, suppose our project has the following code files in the directory `/project/`:  
+Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def:parse REFACTOR RENAME:parse2 -t 1`.  
+Furthermore, suppose our project has the following code files in the directory `/project/`:
+
 `Main.java`:  
 ```java
 public class Main extends Parser {
@@ -194,9 +195,9 @@ public class Parser {
 }
 ```
 
-Firstly, these command-line arguments will be parsed and be used to instantiate a corresponding instance of `Csar`.
+Firstly, these command-line arguments will be parsed and be used to instantiate a corresponding instance of `Csar`. The directory is not home to a supported version control and does not have a `.csarignore` file so no filtering of its contents will be applied.
 
-Secondly, the project code will be parsed and then post-processed.
+Secondly, the project code will be parsed (on a single thread) and then post-processed.
 
 Thirdly, the search will be performed. In this case method definitions which have the name `parse` will be stored in a search results list.
 
@@ -205,7 +206,7 @@ We will have the following search results:
 (path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse() {')
 ```
 
-These results will be formatted then printed as follows:
+These results will be formatted and then printed as follows:
 ```
 Search Results:
 /project/Parser.java:3 - '  public void parse() {'
@@ -215,6 +216,7 @@ Fourthly, the refactor will be performed. In this case all definitions and corre
 These changes will then be written to the relevant source code files.
 
 We will end up with the following code files:
+
 `Main.java`:  
 ```java
 public class Main extends Parser {
@@ -245,14 +247,14 @@ Furthermore, we will have the following refactor results:
 (path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse2() {')
 ```
 
-These results will be formatted then printed as follows:
+These results will be formatted and then printed as follows:
 ```
 Refactor Results:
 /project/Main.java:8 - '    parse2();'
 /project/Parser.java:3 - '  public void parse2() {'
 ```
 
-Finally, csar terminates.
+Finally, csar will terminate.
 
 # Background Material
 ## Related Academic Works
