@@ -8,21 +8,27 @@ Supervisor: Michael Tautschnig
 <!-- TODO before converting to PDF, make sure this is on its own page -->
 
 # Introduction
-## csar
-csar aims to provide a unified framework to address code searching and refactoring. A newly devised query language called the csar query language will be used to describe searches and refactors. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
+## What is csar?
+csar aims to be a unified framework for code searching and refactoring. A newly devised query language called the csar query language will be used to describe searches and refactors. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
 
-csar will be designed to be very flexible code-wise as well. With the proper use of subclasses, a third-party developer should be able to easily customize its behaviour to fit their specific needs. Most of its API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
+csar will also be designed to be very flexible code-wise. With the proper use of subclasses, a third-party developer should be able to easily customize its behaviour to fit their needs. Most of its API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
 
 ## Pre-requisite Knowledge
-Definition: Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software.<sup>[1](#footnote1)</sup>
+Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software.<sup>[1](#footnote1)</sup>
 
-Definition: Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar.<sup>[2](#footnote2)</sup>
+Semantics-based search (in this document we refer to this as code search, or search) seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results.<sup>[6](#footnote6)</sup>
 
-Definition: The visitor design pattern is a way of separating an algorithm from an object structure on which it operates.<sup>[3](#footnote3)</sup>
+The previous two issues are fundamental in increasing developer productivity.<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup>
+They are hard to implement because one of the requirements for both is language-agnosticism<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup> which creates a trade-off scenario, expressiveness vs. how language-agnostic you want the system to be.
+There have been attempts to solve both, but they have failed for a variety of reasons including: the degree of automation, reliability, configurability and openness, coverage, scalability and language independence.<sup>[7](#footnote7)</sup>
 
-Definition: ANTLR is a parser-generator.<sup>[4](#footnote4)</sup>
+Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar.<sup>[2](#footnote2)</sup>
 
-Definition: A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist.<sup>[5](#footnote5)</sup>
+The visitor design pattern is a way of separating an algorithm from an object structure on which it operates.<sup>[3](#footnote3)</sup>
+
+ANTLR is a parser-generator.<sup>[4](#footnote4)</sup>
+
+A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist.<sup>[5](#footnote5)</sup>
 
 <!-- TODO finish -->
 
@@ -284,5 +290,9 @@ A concise description is that: the command-line interface, csar query language p
 * <a name="footnote3">3</a>: Wikipedia (2017) *Visit pattern - Wikipedia*. Available at https://en.wikipedia.org/wiki/Visitor_pattern (Accessed: 18 November 2017)
 * <a name="footnote4">4</a>: Wikipedia (2017) *ANTLR - Wikipedia*. Available at https://en.wikipedia.org/wiki/ANTLR (Accessed: 18 November 2017)
 * <a name="footnote5">5</a>: Wikipedia (2017) *Compiler-compiler - Wikipedia*. Available at https://en.wikipedia.org/wiki/Compiler-compiler (Accessed: 18 November 2017)
+* <a name="footnote6">6</a>: Wikipedia (2017) *Semantic search - Wikipedia*. Available at https://en.wikipedia.org/wiki/Semantic_search (Accessed: 27 November 2017).
+* <a name="footnote7">7</a>: Mens, Tom & Tourwe, Tom. (2004). A Survey of Software Refactoring. IEEE Transactions on Software Engineering; New York [Online] 30 (2), 126-139. Available at: https://search-proquest-com.ezproxy.library.qmul.ac.uk/docview/195572482/abstract/66091F25A0864B53PQ/1?accountid=13375 [Accessed: 27 November 2017].
+* <a name="footnote8">8</a>: Reiss, Steven P. (2009). Semantics-based code search. In:  Proceedings of the 31st International Conference on software engineering. ICSE 2009. pp. 243 - 253.  IEEE Computer Society.
+
 
 <!-- TODO do i need to cite my specification, since I copy-pasted from it -->
