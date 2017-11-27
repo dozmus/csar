@@ -167,20 +167,91 @@ Note: If an unrecoverable error occurs at any of the aforementioned stages, the 
 The user may be able to override this behaviour through sub-classing.
 
 ## Running Example
-Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def:overridden parse REFACTOR RENAME:parse2 -t 1`.
+Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def: parse REFACTOR RENAME:parse2 -t 1`.
+Furthermore, suppose our project has the following code files in the directory `/project/`:  
+`Main.java`:  
+```java
+public class Main extends Parser {
+
+  public static void main(String[] args) {
+    new Main().run();
+  }
+
+  public void run() {
+    parse();
+  }
+}
+```
+
+`Parser.java`:  
+```java
+public class Parser {
+
+  public void parse() {
+    // ...
+  }
+}
+```
 
 Firstly, these command-line arguments will be parsed and be used to instantiate a corresponding instance of `Csar`.
 
 Secondly, the project code will be parsed and then post-processed.
 
-Thirdly, the search will be performed. In this case method definitions which are overridden from a super-class and have the name `parse` will be stored in a search results list.
+Thirdly, the search will be performed. In this case method definitions which have the name `parse` will be stored in a search results list.
 
-Fourthly, the refactor will be performed. In this case all definitions and corresponding usages in the search results list will have their identifier names changed to `parse2`.
+We will have the following search results:
+```
+(path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse() {')
+```
+
+These results will be formatted then printed as follows:
+```
+Search Results:
+/project/Parser.java:3 - '  public void parse() {'
+```
+
+Fourthly, the refactor will be performed. In this case all definitions and corresponding usages (these are graphed in the code post-processing) in the search results list will have their identifier names changed to `parse2`.
 These changes will then be written to the relevant source code files.
 
-Finally, the search and refactor results are printed and csar terminates.
+We will end up with the following code files:
+`Main.java`:  
+```java
+public class Main extends Parser {
 
-<!-- TODO finish -->
+  public static void main(String[] args) {
+    new Main().run();
+  }
+
+  public void run() {
+    parse2();
+  }
+}
+```
+
+`Parser.java`:  
+```java
+public class Parser {
+
+  public void parse2) {
+    // ...
+  }
+}
+```
+
+Furthermore, we will have the following refactor results:
+```
+(path='/project/Main.java', lineNumber=8, codeFragment='    parse2();')
+(path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse2() {')
+```
+
+These results will be formatted then printed as follows:
+```
+Refactor Results:
+/project/Main.java:8 - '    parse2();'
+/project/Parser.java:3 - '  public void parse2() {'
+```
+
+Finally, csar terminates.
 
 # Background Material
 ## Related Academic Works
