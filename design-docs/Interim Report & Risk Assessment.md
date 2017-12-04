@@ -16,12 +16,16 @@ csar will also be designed to be very flexible code-wise. With the proper use of
 ## Pre-requisite Knowledge
 Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software.<sup>[1](#footnote1)</sup>
 
-Semantics-based search (elsewhere in this document we refer to this as code search, or search) seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results.<sup>[6](#footnote6)</sup>
+Semantics-based search (hereforth referred to as code search or search) seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results.<sup>[6](#footnote6)</sup>
 
-The previous two issues are fundamental in increasing developer productivity.<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup>
-They are hard to implement because one of the requirements for both is language-agnosticism<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup> which creates a trade-off scenario, expressiveness vs. how language-agnostic you want the system to be.  
-There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and using inaccurate searching methods.<sup>[8](#footnote8)</sup>  
-There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence.<sup>[7](#footnote7)</sup>
+Searching increases developer productivity by enabling reuse, and it is important to address properly because it accounts for a significant portion of a developer's activity.<sup>[8](#footnote8)</sup> <sup>[9](#footnote9)</sup>  
+There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results.<sup>[8](#footnote8)</sup> <sup>[9](#footnote9)</sup>
+
+Refactoring increases developer productivity by attempting to automate common tasks, and it is important to address properly because it accounts for a significant portion of a developer's activity.<sup>[7](#footnote7)</sup> <sup>[10](#footnote10)</sup>  
+There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence.<sup>[7](#footnote7)</sup>  
+We can conclude that existing tools have failed because they are underused. <sup>[10](#footnote10)</sup>
+
+They are hard to implement because one of the requirements for both is language-agnosticism<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup> which creates a trade-off scenario, with regards to expressiveness versus how language-agnostic you want the system to be.  
 
 Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar.<sup>[2](#footnote2)</sup>
 
@@ -365,8 +369,7 @@ A concise description is that: the command-line interface, csar query language p
 * <a name="footnote4">4</a>: Wikipedia (2017) *ANTLR - Wikipedia*. Available at https://en.wikipedia.org/wiki/ANTLR (Accessed: 18 November 2017)
 * <a name="footnote5">5</a>: Wikipedia (2017) *Compiler-compiler - Wikipedia*. Available at https://en.wikipedia.org/wiki/Compiler-compiler (Accessed: 18 November 2017)
 * <a name="footnote6">6</a>: Wikipedia (2017) *Semantic search - Wikipedia*. Available at https://en.wikipedia.org/wiki/Semantic_search (Accessed: 27 November 2017).
-* <a name="footnote7">7</a>: Mens, Tom & Tourwe, Tom. (2004). A Survey of Software Refactoring. IEEE Transactions on Software Engineering; New York [Online] 30 (2), 126-139. Available at: https://search-proquest-com.ezproxy.library.qmul.ac.uk/docview/195572482/abstract/66091F25A0864B53PQ/1?accountid=13375 [Accessed: 27 November 2017].
-* <a name="footnote8">8</a>: Reiss, Steven P. (2009). Semantics-based code search. In:  Proceedings of the 31st International Conference on software engineering. ICSE 2009. pp. 243 - 253.  IEEE Computer Society.
-
-
-<!-- TODO do i need to cite my specification, since I copy-pasted from it -->
+* <a name="footnote7">7</a>: Mens, Tom & Tourwe, Tom. (2004). A survey of software refactoring. _IEEE Transactions on Software Engineering; New York_. 30 (2). 126-139. Available from: http://ieeexplore.ieee.org/document/1265817/ [Accessed 4th December 2017].
+* <a name="footnote8">8</a>: Reiss, Steven P. (2009). Semantics-based code search. _Proceedings of the 31st International Conference on software engineering_. ?. 243-253. Available from: https://dl.acm.org/citation.cfm?id=1555040 [Accessed 4th December 2017].
+* <a name="footnote9">9</a>: Dobos, Daniel & Elbaum, Sebastian & Stolee, Kathryn T. (2014). Solving the Search for Source Code. _ACM Transactions on Software Engineering and Methodology_. 23 (3). ?. Available from: https://dl.acm.org/citation.cfm?id=2581377 [Accessed 4th December 2017].
+* <a name="footnote10">10</a>: Murphy-Hill, Emerson & Parnin, Chris & Black, Andrew P. (2012). How We Refactor, and How We Know It. _IEEE Transactions on Software Engineering_. 38 (1). 5-18. Available from: http://ieeexplore.ieee.org/document/6112738/ [Accessed 4th December 2017].
