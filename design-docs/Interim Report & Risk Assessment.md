@@ -9,80 +9,95 @@ Supervisor: Michael Tautschnig
 
 # Introduction
 ## What is csar?
-csar aims to be a unified framework for code searching and refactoring. A newly devised query language called the csar query language will be used to describe searches and refactors. This creates a versatile and descriptive framework which can target any programming language without the developer needing to know the programming languages.
+csar aims to be a unified framework for code searching and refactoring. It will take as input descriptions of searches and corresponding refactors in a newly devised query language called the csar query language. This results in a versatile and descriptive framework, which can target any programming language without the developer needing to know the specifics.
 
-csar will also be designed to be very flexible code-wise. With the proper use of subclasses, a third-party developer should be able to easily customize its behaviour to fit their needs. Most of its API will be publicly exposed, this way it can be embedded seamlessly into complicated build processes and other applications.
+Furthermore, csar aims to be flexible code-wise. Most of its API will be publicly exposed and documented. Third-party developers will be able to use this to embed csar into complicated build processes and other applications.
 
 ## Pre-requisite Knowledge
-Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software.<sup>[1](#footnote1)</sup>
+"Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software."<sup>[1](#footnote1)</sup>
 
-Semantics-based search (hereforth referred to as code search or search) seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results.<sup>[6](#footnote6)</sup>
+"Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results."<sup>[6](#footnote6)</sup> Henceforth, this is what is meant by 'code search' or 'search'.
 
 Searching increases developer productivity by enabling reuse, and it is important to address properly because it accounts for a significant portion of a developer's activity.<sup>[8](#footnote8)</sup> <sup>[9](#footnote9)</sup>  
 There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results.<sup>[8](#footnote8)</sup> <sup>[9](#footnote9)</sup>
 
 Refactoring increases developer productivity by attempting to automate common tasks, and it is important to address properly because it accounts for a significant portion of a developer's activity.<sup>[7](#footnote7)</sup> <sup>[10](#footnote10)</sup>  
 There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence.<sup>[7](#footnote7)</sup>  
-We can conclude that existing tools have failed because they are underused. <sup>[10](#footnote10)</sup>
+We can conclude that existing tools have failed because they are underused.<sup>[10](#footnote10)</sup>
 
 They are hard to implement because one of the requirements for both is language-agnosticism<sup>[7](#footnote7)</sup> <sup>[8](#footnote8)</sup> which creates a trade-off scenario, with regards to expressiveness versus how language-agnostic you want the system to be.  
 
-Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar.<sup>[2](#footnote2)</sup>
+"Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar."<sup>[2](#footnote2)</sup>
 
-The visitor design pattern is a way of separating an algorithm from an object structure on which it operates.<sup>[3](#footnote3)</sup>
+"The visitor design pattern is a way of separating an algorithm from an object structure on which it operates."<sup>[3](#footnote3)</sup>
 
 ANTLR is a parser-generator.<sup>[4](#footnote4)</sup>
 
-A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist.<sup>[5](#footnote5)</sup>
-
-<!-- TODO finish -->
+"A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist."<sup>[5](#footnote5)</sup>
 
 # User Requirements
 ## General Requirements
 * A user guide detailing how to use the tool and its query language.
 * A custom query language to describe the operations to carry out.
-* Parsing of code.
+* Parsing of source code.
 * Language-agnostic searching.
+* Custom search domains.
 * Language-agnostic refactoring.
 * Flexible program output.
-* Custom search domains.
 * High efficiency.
 
-## Selected Requirements
-The project has strict deadlines, and as such, not every feature will be fully implemented.
+## Selected Requirements (Scope)
+The project has strict deadlines, so not every feature will be fully implemented. The scope of this project will be detailed in this section.
 
-The query language has two versions: 1.x.x (implemented) and ≥ 2.x.x (hypothetical improvements). The prior version is simpler than the latter, for implementation purposes. Implementing an exhaustive query language which can express any language element in any language would take very long (it would be an entire project in itself), hence these are open for future improvements.
+The query language will have two versions: 1.x.x (implemented) and ≥ 2.x.x (potential improvements).
+The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
+My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
 
-For now only java code will be parsed, the system will be designed so that other programming languages can easily be integrated into the current structure. You will just need to write a parser for them, analogously to how the java parser will be written.
+Parsing of java source code (Java 8) will be supported.
+csar will be designed such that other programming languages can easily be integrated into it in the future.
+They will just need to write a parser written for them, analogously to how the java parser will be written.
 
-Searching will be implemented to only work on methods for now. To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved. This would be a greatly time consuming and tedious task.
+Searching will be implemented to only work on methods (finding their definitions and usages) for now.
+To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved.
+However, this would be a greatly time consuming and tedious task.
+It is also possible that further complications may arise which may need to be addressed in the form of post-processors for the programming languages, this is especially true for dynamic programming languages.
 
-The program output could technically support thousands of formats, but for simplicity (and reduced binary size) it will only support two: plain text and JSON. If you require alternatives, you should be able to subclass a result formatter.
+It will also support narrowing the search domain by a `.gitignore` file for directories which are git repositories, and by custom `.csarignore` file. Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.  
+The git implementation will require calling the git binary with a specific argument and reading the output, which will reveal which files it is currently tracking.
 
 Refactoring is very complicated and time consuming, so we will only consider two operations.  
 The first is changing method parameters, this involves resolving all usages of the method in question (in various contexts), modifying the method calls and its definition and ensuring no naming collisions occur.  
 The second is renaming methods, this should follow from changing method parameters, since if we resolve all method usages we should be able to simply rename them all and ensure no naming collisions occur.
 
-Efficiency will mainly be addressed by introducing multi-threading where possible, algorithmic solutions to this are currently unknown, but may become available as details of the implementation are gradually addressed.
+The program output could technically support thousands of formats, but for simplicity it will only support two: plain text and JSON.
+If alternatives are required, a third-party developer will be able to easily add their own result formatter.
 
-It will also support narrowing the search domain by a `.gitignore` file for directories which are git repositories, and by custom `.csarignore` file. Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.  
-The git implementation will require calling the git binary with a specific argument and reading the output, which will reveal which files it is currently tracking.
+Efficiency will mainly be addressed by introducing multi-threading and caching where possible.
+Specific algorithms to be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
 
 ## Back-logged Requirements
-These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift:
+These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift.
+The implementation details of each will be outlined.
 
 ### Indexing parsed project code
-* Store a `(Path, LastModified, Code)` relation somewhere, preferably in a `.csar` directory.
-* The `LastModified` date is the last time that file was modified, as of when it was parsed.
-  We can use this to determine which files need updating. This can be error-prone, since
-  last modified dates can be spoofed, but it would offer no advantage to an attacker.
-* Approach 1: Flat Files  
-  Either map files to a parallel hierarchy in `.csar`, or, store them in files where their names are the hashes of the input files.
-* Approach 2: Database (i.e. SQLite)  
-  Store the aforementioned relation here.
+We want to index previously parsed project code and use this to speed up further interactions with the same project code.
+We also want to maintain an updated index of the code.
+
+Solution:  
+* Storage Approach 1: Flat Files  
+  Either map the files to a parallel hierarchy in `.csar` which contains their parsed outputs, or, store them all in the same folder where their file names are the hashes of the input files.
+  The second approach may cause problems if hash collisions occur, so care must be taken when choosing the hashing algorithm to be used.  
+  The last modified dates of the source code and their parsed code can be used to determine which files require updating.
+* Storage Approach 2: Database (i.e. SQLite)  
+  Store a `(Path, LastModified, ParsedCode)` relation in the database, preferably in a `.csar` directory.  
+  Note: `LastModified` is a date, which is the last time that file was modified, as of when it was parsed.
+  We can use this to determine which files need updating.
+
+Remark: Using the last modified dates of files can be error-prone, since they can be spoofed, but it would offer no advantage to an attacker.
 
 ### Supporting Mercurial (hg)/Subversion (svn) repositories
-This would be done how the git implementation is, but the program arguments we use may be some of the following:
+This would be done analogously to the git implementation, but the program arguments we use when invoking their binaries will be difference.
+Some possibilities are listed below:
 * Hg - `hg status --all`
 * Svn - `svn list -R` or `svn status`
 
@@ -97,7 +112,7 @@ csar can be integrated into this IDE in one of two ways:
   and semantics-based searching.  
   This requires placing our code in
   [`platform/structuralsearch/.../structuralsearch`](https://github.com/JetBrains/intellij-community/tree/master/platform/structuralsearch/source/com/intellij/structuralsearch) and creating adapters to enable our code to provide the same interface as the current IDEA ones, to ensure maximum compatibility.
-* Plugin - csar can be implemented as a third-party plugin which introduces a new query field.
+* As a Plugin - csar can be implemented as a third-party plugin which introduces a new query field.
   This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
 
 # Design
@@ -325,7 +340,7 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 
 It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and intuitive (like SQL). You can define strings as regex patterns, this is a powerful feature. The language is verbose and thus does not resonate with csar's competitors, which use single line queries. However, declarations and response messages can be useful for creating complex tools with csar (i.e. code convention checks).
 
-## References
+## Code References
 * Ignore files syntax - https://git-scm.com/docs/gitignore, https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
 * Test cases for ignore files - https://www.atlassian.com/git/tutorials/gitignore
 * Git repository integration - https://git-scm.com/docs/git-ls-files
@@ -333,8 +348,6 @@ It is very descriptive (allows compositions with `AND`, `NOT`, `WHEN` etc.) and 
 * Using JCommander parameters in `CsarContext` - http://jcommander.org/
 * ANTLR settings in `build.gradle` - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
 * JaCoCo in `build.gradle` - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
-
-<!-- TODO add on to as appropriate -->
 
 # Time Plan
 The work completed so far can be seen in full in the Github [commits](https://github.research.its.qmul.ac.uk/ec15116/csar/commits/master).  
