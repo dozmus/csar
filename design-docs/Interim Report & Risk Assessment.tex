@@ -1,8 +1,21 @@
-\documentclass[12pt, letterpaper, twoside]{article}
+\documentclass[12pt, letterpaper, oneside]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{authoraftertitle}
 \usepackage{tabulary}
 \usepackage{listings}
+
+% Line-wrapping in lstlisting
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily,
+    columns=fullflexible,
+    frame=single,
+    breaklines=true,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
 
 % Document metadata
 \title{Interim Report \& Risk Assessment}
@@ -13,7 +26,9 @@
 \def \supervisor {Michael Tautschnig}
 
 % We load hyperref here as a hacky fix to the tableofcontents not rendering
+\PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
+
 % Document
 \begin{document}
 
@@ -159,7 +174,7 @@ csar can be integrated into this IDE in one of two ways:
 \section{Design}
 \subsection{Component Overview}
 Overview:\newline
-CLI \rightarrow Csar Query Parser \rightarrow Project Code Parser \rightarrow Code Post-processors \rightarrow Search \rightarrow Refactor \rightarrow Results
+CLI $\rightarrow$ Csar Query Parser $\rightarrow$ Project Code Parser $\rightarrow$ Code Post-processors $\rightarrow$ Search $\rightarrow$ Refactor $\rightarrow$ Results.
 
 CLI:\newline
 csar receives some command-line arguments including a non-optional search query.
@@ -173,8 +188,7 @@ Usage: java -jar csar.jar [options] Search query
       Thread count (default: 1)
     --log-level
       Log level (default: INFO)
-      Possible Values (most restrictive to least):
-                 ERROR, WARN, INFO, DEBUG, TRACE
+      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
     --format, -f
       Output format (default: PlainText)
       Possible Values: PlainText, JSON
@@ -373,7 +387,7 @@ You can define method parameters as a type list or a named-type list which is fl
 
 One issue is csar aims to be language-agnostic, so adopting a Java-like syntax will be unintuitive for non-Java programmers.
 
-The syntax fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my_method(int)' would be invalid (or require additional processing to make work).
+The syntax fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my\_method(int)' would be invalid (or require additional processing to make work).
 A solution to this is accepting variable name lists.
 
 \subsubsection{Infer}
@@ -381,10 +395,8 @@ A solution to this is accepting variable name lists.
 
 \begin{lstlisting}
 DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
-    LET name_contains_delegate
-        = declaration_has_name(REGEXP("[dD]elegate"));
-    LET name_does_not_contain_queue
-        = NOT declaration_has_name(REGEXP("[qQ]ueue"));
+    LET name_contains_delegate = declaration_has_name(REGEXP("[dD]elegate"));
+    LET name_does_not_contain_queue = NOT declaration_has_name(REGEXP("[qQ]ueue"));
 
     SET report_when =
         WHEN
@@ -393,10 +405,8 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
             AND is_strong_property()
         HOLDS-IN-NODE ObjCPropertyDecl;
 
-    SET message
-        = "Property or ivar %decl_name% declared strong";
-    SET suggestion
-        = "In general delegates should be declared weak or assign";
+    SET message = "Property or ivar %decl_name% declared strong";
+    SET suggestion = "In general delegates should be declared weak or assign";
 };
 \end{lstlisting}
 
@@ -406,13 +416,14 @@ However, declarations and response messages can be useful for creating complex t
 
 \subsection{Code References}
 \begin{itemize}
-    \item Ignore files syntax - https://git-scm.com/docs/gitignore and https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
-    \item Test cases for ignore files - https://www.atlassian.com/git/tutorials/gitignore
-    \item Git repository integration - https://git-scm.com/docs/git-ls-files
-    \item `JAVA\_LETTER' rule in `CsarLexer' - https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
-    \item Using JCommander parameters in `CsarContext' - http://jcommander.org/
-    \item ANTLR settings in `build.gradle' - https://docs.gradle.org/4.0.1/userguide/antlr\_plugin.html#sec:controlling\_the\_antlr\_generator\_process
-    \item JaCoCo in `build.gradle' - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
+    \item Ignore files syntax - \url{https://git-scm.com/docs/gitignore} and \url{https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js}
+    \item Test cases for ignore files - \url{https://www.atlassian.com/git/tutorials/gitignore}
+    \item Git repository integration - \url{https://git-scm.com/docs/git-ls-files}
+    \item Java 8 ANTLR Grammar - \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaLexer.g4}{Java 8 Lexer}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaParser.g4}{Java 8 Parser}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/_grammar-test/src/test/java/TestJava8pt.java}{Java 8 Test} and \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/examples/AllInOne8.java}{Java 8 Test Input}
+    \item `JAVA\_LETTER' rule in `CsarLexer' - \url{https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4}
+    \item Using JCommander parameters in `CsarContext' - \url{http://jcommander.org/}
+    \item ANTLR settings in `build.gradle' - \url{https://docs.gradle.org/4.0.1/userguide/antlr\_plugin.html\#sec:controlling\_the\_antlr\_generator\_process}
+    \item JaCoCo in `build.gradle' - \url{http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/}
 \end{itemize}
 
 % Time Plan
@@ -434,9 +445,9 @@ A concise description is that: the command-line interface, csar query language p
 
 % Risk Assessment
 \section{Risk Assessment}
-\begin{tabulary}{1.15\textwidth}{LLLLL}
+\begin{tabulary}{1.3\textwidth}{LLLLL}
 Description of risk & Description of impact & Likelihood rating & Impact rating & Preventative actions \\
-Low motivation/Burn out & Overdue/incomplete work & Medium & High & Schedule project work carefully, leave time for entertainment. \\ 
+Low motivation/Burn out & Overdue/incomplete work & Medium & High & Schedule project work carefully, leave time for entertainment. \\
 Busy schedule/Poor time management & Overdue/incomplete work & Medium & High & Schedule carefully, try to get work done on time as necessary. \\
 Advisor has busy schedule & Inadequate work quality. & Medium & Low & Take initiative as necessary, use library resources to fill in gaps in knowledge. \\
 Code defects & Inadequate program functionality. & Medium & Medium & Try to fix them, if not possible then write about them in the report and leave them. \\
@@ -461,13 +472,13 @@ IDE crash & Lost work & Low & High & Save often, use version control. \\
 
 \bibitem{wikipediasemanticsearch} Wikipedia. (2017) \textit{Semantic search - Wikipedia}. Available at https://en.wikipedia.org/wiki/Semantic\_search [Accessed 27th November 2017].
 
-\bibitem{surveyofsoftwarerefactoring} Mens, Tom & Tourwe, Tom. (2004). A survey of software refactoring. \textit{IEEE Transactions on Software Engineering; New York}. 30 (2). 126-139. Available from: http://ieeexplore.ieee.org/document/1265817/ [Accessed 4th December 2017].
+\bibitem{surveyofsoftwarerefactoring} Mens, Tom \& Tourwe, Tom. (2004). A survey of software refactoring. \textit{IEEE Transactions on Software Engineering; New York}. 30 (2). 126-139. Available from: http://ieeexplore.ieee.org/document/1265817/ [Accessed 4th December 2017].
 
 \bibitem{semanticscodesearch} Reiss, Steven P. (2009). Semantics-based code search. \textit{Proceedings of the 31st International Conference on software engineering}. 30 (2). 243-253. Available from: https://dl.acm.org/citation.cfm?id=1555040 [Accessed 4th December 2017].
 
-\bibitem{solvingsearchforsourcecode} Dobos, Daniel & Elbaum, Sebastian & Stolee, Kathryn T. (2014). Solving the Search for Source Code. \textit{ACM Transactions on Software Engineering and Methodology}. 23 (3). 1-45. Available from: https://dl.acm.org/citation.cfm?id=2581377 [Accessed 4th December 2017].
+\bibitem{solvingsearchforsourcecode} Dobos, Daniel \& Elbaum, Sebastian \& Stolee, Kathryn T. (2014). Solving the Search for Source Code. \textit{ACM Transactions on Software Engineering and Methodology}. 23 (3). 1-45. Available from: https://dl.acm.org/citation.cfm?id=2581377 [Accessed 4th December 2017].
 
-\bibitem{howwerefactor} Murphy-Hill, Emerson & Parnin, Chris & Black, Andrew P. (2012). How We Refactor, and How We Know It. \textit{IEEE Transactions on Software Engineering}. 38 (1). 5-18. Available from: http://ieeexplore.ieee.org/document/6112738/ [Accessed 4th December 2017].
+\bibitem{howwerefactor} Murphy-Hill, Emerson \& Parnin, Chris \& Black, Andrew P. (2012). How We Refactor, and How We Know It. \textit{IEEE Transactions on Software Engineering}. 38 (1). 5-18. Available from: http://ieeexplore.ieee.org/document/6112738/ [Accessed 4th December 2017].
 
 \end{thebibliography}
 
