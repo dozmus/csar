@@ -254,7 +254,7 @@ public class Main extends Parser {
 ```java
 public class Parser {
 
-  public void parse2) {
+  public void parse2() {
     // ...
   }
 }
