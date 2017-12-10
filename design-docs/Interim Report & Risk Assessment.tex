@@ -2,9 +2,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage{authoraftertitle}
 \usepackage{tabulary}
-\usepackage{listings}
 
-% Line-wrapping in lstlisting
+% bibliography
+\usepackage[style=authoryear,sorting=none,backend=biber]{biblatex}
+\addbibresource{Interim Report & Risk Assessment Bibliography.bib}
+
+% listing and its styles
 \usepackage{lmodern}
 \usepackage{amsmath}
 \usepackage{xcolor}
@@ -31,6 +34,9 @@
 
 % Document
 \begin{document}
+
+% DEBUG: Make sure all references show up at the end, whether used or not
+\nocite{*}
 
 % Title page
 \begin{titlepage}
@@ -59,28 +65,29 @@ csar aims to be a unified framework for code searching and refactoring. It will 
 Furthermore, csar aims to be flexible code-wise. Most of its API will be publicly exposed and documented. Third-party developers will be able to use this to embed csar into complicated build processes and other applications.
 
 \subsection{Pre-requisite Knowledge}
-``Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software." \cite{wikipediacoderefactoring}
+``Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software." \autocite{wikipediacoderefactoring}
 
-``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \cite{wikipediacompilercompiler} Henceforth, this is what is meant by `code search' or `search'.
+``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \autocite{wikipediacompilercompiler} Henceforth, this is what is meant by `code search' or `search'.
 
-Searching increases developer productivity by enabling reuse, and it is important to address properly because it accounts for a significant portion of a developer's activity. \cite{semanticscodesearch,solvingsearchforsourcecode}
+Searching increases developer productivity by enabling reuse, and it is important to address properly because it accounts for a significant portion of a developer's activity. \autocite{reiss2009semantics,stolee2014solving}
 
-There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results. \cite{semanticscodesearch,solvingsearchforsourcecode}
+There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results. \autocite{reiss2009semantics,stolee2014solving}
 
-Refactoring increases developer productivity by attempting to automate common tasks, and it is important to address properly because it accounts for a significant portion of a developer's activity. \cite{surveyofsoftwarerefactoring,howwerefactor}
+Refactoring increases developer productivity by attempting to automate common tasks, and it is important to address properly because it accounts for a significant portion of a developer's activity. \autocite{mens2004survey,murphy2012we}
 
-There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \cite{surveyofsoftwarerefactoring}
-We can conclude that existing tools have failed because they are underused. \cite{howwerefactor}
+There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey}
 
-They are hard to implement because one of the requirements for both is language-agnosticism\cite{surveyofsoftwarerefactoring,semanticscodesearch} which creates a trade-off scenario, with regards to expressiveness versus how language-agnostic you want the system to be.
+We can conclude that existing tools have failed because they are underused. \autocite{murphy2012we}
 
-``Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \cite{wikipediaparsing}
+They are hard to implement because one of the requirements for both is language-agnosticism\autocite{mens2004survey,reiss2009semantics} which creates a trade-off scenario, with regards to expressiveness versus how language-agnostic you want the system to be.
 
-``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \cite{wikipediavisitorpattern}
+``Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
 
-ANTLR is a parser-generator. \cite{wikipediaantlr}
+``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \autocite{wikipediavisitorpattern}
 
-```A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \cite{wikipediacompilercompiler}
+ANTLR is a parser-generator. \autocite{wikipediaantlr}
+
+```A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
 
 % Requirements
 \section{Requirements}
@@ -100,9 +107,9 @@ ANTLR is a parser-generator. \cite{wikipediaantlr}
 The project has strict deadlines, so not every feature will be fully implemented.
 The scope of this project will be detailed in this section.
 
-The query language will have two versions: 1.x.x (implemented) and ≥ 2.x.x (potential improvements).
+The query language will have two versions: 1.x.x (implemented) and $ \geq $ 2.x.x (potential improvements).
 The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
-My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
+My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence $ \geq $ 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
 
 Parsing of java source code (Java 8) will be supported.
 csar will be designed such that other programming languages can easily be integrated into it in the future.
@@ -144,7 +151,7 @@ We have two storage approaches we can take:
     Store a `(Path, LastModified, ParsedCode)` relation in the database, preferably in a `.csar` directory.
     Note: `LastModified` is a date, which is the last time that file was modified, as of when it was parsed.
     We can use this to determine which files need updating.
-\end{itemize}
+\end{enumerate}
 
 It is important to note that using the last modified dates of files can be error-prone, since they can be spoofed, but it would offer no advantage to an attacker.
 
@@ -337,15 +344,16 @@ Finally, csar will terminate.
 \section{Background Material}
 \subsection{Related Academic Works}
 \begin{itemize}
-    \item \href{http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y}{Ge X, Shepherd D, Damevski K, Murphy-Hill E. ``Design and evaluation of a multi-recommendation system for local code search." International Journal of Computer Applications 138.6 (2016): 9-13.}\newline
+    \item \href{http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y}{Ge X, Shepherd D, Damevski K & Murphy-Hill E. (2016). Design and evaluation of a multi-recommendation system for local code search. \textit{International Journal of Computer Applications}. 138 (6). 9-13.}\newline
     This work is regarding plain-text code search in local projects and includes various ideas for optimisations.
-    \item \href{https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2}{Wang S, Lo D, Jiang L. ``AutoQuery: Automatic Construction of Dependency Queries for Code Search." Automated Software Engineering 23.3 (2016): 393-425.}\newline
-    This work is regarding dependence-based code searching. They have also devised a query language to make producing Program Dependency Graphs easier.  
-    \item \href{http://dl.acm.org.ezproxy.library.qmul.ac.uk/citation.cfm?id=2393612}{Shepherd D, Damevski K, Ropski B, Fritz T. ``Sando: an extensible local code search framework." Proceedings of the ACM SIGSOFT 20th International Symposium on the foundations of software engineering (2012).}\newline
+    \item \href{https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2}{Wang S, Lo D & Jiang L. (2016). AutoQuery: Automatic Construction of Dependency Queries for Code Search. \textit{Automated Software Engineering}. 23 (3). 393-425.}\newline
+    This work is regarding dependence-based code searching.
+    They have also devised a query language to make producing Program Dependency Graphs easier.
+    \item \href{http://dl.acm.org.ezproxy.library.qmul.ac.uk/citation.cfm?id=2393612}{Shepherd D, Damevski K, Ropski B & Fritz T. (2012). Sando: an extensible local code search framework. \textit{Proceedings of the ACM SIGSOFT 20th International Symposium on the foundations of software engineering}.}\newline
     This work is regarding an extensible plain-text code search in local projects.
 \end{itemize}
 
-There are also a lot of material on code search engines, ranking code samples and text matching, but these are largely unrelated to the task at hand.
+There is also a lot of work on code search engines, ranking code samples and text matching, but these are mostly irrelevant to the development of csar.
 
 \subsection{Related Programs}
 \begin{itemize}
@@ -458,28 +466,7 @@ IDE crash & Lost work & Low & High & Save often, use version control. \\
 \end{tabulary}
 
 % Bibliography
-\begin{thebibliography}{9}
-
-\bibitem{wikipediacoderefactoring} Wikipedia. (2017) \textit{Code refactoring - Wikipedia}. Available at: https://en.wikipedia.org/wiki/Code\_refactoring [Accessed 18th November 2017].
-
-\bibitem{wikipediaparsing} Wikipedia. (2017) \textit{Parsing - Wikipedia}. Available at: https://en.wikipedia.org/wiki/Parsing [Accessed 18th November 2017].
-
-\bibitem{wikipediavisitorpattern} Wikipedia. (2017) \textit{Visitor pattern - Wikipedia}. Available at https://en.wikipedia.org/wiki/Visitor\_pattern [Accessed 18th November 2017].
-
-\bibitem{wikipediaantlr} Wikipedia. (2017) \textit{ANTLR - Wikipedia}. Available at https://en.wikipedia.org/wiki/ANTLR [Accessed 18th November 2017].
-
-\bibitem{wikipediacompilercompiler} Wikipedia. (2017) \textit{Compiler-compiler - Wikipedia}. Available at https://en.wikipedia.org/wiki/Compiler-compiler [Accessed 18th November 2017]
-
-\bibitem{wikipediasemanticsearch} Wikipedia. (2017) \textit{Semantic search - Wikipedia}. Available at https://en.wikipedia.org/wiki/Semantic\_search [Accessed 27th November 2017].
-
-\bibitem{surveyofsoftwarerefactoring} Mens, Tom \& Tourwe, Tom. (2004). A survey of software refactoring. \textit{IEEE Transactions on Software Engineering; New York}. 30 (2). 126-139. Available from: http://ieeexplore.ieee.org/document/1265817/ [Accessed 4th December 2017].
-
-\bibitem{semanticscodesearch} Reiss, Steven P. (2009). Semantics-based code search. \textit{Proceedings of the 31st International Conference on software engineering}. 30 (2). 243-253. Available from: https://dl.acm.org/citation.cfm?id=1555040 [Accessed 4th December 2017].
-
-\bibitem{solvingsearchforsourcecode} Dobos, Daniel \& Elbaum, Sebastian \& Stolee, Kathryn T. (2014). Solving the Search for Source Code. \textit{ACM Transactions on Software Engineering and Methodology}. 23 (3). 1-45. Available from: https://dl.acm.org/citation.cfm?id=2581377 [Accessed 4th December 2017].
-
-\bibitem{howwerefactor} Murphy-Hill, Emerson \& Parnin, Chris \& Black, Andrew P. (2012). How We Refactor, and How We Know It. \textit{IEEE Transactions on Software Engineering}. 38 (1). 5-18. Available from: http://ieeexplore.ieee.org/document/6112738/ [Accessed 4th December 2017].
-
-\end{thebibliography}
+\section{Bibliography}
+\printbibliography[heading=none]
 
 \end{document}
