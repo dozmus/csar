@@ -70,27 +70,25 @@ csar aims to be a unified framework for code searching and refactoring. It will 
 Furthermore, csar aims to be flexible code-wise. Most of its API will be publicly exposed and documented. Third-party developers will be able to use this to embed csar into complicated build processes and other applications.
 
 \subsection{Pre-requisite Knowledge}
-``Code refactoring is the process of restructuring existing computer code—changing the factoring—without changing its external behaviour. Refactoring improves non-functional attributes of the software." \autocite{wikipediacoderefactoring}
+``Refactoring is the process of changing the structure of software without changing its behavior.". \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
 
 ``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \autocite{wikipediasemanticsearch} Henceforth, this is what is meant by `code search' or `search'.
 
-Searching increases developer productivity by enabling reuse, and it is important to address properly because it accounts for a significant portion of a developer's activity. \autocite{reiss2009semantics,stolee2014solving}
+Searching is important because it increases developer productivity by enabling reuse, and it is important because it accounts for a significant portion of a developer's activity. \autocite{reiss2009semantics,stolee2014solving}
 
 There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results. \autocite{reiss2009semantics,stolee2014solving}
 
-Refactoring increases developer productivity by attempting to automate common tasks, and it is important to address properly because it accounts for a significant portion of a developer's activity. \autocite{mens2004survey,murphy2012we}
+Refactoring increases developer productivity by attempting to automate common tasks, and it is important because it accounts for a significant portion of a developer's activity. \autocite{mens2004survey,murphy2012we}
 
-There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey}
+There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused. \autocite{murphy2012we}
 
-We can conclude that existing tools have failed because they are underused. \autocite{murphy2012we}
-
-They are hard to implement because one of the requirements for both is language-agnosticism\autocite{mens2004survey,reiss2009semantics} which creates a trade-off scenario, with regards to expressiveness versus how language-agnostic you want the system to be.
+Searching and refactoring are both hard to implement because optimally they should be language-agnostic\autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
 
 ``Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
 
 ``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \autocite{wikipediavisitorpattern}
 
-ANTLR is a parser-generator. \autocite{wikipediaantlr}
+ANTLR is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
 
 ```A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
 
