@@ -180,6 +180,25 @@ csar can be integrated into this IDE in one of two ways:
     This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
 \end{itemize}
 
+\subsection{Non-functional Requirements}
+\begin{itemize}
+  \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component level details), readme (how to run csar), and the user guide (how to use csar).
+  \item Efficiency - the implementation will maximize the usage of algorithms which run in polynomial time.
+  It will also be benchmarked against a large input, to highlight deficiencies.
+  \item Extensibility - csar will be open source, will be language-agnostic so that users can easily implement support for their language of choice, will expose a public API with great usage of interfaces, and will thoroughly utilize dependency injection to allow third-party developers to customize its behaviour.
+  \item Interoperability - csar will have a user guide explaining how to invoke it from other applications and will support flexible output formats.
+  \item Open source
+  \item Portable - csar will be written in Java (version 8) which is a cross-platform framework.
+  Java 8 runs on platforms including recent versions of Windows, Mac OS X, and various Linux distributions. \autocite{javasysreqs}
+  \item Quality/Reliability - csar will be well designed and make appropriate use of configuration management and unit testing to detect bugs early in the software development life cycle.
+  csar will also make use of well-tested and maintained libraries and platforms where possible (within reason).
+  If necessary, contributions to third-party libraries will also be made to ensure high quality dependencies.
+  \item Scalability - csar will be multi-threaded, hence in general the more cores a user has available the faster it will be.
+  Caching will also be used where appropriate so that larger input projects run in reasonable time.
+  \item Testability - csar will be designed to make testing easy (e.g. heavy use of dependency injection).
+  Test-Driven Development will also be used where appropriate, to ensure each component of csar works as intended.
+\end{itemize}
+
 % Design
 \section{Design}
 \subsection{Component Overview}
