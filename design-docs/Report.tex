@@ -91,23 +91,9 @@ ANTLR is a parser-generator, which in conjunction with appropriate grammars, wil
 
 ```A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
 
-% Requirements
-\section{Requirements}
-\subsection{General Requirements}
-\begin{itemize}
-    \item A user guide detailing how to use the tool and its query language.
-    \item A custom query language to describe the operations to carry out.
-    \item Parsing of source code.
-    \item Language-agnostic searching.
-    \item Custom search domains.
-    \item Language-agnostic refactoring.
-    \item Flexible program output.
-    \item High efficiency.
-\end{itemize}
-
-\subsection{Selected Requirements (Scope)}
-The project has strict deadlines, so not every feature will be fully implemented.
-The scope of this project will be detailed in this section.
+\subsection{Scope}
+This project has strict deadlines, so not every feature will be fully implemented.
+The selected requirements (scope) of this project will be detailed in this section.
 
 The query language will have two versions: 1.x.x (implemented) and $ \geq $ 2.x.x (potential improvements).
 The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
@@ -135,7 +121,21 @@ If alternatives are required, a third-party developer will be able to easily add
 Efficiency will mainly be addressed by introducing multi-threading and caching where possible.
 Specific algorithms to be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
 
-\subsection{Back-logged Requirements}
+% Requirements
+\section{Requirements}
+\subsection{Primary Requirements}
+\begin{itemize}
+    \item A user guide detailing how to use the tool and its query language.
+    \item A custom query language to describe the operations to carry out.
+    \item Parsing of source code.
+    \item Language-agnostic searching.
+    \item Custom search domains.
+    \item Language-agnostic refactoring.
+    \item Flexible program output.
+    \item High efficiency.
+\end{itemize}
+
+\subsection{Secondary Requirements}
 These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift.
 The implementation details of each will be outlined.
 
