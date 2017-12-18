@@ -1,7 +1,6 @@
 \documentclass[12pt, letterpaper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{authoraftertitle}
-\usepackage{tabulary}
 
 % bibliography
 \usepackage[style=authoryear,sorting=none,backend=biber]{biblatex}
@@ -455,37 +454,6 @@ However, declarations and response messages can be useful for creating complex t
     \item ANTLR settings in `build.gradle' - \url{https://docs.gradle.org/4.0.1/userguide/antlr\_plugin.html\#sec:controlling\_the\_antlr\_generator\_process}
     \item JaCoCo in `build.gradle' - \url{http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/}
 \end{itemize}
-
-% Time Plan
-\section{Time Plan}
-The work completed so far can be seen in full on the Github repository's \href{https://github.research.its.qmul.ac.uk/ec15116/csar/commits/master}{commits}.
-A concise description is that: the command-line interface, csar query language parsing, Java code parsing, and search (partially) are completed.
-
-\begin{itemize}
-    \item 08/12/2017 - Interim report and risk assessment.
-    \item 18/12/2017 - Mapping method usages to method definitions.
-    \item 08/01/2018 - Implement searching method usages.
-    \item 11/01/2018 - Finish searching (supporting from and contains query clauses).
-    \item 12/02/2018 - Implement refactoring.
-    \item 01/03/2018 - Implement full language-agnosticism.
-    \item 19/03/2018 - Draft final report (begin after Implement refactoring).
-    \item 23/04/2018 - Final report.
-    \item 25/04/2018 - Presentation slides.
-\end{itemize}
-
-% Risk Assessment
-\section{Risk Assessment}
-\begin{tabulary}{1.3\textwidth}{LLLLL}
-Description of risk & Description of impact & Likelihood rating & Impact rating & Preventative actions \\
-Low motivation/Burn out & Overdue/incomplete work & Medium & High & Schedule project work carefully, leave time for entertainment. \\
-Busy schedule/Poor time management & Overdue/incomplete work & Medium & High & Schedule carefully, try to get work done on time as necessary. \\
-Advisor has busy schedule & Inadequate work quality. & Medium & Low & Take initiative as necessary, use library resources to fill in gaps in knowledge. \\
-Code defects & Inadequate program functionality. & Medium & Medium & Try to fix them, if not possible then write about them in the report and leave them. \\
-Code bugs & Inadequate program quality. & Medium & Low & Try to fix them, if not possible then write about them in the report and leave them. Do not pretend they do not exist. \\
-Code quality & More difficult development. & Low & Low & Incremental development should help prevent this. \\
-Incomplete design & Pre-requisite to implementation. & Medium & High & Schedule work on the design to keep up with the pace of the programming. \\
-IDE crash & Lost work & Low & High & Save often, use version control. \\
-\end{tabulary}
 
 % Bibliography
 \section{Bibliography}
