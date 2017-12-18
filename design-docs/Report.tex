@@ -93,36 +93,6 @@ ANTLR is a parser-generator, which in conjunction with appropriate grammars, wil
 
 ```A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
 
-\subsection{Scope}
-This project has strict deadlines, so not every feature will be fully implemented.
-The selected requirements (scope) of this project will be detailed in this section.
-
-The query language will have two versions: 1.x.x (implemented) and $ \geq $ 2.x.x (potential improvements).
-The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
-My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence $ \geq $ 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
-
-Parsing of java source code (Java 8) will be supported.
-csar will be designed such that other programming languages can easily be integrated into it in the future.
-They will just need to write a parser written for them, analogously to how the java parser will be written.
-
-Searching will be implemented to only work on methods (finding their definitions and usages) for now.
-To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved.
-However, this would be a greatly time consuming and tedious task.
-It is also possible that further complications may arise which may need to be addressed in the form of post-processors for the programming languages, this is especially true for dynamic programming languages.
-
-It will also support narrowing the search domain by a `.gitignore' file for directories which are git repositories, and by custom `.csarignore' file. Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.
-The git implementation will require calling the git binary with a specific argument and reading the output, which will reveal which files it is currently tracking.
-
-Refactoring is very complicated and time consuming, so we will only consider two operations.
-The first is changing method parameters, this involves resolving all usages of the method in question (in various contexts), modifying the method calls and its definition and ensuring no naming collisions occur.
-The second is renaming methods, this should follow from changing method parameters, since if we resolve all method usages we should be able to simply rename them all and ensure no naming collisions occur.
-
-The program output could technically support thousands of formats, but for simplicity it will only support two: plain text and JSON.
-If alternatives are required, a third-party developer will be able to easily add their own result formatter.
-
-Efficiency will mainly be addressed by introducing multi-threading and caching where possible.
-Specific algorithms to be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
-
 % Requirements
 \section{Requirements}
 \subsection{Primary Requirements}
@@ -199,6 +169,36 @@ csar can be integrated into this IDE in one of two ways:
   \item Testability - csar will be designed to make testing easy (e.g. heavy use of dependency injection).
   Test-Driven Development will also be used where appropriate, to ensure each component of csar works as intended.
 \end{itemize}
+
+\subsection{Scope}
+This project has strict deadlines, so not every feature will be fully implemented.
+The selected requirements (scope) of this project will be detailed in this section.
+
+The query language will have two versions: 1.x.x (implemented) and $ \geq $ 2.x.x (potential improvements).
+The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
+My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence $ \geq $ 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
+
+Parsing of java source code (Java 8) will be supported.
+csar will be designed such that other programming languages can easily be integrated into it in the future.
+They will just need to write a parser written for them, analogously to how the java parser will be written.
+
+Searching will be implemented to only work on methods (finding their definitions and usages) for now.
+To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved.
+However, this would be a greatly time consuming and tedious task.
+It is also possible that further complications may arise which may need to be addressed in the form of post-processors for the programming languages, this is especially true for dynamic programming languages.
+
+It will also support narrowing the search domain by a `.gitignore' file for directories which are git repositories, and by custom `.csarignore' file. Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.
+The git implementation will require calling the git binary with a specific argument and reading the output, which will reveal which files it is currently tracking.
+
+Refactoring is very complicated and time consuming, so we will only consider two operations.
+The first is changing method parameters, this involves resolving all usages of the method in question (in various contexts), modifying the method calls and its definition and ensuring no naming collisions occur.
+The second is renaming methods, this should follow from changing method parameters, since if we resolve all method usages we should be able to simply rename them all and ensure no naming collisions occur.
+
+The program output could technically support thousands of formats, but for simplicity it will only support two: plain text and JSON.
+If alternatives are required, a third-party developer will be able to easily add their own result formatter.
+
+Efficiency will mainly be addressed by introducing multi-threading and caching where possible.
+Specific algorithms to be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
 
 % Design
 \section{Design}
