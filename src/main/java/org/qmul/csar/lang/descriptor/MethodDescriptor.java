@@ -23,6 +23,9 @@ public class MethodDescriptor implements Descriptor {
     private final Optional<Boolean> synchronizedModifier;
     private final Optional<Boolean> nativeModifier;
     private final Optional<Boolean> defaultModifier;
+    /**
+     * Set by {@link org.qmul.csar.code.postprocess.overriddenmethods.OverriddenMethodsResolver} in post-processing.
+     */
     private Optional<Boolean> overridden;
     private final Optional<Boolean> stub;
     private final Optional<Boolean> hasTypeArguments;

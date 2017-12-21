@@ -199,7 +199,7 @@ public class ProjectCodeSearcher {
     private List<Statement> methodDefinitionSearch(TargetDescriptor targetDescriptor, Path path, Statement statement) {
         // Search
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
-        visitor.visit(statement);
+        visitor.visitStatement(statement);
 
         // TODO: containsQuery
         // TODO: fromTarget

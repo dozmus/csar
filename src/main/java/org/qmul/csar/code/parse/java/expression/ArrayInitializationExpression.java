@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 
 public class ArrayInitializationExpression implements Expression {
 
-    private final List<Expression> expr;
+    private final List<Expression> expressions;
 
-    public ArrayInitializationExpression(List<Expression> expr) {
-        this.expr = Collections.unmodifiableList(expr);
+    public ArrayInitializationExpression(List<Expression> expressions) {
+        this.expressions = Collections.unmodifiableList(expressions);
     }
 
-    public List<Expression> getExpr() {
-        return expr;
+    public List<Expression> getExpressions() {
+        return expressions;
     }
 
     @Override
@@ -26,24 +26,24 @@ public class ArrayInitializationExpression implements Expression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ArrayInitializationExpression that = (ArrayInitializationExpression) o;
-        return Objects.equals(expr, that.expr);
+        return Objects.equals(expressions, that.expressions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(expr);
+        return Objects.hash(expressions);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("expr", expr)
+                .append("expressions", expressions)
                 .toString();
     }
 
     @Override
     public String toPseudoCode(int indentation) {
         return StringUtils.indentation(indentation)
-                + expr.stream().map(Expression::toPseudoCode).collect(Collectors.joining(" "));
+                + expressions.stream().map(Expression::toPseudoCode).collect(Collectors.joining(" "));
     }
 }

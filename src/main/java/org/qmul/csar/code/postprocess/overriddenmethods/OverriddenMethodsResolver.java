@@ -1,6 +1,7 @@
 package org.qmul.csar.code.postprocess.overriddenmethods;
 
 import org.qmul.csar.code.parse.java.statement.*;
+import org.qmul.csar.code.postprocess.PostProcessUtils;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
@@ -13,7 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class OverriddenMethodsResolver {
 
@@ -41,22 +45,6 @@ public class OverriddenMethodsResolver {
     public OverriddenMethodsResolver(QualifiedNameResolver qualifiedNameResolver, boolean benchmarking) {
         this.qualifiedNameResolver = qualifiedNameResolver;
         this.benchmarking = benchmarking;
-    }
-
-    private static List<String> superClasses(TypeStatement typeStatement) {
-        if (typeStatement instanceof ClassStatement) {
-            ClassStatement classStatement = (ClassStatement) typeStatement;
-            ClassDescriptor descriptor = classStatement.getDescriptor();
-            List<String> superClasses = new ArrayList<>();
-            descriptor.getExtendedClass().ifPresent(superClasses::add);
-            superClasses.addAll(descriptor.getImplementedInterfaces());
-            return Collections.unmodifiableList(superClasses);
-        } else if (typeStatement instanceof EnumStatement) {
-            EnumStatement enumStatement = (EnumStatement) typeStatement;
-            EnumDescriptor descriptor = enumStatement.getDescriptor();
-            return Collections.unmodifiableList(descriptor.getSuperClasses());
-        }
-        return Collections.unmodifiableList(new ArrayList<>());
     }
 
     private static boolean isAccessible(MethodDescriptor childDesc, MethodDescriptor superDesc,
@@ -101,7 +89,7 @@ public class OverriddenMethodsResolver {
                 TopLevelTypeStatement topLevelTypeStatement = (TopLevelTypeStatement) statement;
                 visitor.setPath(path);
                 visitor.setTopLevelTypeStatement(topLevelTypeStatement);
-                visitor.visit(topLevelTypeStatement);
+                visitor.visitStatement(topLevelTypeStatement);
             }
         }
 
@@ -138,7 +126,7 @@ public class OverriddenMethodsResolver {
 
             if (!descriptor.getExtendedClass().isPresent() && descriptor.getImplementedInterfaces().size() == 0)
                 return false;
-            List<String> superClasses = superClasses(classStatement);
+            List<String> superClasses = PostProcessUtils.superClasses(classStatement);
             return calculateOverridden(code, pkg, imports, superClasses, path, typeStatement, parent, method);
         } else if (typeStatement instanceof EnumStatement) {
             EnumStatement enumStatement = (EnumStatement) typeStatement;
@@ -193,7 +181,8 @@ public class OverriddenMethodsResolver {
                 }
 
                 // Check super classes of super class
-                if (calculateOverridden(code, s.getPackageStatement(), s.getImports(), superClasses(s2), path, parent,
+                if (calculateOverridden(code, s.getPackageStatement(), s.getImports(),
+                        PostProcessUtils.superClasses(s2), path, parent,
                         s, method)) { // TODO some args passed here are incorrect i.e. path
                     return true;
                 }

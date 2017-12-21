@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class InstantiateClassExpression implements Expression { // TODO allow this to have an Optional<Body>
+public class InstantiateClassExpression implements Expression {
 
     private final ClassDescriptor descriptor;
     private final Optional<BlockStatement> block;
