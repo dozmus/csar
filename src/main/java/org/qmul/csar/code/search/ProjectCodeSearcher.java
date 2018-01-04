@@ -1,12 +1,15 @@
 package org.qmul.csar.code.search;
 
 import org.qmul.csar.code.PathProcessorErrorListener;
+import org.qmul.csar.code.parse.java.expression.MethodCallExpression;
+import org.qmul.csar.code.parse.java.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.SearchType;
 import org.qmul.csar.query.TargetDescriptor;
+import org.qmul.csar.result.Result;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.NamedThreadFactory;
 import org.slf4j.Logger;
@@ -17,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * A multi-threaded project code searcher.
@@ -63,13 +67,13 @@ public class ProjectCodeSearcher {
     }
 
     /**
-     * Returns a list containing the statements from {@link #it} which matched the search query.
+     * Returns a list containing the results from {@link #it} which matched the search query.
      * If {@link #it} contains no files then an empty list is returned.
-     * @return returns the matches.
+     * @return returns the results.
      * @throws IllegalStateException if it has already been called on this instance, or if it is currently running,
      * or if it is not initialized ({@link #initialized} is <tt>false</tt>).
      */
-    public List<Statement> results() {
+    public List<Result> results() {
         // Check if ready to run
         if (runningCount() == 0) {
             throw new IllegalStateException("already finished running");
@@ -81,7 +85,7 @@ public class ProjectCodeSearcher {
         running = true;
 
         // Submit tasks
-        final List<Statement> results = Collections.synchronizedList(new ArrayList<>());
+        final List<Result> results = Collections.synchronizedList(new ArrayList<>());
         LOGGER.info("Starting...");
 
         for (int i = 0; i < threadCount; i++) {
@@ -104,9 +108,12 @@ public class ProjectCodeSearcher {
                             TargetDescriptor searchTarget = query.getSearchTarget();
                             Descriptor targetDescriptor = searchTarget.getDescriptor();
 
-                            if (targetDescriptor instanceof MethodDescriptor
-                                    && query.getSearchTarget().getSearchType().get() == SearchType.DEF) {
-                                results.addAll(methodDefinitionSearch(searchTarget, file, statement));
+                            if (targetDescriptor instanceof MethodDescriptor) {
+                                if (query.getSearchTarget().getSearchType().get() == SearchType.DEF) {
+                                    results.addAll(methodDefinitionSearch(searchTarget, file, statement));
+                                } else {
+                                    results.addAll(methodUsageSearch(searchTarget, file, statement));
+                                }
                             } else {
                                 throw new UnsupportedOperationException("unsupported search target: "
                                         + targetDescriptor.getClass().getName());
@@ -190,13 +197,13 @@ public class ProjectCodeSearcher {
     }
 
     /**
-     * Returns search matches for method definitions.
+     * Returns search matches for method usages.
      * @param targetDescriptor the target descriptor to search for
      * @param path the file being searched
      * @param statement the parsed contents of the file being searched
      * @return returns search matches for method definitions
      */
-    private List<Statement> methodDefinitionSearch(TargetDescriptor targetDescriptor, Path path, Statement statement) {
+    private List<Result> methodUsageSearch(TargetDescriptor targetDescriptor, Path path, Statement statement) {
         // Search
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
         visitor.visitStatement(statement);
@@ -204,7 +211,37 @@ public class ProjectCodeSearcher {
         // TODO: containsQuery
         // TODO: fromTarget
 
-        // Add results
-        return visitor.getResults();
+        // Aggregate and return results
+        List<Result> results = new ArrayList<>();
+
+        for (Statement st : visitor.getResults()) {
+            MethodStatement method = (MethodStatement)st;
+
+            for (MethodCallExpression expr : method.getMethodUsages()) {
+                results.add(new Result(path, expr.getLineNumber(), expr.toPseudoCode()));
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Returns search matches for method definitions.
+     * @param targetDescriptor the target descriptor to search for
+     * @param path the file being searched
+     * @param statement the parsed contents of the file being searched
+     * @return returns search matches for method definitions
+     */
+    private List<Result> methodDefinitionSearch(TargetDescriptor targetDescriptor, Path path, Statement statement) {
+        // Search
+        SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
+        visitor.visitStatement(statement);
+
+        // TODO: containsQuery
+        // TODO: fromTarget
+
+        // Aggregate and return results
+        return visitor.getResults()
+                .stream().map(s -> new Result(path, ((MethodStatement)s).getLineNumber(), s.toPseudoCode()))
+                .collect(Collectors.toList());
     }
 }

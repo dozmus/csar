@@ -374,7 +374,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 .hasTypeArguments(typeParameters.size() > 0)
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
-        return new MethodStatement(descriptor, params, block, annotations);
+        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine());
     }
 
     private static MethodStatement parseInterfaceMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
@@ -422,7 +422,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 .hasTypeArguments(typeParameters.size() > 0)
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
-        return new MethodStatement(descriptor, params, block, annotations);
+        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine());
     }
 
     private static MethodDescriptor.Builder methodBuilder(TerminalNode identifier, TypeTypeOrVoidContext returnType,
@@ -668,6 +668,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         // Fall-back: expression LPAREN expressionList? RPAREN
         if (ctx.expression().size() > 0) {
             Expression method = parseExpression(ctx.expression(0));
+            int lineNo = ctx.LPAREN().getSymbol().getLine(); // TODO improve, to be on expression
             List<Expression> parameters = new ArrayList<>();
 
             if (ctx.expressionList() != null) {
@@ -675,7 +676,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                     parameters.add(parseExpression(ectx));
                 }
             }
-            return new MethodCallExpression(method, parameters);
+            return new MethodCallExpression(method, parameters, lineNo);
         }
         throw new IllegalArgumentException("invalid context");
     }

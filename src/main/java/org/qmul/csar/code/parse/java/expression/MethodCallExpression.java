@@ -13,14 +13,16 @@ public class MethodCallExpression implements Expression {
 
     private final Expression methodName;
     private final List<Expression> arguments;
+    private final int lineNumber;
 
-    public MethodCallExpression(Expression methodName, List<Expression> arguments) {
+    public MethodCallExpression(Expression methodName, List<Expression> arguments, int lineNumber) {
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);
+        this.lineNumber = lineNumber;
     }
 
     public MethodCallExpression(Expression methodName) {
-        this(methodName, new ArrayList<>());
+        this(methodName, new ArrayList<>(), -1);
     }
 
     public Expression getMethodName() {
@@ -31,12 +33,18 @@ public class MethodCallExpression implements Expression {
         return arguments;
     }
 
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MethodCallExpression that = (MethodCallExpression) o;
-        return Objects.equals(methodName, that.methodName) && Objects.equals(arguments, that.arguments);
+        return Objects.equals(methodName, that.methodName)
+                && Objects.equals(arguments, that.arguments)
+                && Objects.equals(lineNumber, that.lineNumber);
     }
 
     @Override
@@ -49,6 +57,7 @@ public class MethodCallExpression implements Expression {
         return new ToStringBuilder(this)
                 .append("methodName", methodName)
                 .append("arguments", arguments)
+                .append("lineNo", lineNumber)
                 .toString();
     }
 

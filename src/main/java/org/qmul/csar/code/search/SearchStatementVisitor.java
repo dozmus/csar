@@ -22,7 +22,7 @@ public class SearchStatementVisitor extends StatementVisitor {
     public void visitMethodStatement(MethodStatement statement) {
         super.visitMethodStatement(statement);
 
-        if (target.getDescriptor() instanceof MethodDescriptor) {
+        if (target.getDescriptor() instanceof MethodDescriptor && target.getDescriptor() instanceof MethodDescriptor) {
             MethodDescriptor desc = (MethodDescriptor)target.getDescriptor();
 
             if (statement.getDescriptor().lenientEquals(desc)) {

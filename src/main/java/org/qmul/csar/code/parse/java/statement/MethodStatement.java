@@ -27,13 +27,15 @@ public class MethodStatement implements Statement {
      * Updated by {@link org.qmul.csar.code.postprocess.methodusage.MethodUsageResolver} in post-processing.
      */
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
+    private final int lineNumber;
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations) {
+            List<Annotation> annotations, int lineNumber) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;
         this.annotations = Collections.unmodifiableList(annotations);
+        this.lineNumber = lineNumber;
     }
 
     public MethodDescriptor getDescriptor() {
@@ -56,6 +58,10 @@ public class MethodStatement implements Statement {
         return methodUsages;
     }
 
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -65,7 +71,8 @@ public class MethodStatement implements Statement {
                 && Objects.equals(params, that.params)
                 && Objects.equals(block, that.block)
                 && Objects.equals(annotations, that.annotations)
-                && Objects.equals(methodUsages, that.methodUsages);
+                && Objects.equals(methodUsages, that.methodUsages)
+                && Objects.equals(lineNumber, that.lineNumber);
     }
 
     @Override
@@ -81,6 +88,7 @@ public class MethodStatement implements Statement {
                 .append("block", block)
                 .append("annotations", annotations)
                 .append("methodUsages", methodUsages)
+                .append("lineNumber", lineNumber)
                 .toString();
     }
 

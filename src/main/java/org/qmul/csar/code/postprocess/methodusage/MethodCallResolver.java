@@ -13,6 +13,7 @@ import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,15 +63,23 @@ public class MethodCallResolver {
                 String methodName = methodNameUnit.getValue();
                 MethodStatement method = resolveInContext(currentContext, targetType, topLevelParent, packageStatement,
                         imports, methodName, expression, false, addToUsages);
+
+                if (method == null) { // may be external - we ignore it
+                    return null;
+                }
                 QualifiedType qualifiedType = qualifiedNameResolver.resolve(code, path, targetType, topLevelParent,
                         packageStatement, imports, method.getDescriptor().getReturnType().get());
-                return qualifiedType == null ? null : (TopLevelTypeStatement)qualifiedType.getStatement();
+
+                if (qualifiedType == null)
+                    return null;
+                return qualifiedType.getStatement() instanceof TopLevelTypeStatement
+                        ? (TopLevelTypeStatement)qualifiedType.getStatement()
+                        : null;
             }
         } else if (methodNameExpression instanceof BinaryExpression) { // complex method name
             BinaryExpression bexp = (BinaryExpression)methodNameExpression;
             QualifiedType qualifiedType = resolveInBinaryExpression(bexp, expression, 0, addToUsages);
             return qualifiedType == null ? null : (TopLevelTypeStatement)qualifiedType.getStatement();
-            // TODO finish
         }
         // XXX unable to resolve
         return null;
@@ -89,7 +98,7 @@ public class MethodCallResolver {
             QualifiedType type = resolveInBinaryExpression((BinaryExpression)l, methodCallExpression, k + 1,
                     addToUsages);
 
-            if (type == null) { // in case we are trying to resolve something external
+            if (type == null) { // may be external - we ignore it
                 return null;
             }
             TopLevelTypeStatement topLevelTypeStatement = (TopLevelTypeStatement)type.getStatement();
@@ -97,6 +106,10 @@ public class MethodCallResolver {
 
             if (rue.getValueType() == UnitExpression.ValueType.IDENTIFIER) {
                 String methodName = rue.getValue();
+
+                if (topLevelTypeStatement == null)
+                    return null;
+
                 resolveInContext(currentContext, topLevelTypeStatement.getTypeStatement(), topLevelTypeStatement,
                         topLevelTypeStatement.getPackageStatement(), topLevelTypeStatement.getImports(),
                         methodName, methodCallExpression, true, addToUsages);
@@ -129,7 +142,7 @@ public class MethodCallResolver {
                 }
 
                 for (Statement st : currentContext.getStatements()) {
-                    // TODO make correcter (only accept locals before the current line, ones in for loops, etc. too)
+                    // TODO fix correctness (only accept locals before the current line, ones in for loops, etc. too)
                     if (lType != null)
                         break;
 
@@ -174,34 +187,35 @@ public class MethodCallResolver {
                         QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, targetType,
                                 topLevelParent, packageStatement, imports, superClass);
 
-                        for (Statement st
-                                : getBlock((TopLevelTypeStatement)resolvedType.getStatement()).getStatements()) {
-                            if (lType != null)
-                                break;
+                        if (resolvedType.getStatement() instanceof TopLevelTypeStatement) {
+                            for (Statement st
+                                    : getBlock((TopLevelTypeStatement)resolvedType.getStatement()).getStatements()) {
+                                if (lType != null)
+                                    break;
 
-                            // TODO check visibility
-                            if (st instanceof InstanceVariableStatement) {
-                                InstanceVariableStatement instance = (InstanceVariableStatement)st;
-                                String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
-                                String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+                                // TODO check visibility
+                                if (st instanceof InstanceVariableStatement) {
+                                    InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                                    String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                                    String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
 
-                                if (instanceIdentifierName.equals(lIdentifierName))
-                                    lType = instanceIdentifierType;
+                                    if (instanceIdentifierName.equals(lIdentifierName))
+                                        lType = instanceIdentifierType;
+                                }
                             }
                         }
                     }
                 }
                 System.out.println("[RBE] lType = " + lType);
 
-                if (lType == null) // in case we are trying to resolve something external
+                if (lType == null) // may be external - we ignore it
                     return null;
 
                 QualifiedType lQualifiedType = qualifiedNameResolver.resolve(code, path, targetType, topLevelParent,
                         packageStatement, imports, lType);
-                lTopLevelTypeStatement = (TopLevelTypeStatement)lQualifiedType.getStatement();
-
-                if (lQualifiedType.getStatement() == null)
+                if (!(lQualifiedType.getStatement() instanceof TopLevelTypeStatement)) // may be external - we ignore it
                     return null;
+                lTopLevelTypeStatement = (TopLevelTypeStatement)lQualifiedType.getStatement();
                 System.out.println("[RBE] Resolved lType");
             } else if (lue.getValueType() == UnitExpression.ValueType.SUPER) {
                 String superClass = PostProcessUtils.extendedClass(targetType);
@@ -210,7 +224,7 @@ public class MethodCallResolver {
                         topLevelParent, packageStatement, imports, superClass);
                 System.out.println("[RBE] lType = " + lType);
 
-                if (lType == null) // in case we are trying to resolve something external
+                if (lType == null) // may be external - we ignore it
                     return null;
                 lTopLevelTypeStatement = (TopLevelTypeStatement)lQualifiedType.getStatement();
                 System.out.println("[RBE] Resolved lType");
@@ -234,7 +248,7 @@ public class MethodCallResolver {
                 String lType = superClass;
                 System.out.println("[RBE] lType = " + lType);
 
-                if (superClass == null) // in case we are trying to resolve something external
+                if (superClass == null) // may be external - we ignore it
                     return null;
 
                 // try to resolve
@@ -270,6 +284,10 @@ public class MethodCallResolver {
             if (rue.getValueType() == UnitExpression.ValueType.IDENTIFIER) {
                 String methodName = rue.getValue();
                 System.out.println("[RBE-RHS] rMethod=" + methodName);
+
+                if (lTopLevelTypeStatement == null) { // may be external - we ignore it
+                    return null;
+                }
                 resolveInContext(currentContext, lTopLevelTypeStatement.getTypeStatement(),
                         lTopLevelTypeStatement, lTopLevelTypeStatement.getPackageStatement(),
                         lTopLevelTypeStatement.getImports(), methodName, methodCallExpression, true, addToUsages);
@@ -296,7 +314,7 @@ public class MethodCallResolver {
             }
             System.out.println("[RBE-RHS] rType = " + rType);
 
-            if (rType == null) // in case we are trying to resolve something external
+            if (rType == null) // may be external - we ignore it
                 return null;
             return qualifiedNameResolver.resolve(code, path,
                     lTopLevelTypeStatement.getTypeStatement(), lTopLevelTypeStatement,
@@ -379,7 +397,7 @@ public class MethodCallResolver {
     }
 
     private BlockStatement getBlock(TopLevelTypeStatement statement) {
-        return getBlock(statement.getTypeStatement());
+        return statement == null ? new BlockStatement(new ArrayList<>()) : getBlock(statement.getTypeStatement());
     }
 
     private BlockStatement getBlock(TypeStatement type) {

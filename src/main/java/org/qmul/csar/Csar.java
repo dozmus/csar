@@ -83,13 +83,7 @@ public class Csar {
         LOGGER.trace("Searching code...");
         searcher.setCsarQuery(csarQuery);
         searcher.setIterator(code.entrySet().iterator());
-        List<Statement> tmpResults = searcher.results();
-
-        // TODO remove temp printing below
-        LOGGER.info("(Raw) Search results (size={}):", tmpResults.size());
-        tmpResults.forEach(s -> LOGGER.info("Result: " + s.toPseudoCode()));
-
-        // TODO convert tmpResults->results
+        results = searcher.results();
         return !searcher.errorOccurred();
     }
 
