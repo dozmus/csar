@@ -41,7 +41,7 @@ public class MethodUsageResolverTest {
     public void testSameClassInstanceMethodCall() {
         // Expected method call
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, 10);
         List<MethodCallExpression> calls = findMethod("A.java", "int add(int,int)").getMethodUsages();
 
         // Assert
@@ -52,7 +52,7 @@ public class MethodUsageResolverTest {
     @Test
     public void testSameClassRecursiveInstanceMethodCall() {
         // Expected method call
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), new ArrayList<>());
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), new ArrayList<>(), 11);
         List<MethodCallExpression> calls = findMethod("A.java", "void add()").getMethodUsages();
 
         // Assert
@@ -63,7 +63,8 @@ public class MethodUsageResolverTest {
     @Test
     public void testSameClassStaticMethodCall() {
         // Expected method call
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>());
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>(),
+                12);
         List<MethodCallExpression> calls = findMethod("A.java", "void staticAdd()").getMethodUsages();
 
         // Assert
@@ -75,7 +76,7 @@ public class MethodUsageResolverTest {
     public void testSuperClassInstanceMethodCall() {
         // Expected method call
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, 6);
         List<MethodCallExpression> calls = findMethod("U.java", "int add(int,int)").getMethodUsages();
 
         // Assert
@@ -86,7 +87,7 @@ public class MethodUsageResolverTest {
     @Test
     public void testSuperClassStaticMethodCall() {
         // Expected method call
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>());
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>(), 7);
         List<MethodCallExpression> calls = findMethod("U.java", "void staticAdd()").getMethodUsages();
 
         // Assert
@@ -98,7 +99,7 @@ public class MethodUsageResolverTest {
     public void testLocalVariableMethodCall() {
         // Expected method call
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add2"), args);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add2"), args, 7);
         List<MethodCallExpression> calls = findMethod("U.java", "int add2(int,int)").getMethodUsages();
 
         // Assert
@@ -110,7 +111,7 @@ public class MethodUsageResolverTest {
     public void testParameterVariableMethodCall() {
         // Expected method call
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add3"), args);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add3"), args, 11);
         List<MethodCallExpression> calls = findMethod("U.java", "int add3(int,int)").getMethodUsages();
 
         // Assert
@@ -122,7 +123,7 @@ public class MethodUsageResolverTest {
     public void testInstanceVariableMethodCall() {
         // Expected method call
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add4"), args);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add4"), args, 8);
         List<MethodCallExpression> calls = findMethod("U.java", "int add4(int,int)").getMethodUsages();
 
         // Assert
@@ -135,7 +136,7 @@ public class MethodUsageResolverTest {
         // Expected method call
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         BinaryExpression call = new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("add5"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, 6);
         List<MethodCallExpression> calls = findMethod("U.java", "int add5(int,int)").getMethodUsages();
 
         // Assert
@@ -148,7 +149,7 @@ public class MethodUsageResolverTest {
         // Expected method call
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         BinaryExpression call = new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("add6"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, 10);
         List<MethodCallExpression> calls = findMethod("U.java", "int add6(int,int)").getMethodUsages();
 
         // Assert
@@ -160,12 +161,12 @@ public class MethodUsageResolverTest {
     @Test
     public void testMethodCallOnMethodCall() {
         // Prepare
-        MethodCallExpression lhMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>());
+        MethodCallExpression lhMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>(), 10);
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         BinaryExpression call = new BinaryExpression(lhMethodCall, BinaryOperation.DOT, identifier("add7"));
 
         // Prepare for the prior method call
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>());
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>(), 10);
         List<MethodCallExpression> calls = findMethod("Z.java", "U otherAdd1()").getMethodUsages();
 
         // Assert
@@ -173,7 +174,7 @@ public class MethodUsageResolverTest {
         assertEquals(expectedMethodCall, calls.get(0));
 
         // Prepare for the latter method call
-        expectedMethodCall = new MethodCallExpression(call, args);
+        expectedMethodCall = new MethodCallExpression(call, args, 10);
         calls = findMethod("U.java", "int add7(int,int)").getMethodUsages();
 
         // Assert
@@ -187,7 +188,7 @@ public class MethodUsageResolverTest {
         // Expected method call
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("z")),
-                        BinaryOperation.DOT, identifier("test1")), new ArrayList<>());
+                        BinaryOperation.DOT, identifier("test1")), new ArrayList<>(), 14);
 
         List<MethodCallExpression> calls = findMethod("Z.java", "void test1()").getMethodUsages();
 
@@ -202,7 +203,7 @@ public class MethodUsageResolverTest {
         // Expected method call
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("z")),
-                        BinaryOperation.DOT, identifier("test2")), new ArrayList<>());
+                        BinaryOperation.DOT, identifier("test2")), new ArrayList<>(), 18);
         List<MethodCallExpression> calls = findMethod("Z.java", "void test2()").getMethodUsages();
 
         // Assert

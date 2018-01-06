@@ -21,8 +21,8 @@ public class MethodCallExpression implements Expression {
         this.lineNumber = lineNumber;
     }
 
-    public MethodCallExpression(Expression methodName) {
-        this(methodName, new ArrayList<>(), -1);
+    public MethodCallExpression(Expression methodName, int lineNumber) {
+        this(methodName, new ArrayList<>(), lineNumber);
     }
 
     public Expression getMethodName() {
