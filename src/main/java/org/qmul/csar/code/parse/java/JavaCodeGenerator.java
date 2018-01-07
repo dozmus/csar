@@ -1283,6 +1283,9 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         for (InterfaceBodyDeclarationContext intBody : ctxs) {
             InterfaceMemberDeclarationContext memberDec = intBody.interfaceMemberDeclaration();
 
+            if (memberDec == null)
+                continue;
+
             InterfaceMethodDeclarationContext method = memberDec.interfaceMethodDeclaration();
             GenericInterfaceMethodDeclarationContext genericMethod
                     = memberDec.genericInterfaceMethodDeclaration();
