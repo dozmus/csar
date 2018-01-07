@@ -24,8 +24,6 @@ import static org.qmul.csar.code.parse.java.expression.UnitExpression.ValueType.
 @RunWith(value = Parameterized.class)
 public final class JavaCodeGeneratorTest {
 
-    // TODO test instantiation class with a body
-
     private static final BinaryExpression SOUT_PRINTLN = new BinaryExpression(new BinaryExpression(
             new UnitExpression(IDENTIFIER, "System"), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")),
             BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
@@ -867,6 +865,46 @@ public final class JavaCodeGeneratorTest {
                 .build(), classBlock, new ArrayList<>()));
     }
 
+
+    /**
+     * A <tt>TypeStatement</tt> representing the contents of 'Sample13.java' inside <tt>SAMPLES_DIRECTORY</tt>.
+     *
+     * @return
+     */
+    private static TypeStatement sample13() {
+        // Inner class instantiation's method
+        MethodStatement runMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("run")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .returnType("void")
+                .parameterCount(0)
+                .build(),
+                new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>(), 5);
+
+        // Inner class instantiation
+        ExpressionStatement innerClassInstantiation = new ExpressionStatement(new InstantiateClassExpression(
+                new ClassDescriptor(
+                        new IdentifierName.Static("Worker"), Optional.empty(), Optional.of(false), Optional.of(false),
+                        Optional.of(false), Optional.of(false), Optional.of(false), Optional.of(false),
+                        Optional.of(true), Optional.of(false), new ArrayList<>(), new ArrayList<>(), Optional.empty()
+                ),
+                Optional.of(new BlockStatement(Arrays.asList(runMethod))), new ArrayList<>(), new ArrayList<>(), false
+        ));
+
+        // Method
+        MethodStatement aMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("a")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .returnType("void")
+                .parameterCount(0)
+                .build(),
+                new ArrayList<>(), new BlockStatement(Arrays.asList(innerClassInstantiation)), new ArrayList<>(), 3);
+
+        // Class
+        ClassStatement clazz = new ClassStatement(ClassDescriptor.Builder.allFalse("Sample13")
+                .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE).build(),
+                new BlockStatement(Arrays.asList(aMethod)), new ArrayList<>());
+        return new TopLevelTypeStatement(Optional.empty(), new ArrayList<>(), clazz);
+    }
+
     @Parameterized.Parameters(name = "{index}: \"{1}\"")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
@@ -881,7 +919,8 @@ public final class JavaCodeGeneratorTest {
                 {sample9(), "Sample9.java"},
                 {sample10(), "Sample10.java"},
                 {sample11(), "Sample11.java"},
-                {sample12(), "Sample12.java"}
+                {sample12(), "Sample12.java"},
+                {sample13(), "Sample13.java"}
         });
     }
 
