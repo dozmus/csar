@@ -1355,9 +1355,11 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
     @Override
     public void enterImportDeclaration(ImportDeclarationContext ctx) {
-        String qualifiedName = ctx.qualifiedName().getText() + (ctx.DOT() != null && ctx.MUL() != null ? ".*" : "");
-        boolean staticModifier = ctx.STATIC() != null;
-        imports.add(new ImportStatement(qualifiedName, staticModifier));
+        if (ctx.IMPORT() != null) { // if its not just a semi-colon
+            String qualifiedName = ctx.qualifiedName().getText() + (ctx.DOT() != null && ctx.MUL() != null ? ".*" : "");
+            boolean staticModifier = ctx.STATIC() != null;
+            imports.add(new ImportStatement(qualifiedName, staticModifier));
+        }
     }
 
     @Override
