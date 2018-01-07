@@ -13,8 +13,14 @@ import java.util.Optional;
 
 public class ForStatement implements Statement {
 
+    /**
+     * Initialization variable (empty if we have multiple initialization expressions list instead).
+     */
     private final Optional<LocalVariableStatements> initVariables;
-    private final List<Expression> initExpressions; // TODO document what this is
+    /**
+     * Multiple initialization expressions (empty if we have an initialization variable instead).
+     */
+    private final List<Expression> initExpressions;
     private final Optional<Expression> condition;
     private final List<Expression> updateExpressions;
     private final Statement statement;
