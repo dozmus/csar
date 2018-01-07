@@ -9,7 +9,7 @@ public enum BinaryOperation {
     AND("&&"), OR("||"),
     ASSIGN("="),
     ADD_ASSIGN("+="), SUB_ASSIGN("-="), MUL_ASSIGN("*="), DIV_ASSIGN("/="), AND_ASSIGN("&="), OR_ASSIGN("|="),
-    XOR_ASSIGN("^="), RSHIFT_ASSIGN(">>="), LSHIFT_ASSIGN("<<="), MOD_ASSIGN("%="),
+    XOR_ASSIGN("^="), RSHIFT_ASSIGN(">>="), LSHIFT_ASSIGN("<<="), UNSIGNED_RSHIFT_ASSIGN(">>>="), MOD_ASSIGN("%="),
     LSHIFT("<<"), RSHIFT(">>"), UNSIGNED_RSHIFT(">>>"),
     DOT("."),
     QUESTION("?");
