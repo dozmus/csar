@@ -34,4 +34,9 @@ public final class JsonResultFormatterTest {
         Result result2 = new Result(path2, lineNumber2, codeFragment2);
         assertEquals(expected2, result1, result2);
     }
+
+    @Test
+    public void testEmptyResultsList() throws Exception {
+        assertEquals("[ ]");
+    }
 }

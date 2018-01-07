@@ -33,4 +33,9 @@ public final class PlainTextResultFormatterTest {
         Result result2 = new Result(path2, lineNumber2, codeFragment2);
         assertEquals(expected1 + System.lineSeparator() + expected2, result1, result2);
     }
+
+    @Test
+    public void testEmptyResultsList() throws Exception {
+        assertEquals("None");
+    }
 }
