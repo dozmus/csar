@@ -668,7 +668,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         // Fall-back: expression LPAREN expressionList? RPAREN
         if (ctx.expression().size() > 0) {
             Expression method = parseExpression(ctx.expression(0));
-            int lineNo = ctx.LPAREN().getSymbol().getLine(); // TODO improve, to be on expression
+            int lineNo = ctx.LPAREN().getSymbol().getLine(); // TODO improve, to be in expression
             List<Expression> parameters = new ArrayList<>();
 
             if (ctx.expressionList() != null) {

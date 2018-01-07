@@ -49,8 +49,13 @@ public abstract class StatementVisitor {
         } else if (statement instanceof EnumStatement) {
             visitEnumStatement((EnumStatement)statement);
             exitEnumStatement((EnumStatement)statement);
+        } else if (statement instanceof ThrowStatement) {
+            visitThrowStatement((ThrowStatement)statement);
+            exitThrowStatement((ThrowStatement)statement);
+        } else if (statement instanceof TryWithResourcesStatement) {
+            visitTryWithResourcesStatement((TryWithResourcesStatement)statement);
+            exitTryWithResourcesStatement((TryWithResourcesStatement)statement);
         } else if (statement instanceof ExpressionStatement) {
-            // TODO this might cause enterThrowStatement to not be called
             visitExpressionStatement((ExpressionStatement)statement);
             exitExpressionStatement((ExpressionStatement)statement);
         } else if (statement instanceof ForEachStatement) {
@@ -104,18 +109,12 @@ public abstract class StatementVisitor {
         } else if (statement instanceof SynchronizedStatement) {
             visitSynchronizedStatement((SynchronizedStatement)statement);
             exitSynchronizedStatement((SynchronizedStatement)statement);
-        } else if (statement instanceof ThrowStatement) {
-            visitThrowStatement((ThrowStatement)statement);
-            exitThrowStatement((ThrowStatement)statement);
         } else if (statement instanceof TopLevelTypeStatement) {
             visitTopLevelTypeStatement((TopLevelTypeStatement)statement);
             exitTopLevelTypeStatement((TopLevelTypeStatement)statement);
         } else if (statement instanceof TryStatement) {
             visitTryStatement((TryStatement)statement);
             exitTryStatement((TryStatement)statement);
-        } else if (statement instanceof TryWithResourcesStatement) {
-            visitTryWithResourcesStatement((TryWithResourcesStatement)statement);
-            exitTryWithResourcesStatement((TryWithResourcesStatement)statement);
         } else if (statement instanceof WhileStatement) {
             visitWhileStatement((WhileStatement)statement);
             exitWhileStatement((WhileStatement)statement);

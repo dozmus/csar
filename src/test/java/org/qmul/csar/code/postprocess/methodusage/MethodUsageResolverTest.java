@@ -184,7 +184,6 @@ public class MethodUsageResolverTest {
 
     @Test
     public void testSuperVariableMethodCall() {
-        // TODO impl and test: method call on variable in super
         // Expected method call
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("z")),
@@ -199,7 +198,6 @@ public class MethodUsageResolverTest {
 
     @Test
     public void testThisVariableMethodCall() {
-        // TODO impl and test: method call on variable in this
         // Expected method call
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("z")),

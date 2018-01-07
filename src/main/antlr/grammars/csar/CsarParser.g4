@@ -10,7 +10,7 @@ options {
 
 // Csar query (top-level)
 csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
-containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*; // TODO allow parentheses
+containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*;
 containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
 fromQuery: FROM SPACE typeList;
 refactorQuery: REFACTOR SPACE refactorDescriptor;

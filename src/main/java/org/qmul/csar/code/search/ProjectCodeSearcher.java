@@ -208,7 +208,6 @@ public class ProjectCodeSearcher {
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
         visitor.visitStatement(statement);
 
-        // TODO: containsQuery
         // TODO: fromTarget
 
         // Aggregate and return results
@@ -236,7 +235,6 @@ public class ProjectCodeSearcher {
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
         visitor.visitStatement(statement);
 
-        // TODO: containsQuery
         // TODO: fromTarget
 
         // Aggregate and return results

@@ -7,8 +7,6 @@ import java.util.Map;
 
 public class MethodUsageResolver {
 
-    // TODO finish
-
     public void resolve(Map<Path, Statement> code) {
         for (Map.Entry<Path, Statement> file : code.entrySet()) {
             Path path = file.getKey();

@@ -92,7 +92,6 @@ public class MethodCallResolver {
         Expression r = expression.getRight();
         System.out.println("[RBE] Resolve [l=" + l.getClass().getSimpleName() + ", r=" + r.getClass().getSimpleName() + "]");
 
-        // TODO impl for variables, etc.
         if (l instanceof BinaryExpression && r instanceof UnitExpression) { // step case
             System.out.println("[RBE] Handled");
             QualifiedType type = resolveInBinaryExpression((BinaryExpression)l, methodCallExpression, k + 1,
