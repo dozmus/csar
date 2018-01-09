@@ -36,6 +36,7 @@ public final class JavaCodeParser implements CodeParser {
         // Generate the code tree for it
         ParseTreeWalker walker = new ParseTreeWalker();
         JavaCodeGenerator gen = new JavaCodeGenerator();
+        gen.setPath(file);
         walker.walk(gen, parser.compilationUnit());
         return gen.getRootStatement();
     }

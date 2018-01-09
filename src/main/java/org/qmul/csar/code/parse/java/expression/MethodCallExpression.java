@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,16 +14,18 @@ public class MethodCallExpression implements Expression {
 
     private final Expression methodName;
     private final List<Expression> arguments;
+    private final Path path;
     private final int lineNumber;
 
-    public MethodCallExpression(Expression methodName, List<Expression> arguments, int lineNumber) {
+    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber) {
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);
+        this.path = path;
         this.lineNumber = lineNumber;
     }
 
-    public MethodCallExpression(Expression methodName, int lineNumber) {
-        this(methodName, new ArrayList<>(), lineNumber);
+    public MethodCallExpression(Expression methodName, Path path, int lineNumber) {
+        this(methodName, new ArrayList<>(), path, lineNumber);
     }
 
     public Expression getMethodName() {
@@ -31,6 +34,10 @@ public class MethodCallExpression implements Expression {
 
     public List<Expression> getArguments() {
         return arguments;
+    }
+
+    public Path getPath() {
+        return path;
     }
 
     public int getLineNumber() {
@@ -44,12 +51,13 @@ public class MethodCallExpression implements Expression {
         MethodCallExpression that = (MethodCallExpression) o;
         return Objects.equals(methodName, that.methodName)
                 && Objects.equals(arguments, that.arguments)
+                && Objects.equals(path, that.path)
                 && Objects.equals(lineNumber, that.lineNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, arguments);
+        return Objects.hash(methodName, arguments, path, lineNumber);
     }
 
     @Override
@@ -57,6 +65,7 @@ public class MethodCallExpression implements Expression {
         return new ToStringBuilder(this)
                 .append("methodName", methodName)
                 .append("arguments", arguments)
+                .append("path", path)
                 .append("lineNo", lineNumber)
                 .toString();
     }

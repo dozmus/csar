@@ -9,6 +9,7 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.*;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
      * sets the {@link #root} property. Other type declarations are parsed elsewhere.
      */
     private boolean processedMainTypeDecl = false;
+    private Path path;
 
     private static void applyModifiers(ClassDescriptor.Builder builder, List<ClassOrInterfaceModifierContext> ctxs) {
         for (ClassOrInterfaceModifierContext mod : ctxs) {
@@ -149,7 +151,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 .collect(Collectors.toList());
     }
 
-    private static List<Annotation> parseVariableModifierAnnotations(List<VariableModifierContext> ctxs) {
+    private List<Annotation> parseVariableModifierAnnotations(List<VariableModifierContext> ctxs) {
         List<Annotation> annotations = new ArrayList<>();
 
         for (VariableModifierContext ctx : ctxs) {
@@ -160,7 +162,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return annotations;
     }
 
-    private static List<Annotation> parseInterfaceModifierAnnotations(List<InterfaceMethodModifierContext> ctxs) {
+    private List<Annotation> parseInterfaceModifierAnnotations(List<InterfaceMethodModifierContext> ctxs) {
         List<Annotation> annotations = new ArrayList<>();
 
         for (InterfaceMethodModifierContext ctx : ctxs) {
@@ -171,7 +173,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return annotations;
     }
 
-    private static List<Annotation> parseModifierAnnotations(List<ModifierContext> ctxs) {
+    private List<Annotation> parseModifierAnnotations(List<ModifierContext> ctxs) {
         List<Annotation> annotations = new ArrayList<>();
 
         for (ModifierContext modifierContext : ctxs) {
@@ -184,7 +186,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return annotations;
     }
 
-    private static List<Annotation> parseClassOrInterfaceAnnotations(List<ClassOrInterfaceModifierContext> ctxs) {
+    private List<Annotation> parseClassOrInterfaceAnnotations(List<ClassOrInterfaceModifierContext> ctxs) {
         List<Annotation> annotations = new ArrayList<>();
 
         for (ClassOrInterfaceModifierContext ctx : ctxs) {
@@ -195,7 +197,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return annotations;
     }
 
-    private static List<Annotation> parseAnnotations(List<AnnotationContext> ctxs) {
+    private List<Annotation> parseAnnotations(List<AnnotationContext> ctxs) {
         List<Annotation> annotations = new ArrayList<>();
 
         for (AnnotationContext ctx : ctxs) {
@@ -204,7 +206,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return annotations;
     }
 
-    private static Annotation parseAnnotation(AnnotationContext ctx) {
+    private Annotation parseAnnotation(AnnotationContext ctx) {
         String identifierName = ctx.qualifiedName().getText();
         Optional<Annotation.Value> value = Optional.empty();
 
@@ -221,7 +223,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new Annotation(identifierName, value);
     }
 
-    private static Annotation.Value parseAnnotationElementValue(String identifierName, ElementValueContext ctx) {
+    private Annotation.Value parseAnnotationElementValue(String identifierName, ElementValueContext ctx) {
         if (ctx.expression() != null) {
             return new Annotation.ExpressionValue(identifierName, parseExpression(ctx.expression()));
         } else if (ctx.annotation() != null) {
@@ -246,7 +248,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 .anyMatch(vm -> vm.classOrInterfaceModifier().ABSTRACT() != null);
     }
 
-    private static List<ParameterVariableStatement> parseParameters(FormalParameterListContext ctx) {
+    private List<ParameterVariableStatement> parseParameters(FormalParameterListContext ctx) {
         if (ctx == null)
             return new ArrayList<>();
         List<ParameterVariableStatement> variables = new ArrayList<>();
@@ -262,7 +264,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return variables;
     }
 
-    private static ParameterVariableStatement parseParameter(VariableDeclaratorIdContext variableDeclaratorCtx,
+    private ParameterVariableStatement parseParameter(VariableDeclaratorIdContext variableDeclaratorCtx,
             TypeTypeContext typeCtx, List<VariableModifierContext> modifiers, boolean varargs) {
         String name = variableDeclaratorCtx.IDENTIFIER().getText();
         String type = appendBracketsToType(typeCtx.getText(), variableDeclaratorCtx.LBRACK());
@@ -332,13 +334,13 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static MethodStatement parseMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
+    private MethodStatement parseMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
             List<ModifierContext> modifiers, FormalParameterListContext parameterCtx,
             QualifiedNameListContext throwsCtx, boolean overridden, BlockContext blockCtx) {
         return parseMethod(identifier, returnType, modifiers, parameterCtx, throwsCtx, overridden, blockCtx, null);
     }
 
-    private static MethodStatement parseMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
+    private MethodStatement parseMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
             List<ModifierContext> modifiers, FormalParameterListContext parameterCtx,
             QualifiedNameListContext throwsCtx, boolean overridden, BlockContext blockCtx,
             TypeParametersContext typeParametersCtx) {
@@ -377,7 +379,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine());
     }
 
-    private static MethodStatement parseInterfaceMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
+    private MethodStatement parseInterfaceMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
             List<ModifierContext> intBodyMods, List<InterfaceMethodModifierContext> modifiers,
             FormalParameterListContext parameterCtx, QualifiedNameListContext throwsCtx, boolean overridden,
             BlockContext blockCtx) {
@@ -385,7 +387,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 blockCtx, null);
     }
 
-    private static MethodStatement parseInterfaceMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
+    private MethodStatement parseInterfaceMethod(TerminalNode identifier, TypeTypeOrVoidContext returnType,
             List<ModifierContext> intBodyMods, List<InterfaceMethodModifierContext> modifiers,
             FormalParameterListContext parameterCtx, QualifiedNameListContext throwsCtx, boolean overridden,
             BlockContext blockCtx, TypeParametersContext typeParametersCtx) {
@@ -440,12 +442,12 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                 .thrownExceptions(parseThrows(throwsCtx));
     }
 
-    private static ConstructorStatement parseConstructor(TerminalNode identifier, List<ModifierContext> modifiers,
+    private ConstructorStatement parseConstructor(TerminalNode identifier, List<ModifierContext> modifiers,
             FormalParameterListContext parameterCtx, QualifiedNameListContext throwsCtx, BlockContext block) {
         return parseConstructor(identifier, modifiers, parameterCtx, throwsCtx, block, null);
     }
 
-    private static ConstructorStatement parseConstructor(TerminalNode identifier, List<ModifierContext> modifiers,
+    private ConstructorStatement parseConstructor(TerminalNode identifier, List<ModifierContext> modifiers,
             FormalParameterListContext parameterCtx, QualifiedNameListContext throwsCtx, BlockContext blockCtx,
             TypeParametersContext typeParametersCtx) {
         ConstructorStatement.Builder builder = new ConstructorStatement.Builder(identifier.getText())
@@ -484,7 +486,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return builder.parameterCount(params.size()).parameters(params).build();
     }
 
-    private static Expression parseExpression(ExpressionContext ctx) {
+    private Expression parseExpression(ExpressionContext ctx) {
         if (ctx.primary() != null) {
             PrimaryContext primary = ctx.primary();
             UnitExpression.ValueType valueType;
@@ -677,22 +679,22 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                     parameters.add(parseExpression(ectx));
                 }
             }
-            return new MethodCallExpression(method, parameters, lineNo);
+            return new MethodCallExpression(method, parameters, path, lineNo);
         }
         throw new IllegalArgumentException("invalid context");
     }
 
-    private static BlockStatement parseBlockStatements(BlockContext ctx) {
+    private BlockStatement parseBlockStatements(BlockContext ctx) {
         return ctx == null ? BlockStatement.EMPTY : parseBlockStatements(ctx.blockStatement());
     }
 
-    private static BlockStatement parseBlockStatements(List<BlockStatementContext> ctxs) {
+    private BlockStatement parseBlockStatements(List<BlockStatementContext> ctxs) {
         return ctxs == null ? BlockStatement.EMPTY
-                : new BlockStatement(ctxs.stream().map(JavaCodeGenerator::parseBlockStatement)
+                : new BlockStatement(ctxs.stream().map(this::parseBlockStatement)
                         .collect(Collectors.toList()));
     }
 
-    private static Statement parseBlockStatement(BlockStatementContext st) {
+    private Statement parseBlockStatement(BlockStatementContext st) {
         // local variable declaration
         LocalVariableDeclarationContext local = st.localVariableDeclaration();
 
@@ -720,7 +722,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static SwitchLabelStatement parseSwitchLabel(SwitchLabelContext ctx) {
+    private SwitchLabelStatement parseSwitchLabel(SwitchLabelContext ctx) {
         if (ctx.constantExpression != null) {
             return new SwitchLabelStatement(parseExpression(ctx.constantExpression));
         } else if (ctx.enumConstantName != null) {
@@ -730,7 +732,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static LocalVariableStatements parseLocalVariables(LocalVariableDeclarationContext dec) {
+    private LocalVariableStatements parseLocalVariables(LocalVariableDeclarationContext dec) {
         List<LocalVariableStatement> locals = new ArrayList<>();
         List<Annotation> annotations = parseVariableModifierAnnotations(dec.variableModifier());
         boolean finalModifier = containsFinal(dec.variableModifier());
@@ -754,7 +756,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new LocalVariableStatements(locals);
     }
 
-    private static Statement parseStatement(StatementContext ctx) {
+    private Statement parseStatement(StatementContext ctx) {
         if (ctx.THROW() != null) {
             return new ThrowStatement(parseExpression(ctx.expression(0)));
         } else if (ctx.SWITCH() != null) {
@@ -918,11 +920,11 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static Optional<BlockStatement> parseFinallyBlock(FinallyBlockContext ctx) {
+    private Optional<BlockStatement> parseFinallyBlock(FinallyBlockContext ctx) {
         return ctx != null ? Optional.of(parseBlockStatements(ctx.block())) : Optional.empty();
     }
 
-    private static List<CatchStatement> parseCatchStatements(List<CatchClauseContext> ctxs) {
+    private List<CatchStatement> parseCatchStatements(List<CatchClauseContext> ctxs) {
         List<CatchStatement> catchStatements = new ArrayList<>();
 
         for (CatchClauseContext catchClauseCtx : ctxs) {
@@ -945,7 +947,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return catchStatements;
     }
 
-    private static Expression parseVariableInitializerExpression(VariableInitializerContext ctx) {
+    private Expression parseVariableInitializerExpression(VariableInitializerContext ctx) {
         if (ctx.expression() != null) {
             return parseExpression(ctx.expression());
         } else { // array initializer
@@ -958,12 +960,12 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         }
     }
 
-    private static AnnotationStatement parseAnnotationDefinition(List<ClassOrInterfaceModifierContext> ctxs,
+    private AnnotationStatement parseAnnotationDefinition(List<ClassOrInterfaceModifierContext> ctxs,
             AnnotationTypeDeclarationContext decCtx) {
         return parseAnnotationDefinition(ctxs, decCtx, false);
     }
 
-    private static AnnotationStatement parseAnnotationDefinition(List<ClassOrInterfaceModifierContext> modifiers,
+    private AnnotationStatement parseAnnotationDefinition(List<ClassOrInterfaceModifierContext> modifiers,
             AnnotationTypeDeclarationContext dec, boolean inner) {
         String identifierName = dec.IDENTIFIER().getText();
         AnnotationDescriptor.Builder builder = new AnnotationDescriptor.Builder(identifierName)
@@ -981,7 +983,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new AnnotationStatement(builder.build(), block, annotations);
     }
 
-    private static BlockStatement parseAnnotationBody(List<AnnotationTypeElementDeclarationContext> ctxs) {
+    private BlockStatement parseAnnotationBody(List<AnnotationTypeElementDeclarationContext> ctxs) {
         if (ctxs == null)
             return BlockStatement.EMPTY;
         List<Statement> statements = new ArrayList<>();
@@ -1058,11 +1060,11 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return node != null ? Optional.of(node.getText()) : Optional.empty();
     }
 
-    private static EnumStatement parseEnum(TypeDeclarationContext ctx) {
+    private EnumStatement parseEnum(TypeDeclarationContext ctx) {
         return parseEnum(ctx.classOrInterfaceModifier(), ctx.enumDeclaration(), false);
     }
 
-    private static EnumStatement parseEnum(List<ClassOrInterfaceModifierContext> classOrInterfaceModifierContexts,
+    private EnumStatement parseEnum(List<ClassOrInterfaceModifierContext> classOrInterfaceModifierContexts,
             EnumDeclarationContext dec, boolean inner) {
         String identifierName = dec.IDENTIFIER().getText();
         EnumDescriptor.Builder builder = EnumDescriptor.Builder.allFalse(identifierName)
@@ -1092,7 +1094,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new EnumStatement(builder.build(), new BlockStatement(block), annotations);
     }
 
-    private static List<Statement> parseEnumConstantDeclaration(List<EnumConstantContext> ctxs) {
+    private List<Statement> parseEnumConstantDeclaration(List<EnumConstantContext> ctxs) {
         if (ctxs == null)
             return new ArrayList<>();
         List<Statement> statements = new ArrayList<>();
@@ -1124,11 +1126,11 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return statements;
     }
 
-    private static ClassStatement parseClass(TypeDeclarationContext ctx) {
+    private ClassStatement parseClass(TypeDeclarationContext ctx) {
         return parseClass(ctx.classOrInterfaceModifier(), ctx.classDeclaration(), false, false);
     }
 
-    private static ClassStatement parseClass(List<ClassOrInterfaceModifierContext> classOrInterfaceModifierContexts,
+    private ClassStatement parseClass(List<ClassOrInterfaceModifierContext> classOrInterfaceModifierContexts,
             ClassDeclarationContext dec, boolean local, boolean inner) {
         String identifierName = dec.IDENTIFIER().getText();
         ClassDescriptor.Builder builder = ClassDescriptor.Builder.allFalse(identifierName)
@@ -1160,7 +1162,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new ClassStatement(builder.build(), block, annotations);
     }
 
-    private static BlockStatement parseClassBodyDeclaration(List<ClassBodyDeclarationContext> ctxs) {
+    private BlockStatement parseClassBodyDeclaration(List<ClassBodyDeclarationContext> ctxs) {
         if (ctxs == null)
             return BlockStatement.EMPTY;
         List<Statement> statements = new ArrayList<>();
@@ -1245,11 +1247,11 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new BlockStatement(statements);
     }
 
-    private static ClassStatement parseInterface(TypeDeclarationContext ctx) {
+    private ClassStatement parseInterface(TypeDeclarationContext ctx) {
         return parseInterface(ctx.classOrInterfaceModifier(), ctx.interfaceDeclaration(), false, false);
     }
 
-    private static ClassStatement parseInterface(List<ClassOrInterfaceModifierContext> modCtxs,
+    private ClassStatement parseInterface(List<ClassOrInterfaceModifierContext> modCtxs,
             InterfaceDeclarationContext dec, boolean local, boolean inner) {
         String identifierName = dec.IDENTIFIER().getText();
         ClassDescriptor.Builder builder = ClassDescriptor.Builder.allFalse(identifierName)
@@ -1275,7 +1277,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
         return new ClassStatement(builder.build(), block, annotations);
     }
 
-    private static BlockStatement parseInterfaceBodyDeclaration(List<InterfaceBodyDeclarationContext> ctxs) {
+    private BlockStatement parseInterfaceBodyDeclaration(List<InterfaceBodyDeclarationContext> ctxs) {
         if (ctxs == null)
             return BlockStatement.EMPTY;
         List<Statement> statements = new ArrayList<>();
@@ -1408,5 +1410,9 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
     public TypeStatement getRootStatement() {
         return root;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
     }
 }

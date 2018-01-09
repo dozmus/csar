@@ -1,7 +1,6 @@
 package org.qmul.csar.code.search;
 
 import org.qmul.csar.code.PathProcessorErrorListener;
-import org.qmul.csar.code.parse.java.expression.MethodCallExpression;
 import org.qmul.csar.code.parse.java.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.Statement;
@@ -12,6 +11,7 @@ import org.qmul.csar.query.TargetDescriptor;
 import org.qmul.csar.result.Result;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.NamedThreadFactory;
+import org.qmul.csar.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +87,7 @@ public class ProjectCodeSearcher {
         // Submit tasks
         final List<Result> results = Collections.synchronizedList(new ArrayList<>());
         LOGGER.info("Starting...");
+        LOGGER.trace("Domain (FromQuery): {}", query.getFromTarget());
 
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
@@ -112,7 +113,7 @@ public class ProjectCodeSearcher {
                                 if (query.getSearchTarget().getSearchType().get() == SearchType.DEF) {
                                     results.addAll(methodDefinitionSearch(searchTarget, file, statement));
                                 } else {
-                                    results.addAll(methodUsageSearch(searchTarget, file, statement));
+                                    results.addAll(methodUsageSearch(searchTarget, statement));
                                 }
                             } else {
                                 throw new UnsupportedOperationException("unsupported search target: "
@@ -199,26 +200,39 @@ public class ProjectCodeSearcher {
     /**
      * Returns search matches for method usages.
      * @param targetDescriptor the target descriptor to search for
-     * @param path the file being searched
      * @param statement the parsed contents of the file being searched
      * @return returns search matches for method definitions
      */
-    private List<Result> methodUsageSearch(TargetDescriptor targetDescriptor, Path path, Statement statement) {
+    private List<Result> methodUsageSearch(TargetDescriptor targetDescriptor, Statement statement) {
         // Search
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
         visitor.visitStatement(statement);
-
-        // TODO: fromTarget
 
         // Aggregate and return results
         List<Result> results = new ArrayList<>();
 
         for (Statement st : visitor.getResults()) {
             MethodStatement method = (MethodStatement)st;
+            List<Result> tmpResults = method.getMethodUsages()
+                    .stream()
+                    .filter(expr -> {
+                        if (query.getFromTarget().size() == 0)
+                            return true;
 
-            for (MethodCallExpression expr : method.getMethodUsages()) {
-                results.add(new Result(path, expr.getLineNumber(), expr.toPseudoCode()));
-            }
+                        // From Query
+                        String fileNameWithoutExt = StringUtils.getFileNameWithoutExtension(expr.getPath());
+
+                        for (String fromDomain : query.getFromTarget()) {
+                            if (fromDomain.equals(fileNameWithoutExt)) {
+                                System.out.println("TRUE");
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                    .map(expr -> new Result(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode()))
+                    .collect(Collectors.toList());
+            results.addAll(tmpResults);
         }
         return results;
     }
@@ -231,11 +245,27 @@ public class ProjectCodeSearcher {
      * @return returns search matches for method definitions
      */
     private List<Result> methodDefinitionSearch(TargetDescriptor targetDescriptor, Path path, Statement statement) {
+        // From Query
+        if (query.getFromTarget().size() > 0) {
+            String fileNameWithoutExt = StringUtils.getFileNameWithoutExtension(path);
+            boolean valid = false;
+
+            for (String fromDomain : query.getFromTarget()) {
+                if (fromDomain.equals(fileNameWithoutExt)) {
+                    valid = true;
+                    break;
+                }
+            }
+
+            if (!valid) {
+                LOGGER.trace("Skipped {}", path);
+                return new ArrayList<>();
+            }
+        }
+
         // Search
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
         visitor.visitStatement(statement);
-
-        // TODO: fromTarget
 
         // Aggregate and return results
         return visitor.getResults()
