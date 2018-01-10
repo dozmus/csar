@@ -149,14 +149,6 @@ public class MethodDescriptor implements Descriptor {
         this.overridden = overridden;
     }
 
-    public boolean signatureEquals(MethodDescriptor descriptor) {
-        // TODO generics in return types
-        // TODO check for return types that are subtypes
-        return identifierName.equals(descriptor.getIdentifierName())
-                && returnType.isPresent() && returnType.equals(descriptor.getReturnType())
-                && ParameterVariableDescriptor.parametersSignatureEquals(parameters, descriptor.getParameters());
-    }
-
     /**
      * Returns the signature of this method. This does not apply type erasure or translate varargs into array notation.
      *

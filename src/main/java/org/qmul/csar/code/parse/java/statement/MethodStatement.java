@@ -2,9 +2,12 @@ package org.qmul.csar.code.parse.java.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.expression.MethodCallExpression;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
+import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
 import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
 
@@ -23,6 +26,10 @@ public class MethodStatement implements Statement {
     private final List<ParameterVariableStatement> params;
     private final BlockStatement block;
     private final List<Annotation> annotations;
+    /**
+     * Updated by {@link org.qmul.csar.code.postprocess.methodtypes.MethodQualifiedTypeResolver} in post-processing.
+     */
+    private QualifiedType returnQualifiedType;
     /**
      * Updated by {@link org.qmul.csar.code.postprocess.methodusage.MethodUsageResolver} in post-processing.
      */
@@ -54,12 +61,45 @@ public class MethodStatement implements Statement {
         return annotations;
     }
 
+    public QualifiedType getReturnQualifiedType() {
+        return returnQualifiedType;
+    }
+
+    public void setReturnQualifiedType(QualifiedType returnQualifiedType) {
+        this.returnQualifiedType = returnQualifiedType;
+    }
+
     public List<MethodCallExpression> getMethodUsages() {
         return methodUsages;
     }
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    /**
+     * Returns if this method's signature equals the argument one, the current method is treated as one from a
+     * potential superclass. So the argument descriptor is accepted if its return type or parameter types are
+     * subtypes of the super's.
+     * @param oMethod
+     * @return
+     */
+    public boolean signatureEquals(MethodStatement oMethod, TypeHierarchyResolver typeHierarchyResolver) {
+        // TODO fix and test generics in return types
+        System.out.println(getDescriptor().signature() + " vs " + oMethod.getDescriptor().signature());
+        MethodDescriptor oDescriptor = oMethod.getDescriptor();
+        boolean returnTypeEquals;
+
+        if (returnQualifiedType != null && oMethod.getReturnQualifiedType() != null) {
+            returnTypeEquals = typeHierarchyResolver.isSubtype(returnQualifiedType.getQualifiedName(),
+                    oMethod.getReturnQualifiedType().getQualifiedName());
+        } else { // assume they can be from java api, so we dont check for correctness
+            returnTypeEquals = descriptor.getReturnType().get().equals(oDescriptor.getReturnType().get());
+        }
+        return descriptor.getIdentifierName().equals(oDescriptor.getIdentifierName())
+                && returnTypeEquals
+                && ParameterVariableDescriptor.parametersSignatureEquals(descriptor.getParameters(),
+                oDescriptor.getParameters());
     }
 
     @Override
@@ -71,6 +111,7 @@ public class MethodStatement implements Statement {
                 && Objects.equals(params, that.params)
                 && Objects.equals(block, that.block)
                 && Objects.equals(annotations, that.annotations)
+                && Objects.equals(returnQualifiedType, that.returnQualifiedType)
                 && Objects.equals(methodUsages, that.methodUsages)
                 && Objects.equals(lineNumber, that.lineNumber);
     }
@@ -87,6 +128,7 @@ public class MethodStatement implements Statement {
                 .append("params", params)
                 .append("block", block)
                 .append("annotations", annotations)
+                .append("returnQualifiedType", returnQualifiedType)
                 .append("methodUsages", methodUsages)
                 .append("lineNumber", lineNumber)
                 .toString();

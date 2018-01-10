@@ -3,6 +3,9 @@ package org.qmul.csar.code.postprocess.overriddenmethods;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.postprocess.methodtypes.MethodQualifiedTypeResolver;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 
@@ -17,7 +20,13 @@ import static org.junit.Assert.assertTrue;
 public class OverriddenMethodsResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
-    private static final OverriddenMethodsResolver resolver = new OverriddenMethodsResolver();
+    private static final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+    private static final TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver,
+            false);
+    private static final MethodQualifiedTypeResolver methodQualifiedTypeResolver
+            = new MethodQualifiedTypeResolver(qualifiedNameResolver);
+    private static final OverriddenMethodsResolver resolver = new OverriddenMethodsResolver(qualifiedNameResolver,
+            typeHierarchyResolver, false);
 
     @BeforeClass
     public static void setUp() {
@@ -25,6 +34,12 @@ public class OverriddenMethodsResolverTest {
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false);
         ProjectCodeParser parser = new ProjectCodeParser(it);
         Map<Path, Statement> code = parser.results();
+
+        // Resolve type hierarchy
+        typeHierarchyResolver.resolve(code);
+
+        // Resolve method types
+        methodQualifiedTypeResolver.resolve(code);
 
         // Resolve overridden methods
         resolver.resolve(code);
@@ -85,5 +100,11 @@ public class OverriddenMethodsResolverTest {
     @Test
     public void testOverriddenForInnerClassInMethod() {
         assertIsOverridden("base.SumImpl5#void method()$InnerImpl#int add(int,int)");
+    }
+
+    @Test
+    public void testOverriddenForSubtypeReturnTypeMethod() {
+        assertIsNotOverridden("base.Class1#A method()");
+        assertIsOverridden("base.Class2#B method()");
     }
 }

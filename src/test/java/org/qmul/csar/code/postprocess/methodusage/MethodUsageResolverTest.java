@@ -168,7 +168,6 @@ public class MethodUsageResolverTest {
         List<MethodCallExpression> calls = findMethod("U.java", "int add6(int,int)").getMethodUsages();
 
         // Assert
-        System.err.println("TMP:"+calls);
         assertEquals(1, calls.size());
         assertEquals(expectedMethodCall, calls.get(0));
     }

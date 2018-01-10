@@ -4,6 +4,7 @@ import org.qmul.csar.code.parse.java.statement.*;
 import org.qmul.csar.code.postprocess.PostProcessUtils;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.ClassDescriptor;
@@ -33,16 +34,22 @@ public class OverriddenMethodsResolver {
      */
     private final QualifiedNameResolver qualifiedNameResolver;
     /**
+     * The type hierarchy resolver to use.
+     */
+    private final TypeHierarchyResolver typeHierarchyResolver;
+    /**
      * If benchmarking output should be printed.
      */
     private final boolean benchmarking;
 
-    public OverriddenMethodsResolver() {
-        this(new QualifiedNameResolver(), false);
+    public OverriddenMethodsResolver(TypeHierarchyResolver typeHierarchyResolver) {
+        this(new QualifiedNameResolver(), typeHierarchyResolver, false);
     }
 
-    public OverriddenMethodsResolver(QualifiedNameResolver qualifiedNameResolver, boolean benchmarking) {
+    public OverriddenMethodsResolver(QualifiedNameResolver qualifiedNameResolver,
+            TypeHierarchyResolver typeHierarchyResolver, boolean benchmarking) {
         this.qualifiedNameResolver = qualifiedNameResolver;
+        this.typeHierarchyResolver = typeHierarchyResolver;
         this.benchmarking = benchmarking;
     }
 
@@ -71,6 +78,7 @@ public class OverriddenMethodsResolver {
         } else {
             LOGGER.info("Finished");
         }
+        System.out.println(map);
     }
 
     public boolean isOverridden(String methodSignature) {
@@ -143,10 +151,11 @@ public class OverriddenMethodsResolver {
                             continue;
                         MethodStatement m2 = (MethodStatement) statement;
                         MethodDescriptor desc2 = m2.getDescriptor();
+                        boolean signatureEquals = m2.signatureEquals(method, typeHierarchyResolver);
                         boolean accessible = PostProcessUtils.isAccessible(desc, desc2, packageStatement,
                                 s.getPackageStatement(), s2);
 
-                        if (!desc2.getStaticModifier().get() && desc2.signatureEquals(desc) && accessible) {
+                        if (!desc2.getStaticModifier().get() && signatureEquals && accessible) {
                             return !desc2.getFinalModifier().get();
                         }
                     }
