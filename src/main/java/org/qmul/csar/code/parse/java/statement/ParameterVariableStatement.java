@@ -1,6 +1,7 @@
 package org.qmul.csar.code.parse.java.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
@@ -16,6 +17,10 @@ public class ParameterVariableStatement implements Statement {
 
     private final ParameterVariableDescriptor descriptor;
     private final List<Annotation> annotations;
+    /**
+     * Updated by {@link org.qmul.csar.code.postprocess.methodtypes.MethodQualifiedTypeResolver} in post-processing.
+     */
+    private QualifiedType qualifiedType;
 
     public ParameterVariableStatement(ParameterVariableDescriptor descriptor, List<Annotation> annotations) {
         this.descriptor = descriptor;
@@ -30,13 +35,22 @@ public class ParameterVariableStatement implements Statement {
         return annotations;
     }
 
+    public QualifiedType getQualifiedType() {
+        return qualifiedType;
+    }
+
+    public void setQualifiedType(QualifiedType qualifiedType) {
+        this.qualifiedType = qualifiedType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ParameterVariableStatement that = (ParameterVariableStatement) o;
         return Objects.equals(descriptor, that.descriptor)
-                && Objects.equals(annotations, that.annotations);
+                && Objects.equals(annotations, that.annotations)
+                && Objects.equals(qualifiedType, that.qualifiedType);
     }
 
     @Override
@@ -49,6 +63,7 @@ public class ParameterVariableStatement implements Statement {
         return new ToStringBuilder(this)
                 .append("descriptor", descriptor)
                 .append("annotations", annotations)
+                .append("returnQualifiedType", qualifiedType)
                 .toString();
     }
 

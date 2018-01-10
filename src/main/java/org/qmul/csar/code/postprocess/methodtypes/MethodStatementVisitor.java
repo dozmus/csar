@@ -3,6 +3,7 @@ package org.qmul.csar.code.postprocess.methodtypes;
 import org.qmul.csar.code.parse.java.statement.ImportStatement;
 import org.qmul.csar.code.parse.java.statement.MethodStatement;
 import org.qmul.csar.code.parse.java.statement.PackageStatement;
+import org.qmul.csar.code.parse.java.statement.ParameterVariableStatement;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
@@ -70,13 +71,15 @@ public class MethodStatementVisitor extends StatementVisitor {
         QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage, imports,
                 returnType);
         statement.setReturnQualifiedType(type);
-
-        // TODO test
     }
 
     private void resolveParameterTypes(MethodStatement statement) {
-        MethodDescriptor desc = statement.getDescriptor();
-
-        // TODO impl
+        // Resolve
+        for (ParameterVariableStatement param : statement.getParameters()) {
+            String parameterType = param.getDescriptor().getIdentifierType().get();
+            QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage,
+                    imports, parameterType);
+            param.setQualifiedType(type);
+        }
     }
 }

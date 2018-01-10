@@ -107,4 +107,10 @@ public class OverriddenMethodsResolverTest {
         assertIsNotOverridden("base.Class1#A method()");
         assertIsOverridden("base.Class2#B method()");
     }
+
+    @Test
+    public void testOverriddenForSubtypeParameterMethod() {
+        assertIsNotOverridden("base.Class1#void method2(A)");
+        assertIsOverridden("base.Class2#void method2(B)");
+    }
 }

@@ -187,6 +187,15 @@ public class TypeHierarchyResolver {
      * @return returns if the first type is a superclass of the second type
      */
     public boolean isSubtype(String type1, String type2) {
+        // TODO sanitize arrays etc?
+        // Normalize varargs
+        if (type1.endsWith("...")) {
+            type1 = type1.substring(0, type1.length() - 3) + "[]";
+        }
+
+        if (type2.endsWith("...")) {
+            type2 = type2.substring(0, type2.length() - 3) + "[]";
+        }
         return type1.equals(type2) || isStrictlySubtype(root, type1, type2);
     }
 

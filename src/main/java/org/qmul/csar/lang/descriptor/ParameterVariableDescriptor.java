@@ -1,6 +1,9 @@
 package org.qmul.csar.lang.descriptor;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.qmul.csar.code.parse.java.statement.ParameterVariableStatement;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.IdentifierName;
 
@@ -28,49 +31,73 @@ public class ParameterVariableDescriptor implements Descriptor {
     }
 
     /**
-     * Returns <tt>true</tt> if the two lists have the same signature. This handles checking generic types and varargs
-     * arguments as well.
+     * Returns <tt>true</tt> if the two lists have the same signature. This handles checking generic types, varargs
+     * and subtypes in arguments as well.
      *
      * @param list1 parameters from a potential super class
      * @param list2 parameters from a potential child class
      * @return <tt>true</tt> if the two lists have the same signature
      */
-    public static boolean parametersSignatureEquals(List<ParameterVariableDescriptor> list1,
-            List<ParameterVariableDescriptor> list2) { // list1 is potential superclass, list2 is potential child
+    public static boolean parametersSignatureEquals(List<ParameterVariableStatement> list1,
+            List<ParameterVariableStatement> list2, TypeHierarchyResolver typeHierarchyResolver) {
+        // TODO ensure correctness
+        // XXX list1 is potential superclass, list2 is potential child
         if (list1.size() != list2.size())
             return false;
         final Pattern genericTypePattern = Pattern.compile("<(.*)>");
 
-        // TODO check if types are subtypes
         for (int i = 0; i < list1.size(); i++) {
-            ParameterVariableDescriptor param1 = list1.get(i);
-            ParameterVariableDescriptor param2 = list2.get(i);
+            ParameterVariableDescriptor param1 = list1.get(i).getDescriptor();
+            ParameterVariableDescriptor param2 = list2.get(i).getDescriptor();
+            QualifiedType qtype1 = list1.get(i).getQualifiedType();
+            QualifiedType qtype2 = list2.get(i).getQualifiedType();
 
             if (!param1.getIdentifierType().isPresent() || !param2.getIdentifierType().isPresent())
                 return false;
+
             String type1 = param1.getIdentifierType().get();
             String type2 = param2.getIdentifierType().get();
             type1 = normalizeVarArgs(type1);
             type2 = normalizeVarArgs(type2);
 
-            String erasedType1 = type1.replaceAll("<(.*)>", "");
-            String erasedType2 = type2.replaceAll("<(.*)>", "");
+            // Check base types
+            if (qtype1 != null && qtype2 != null) {
+                if (typeHierarchyResolver.isSubtype(qtype1.getQualifiedName(), qtype2.getQualifiedName())) {
+                    Matcher m1 = genericTypePattern.matcher(type1);
+                    Matcher m2 = genericTypePattern.matcher(type2);
 
-            if (!erasedType1.equals(erasedType2))
-                return false;
+                    String genericType1 = m1.find() ? m1.group(1) : "";
+                    String genericType2 = m2.find() ? m2.group(1) : "";
 
-            Matcher m1 = genericTypePattern.matcher(type1);
-            Matcher m2 = genericTypePattern.matcher(type2);
+                    if (!genericType1.isEmpty() && genericType2.isEmpty()
+                            || genericType1.isEmpty() && !genericType2.isEmpty()) // TODO is this correct
+                        continue;
 
-            String genericType1 = m1.find() ? m1.group(1) : "";
-            String genericType2 = m2.find() ? m2.group(1) : "";
+                    if (!genericType1.equals(genericType2))
+                        return false;
+                } else {
+                    return false;
+                }
+            } else { // fall-back comparison, to support java api
+                String erasedType1 = type1.replaceAll("<(.*)>", "");
+                String erasedType2 = type2.replaceAll("<(.*)>", "");
 
-            if (!genericType1.isEmpty() && genericType2.isEmpty())
-                continue;
+                if (!erasedType1.equals(erasedType2))
+                    return false;
 
-            if (genericType1.equals(genericType2))
-                continue;
-            return false;
+                Matcher m1 = genericTypePattern.matcher(type1);
+                Matcher m2 = genericTypePattern.matcher(type2);
+
+                String genericType1 = m1.find() ? m1.group(1) : "";
+                String genericType2 = m2.find() ? m2.group(1) : "";
+
+                if (!genericType1.isEmpty() && genericType2.isEmpty()
+                        || genericType1.isEmpty() && !genericType2.isEmpty())
+                    continue;
+
+                if (!genericType1.equals(genericType2))
+                    return false;
+            }
         }
         return true;
     }

@@ -85,21 +85,30 @@ public class MethodStatement implements Statement {
      * @return
      */
     public boolean signatureEquals(MethodStatement oMethod, TypeHierarchyResolver typeHierarchyResolver) {
+        // TODO ensure correctness
         // TODO fix and test generics in return types
-        System.out.println(getDescriptor().signature() + " vs " + oMethod.getDescriptor().signature());
         MethodDescriptor oDescriptor = oMethod.getDescriptor();
         boolean returnTypeEquals;
+        boolean parameterTypeEquals;
 
+        // Return type
         if (returnQualifiedType != null && oMethod.getReturnQualifiedType() != null) {
             returnTypeEquals = typeHierarchyResolver.isSubtype(returnQualifiedType.getQualifiedName(),
                     oMethod.getReturnQualifiedType().getQualifiedName());
         } else { // assume they can be from java api, so we dont check for correctness
             returnTypeEquals = descriptor.getReturnType().get().equals(oDescriptor.getReturnType().get());
         }
+
+        if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent()) {
+            return false;
+        }
+
+        // Parameter type
+        parameterTypeEquals = ParameterVariableDescriptor.parametersSignatureEquals(params,
+                oMethod.getParameters(), typeHierarchyResolver);
         return descriptor.getIdentifierName().equals(oDescriptor.getIdentifierName())
                 && returnTypeEquals
-                && ParameterVariableDescriptor.parametersSignatureEquals(descriptor.getParameters(),
-                oDescriptor.getParameters());
+                && parameterTypeEquals;
     }
 
     @Override

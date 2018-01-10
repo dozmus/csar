@@ -78,7 +78,6 @@ public class OverriddenMethodsResolver {
         } else {
             LOGGER.info("Finished");
         }
-        System.out.println(map);
     }
 
     public boolean isOverridden(String methodSignature) {
