@@ -24,9 +24,10 @@ import static org.qmul.csar.code.parse.java.expression.UnitExpression.ValueType.
 @RunWith(value = Parameterized.class)
 public final class JavaCodeGeneratorTest {
 
-    private static final BinaryExpression SOUT_PRINTLN = new BinaryExpression(new BinaryExpression(
-            new UnitExpression(IDENTIFIER, "System"), BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "out")),
-            BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "println"));
+    private static final BinaryExpression SYSTEM_OUT = new BinaryExpression(identifierUnit("System"),
+            BinaryOperation.DOT, identifierUnit("out"));
+    private static final BinaryExpression SOUT_PRINTLN = new BinaryExpression(SYSTEM_OUT, BinaryOperation.DOT,
+            identifierUnit("println"));
 
     /**
      * Directory of the java code files.
@@ -75,7 +76,7 @@ public final class JavaCodeGeneratorTest {
                         .identifierType("String")
                         .build(),
                 new ArrayList<>(),
-                Optional.of(new UnitExpression(LITERAL, "\"Sample1\"")));
+                Optional.of(literalUnit("\"Sample1\"")));
 
         // Instance #2
         InstanceVariableStatement var2 = new InstanceVariableStatement(
@@ -115,11 +116,10 @@ public final class JavaCodeGeneratorTest {
                 .finalModifier(true)
                 .identifierType("int")
                 .build(),
-                Optional.of(new UnitExpression(LITERAL, "3")), new ArrayList<>()));
-        UnitExpression thisIdentifier = new UnitExpression(THIS, "this");
+                Optional.of(literalUnit("3")), new ArrayList<>()));
         UnitExpression resultIdentifier = new UnitExpression(IDENTIFIER, "result");
         ExpressionStatement assignmentExpr = new ExpressionStatement(new BinaryExpression(
-                new BinaryExpression(thisIdentifier, BinaryOperation.DOT, resultIdentifier), BinaryOperation.ASSIGN,
+                new BinaryExpression(thisUnit(), BinaryOperation.DOT, resultIdentifier), BinaryOperation.ASSIGN,
                 resultIdentifier));
 
         ParameterVariableStatement param31 = createParameter("int", "result", false);
@@ -133,7 +133,8 @@ public final class JavaCodeGeneratorTest {
                 .typeParameters(Arrays.asList("E extends AbstractSample"))
                 .hasTypeArguments(true)
                 .build(),
-                Arrays.asList(param31), new BlockStatement(Arrays.asList(local, assignmentExpr)), new ArrayList<>(), 22);
+                Arrays.asList(param31), new BlockStatement(Arrays.asList(local, assignmentExpr)), new ArrayList<>(),
+                22);
 
         // Top-level class
         ClassStatement clazz = new ClassStatement(ClassDescriptor.Builder.allFalse("Sample1")
@@ -164,7 +165,7 @@ public final class JavaCodeGeneratorTest {
                         .finalModifier(false)
                         .identifierType("int")
                         .build(),
-                new ArrayList<>(), Optional.of(new UnitExpression(LITERAL, "1000")));
+                new ArrayList<>(), Optional.of(literalUnit("1000")));
 
         // Method #1
         Expression methodName = SOUT_PRINTLN;
@@ -268,8 +269,8 @@ public final class JavaCodeGeneratorTest {
         LocalVariableStatement local = new LocalVariableStatement(new LocalVariableDescriptor.Builder("x")
                 .finalModifier(false)
                 .identifierType("int")
-                .build(), Optional.of(new UnitExpression(LITERAL, "30")), new ArrayList<>());
-        LocalVariableStatements locals = new LocalVariableStatements(Arrays.asList(local));
+                .build(), Optional.of(literalUnit("30")), new ArrayList<>());
+        LocalVariableStatements locals = createLocals(local);
 
         List<Expression> arguments = Arrays.asList(new UnitExpression(IDENTIFIER, "x"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN, arguments,
@@ -279,7 +280,8 @@ public final class JavaCodeGeneratorTest {
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .returnType("void")
                 .parameterCount(0)
-                .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(locals, methodCall1)), new ArrayList<>(), 9);
+                .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(locals, methodCall1)), new ArrayList<>(),
+                9);
         ClassStatement localClass = new ClassStatement(ClassDescriptor.Builder.allFalse("A")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .local(true)
@@ -294,7 +296,7 @@ public final class JavaCodeGeneratorTest {
                 .finalModifier(false)
                 .identifierType("A")
                 .build(), Optional.of(newClass), new ArrayList<>());
-        LocalVariableStatements locals2 = new LocalVariableStatements(Arrays.asList(local2));
+        LocalVariableStatements locals2 = createLocals(local2);
 
         // Method call
         ExpressionStatement methodCall2 = new ExpressionStatement(new MethodCallExpression(new BinaryExpression(
@@ -449,12 +451,11 @@ public final class JavaCodeGeneratorTest {
      */
     private static TypeStatement sample9() {
         // Constants
-        EnumConstantStatement const1 = createEnumConstant("USD", Arrays.asList(new UnitExpression(LITERAL, "1.10")));
-        EnumConstantStatement const2 = createEnumConstant("GBP", Arrays.asList(new UnitExpression(LITERAL, "1")));
+        EnumConstantStatement const1 = createEnumConstant("USD", Arrays.asList(literalUnit("1.10")));
+        EnumConstantStatement const2 = createEnumConstant("GBP", Arrays.asList(literalUnit("1")));
 
         // Body
         UnitExpression valueIdent = new UnitExpression(IDENTIFIER, "value");
-        UnitExpression thisRef = new UnitExpression(THIS, "this");
 
         InstanceVariableStatement variable = new InstanceVariableStatement(
                 InstanceVariableDescriptor.Builder.allFalse("value")
@@ -465,17 +466,13 @@ public final class JavaCodeGeneratorTest {
 
         BlockStatement constructorBlock = new BlockStatement(Arrays.asList(new ExpressionStatement(
                 new BinaryExpression(new BinaryExpression(
-                        thisRef, BinaryOperation.DOT, valueIdent), BinaryOperation.ASSIGN, valueIdent))
+                        thisUnit(), BinaryOperation.DOT, valueIdent), BinaryOperation.ASSIGN, valueIdent))
         ));
         ConstructorStatement constructor = new ConstructorStatement.Builder("Currency")
                 .visibilityModifier(VisibilityModifier.PRIVATE)
                 .parameterCount(1)
                 .block(constructorBlock)
-                .parameters(Arrays.asList(new ParameterVariableStatement(new ParameterVariableDescriptor.Builder()
-                        .identifierName("value")
-                        .identifierType("double")
-                        .finalModifier(false)
-                        .build(), new ArrayList<>())))
+                .parameters(Arrays.asList(createParameter("double", "value", false)))
                 .build();
 
         ReturnStatement returnSt = new ReturnStatement(valueIdent);
@@ -499,24 +496,21 @@ public final class JavaCodeGeneratorTest {
      * @return
      */
     private static TypeStatement sample10() {
-        Annotation apiClassAnnotation = new Annotation("ApiClass",
-                Optional.of(new Annotation.Values("ApiClass",
-                        Arrays.asList(new Annotation.ExpressionValue("author",
-                                new UnitExpression(LITERAL, "\"Deniz Ozmus\"")))))
-        );
+        Annotation.Value value1 = new Annotation.Values("ApiClass",
+                Arrays.asList(createAnonExprValue("author", "\"Deniz Ozmus\"")));
+        Annotation apiClassAnnotation = new Annotation("ApiClass", Optional.of(value1));
 
-        Annotation authorMethodAnnotation = new Annotation("Metadata",
-                Optional.of(new Annotation.Values("Metadata",
-                        Arrays.asList(new Annotation.ExpressionValue("author", new UnitExpression(LITERAL, "\"DO\"")),
-                                new Annotation.ExpressionValue("since", new UnitExpression(LITERAL, "1.0")))))
-        );
+        Annotation.Value value2 = new Annotation.Values("Metadata",
+                Arrays.asList(createAnonExprValue("author", "\"DO\""), createAnonExprValue("since", "1.0")));
+        Annotation authorMethodAnnotation = new Annotation("Metadata", Optional.of(value2));
+
         AnnotationStatement.AnnotationMethod author = new AnnotationStatement.AnnotationMethod(
                 VisibilityModifier.PACKAGE_PRIVATE, false, "author", Optional.empty(),
                 Arrays.asList(authorMethodAnnotation));
 
         AnnotationStatement.AnnotationMethod date = new AnnotationStatement.AnnotationMethod(
                 VisibilityModifier.PACKAGE_PRIVATE, false, "date",
-                Optional.of(new Annotation.ExpressionValue("date", new UnitExpression(LITERAL, "\"N/A\""))),
+                Optional.of(createAnonExprValue("date", "\"N/A\"")),
                 Arrays.asList(new Annotation("Deprecated", Optional.empty())));
 
         // Top-level annotation type
@@ -539,47 +533,43 @@ public final class JavaCodeGeneratorTest {
         // Runnable #1
         LambdaExpression lambdaExpr1 = new LambdaExpression(new LambdaParameter.ParameterVariables(),
                 soutprintlnHelloWorld(path, 7));
-        LocalVariableStatements r1 = new LocalVariableStatements(Arrays.asList(
-                new LocalVariableStatement(new LocalVariableDescriptor.Builder("r1")
-                        .identifierType("Runnable")
-                        .finalModifier(false)
-                        .build(), Optional.of(lambdaExpr1), new ArrayList<>())
-        ));
+        LocalVariableStatements r1 = createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("r1")
+                .identifierType("Runnable")
+                .finalModifier(false)
+                .build(), Optional.of(lambdaExpr1), new ArrayList<>())
+        );
 
         // Runnable #2
         LambdaExpression lambdaExpr2 = new LambdaExpression(new LambdaParameter.ParameterVariables(),
                 new BlockStatement(Arrays.asList(soutprintlnHelloWorld(path, 9))));
-        LocalVariableStatements r2 = new LocalVariableStatements(Arrays.asList(
-                new LocalVariableStatement(new LocalVariableDescriptor.Builder("r2")
-                        .identifierType("Runnable")
-                        .finalModifier(false)
-                        .build(), Optional.of(lambdaExpr2), new ArrayList<>())
-        ));
+        LocalVariableStatements r2 = createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("r2")
+                .identifierType("Runnable")
+                .finalModifier(false)
+                .build(), Optional.of(lambdaExpr2), new ArrayList<>())
+        );
 
         // Binary Operation #1
         LambdaExpression lambdaExpr3 = new LambdaExpression(new LambdaParameter.Identifiers(Arrays.asList("a", "b")),
                 new BlockStatement(Arrays.asList(soutprintlnHelloWorld(path, 12))));
-        LocalVariableStatements bo1 = new LocalVariableStatements(Arrays.asList(
-                new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
-                        .identifierType("BinaryOperation")
-                        .finalModifier(true)
-                        .build(), Optional.of(lambdaExpr3), new ArrayList<>())
-        ));
+        LocalVariableStatements bo1 = createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
+                .identifierType("BinaryOperation")
+                .finalModifier(true)
+                .build(), Optional.of(lambdaExpr3), new ArrayList<>())
+        );
 
         // Binary Operation #2
         LambdaExpression lambdaExpr4 = new LambdaExpression(new LambdaParameter.ParameterVariables(Arrays.asList(
                 createParameter("int", "a", false), createParameter("int", "b", false)
         )), new BlockStatement(Arrays.asList(soutprintlnHelloWorld(path, 15))));
-        LocalVariableStatements bo2 = new LocalVariableStatements(Arrays.asList(
-                new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
-                        .identifierType("BinaryOperation")
-                        .finalModifier(false)
-                        .build(), Optional.of(lambdaExpr4), new ArrayList<>())
-        ));
+        LocalVariableStatements bo2 = createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("bo")
+                .identifierType("BinaryOperation")
+                .finalModifier(false)
+                .build(), Optional.of(lambdaExpr4), new ArrayList<>())
+        );
 
         // Stream API call
-        ExpressionStatement streamApiCall = new ExpressionStatement(
-                new MethodCallExpression(new BinaryExpression(new MethodCallExpression(
+        ExpressionStatement streamApiCall = new ExpressionStatement(new MethodCallExpression(
+                new BinaryExpression(new MethodCallExpression(
                         new BinaryExpression(new UnitExpression(IDENTIFIER, "variables"),
                                 BinaryOperation.DOT, new UnitExpression(IDENTIFIER, "stream")), new ArrayList<>(), path,
                         17),
@@ -617,13 +607,13 @@ public final class JavaCodeGeneratorTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Sample12.java");
 
         // Frequently used elements
-        final ParenthesisExpression aEquals3 = new ParenthesisExpression(new BinaryExpression(identifierUnit("a"),
+        final ParenthesisExpression aEquals3 = createParenExpr(new BinaryExpression(identifierUnit("a"),
                 BinaryOperation.EQUALS, literalUnit("3")));
-        final ParenthesisExpression aNotEquals3 = new ParenthesisExpression(new BinaryExpression(identifierUnit("a"),
+        final ParenthesisExpression aNotEquals3 = createParenExpr(new BinaryExpression(identifierUnit("a"),
                 BinaryOperation.NOTEQUALS, literalUnit("3")));
-        final ParenthesisExpression bEquals3 = new ParenthesisExpression(new BinaryExpression(identifierUnit("b"),
+        final ParenthesisExpression bEquals3 = createParenExpr(new BinaryExpression(identifierUnit("b"),
                 BinaryOperation.EQUALS, literalUnit("3")));
-        final ParenthesisExpression aPlusBNotEqual3 = new ParenthesisExpression(new BinaryExpression(
+        final ParenthesisExpression aPlusBNotEqual3 = createParenExpr(new BinaryExpression(
                 new BinaryExpression(identifierUnit("a"), BinaryOperation.ADD, identifierUnit("b")),
                 BinaryOperation.NOTEQUALS, literalUnit("3")));
         final BinaryExpression no1Plus1 = new BinaryExpression(literalUnit("1"), BinaryOperation.ADD, literalUnit("1"));
@@ -632,8 +622,8 @@ public final class JavaCodeGeneratorTest {
                 identifierUnit("k"));
         final BinaryExpression ipck = new BinaryExpression(identifierUnit("i"), BinaryOperation.ADD_ASSIGN,
                 identifierUnit("k"));
-        final ParenthesisExpression trueCond = new ParenthesisExpression(literalUnit("true"));
-        final ParenthesisExpression falseCond = new ParenthesisExpression(literalUnit("false"));
+        final ParenthesisExpression trueCond = createParenExpr(literalUnit("true"));
+        final ParenthesisExpression falseCond = createParenExpr(literalUnit("false"));
         final PostfixedExpression ipp = new PostfixedExpression(identifierUnit("i"), Postfix.INC);
 
         // Static block
@@ -643,26 +633,28 @@ public final class JavaCodeGeneratorTest {
         List<Statement> b1 = new ArrayList<>();
 
         // If
-        b1.add(new IfStatement(aEquals3, identifierMethodCall("a", path, 14), Optional.empty()));
-        b1.add(new IfStatement(aEquals3, createBlock(identifierMethodCall("b", path, 17)),
-                Optional.of(createBlock(identifierMethodCall("c", path, 19)))));
-        b1.add(new IfStatement(aEquals3, createBlock(identifierMethodCall("a", path, 23)), Optional.of(
-                new IfStatement(bEquals3, createBlock(identifierMethodCall("b", path, 25)), Optional.empty()))));
-        b1.add(new IfStatement(aEquals3, createBlock(identifierMethodCall("a", path, 29)), Optional.of(
-                new IfStatement(bEquals3, createBlock(identifierMethodCall("b", path, 31)),
-                        Optional.of(createBlock(identifierMethodCall("c", path, 33)))))));
+        b1.add(new IfStatement(aEquals3, createMethodCallStatement("a", path, 14), Optional.empty()));
+        b1.add(new IfStatement(aEquals3, createBlock(createMethodCallStatement("b", path, 17)),
+                Optional.of(createBlock(createMethodCallStatement("c", path, 19)))));
+        b1.add(new IfStatement(aEquals3, createBlock(createMethodCallStatement("a", path, 23)),
+                Optional.of(new IfStatement(bEquals3, createBlock(createMethodCallStatement("b", path, 25)),
+                        Optional.empty()))));
+        b1.add(new IfStatement(aEquals3, createBlock(createMethodCallStatement("a", path, 29)),
+                Optional.of(new IfStatement(bEquals3, createBlock(createMethodCallStatement("b", path, 31)),
+                        Optional.of(createBlock(createMethodCallStatement("c", path, 33)))))));
 
         // While
         b1.add(new WhileStatement(trueCond, soutprintlnHelloWorld(path, 38)));
         b1.add(new WhileStatement(aPlusBNotEqual3, createBlock(soutprintlnHelloWorld(path, 41))));
 
         // Do-While
-        b1.add(new DoWhileStatement(falseCond, createBlock(identifierMethodCall("b", path, 46))));
+        b1.add(new DoWhileStatement(falseCond, createBlock(createMethodCallStatement("b", path, 46))));
         b1.add(new DoWhileStatement(aEquals3, createBlock(soutprintlnHelloWorld(path, 50))));
 
         // Synchronized
-        b1.add(new SynchronizedStatement(new ParenthesisExpression(thisUnit()), createBlock(identifierMethodCall("a", path, 55))));
-        b1.add(new SynchronizedStatement(new ParenthesisExpression(identifierMethodCallX("getLock", path, 58)),
+        b1.add(new SynchronizedStatement(createParenExpr(thisUnit()), createBlock(
+                createMethodCallStatement("a", path, 55))));
+        b1.add(new SynchronizedStatement(createParenExpr(createMethodCall("getLock", path, 58)),
                 createBlock(soutprintlnHelloWorld(path, 59))));
 
         // For-loop
@@ -672,7 +664,7 @@ public final class JavaCodeGeneratorTest {
                 .build(), Optional.of(literalUnit("0")), new ArrayList<>());
         Optional<LocalVariableStatements> localVars1 = Optional.of(createLocals(localVarI));
         b1.add(new ForStatement(localVars1, new ArrayList<>(), Optional.of(iLt10), Arrays.asList(ipp),
-                createBlock(identifierMethodCall("a", path, 64))));
+                createBlock(createMethodCallStatement("a", path, 64))));
 
         LocalVariableStatement localVarK = new LocalVariableStatement(new LocalVariableDescriptor.Builder("k")
                 .identifierType("int")
@@ -698,17 +690,20 @@ public final class JavaCodeGeneratorTest {
                 .identifierType("Type<K>")
                 .finalModifier(true)
                 .build(), Optional.empty(), new ArrayList<>()), new MethodCallExpression(identifierUnit("getTypes"),
-                Arrays.asList(literalUnit("3")), path, 82), createBlock(identifierMethodCall("a", path, 83))));
+                Arrays.asList(literalUnit("3")), path, 82), createBlock(createMethodCallStatement("a", path, 83))));
 
         // Try
-        b1.add(new TryStatement(createBlock(identifierMethodCall("a", path, 88)), new ArrayList<>(), Optional.of(createBlock(identifierMethodCall("b", path, 90)))));
+        b1.add(new TryStatement(createBlock(createMethodCallStatement("a", path, 88)), new ArrayList<>(),
+                Optional.of(createBlock(createMethodCallStatement("b", path, 90)))));
 
         List<CatchStatement> catches1 = Arrays.asList(new CatchStatement(createLocals(
                         new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                                 .identifierType("Exception")
                                 .finalModifier(false)
-                                .build(), Optional.empty(), new ArrayList<>())), createBlock(identifierMethodCall("error", path, 96))));
-        b1.add(new TryStatement(createBlock(identifierMethodCall("a", path, 94)), catches1, Optional.of(createBlock(identifierMethodCall("b", path, 98)))));
+                                .build(), Optional.empty(), new ArrayList<>())), createBlock(
+                createMethodCallStatement("error", path, 96))));
+        b1.add(new TryStatement(createBlock(createMethodCallStatement("a", path, 94)), catches1,
+                Optional.of(createBlock(createMethodCallStatement("b", path, 98)))));
 
         List<CatchStatement> catches2 = Arrays.asList(new CatchStatement(createLocals(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
@@ -718,8 +713,9 @@ public final class JavaCodeGeneratorTest {
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                         .identifierType("RuntimeException")
                         .finalModifier(false)
-                        .build(), Optional.empty(), new ArrayList<>())), createBlock(identifierMethodCall("error", path, 104))));
-        b1.add(new TryStatement(createBlock(identifierMethodCall("a", path, 102)), catches2, Optional.empty()));
+                        .build(), Optional.empty(), new ArrayList<>())), createBlock(
+                createMethodCallStatement("error", path, 104))));
+        b1.add(new TryStatement(createBlock(createMethodCallStatement("a", path, 102)), catches2, Optional.empty()));
 
         // Try-with-resources
         b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
@@ -727,17 +723,18 @@ public final class JavaCodeGeneratorTest {
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
                         .identifierType("StringSupplier")
                         .finalModifier(false)
-                        .build(), Optional.of(identifierMethodCallX("supplier", path, 108)), new ArrayList<>()))));
+                        .build(), Optional.of(createMethodCall("supplier", path, 108)), new ArrayList<>()))));
         b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
                 Arrays.asList(identifierUnit("s")), path, 113))), Arrays.asList(new CatchStatement(createLocals(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                         .identifierType("Exception")
                         .finalModifier(false)
-                        .build(), Optional.empty(), new ArrayList<>())), createBlock(identifierMethodCall("error", path, 115)))), Optional.empty(),
+                        .build(), Optional.empty(), new ArrayList<>())), createBlock(
+                createMethodCallStatement("error", path, 115)))), Optional.empty(),
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
                         .identifierType("StringSupplier")
                         .finalModifier(false)
-                        .build(), Optional.of(identifierMethodCallX("supplier", path, 112)), new ArrayList<>()))));
+                        .build(), Optional.of(createMethodCall("supplier", path, 112)), new ArrayList<>()))));
         b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
                 Arrays.asList(identifierUnit("s")), path, 119))), Arrays.asList(new CatchStatement(createLocals(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
@@ -747,11 +744,12 @@ public final class JavaCodeGeneratorTest {
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                         .identifierType("RuntimeException")
                         .finalModifier(false)
-                        .build(), Optional.empty(), new ArrayList<>())), createBlock(identifierMethodCall("error", path, 121)))), Optional.empty(),
+                        .build(), Optional.empty(), new ArrayList<>())),
+                createBlock(createMethodCallStatement("error", path, 121)))), Optional.empty(),
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
                         .identifierType("StringSupplier")
                         .finalModifier(false)
-                        .build(), Optional.of(identifierMethodCallX("supplier", path, 118)), new ArrayList<>()))));
+                        .build(), Optional.of(createMethodCall("supplier", path, 118)), new ArrayList<>()))));
         b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
                 Arrays.asList(identifierUnit("s")), path, 125))), Arrays.asList(new CatchStatement(createLocals(
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
@@ -761,29 +759,34 @@ public final class JavaCodeGeneratorTest {
                 new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                         .identifierType("RuntimeException")
                         .finalModifier(false)
-                        .build(), Optional.empty(), new ArrayList<>())), createBlock(identifierMethodCall("error", path, 127)))), Optional.of(createBlock(identifierMethodCall("b", path, 129))),
+                        .build(), Optional.empty(), new ArrayList<>())), createBlock(
+                createMethodCallStatement("error", path, 127)))), Optional.of(createBlock(
+                createMethodCallStatement("b", path, 129))),
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
                         .identifierType("StringSupplier")
                         .finalModifier(false)
-                        .build(), Optional.of(identifierMethodCallX("supplier", path, 124)), new ArrayList<>()))));
+                        .build(), Optional.of(createMethodCall("supplier", path, 124)), new ArrayList<>()))));
 
         // Switch
         BlockStatement switchBlock1 = createBlock(
-                new SwitchLabelStatement("\"a\""), createBlock(identifierMethodCall("a", path, 135), new BreakStatement(Optional.empty())),
-                new SwitchLabelStatement("default"), createBlock(identifierMethodCall("error", path, 138))
+                new SwitchLabelStatement("\"a\""), createBlock(createMethodCallStatement("a", path, 135),
+                        new BreakStatement(Optional.empty())),
+                new SwitchLabelStatement("default"), createBlock(createMethodCallStatement("error", path, 138))
         );
-        b1.add(new SwitchStatement(new ParenthesisExpression(identifierUnit("s")), switchBlock1));
+        b1.add(new SwitchStatement(createParenExpr(identifierUnit("s")), switchBlock1));
 
         BlockStatement switchBlock2 = createBlock(
-                new SwitchLabelStatement("\"a\""), new SwitchLabelStatement("default"), createBlock(identifierMethodCall("a", path, 144)),
-                new SwitchLabelStatement(no1Plus1), new SwitchLabelStatement("\"\""), createBlock(identifierMethodCall("b", path, 147))
+                new SwitchLabelStatement("\"a\""), new SwitchLabelStatement("default"), createBlock(
+                        createMethodCallStatement("a", path, 144)),
+                new SwitchLabelStatement(no1Plus1), new SwitchLabelStatement("\"\""), createBlock(
+                        createMethodCallStatement("b", path, 147))
         );
-        b1.add(new SwitchStatement(new ParenthesisExpression(
-                new BinaryExpression(identifierUnit("x"), BinaryOperation.ASSIGN, new MethodCallExpression(identifierUnit("getTypes"),
-                        Arrays.asList(literalUnit("3")), path, 141))
+        b1.add(new SwitchStatement(createParenExpr(new BinaryExpression(identifierUnit("x"),
+                BinaryOperation.ASSIGN, new MethodCallExpression(identifierUnit("getTypes"), 
+                Arrays.asList(literalUnit("3")), path, 141))
         ), switchBlock2));
 
-        b1.add(new SwitchStatement(new ParenthesisExpression(literalUnit("3")), BlockStatement.EMPTY));
+        b1.add(new SwitchStatement(createParenExpr(literalUnit("3")), BlockStatement.EMPTY));
 
         MethodStatement method1 = new MethodStatement(MethodDescriptor.Builder.allFalse("a")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
@@ -796,8 +799,9 @@ public final class JavaCodeGeneratorTest {
 
         // Assert
         b2.add(new AssertStatement(aNotEquals3, Optional.empty()));
-        b2.add(new AssertStatement(new BinaryExpression(new ArrayAccessExpression(identifierUnit("a"), literalUnit("3")),
-                BinaryOperation.NOTEQUALS, literalUnit("3")), Optional.of(literalUnit("\"a is 3\""))));
+        b2.add(new AssertStatement(new BinaryExpression(new ArrayAccessExpression(identifierUnit("a"),
+                literalUnit("3")), BinaryOperation.NOTEQUALS, literalUnit("3")),
+                Optional.of(literalUnit("\"a is 3\""))));
 
         // Break
         b2.add(new BreakStatement(Optional.empty()));
@@ -805,11 +809,9 @@ public final class JavaCodeGeneratorTest {
 
         // Return
         b2.add(new ReturnStatement(Optional.empty()));
-        b2.add(new ReturnStatement(Optional.of(
-                new TernaryExpression(identifierUnit("a"),
-                        new BinaryExpression(new ParenthesisExpression(literalUnit("1_000")), BinaryOperation.MUL,
-                                literalUnit("1d")),
-                        literalUnit("300"))
+        b2.add(new ReturnStatement(Optional.of(new TernaryExpression(identifierUnit("a"),
+                        new BinaryExpression(createParenExpr(literalUnit("1_000")), BinaryOperation.MUL,
+                                literalUnit("1d")), literalUnit("300"))
         )));
 
         // Throw
@@ -820,23 +822,24 @@ public final class JavaCodeGeneratorTest {
                 Arrays.asList(literalUnit("\"rtex\"")), new ArrayList<>(), false)));
 
         // Post-fixed
-        b2.add(new ExpressionStatement(new PostfixedExpression(identifierUnit("i"), Postfix.INC)));
-        b2.add(new ExpressionStatement(new PostfixedExpression(identifierUnit("i"), Postfix.DEC)));
+        b2.add(createPostfixedStatement("i", Postfix.INC));
+        b2.add(createPostfixedStatement("i", Postfix.DEC));
 
         // Pre-fixed
-        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.ADD)));
-        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.SUB)));
-        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.INC)));
-        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.DEC)));
-        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.TILDE)));
-        b2.add(new ExpressionStatement(new PrefixedExpression(identifierUnit("i"), Prefix.BANG)));
+        b2.add(createPrefixedStatement("i", Prefix.ADD));
+        b2.add(createPrefixedStatement("i", Prefix.SUB));
+        b2.add(createPrefixedStatement("i", Prefix.INC));
+        b2.add(createPrefixedStatement("i", Prefix.DEC));
+        b2.add(createPrefixedStatement("i", Prefix.TILDE));
+        b2.add(createPrefixedStatement("i", Prefix.BANG));
 
         // Array expression
         LocalVariableStatement localArrayVar1 = new LocalVariableStatement(new LocalVariableDescriptor.Builder("a")
                 .identifierType("int[]")
                 .finalModifier(true)
                 .build(),
-                Optional.of(new ArrayExpression(Arrays.asList(literalUnit("1"), literalUnit("\"a\""), identifierMethodCallX("supplier", path, 185)))),
+                Optional.of(new ArrayExpression(Arrays.asList(literalUnit("1"), literalUnit("\"a\""),
+                        createMethodCall("supplier", path, 185)))),
                 new ArrayList<>());
         b2.add(createLocals(localArrayVar1));
 
@@ -870,7 +873,8 @@ public final class JavaCodeGeneratorTest {
 
         // Top-level class
         BlockStatement classBlock = new BlockStatement(Arrays.asList(
-                new StaticBlockStatement(createBlock(soutprintlnHelloWorld(path, 4))), emptyStaticBlock, method1, method2));
+                new StaticBlockStatement(createBlock(soutprintlnHelloWorld(path, 4))), emptyStaticBlock, method1,
+                method2));
         return createTopLevelStatement(new ClassStatement(ClassDescriptor.Builder.allFalse("Sample12")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .build(), classBlock, new ArrayList<>()));
@@ -985,16 +989,32 @@ public final class JavaCodeGeneratorTest {
     }
 
     private static ExpressionStatement soutprintlnHelloWorld(Path path, int lineNumber) {
-        return new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN, Arrays.asList(new UnitExpression(LITERAL,
-                "\"Hello World\"")), path, lineNumber));
+        return new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+                Arrays.asList(literalUnit("\"Hello World\"")), path, lineNumber));
     }
 
-    private static ExpressionStatement identifierMethodCall(String identifier, Path path, int lineNumber) {
+    private static ExpressionStatement createMethodCallStatement(String identifier, Path path, int lineNumber) {
         return new ExpressionStatement(new MethodCallExpression(identifierUnit(identifier), path, lineNumber));
     }
 
-    private static Expression identifierMethodCallX(String identifier, Path path, int lineNumber) {
+    private static Expression createMethodCall(String identifier, Path path, int lineNumber) {
         return new MethodCallExpression(identifierUnit(identifier), path, lineNumber);
+    }
+    
+    private static ParenthesisExpression createParenExpr(Expression e) {
+        return new ParenthesisExpression(e);
+    }
+
+    private static Annotation.ExpressionValue createAnonExprValue(String identifierName, String literalValue) {
+        return new Annotation.ExpressionValue(identifierName, literalUnit(literalValue));
+    }
+
+    private static ExpressionStatement createPrefixedStatement(String identifierName, Prefix prefix) {
+        return new ExpressionStatement(new PrefixedExpression(identifierUnit(identifierName), prefix));
+    }
+
+    private static ExpressionStatement createPostfixedStatement(String identifierName, Postfix postfix) {
+        return new ExpressionStatement(new PostfixedExpression(identifierUnit(identifierName), postfix));
     }
 
     @Test
