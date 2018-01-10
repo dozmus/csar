@@ -9,7 +9,6 @@ import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.ClassDescriptor;
 import org.qmul.csar.lang.descriptor.EnumDescriptor;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
-import org.qmul.csar.lang.descriptor.VisibilityModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,35 +46,6 @@ public class OverriddenMethodsResolver {
         this.benchmarking = benchmarking;
     }
 
-    private static boolean isAccessible(MethodDescriptor childDesc, MethodDescriptor superDesc,
-            Optional<PackageStatement> childPkg, Optional<PackageStatement> superPkg, TypeStatement superType) {
-        // is the super class an interface
-        boolean isSuperInterface = false;
-
-        if (superType instanceof ClassStatement) {
-            isSuperInterface = ((ClassStatement) superType).getDescriptor().getInterfaceModifier().orElse(false);
-        }
-
-        // compute result
-        VisibilityModifier childVis = childDesc.getVisibilityModifier().get();
-        VisibilityModifier superVis = superDesc.getVisibilityModifier().get();
-
-        if (isSuperInterface) {
-            return childVis == VisibilityModifier.PUBLIC;
-        } else {
-            if (superVis == VisibilityModifier.PUBLIC && childVis == VisibilityModifier.PUBLIC) {
-                return true;
-            } else if (superVis == VisibilityModifier.PROTECTED
-                    && (childVis == VisibilityModifier.PROTECTED || childVis == VisibilityModifier.PUBLIC)) {
-                return true;
-            } else if (superVis == VisibilityModifier.PACKAGE_PRIVATE
-                    && childPkg.isPresent() && childPkg.equals(superPkg) && childVis != VisibilityModifier.PRIVATE) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void resolve(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
@@ -111,6 +81,7 @@ public class OverriddenMethodsResolver {
             List<ImportStatement> imports, TypeStatement typeStatement, TypeStatement parent, MethodStatement method) {
 
         // Check if @Override annotation present
+        // XXX it's a compile error to specify non-overridden methods as @Override
         for (Annotation annotation : method.getAnnotations()) {
             if (annotation.getIdentifierName().equals("Override") && !annotation.getValue().isPresent()) {
                 return true;
@@ -147,8 +118,8 @@ public class OverriddenMethodsResolver {
         MethodDescriptor desc = method.getDescriptor();
 
         for (String superClass : superClasses) {
-            QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent,
-                    topLevelParent, packageStatement, imports, superClass);
+            QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, topLevelParent,
+                    packageStatement, imports, superClass);
             Statement resolvedStatement = resolvedType.getStatement();
 
             // NOTE we ignore (fully) un-resolved statements here
@@ -172,7 +143,8 @@ public class OverriddenMethodsResolver {
                             continue;
                         MethodStatement m2 = (MethodStatement) statement;
                         MethodDescriptor desc2 = m2.getDescriptor();
-                        boolean accessible = isAccessible(desc, desc2, packageStatement, s.getPackageStatement(), s2);
+                        boolean accessible = PostProcessUtils.isAccessible(desc, desc2, packageStatement,
+                                s.getPackageStatement(), s2);
 
                         if (!desc2.getStaticModifier().get() && desc2.signatureEquals(desc) && accessible) {
                             return !desc2.getFinalModifier().get();
