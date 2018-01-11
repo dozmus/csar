@@ -262,13 +262,18 @@ This is after csar query is parsed because typically it takes longer, and an inv
 It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
 
 Code Post-processors:\newline
-The parsed project code is post-processed for extra information which may be needed for searching.
-This includes type hierarchy resolving, overridden methods resolving, and mapping method usages to method definitions (unimplemented).
+The parsed project code is post-processed to gather further details of how it all fits together. The following post-processors are applied:
+\begin{itemize}
+  \item `TypeHierarchyResolver' - Resolves the type hierarchy (i.e. class hierarchy) of the code base.
+  \item `MethodQualifiedTypeResolver' - Resolves types of each method's return and parameter types.
+  \item `OverriddenMethodsResolver' - Marks each method which is overridden from another.
+  \item `MethodUsageResolver' - Maps each method call to its method definition.
+\end{itemize}
 
 Search:\newline
 The parsed project code is searched using the visitor design pattern.
+The search domain is restricted if a `FROM' clause is inserted.
 Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
-This will soon also handle the `FROM` and `CONTAINS` clauses from csar query (unimplemented).
 
 Refactor:\newline
 The parsed project code will be refactored, and changes will be written to source code files (unimplemented).
