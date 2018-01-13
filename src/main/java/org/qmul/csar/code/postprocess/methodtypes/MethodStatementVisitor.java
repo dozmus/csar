@@ -68,7 +68,7 @@ public class MethodStatementVisitor extends StatementVisitor {
         MethodDescriptor desc = statement.getDescriptor();
         String returnType = TypeSanitizer.resolveGenericTypes(desc.getReturnType().get(), desc.getTypeParameters());
         String returnTypeQualifiedName = TypeSanitizer.removeGenericArgument(returnType);
-        // TODO do properly: compare generic args
+        // TODO do properly: compare generic args qualified names
 
         // Resolve
         QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage, imports,
@@ -84,7 +84,7 @@ public class MethodStatementVisitor extends StatementVisitor {
             String parameterType = TypeSanitizer.resolveGenericTypes(desc.getIdentifierType().get(),
                     mdesc.getTypeParameters());
             String parameterTypeQualifiedName = TypeSanitizer.removeGenericArgument(parameterType);
-            // TODO do properly: compare generic args
+            // TODO do properly: compare generic args qualified names
 
             // Resolve
             QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage,
