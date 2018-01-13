@@ -31,4 +31,20 @@ public final class StringUtils {
         }
         return fileName;
     }
+
+    public static int count(String source, String part) {
+        // Source: https://stackoverflow.com/a/767910
+        int lastIdx = 0;
+        int count = 0;
+
+        while (lastIdx != -1) {
+            lastIdx = source.indexOf(part, lastIdx);
+
+            if (lastIdx != -1) {
+                count++;
+                lastIdx += part.length();
+            }
+        }
+        return count;
+    }
 }

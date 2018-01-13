@@ -2,6 +2,7 @@ package org.qmul.csar.lang.descriptor;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.statement.ParameterVariableStatement;
+import org.qmul.csar.code.postprocess.methodtypes.TypeSanitizer;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Descriptor;
@@ -10,8 +11,6 @@ import org.qmul.csar.lang.IdentifierName;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ParameterVariableDescriptor implements Descriptor {
 
@@ -35,16 +34,18 @@ public class ParameterVariableDescriptor implements Descriptor {
      * and subtypes in arguments as well.
      *
      * @param list1 parameters from a potential super class
+     * @param typeParameters1
      * @param list2 parameters from a potential child class
+     * @param typeParameters2
      * @return <tt>true</tt> if the two lists have the same signature
      */
     public static boolean parametersSignatureEquals(List<ParameterVariableStatement> list1,
-            List<ParameterVariableStatement> list2, TypeHierarchyResolver typeHierarchyResolver) {
-        // TODO ensure correctness
+            List<String> typeParameters1, List<ParameterVariableStatement> list2, List<String> typeParameters2,
+            TypeHierarchyResolver typeHierarchyResolver) {
+        // TODO ensure correctness: may breakdown
         // XXX list1 is potential superclass, list2 is potential child
         if (list1.size() != list2.size())
             return false;
-        final Pattern genericTypePattern = Pattern.compile("<(.*)>");
 
         for (int i = 0; i < list1.size(); i++) {
             ParameterVariableDescriptor param1 = list1.get(i).getDescriptor();
@@ -55,58 +56,32 @@ public class ParameterVariableDescriptor implements Descriptor {
             if (!param1.getIdentifierType().isPresent() || !param2.getIdentifierType().isPresent())
                 return false;
 
+            // Names
             String type1 = param1.getIdentifierType().get();
             String type2 = param2.getIdentifierType().get();
-            type1 = normalizeVarArgs(type1);
-            type2 = normalizeVarArgs(type2);
+            type1 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type1), typeParameters1);
+            type2 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type2), typeParameters1);
+            boolean namesEqual = type1.equals(type2);
+            boolean dimensionEquals = TypeSanitizer.dimensionsEquals(type1, type2);
+
+            // Generic argument
+            String genericArgument1 = TypeSanitizer.extractGenericArgument(type1);
+            String genericArgument2 = TypeSanitizer.extractGenericArgument(type2);
+
+            boolean genericTypesEqual = genericArgument1.equals(genericArgument2)
+                    || !genericArgument1.isEmpty() && genericArgument2.isEmpty();
 
             // Check base types
             if (qtype1 != null && qtype2 != null) {
-                if (typeHierarchyResolver.isSubtype(qtype1.getQualifiedName(), qtype2.getQualifiedName())) {
-                    Matcher m1 = genericTypePattern.matcher(type1);
-                    Matcher m2 = genericTypePattern.matcher(type2);
-
-                    String genericType1 = m1.find() ? m1.group(1) : "";
-                    String genericType2 = m2.find() ? m2.group(1) : "";
-
-                    if (!genericType1.isEmpty() && genericType2.isEmpty()
-                            || genericType1.isEmpty() && !genericType2.isEmpty()) // TODO is this correct
-                        continue;
-
-                    if (!genericType1.equals(genericType2))
-                        return false;
-                } else {
+                if (!typeHierarchyResolver.isSubtype(qtype1.getQualifiedName(), qtype2.getQualifiedName())
+                        || !genericTypesEqual || !dimensionEquals) {
                     return false;
                 }
-            } else { // fall-back comparison, to support java api
-                String erasedType1 = type1.replaceAll("<(.*)>", "");
-                String erasedType2 = type2.replaceAll("<(.*)>", "");
-
-                if (!erasedType1.equals(erasedType2))
-                    return false;
-
-                Matcher m1 = genericTypePattern.matcher(type1);
-                Matcher m2 = genericTypePattern.matcher(type2);
-
-                String genericType1 = m1.find() ? m1.group(1) : "";
-                String genericType2 = m2.find() ? m2.group(1) : "";
-
-                if (!genericType1.isEmpty() && genericType2.isEmpty()
-                        || genericType1.isEmpty() && !genericType2.isEmpty())
-                    continue;
-
-                if (!genericType1.equals(genericType2))
-                    return false;
+            } else if (!namesEqual || !genericTypesEqual || !dimensionEquals) { // fall-back comparison, to support java api
+                return false;
             }
         }
         return true;
-    }
-
-    private static String normalizeVarArgs(String type) {
-        if (type.endsWith("...")) {
-            return type.substring(0, type.length() - 3) + "[]";
-        }
-        return type;
     }
 
     public Optional<IdentifierName> getIdentifierName() {

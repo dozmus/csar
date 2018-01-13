@@ -74,6 +74,16 @@ public class OverriddenMethodsResolverTest {
     }
 
     @Test
+    public void testOverriddenForMethodsWithDifferentParameterTypeDimensions() {
+        assertIsNotOverridden("base.GenericFnArgInterfaceImpl1#void sort2(List)");
+    }
+
+    @Test
+    public void testOverriddenForMethodsWithDifferentReturnTypeDimensions() {
+        assertIsNotOverridden("base.GenericFnArgInterfaceImpl1#int time()");
+    }
+
+    @Test
     public void testOverriddenForMethodsWithGenericArguments() {
         assertIsOverridden("base.GenericFnArgInterfaceImpl1#void sort(List<String>)");
         assertIsOverridden("base.GenericFnArgInterfaceImpl2#void sort(List)");

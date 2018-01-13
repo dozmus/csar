@@ -10,6 +10,7 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.StatementVisitor;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
+import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -65,20 +66,29 @@ public class MethodStatementVisitor extends StatementVisitor {
 
     private void resolveReturnType(MethodStatement statement) {
         MethodDescriptor desc = statement.getDescriptor();
-        String returnType = desc.getReturnType().get();
+        String returnType = TypeSanitizer.resolveGenericTypes(desc.getReturnType().get(), desc.getTypeParameters());
+        String returnTypeQualifiedName = TypeSanitizer.removeGenericArgument(returnType);
+        // TODO do properly: compare generic args
 
         // Resolve
         QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage, imports,
-                returnType);
+                returnTypeQualifiedName);
         statement.setReturnQualifiedType(type);
     }
 
     private void resolveParameterTypes(MethodStatement statement) {
-        // Resolve
+        MethodDescriptor mdesc = statement.getDescriptor();
+
         for (ParameterVariableStatement param : statement.getParameters()) {
-            String parameterType = param.getDescriptor().getIdentifierType().get();
+            ParameterVariableDescriptor desc = param.getDescriptor();
+            String parameterType = TypeSanitizer.resolveGenericTypes(desc.getIdentifierType().get(),
+                    mdesc.getTypeParameters());
+            String parameterTypeQualifiedName = TypeSanitizer.removeGenericArgument(parameterType);
+            // TODO do properly: compare generic args
+
+            // Resolve
             QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage,
-                    imports, parameterType);
+                    imports, parameterTypeQualifiedName);
             param.setQualifiedType(type);
         }
     }

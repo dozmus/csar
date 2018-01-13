@@ -2,6 +2,7 @@ package org.qmul.csar.code.parse.java.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.parse.java.expression.MethodCallExpression;
+import org.qmul.csar.code.postprocess.methodtypes.TypeSanitizer;
 import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.SerializableCode;
@@ -85,18 +86,23 @@ public class MethodStatement implements Statement {
      * @return
      */
     public boolean signatureEquals(MethodStatement oMethod, TypeHierarchyResolver typeHierarchyResolver) {
-        // TODO ensure correctness
-        // TODO fix and test generics in return types
+        // TODO ensure correctness: may breakdown
         MethodDescriptor oDescriptor = oMethod.getDescriptor();
         boolean returnTypeEquals;
         boolean parameterTypeEquals;
 
         // Return type
+        String type1 = descriptor.getReturnType().get();
+        String type2 = oDescriptor.getReturnType().get();
+        type1 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type1), descriptor.getTypeParameters());
+        type2 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type2), oDescriptor.getTypeParameters());
+
         if (returnQualifiedType != null && oMethod.getReturnQualifiedType() != null) {
             returnTypeEquals = typeHierarchyResolver.isSubtype(returnQualifiedType.getQualifiedName(),
-                    oMethod.getReturnQualifiedType().getQualifiedName());
-        } else { // assume they can be from java api, so we dont check for correctness
-            returnTypeEquals = descriptor.getReturnType().get().equals(oDescriptor.getReturnType().get());
+                    oMethod.getReturnQualifiedType().getQualifiedName())
+                    && TypeSanitizer.dimensionsEquals(type1, type2);
+        } else { // assume they can be from java api, so we don't check for correctness
+            returnTypeEquals = type1.equals(type2) && TypeSanitizer.dimensionsEquals(type1, type2);
         }
 
         if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent()) {
@@ -105,7 +111,8 @@ public class MethodStatement implements Statement {
 
         // Parameter type
         parameterTypeEquals = ParameterVariableDescriptor.parametersSignatureEquals(params,
-                oMethod.getParameters(), typeHierarchyResolver);
+                descriptor.getTypeParameters(), oMethod.getParameters(), oDescriptor.getTypeParameters(),
+                typeHierarchyResolver);
         return descriptor.getIdentifierName().equals(oDescriptor.getIdentifierName())
                 && returnTypeEquals
                 && parameterTypeEquals;
