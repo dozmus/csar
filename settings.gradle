@@ -1,1 +1,12 @@
 rootProject.name = 'csar'
+
+// API
+include 'csar-api'
+
+// CLI
+include 'csar-cli'
+
+// Plugins
+include 'plugins'
+include 'plugins:csar-java'
+

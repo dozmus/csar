@@ -1,67 +1,36 @@
 group 'org.qmul'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: 'antlr'
-apply plugin: 'jacoco'
+// Global sub-project configuration
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
-mainClassName = 'org.qmul.csar.Main'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    // https://mvnrepository.com/artifact/com.beust/jcommander
-    compile group: 'com.beust', name: 'jcommander', version: '1.72'
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
-    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
-    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.0'
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
-    // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
-    compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.7'
-    // https://mvnrepository.com/artifact/org.antlr/antlr4
-    antlr group: 'org.antlr', name: 'antlr4', version: '4.7'
-    // https://mvnrepository.com/artifact/junit/junit
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-run {
-    // Set java program arguments from gradle run arguments
-    if (project.hasProperty('jargs'))
-        args(jargs.split(' '))
-}
-
-task(fatJar, type: Jar) {
-    manifest {
-        attributes 'Implementation-Title': rootProject.name,
-                'Implementation-Version': version,
-                'Main-Class': mainClassName
+    repositories {
+        mavenCentral()
     }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+
+    dependencies {
+        // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+        // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+        compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+        // https://mvnrepository.com/artifact/junit/junit
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+    }
+
+    // JaCoCo test report - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
+    jacocoTestReport {
+        group = "Reporting"
+        description = "Generate Jacoco coverage reports after running tests."
+        additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
+    }
 }
 
-// ANTLR process settings - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
-generateGrammarSource {
-    maxHeapSize = '64m'
-    arguments += ['-visitor', '-long-messages']
-}
+// Set plugins export location
+ext.pluginsDir = childProjects['csar-cli'].projectDir.path + '/plugins/'
 
-// JaCoCo test report - http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/
-jacocoTestReport {
-    group = "Reporting"
-    description = "Generate Jacoco coverage reports after running tests."
-    additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
-}
+task build(dependsOn: [':csar-cli:uberjar'])

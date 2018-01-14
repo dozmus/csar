@@ -1,0 +1,111 @@
+package org.qmul.csar.code.postprocess.overriddenmethods;
+
+import org.qmul.csar.code.parse.java.statement.MethodStatement;
+import org.qmul.csar.code.parse.java.statement.ParameterVariableStatement;
+import org.qmul.csar.code.postprocess.methodtypes.TypeSanitizer;
+import org.qmul.csar.code.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.lang.descriptor.MethodDescriptor;
+import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
+
+import java.util.List;
+
+public final class MethodSignatureComparator {
+
+    /**
+     * Returns <tt>true</tt> if the two lists have the same signature. This handles checking generic types, varargs
+     * and subtypes in arguments as well.
+     *
+     * @param list1 parameters from a potential super class
+     * @param typeParameters1
+     * @param list2 parameters from a potential child class
+     * @param typeParameters2
+     * @return <tt>true</tt> if the two lists have the same signature
+     */
+    public static boolean parametersSignatureEquals(List<ParameterVariableStatement> list1,
+            List<String> typeParameters1, List<ParameterVariableStatement> list2, List<String> typeParameters2,
+            TypeHierarchyResolver typeHierarchyResolver) {
+        // TODO ensure correctness: may breakdown
+        // XXX list1 is potential superclass, list2 is potential child
+        if (list1.size() != list2.size())
+            return false;
+
+        for (int i = 0; i < list1.size(); i++) {
+            ParameterVariableDescriptor param1 = list1.get(i).getDescriptor();
+            ParameterVariableDescriptor param2 = list2.get(i).getDescriptor();
+            QualifiedType qtype1 = list1.get(i).getQualifiedType();
+            QualifiedType qtype2 = list2.get(i).getQualifiedType();
+
+            if (!param1.getIdentifierType().isPresent() || !param2.getIdentifierType().isPresent())
+                return false;
+
+            // Names
+            String type1 = param1.getIdentifierType().get();
+            String type2 = param2.getIdentifierType().get();
+            type1 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type1), typeParameters1);
+            type2 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type2), typeParameters1); // TODO change to typeParameters2 - this is a bug
+            boolean namesEqual = type1.equals(type2);
+            boolean dimensionEquals = TypeSanitizer.dimensionsEquals(type1, type2);
+
+            // Generic argument
+            String genericArgument1 = TypeSanitizer.extractGenericArgument(type1);
+            String genericArgument2 = TypeSanitizer.extractGenericArgument(type2);
+
+            boolean genericTypesEqual = genericArgument1.equals(genericArgument2)
+                    || !genericArgument1.isEmpty() && genericArgument2.isEmpty();
+
+            // Check base types
+            if (qtype1 != null && qtype2 != null) {
+                if (!typeHierarchyResolver.isSubtype(qtype1.getQualifiedName(), qtype2.getQualifiedName())
+                        || !genericTypesEqual || !dimensionEquals) {
+                    return false;
+                }
+            } else if (!namesEqual || !genericTypesEqual || !dimensionEquals) { // fall-back comparison, to support java api
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns if this method's signature equals the argument one, the current method is treated as one from a
+     * potential superclass. So the argument descriptor is accepted if its return type or parameter types are
+     * subtypes of the super's.
+     * @param oMethod
+     * @return
+     */
+    public static boolean signatureEquals(MethodStatement method, MethodStatement oMethod,
+            TypeHierarchyResolver typeHierarchyResolver) {
+        // TODO ensure correctness: may breakdown
+        MethodDescriptor descriptor = method.getDescriptor();
+        MethodDescriptor oDescriptor = oMethod.getDescriptor();
+        boolean returnTypeEquals;
+        boolean parameterTypeEquals;
+
+        // Return type
+        String type1 = descriptor.getReturnType().get();
+        String type2 = oDescriptor.getReturnType().get();
+        type1 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type1), descriptor.getTypeParameters());
+        type2 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type2), oDescriptor.getTypeParameters());
+
+        if (method.getReturnQualifiedType() != null && oMethod.getReturnQualifiedType() != null) {
+            returnTypeEquals = typeHierarchyResolver.isSubtype(method.getReturnQualifiedType().getQualifiedName(),
+                    oMethod.getReturnQualifiedType().getQualifiedName())
+                    && TypeSanitizer.dimensionsEquals(type1, type2);
+        } else { // assume they can be from java api, so we don't check for correctness
+            returnTypeEquals = type1.equals(type2) && TypeSanitizer.dimensionsEquals(type1, type2);
+        }
+
+        if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent()) {
+            return false;
+        }
+
+        // Parameter type
+        parameterTypeEquals = parametersSignatureEquals(method.getParameters(),
+                descriptor.getTypeParameters(), oMethod.getParameters(), oDescriptor.getTypeParameters(),
+                typeHierarchyResolver);
+        return descriptor.getIdentifierName().equals(oDescriptor.getIdentifierName())
+                && returnTypeEquals
+                && parameterTypeEquals;
+    }
+}
