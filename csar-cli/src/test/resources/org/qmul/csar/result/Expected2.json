@@ -1,9 +1,0 @@
-[ {
-  "path" : "file:///D:/pure/Documents/Education/University/CS/3%20UG%20Project/csar/csar-cli/test.java",
-  "lineNumber" : 36,
-  "codeFragment" : "new Object();"
-}, {
-  "path" : "file:///D:/pure/Documents/Education/University/CS/3%20UG%20Project/csar/csar-cli/org/qmul/Tests.java",
-  "lineNumber" : 1,
-  "codeFragment" : "    for (int i = 0; i < 100; i++)  {"
-} ]
