@@ -31,8 +31,10 @@ Usage: java -jar csar.jar [options] Search query
 Example: `java -jar csar.jar SELECT method:def:add -t 4`
 
 ### Contributing
-You can specify space separated arguments with the gradle `run` task as follows:
+You can specify space separated arguments with the gradle `:csar-cli:run` task as follows:
 `-Pjargs="SELECT method:def:add -t 1 --log-level TRACE"`
+
+Make sure you build the project first so that the plugins are compiled and exported to `csar-cli/plugins`.
 
 ### Roadmap
 1. Implement query parsing
