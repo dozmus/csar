@@ -13,6 +13,7 @@ dependencies {
 }
 
 run {
+    // TODO run build before this
     // Set java program arguments from gradle run arguments
     if (project.hasProperty('jargs'))
         args(jargs.split(' '))

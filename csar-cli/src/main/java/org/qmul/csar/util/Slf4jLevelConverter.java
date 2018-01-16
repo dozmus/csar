@@ -4,6 +4,9 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
 import org.slf4j.event.Level;
 
+/**
+ * A String argument to {@link Level} converter for command-line parsing.
+ */
 public final class Slf4jLevelConverter implements IStringConverter<Level> {
 
     @Override

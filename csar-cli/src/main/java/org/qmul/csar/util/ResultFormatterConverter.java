@@ -2,12 +2,12 @@ package org.qmul.csar.util;
 
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
-import org.qmul.csar.result.JsonResultFormatter;
-import org.qmul.csar.result.PlainTextResultFormatter;
-import org.qmul.csar.result.ResultFormatter;
+import org.qmul.csar.result.formatter.JsonResultFormatter;
+import org.qmul.csar.result.formatter.PlainTextResultFormatter;
+import org.qmul.csar.result.formatter.ResultFormatter;
 
 /**
- * A command-line parser for fields of type {@link ResultFormatter}.
+ * A String argument to {@link ResultFormatter} converter for command-line parsing.
  */
 public final class ResultFormatterConverter implements IStringConverter<ResultFormatter> {
 

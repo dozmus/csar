@@ -13,9 +13,10 @@ public final class NamedThreadFactory implements ThreadFactory {
     private final String nameFormat;
 
     /**
-     * Constructs a new NamedThreadFactory with the specified name format.
+     * Constructs a new {@link NamedThreadFactory} with the specified name format.
      * You can use '%d' in the nameFormat which will be replaced with thread number.
      * If nameFormat is <tt>null</tt> then 'thread-%d' is taken as the name format.
+     *
      * @param nameFormat the name format to use
      */
     public NamedThreadFactory(String nameFormat) {

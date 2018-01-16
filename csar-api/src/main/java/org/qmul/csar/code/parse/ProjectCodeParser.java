@@ -35,8 +35,10 @@ public class ProjectCodeParser {
     private CodeParserFactory factory;
 
     /**
-     * Creates a new {@link ProjectCodeParser} with the argument iterator and a <tt>threadCount</tt> of <tt>1</tt>.
+     * Creates a new {@link ProjectCodeParser} with the argument factory, iterator and a <tt>threadCount</tt> of
+     * <tt>1</tt>.
      *
+     * @param factory the {@link CodeParserFactory} to use to create parsers
      * @param it the {@link Path} iterator whose contents to parse
      */
     public ProjectCodeParser(CodeParserFactory factory, Iterator<Path> it) {
@@ -44,16 +46,17 @@ public class ProjectCodeParser {
     }
 
     /**
-     * Creates a new {@link ProjectCodeParser} with the arguments.
+     * Creates a new {@link ProjectCodeParser}.
      *
+     * @param factory the {@link CodeParserFactory} to use to create parsers
      * @param it the {@link Path} iterator whose contents to parse
      * @param threadCount the amount of threads to use
      * @throws IllegalArgumentException if <tt>threadCount</tt> is less than or equal to <tt>0</tt>
-     * @throws NullPointerException if <tt>it</tt> is <tt>null</tt>
+     * @throws NullPointerException if it or factory is <tt>null</tt>
      */
     public ProjectCodeParser(CodeParserFactory factory, Iterator<Path> it, int threadCount) {
         this.it = new ConcurrentIterator<>(Objects.requireNonNull(it));
-        this.factory = factory;
+        this.factory = Objects.requireNonNull(factory);
         this.threadCount = threadCount;
         this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
         this.finishedLatch = new CountDownLatch(threadCount);

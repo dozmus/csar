@@ -7,8 +7,19 @@ import java.util.regex.Pattern;
 
 public abstract class IdentifierName {
 
+    /**
+     * Returns the result of running the regular expression on the static argument if a {@link Static} is compared
+     * against a {@link Regex}.
+     * Returns <tt>false</tt> if a {@link Regex} is compared against a {@link Regex}.
+     *
+     * @param identifierName the identifier name to compare against
+     * @return if the identifier names are effectively equal.
+     */
     public abstract boolean nameEquals(IdentifierName identifierName);
 
+    /**
+     * An identifier name.
+     */
     public static class Static extends IdentifierName {
 
         private final String identifierName;
@@ -53,6 +64,10 @@ public abstract class IdentifierName {
         }
     }
 
+    /**
+     * An identifier name expressed as a regular expression. This is because it was declared in a descriptor for
+     * searching purposes.
+     */
     public static class Regex extends IdentifierName {
 
         private final Pattern pattern;

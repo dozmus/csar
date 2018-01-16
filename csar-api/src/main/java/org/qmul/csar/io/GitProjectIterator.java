@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 /**
  * Iterates over files in the specified directory which is home to a git repository, aggregating them.
  */

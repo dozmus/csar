@@ -2,8 +2,8 @@ package org.qmul.csar;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.PathConverter;
-import org.qmul.csar.result.PlainTextResultFormatter;
-import org.qmul.csar.result.ResultFormatter;
+import org.qmul.csar.result.formatter.PlainTextResultFormatter;
+import org.qmul.csar.result.formatter.ResultFormatter;
 import org.qmul.csar.util.ResultFormatterConverter;
 import org.qmul.csar.util.Slf4jLevelConverter;
 import org.slf4j.event.Level;

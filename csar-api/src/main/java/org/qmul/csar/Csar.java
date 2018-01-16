@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A code search and refactor tool instance.
@@ -30,21 +31,24 @@ public class Csar {
      * Constructs a new {@link Csar} with the given arguments.
      *
      * @param query the csar query to perform
-     * @param projectDirectory
-     * @param ignoreFile
+     * @param threadCount the amount of threads to use
+     * @param projectDirectory the project directory
+     * @param narrowSearch if the search domain should be narrowed
+     * @param ignoreFile the csar ignore file to use
      */
     public Csar(String query, int threadCount, Path projectDirectory, boolean narrowSearch, Path ignoreFile) {
-        this.query = query;
+        this.query = Objects.requireNonNull(query);
         this.threadCount = threadCount;
-        this.projectDirectory = projectDirectory;
+        this.projectDirectory = Objects.requireNonNull(projectDirectory);
         this.narrowSearch = narrowSearch;
-        this.ignoreFile = ignoreFile;
+        this.ignoreFile = Objects.requireNonNull(ignoreFile);
     }
 
     /**
      * Loads plugins.
+     * @return <tt>true</tt> if suitable plugins were found.
      */
-    public void init() {
+    public boolean init() {
         LOGGER.info("Loading plugins...");
 
         // Create the plugin manager
@@ -64,7 +68,9 @@ public class Csar {
 
         if (plugins.size() == 0) {
             LOGGER.error("Found no suitable plugins.");
+            return false;
         }
+        return true;
     }
 
     /**
@@ -83,6 +89,9 @@ public class Csar {
         return true;
     }
 
+    /**
+     * Each underlying language-specific plugin parses the project code.
+     */
     public void parseCode() {
         LOGGER.trace("Parsing code...");
 
@@ -91,6 +100,9 @@ public class Csar {
         }
     }
 
+    /**
+     * Each underlying language-specific plugin post-processes the project code.
+     */
     public void postprocess() {
         LOGGER.trace("Post processing...");
 
@@ -99,6 +111,9 @@ public class Csar {
         }
     }
 
+    /**
+     * Each underlying language-specific plugin searches the project code.
+     */
     public void searchCode() {
         LOGGER.trace("Searching code...");
         results = new ArrayList<>();
@@ -109,6 +124,11 @@ public class Csar {
         }
     }
 
+    /**
+     * Returns the search results, aggregated from each underlying language-specific plugin.
+     *
+     * @return search results.
+     */
     public List<Result> getResults() {
         return results;
     }

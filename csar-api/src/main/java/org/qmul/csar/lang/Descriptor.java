@@ -4,6 +4,9 @@ import org.qmul.csar.util.OptionalUtils;
 
 import java.util.Optional;
 
+/**
+ * A descriptor, typically used to describe searchable statements.
+ */
 public interface Descriptor {
 
     /**

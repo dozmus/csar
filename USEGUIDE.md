@@ -30,3 +30,4 @@ e.g. `SELECT method:def:add(int,int)` will find all method definitions with two 
 | 3 | Error parsing code files. |
 | 4 | Error searching code files. |
 | 5 | Error reading ignore file. |
+| 6 | No plugins found. |

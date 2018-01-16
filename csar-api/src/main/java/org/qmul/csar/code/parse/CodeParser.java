@@ -5,6 +5,10 @@ import org.qmul.csar.lang.Statement;
 import java.io.IOException;
 import java.nio.file.Path;
 
+/**
+ * A code parser, used in {@link ProjectCodeParser}. All implementations must have a 0 argument constructor or
+ * exceptions will be thrown in {@link CodeParserFactory}.
+ */
 public interface CodeParser {
 
     /**

@@ -23,10 +23,11 @@ public final class Main {
      * Application main method.
      * <p>
      * This parses command-line arguments and stores them in an instance of {@link CsarContext}.
-     * Then, it executes the actions which they describe.
+     * Then, it constructs an appropriate instance of {@link Csar} and executes this.
      *
      * @param args application command-line arguments
      * @see CsarContext
+     * @see CsarFactory
      */
     public static void main(String[] args) {
         // Parse command-line arguments
@@ -54,7 +55,7 @@ public final class Main {
                 System.exit(0);
             }
         } catch (ParameterException ex) {
-            System.err.println("Error parsing command-line arguments: " + ex.getMessage());
+            LOGGER.error("Error parsing command-line arguments: {}", ex.getMessage());
             printUsage();
             System.exit(1);
         }
@@ -65,16 +66,12 @@ public final class Main {
         try {
             csar = CsarFactory.create(ctx);
         } catch (IOException ex) {
-            System.err.println("Error reading ignore file because " + ex.getMessage());
+            LOGGER.error("Error reading ignore file because {}", ex.getMessage());
             System.exit(5);
         }
 
-        csar.init();
-
-        if (!csar.parseQuery()) {
-            System.exit(2);
-        }
-
+        exitIfFalse(csar.init(), 6);
+        exitIfFalse(csar.parseQuery(), 2);
         csar.parseCode();
         csar.postprocess();
         csar.searchCode();
@@ -90,7 +87,20 @@ public final class Main {
     }
 
     /**
-     * Prints CLI usage. This is hardcoded and should be updated as the CLI changes.
+     * If the argument boolean is <tt>false</tt>, then this calls {@link System#exit(int)} with the argument integer.
+     *
+     * @param value the argument boolean
+     * @param exitCode the exit code
+     */
+    private static void exitIfFalse(boolean value, int exitCode) {
+        if (!value) {
+            System.exit(exitCode);
+        }
+    }
+
+    /**
+     * Prints CLI usage. This is hard-coded and should be updated as the CLI changes.
+     * @see CsarContext
      */
     private static void printUsage() {
         String usage = "Usage: java -jar csar.jar [options] search-query\n"

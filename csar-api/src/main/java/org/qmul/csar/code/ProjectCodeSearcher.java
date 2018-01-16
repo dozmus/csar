@@ -9,13 +9,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A project-wide code searcher.
+ */
 public interface ProjectCodeSearcher {
 
+    /**
+     * Returns the results of searching the project code.
+     *
+     * @return search results
+     */
     List<Result> results();
 
+    /**
+     * Sets the csar query to search for.
+     *
+     * @param csarQuery the csar query to search for
+     */
     void setCsarQuery(CsarQuery csarQuery);
 
+    /**
+     * Sets the project file iterator to search within.
+     *
+     * @param iterator the project file iterator
+     */
     void setIterator(Iterator<Map.Entry<Path, Statement>> iterator);
 
+    /**
+     * Returns if an error occurred.
+     *
+     * @return if an error occurred
+     */
     boolean errorOccurred();
 }

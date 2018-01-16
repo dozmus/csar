@@ -3,19 +3,19 @@ package org.qmul.csar;
 import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
-import org.qmul.csar.code.CodeAnalysisUtils;
-import org.qmul.csar.code.DefaultProjectCodeParserErrorListener;
+import org.qmul.csar.code.CodeAnalyzer;
+import org.qmul.csar.code.DefaultPathProcessorErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.ProjectCodeParser;
-import org.qmul.csar.code.parse.java.JavaCodeParser;
-import org.qmul.csar.code.postprocess.JavaAnalysisUtils;
-import org.qmul.csar.code.postprocess.methodtypes.MethodQualifiedTypeResolver;
-import org.qmul.csar.code.postprocess.methodusage.MethodUsageResolver;
-import org.qmul.csar.code.postprocess.overriddenmethods.OverriddenMethodsResolver;
-import org.qmul.csar.code.postprocess.qualifiedname.QualifiedNameResolver;
-import org.qmul.csar.code.postprocess.typehierarchy.TypeHierarchyResolver;
-import org.qmul.csar.code.search.JavaCodeSearcher;
+import org.qmul.csar.code.java.parse.JavaCodeParser;
+import org.qmul.csar.code.java.postprocess.JavaAnalyzer;
+import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
+import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
+import org.qmul.csar.code.java.postprocess.overriddenmethods.OverriddenMethodsResolver;
+import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
@@ -28,20 +28,32 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The java language plugin.
+ */
 public class JavaPlugin extends Plugin {
 
     public JavaPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
+    /**
+     * The java language csar plugin.
+     */
     @Extension
-    public static class JavaProcessor implements CsarPlugin {
+    public static class CsarJavaPlugin implements CsarPlugin {
 
         private Map<Path, Statement> code;
 
         @Override
         public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
-            CodeParserFactory factory = new CodeParserFactory(new JavaCodeParser());
+            CodeParserFactory factory = null;
+
+            try {
+                factory = new CodeParserFactory(JavaCodeParser.class);
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
             Iterator<Path> it;
 
             if (Files.exists(ignoreFile)) {
@@ -56,7 +68,7 @@ public class JavaPlugin extends Plugin {
             }
 
             ProjectCodeParser parser = new ProjectCodeParser(factory, it, threadCount);
-            parser.setErrorListener(new DefaultProjectCodeParserErrorListener());
+            parser.setErrorListener(new DefaultPathProcessorErrorListener());
             code = parser.results();
         }
 
@@ -70,10 +82,9 @@ public class JavaPlugin extends Plugin {
                     typeHierarchyResolver);
             MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
 
-            CodeAnalysisUtils javaCodeAnalysisUtils = new JavaAnalysisUtils(typeHierarchyResolver,
+            CodeAnalyzer javaCodeAnalyzer = new JavaAnalyzer(typeHierarchyResolver,
                     methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
-            javaCodeAnalysisUtils.setCode(code);
-            javaCodeAnalysisUtils.analyze();
+            javaCodeAnalyzer.analyze(code);
         }
 
         @Override

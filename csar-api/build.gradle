@@ -9,6 +9,8 @@ dependencies {
     compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.7'
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7'
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.13.0'
 }
 
 // ANTLR process settings - https://docs.gradle.org/4.0.1/userguide/antlr_plugin.html#sec:controlling_the_antlr_generator_process
