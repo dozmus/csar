@@ -37,20 +37,11 @@ public class OverriddenMethodsResolver {
      * The type hierarchy resolver to use.
      */
     private final TypeHierarchyResolver typeHierarchyResolver;
-    /**
-     * If benchmarking output should be printed.
-     */
-    private final boolean benchmarking;
-
-    public OverriddenMethodsResolver(TypeHierarchyResolver typeHierarchyResolver) {
-        this(new QualifiedNameResolver(), typeHierarchyResolver, false);
-    }
 
     public OverriddenMethodsResolver(QualifiedNameResolver qualifiedNameResolver,
-            TypeHierarchyResolver typeHierarchyResolver, boolean benchmarking) {
+            TypeHierarchyResolver typeHierarchyResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
         this.typeHierarchyResolver = typeHierarchyResolver;
-        this.benchmarking = benchmarking;
     }
 
     public void resolve(Map<Path, Statement> code) {
@@ -71,13 +62,10 @@ public class OverriddenMethodsResolver {
         }
 
         // Log completion message
-        if (benchmarking) {
-            LOGGER.info("Finished (found {} overridden methods from {} files in {}ms)", map.size(), code.size(),
-                    (System.currentTimeMillis() - startTime));
-            LOGGER.info("Statistics: " + qualifiedNameResolver.getStatistics().toString());
-        } else {
-            LOGGER.info("Finished");
-        }
+        LOGGER.debug("Found {} overridden methods from {} files in {}ms", map.size(), code.size(),
+                (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
+        LOGGER.info("Finished");
     }
 
     public boolean isOverridden(String methodSignature) {

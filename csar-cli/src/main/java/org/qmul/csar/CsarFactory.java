@@ -19,7 +19,6 @@ public final class CsarFactory {
     public static Csar create(CsarContext ctx) throws IOException {
         Path ignoreFile = ctx.getIgnoreFile();
         int threads = ctx.getThreads();
-        return new Csar(ctx.getQuery(), threads, ctx.isBenchmarking(), ctx.getProjectDirectory(),
-                ctx.isNarrowSearch(), ignoreFile);
+        return new Csar(ctx.getQuery(), threads, ctx.getProjectDirectory(), ctx.isNarrowSearch(), ignoreFile);
     }
 }

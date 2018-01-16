@@ -29,10 +29,6 @@ public class ProjectCodeParser {
     private final CountDownLatch finishedLatch;
     private final int threadCount;
     private final ConcurrentIterator<Path> it;
-    /**
-     * If benchmarking output should be printed.
-     */
-    private final boolean benchmarking;
     private boolean errorOccurred = false;
     private boolean running = false;
     private PathProcessorErrorListener errorListener;
@@ -48,7 +44,6 @@ public class ProjectCodeParser {
     }
 
     /**
-     * Creates a new {@link ProjectCodeParser} with the argument iterator and a <tt>threadCount</tt> of <tt>1</tt>.
      * Creates a new {@link ProjectCodeParser} with the arguments.
      *
      * @param it the {@link Path} iterator whose contents to parse
@@ -57,22 +52,8 @@ public class ProjectCodeParser {
      * @throws NullPointerException if <tt>it</tt> is <tt>null</tt>
      */
     public ProjectCodeParser(CodeParserFactory factory, Iterator<Path> it, int threadCount) {
-        this(factory, it, threadCount, false);
-    }
-
-    /**
-     * Creates a new {@link ProjectCodeParser} with the arguments.
-     *
-     * @param it the {@link Path} iterator whose contents to parse
-     * @param threadCount the amount of threads to use
-     * @param benchmarking if benchmarking statistics should be printed
-     * @throws IllegalArgumentException if <tt>threadCount</tt> is less than or equal to <tt>0</tt>
-     * @throws NullPointerException if <tt>it</tt> is <tt>null</tt>
-     */
-    public ProjectCodeParser(CodeParserFactory factory, Iterator<Path> it, int threadCount, boolean benchmarking) {
         this.it = new ConcurrentIterator<>(Objects.requireNonNull(it));
         this.factory = factory;
-        this.benchmarking = benchmarking;
         this.threadCount = threadCount;
         this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-parse-%d"));
         this.finishedLatch = new CountDownLatch(threadCount);
@@ -122,11 +103,9 @@ public class ProjectCodeParser {
                             root = factory.create(file).parse(file);
                             map.put(file, root);
 
-                            // Append to statistics
-                            if (benchmarking) {
-                                synchronized (totalFileSizes) {
-                                    totalFileSizes.add(Files.size(file));
-                                }
+                            // Update statistics
+                            synchronized (totalFileSizes) {
+                                totalFileSizes.add(Files.size(file));
                             }
 
                             // Print code tree
@@ -164,12 +143,9 @@ public class ProjectCodeParser {
         }
 
         // Log completion message
-        if (benchmarking) {
-            LOGGER.info("Finished (parsed {}kb of code in {}ms)", totalFileSizes.sizeKb,
-                    (System.currentTimeMillis() - startTime));
-        } else {
-            LOGGER.info("Finished");
-        }
+        LOGGER.debug("Parsed {}kb of code in {}ms", totalFileSizes.sizeKb,
+                (System.currentTimeMillis() - startTime));
+        LOGGER.info("Finished");
 
         synchronized (this) {
             running = false;

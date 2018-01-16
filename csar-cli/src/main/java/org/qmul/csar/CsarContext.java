@@ -41,8 +41,6 @@ public class CsarContext {
     private boolean narrowSearch = true;
     @Parameter(names = {"--ignore-file"}, description = "Ignore file", order = 7, converter = PathConverter.class)
     private Path ignoreFile;
-    @Parameter(names = {"--benchmark"}, description = "Print benchmarking values", order = 8)
-    private boolean benchmarking;
     @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 9)
     private boolean printProjectUrl;
     @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 10, help = true)
@@ -98,10 +96,6 @@ public class CsarContext {
 
     public Path getIgnoreFile() {
         return ignoreFile;
-    }
-
-    public boolean isBenchmarking() {
-        return benchmarking;
     }
 
     public boolean isPrintHelp() {

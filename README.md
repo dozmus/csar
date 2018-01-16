@@ -22,8 +22,6 @@ Usage: java -jar csar.jar [options] Search query
       Narrow search domain (default: true)
     --ignore-file
       Ignore file (default: .csarignore)
-    --benchmark
-      Print benchmarking values (default: false)
     --project-url, --url
       Print project URL
     --help, -h

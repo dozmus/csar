@@ -40,8 +40,7 @@ public class JavaPlugin extends Plugin {
         private Map<Path, Statement> code;
 
         @Override
-        public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount,
-                boolean benchmarking) {
+        public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
             CodeParserFactory factory = new CodeParserFactory(new JavaCodeParser());
             Iterator<Path> it;
 
@@ -56,20 +55,19 @@ public class JavaPlugin extends Plugin {
                 it = ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
             }
 
-            ProjectCodeParser parser = new ProjectCodeParser(factory, it, threadCount, benchmarking);
+            ProjectCodeParser parser = new ProjectCodeParser(factory, it, threadCount);
             parser.setErrorListener(new DefaultProjectCodeParserErrorListener());
             code = parser.results();
         }
 
         @Override
-        public void postprocess(boolean benchmarking) {
+        public void postprocess() {
             QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
-            TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver,
-                    benchmarking);
+            TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver);
             MethodQualifiedTypeResolver methodQualifiedTypeResolver
                     = new MethodQualifiedTypeResolver(qualifiedNameResolver);
             OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver(qualifiedNameResolver,
-                    typeHierarchyResolver, benchmarking);
+                    typeHierarchyResolver);
             MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
 
             CodeAnalysisUtils javaCodeAnalysisUtils = new JavaAnalysisUtils(typeHierarchyResolver,

@@ -33,18 +33,13 @@ public class TypeHierarchyResolver {
      * The qualified name resolver to use.
      */
     private final QualifiedNameResolver qualifiedNameResolver;
-    /**
-     * If benchmarking output should be printed.
-     */
-    private final boolean benchmarking;
 
     public TypeHierarchyResolver() {
-        this(new QualifiedNameResolver(), false);
+        this(new QualifiedNameResolver());
     }
 
-    public TypeHierarchyResolver(QualifiedNameResolver qualifiedNameResolver, boolean benchmarking) {
+    public TypeHierarchyResolver(QualifiedNameResolver qualifiedNameResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
-        this.benchmarking = benchmarking;
     }
 
     /**
@@ -142,12 +137,9 @@ public class TypeHierarchyResolver {
         mergePartialTrees(root, partialHierarchies);
 
         // Log completion message
-        if (benchmarking) {
-            LOGGER.info("Finished (processed {} files in {}ms)", code.size(), (System.currentTimeMillis() - startTime));
-            LOGGER.info("Statistics: " + qualifiedNameResolver.getStatistics().toString());
-        } else {
-            LOGGER.info("Finished");
-        }
+        LOGGER.debug("Processed {} files in {}ms)", code.size(), (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
+        LOGGER.info("Finished");
     }
 
     /**

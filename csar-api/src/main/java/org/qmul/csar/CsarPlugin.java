@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface CsarPlugin extends ExtensionPoint {
 
-    void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount, boolean benchmarking);
+    void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount);
 
-    void postprocess(boolean benchmarking);
+    void postprocess();
 
     List<Result> search(CsarQuery csarQuery, int threadCount);
 }

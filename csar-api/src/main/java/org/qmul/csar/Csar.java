@@ -19,7 +19,6 @@ public class Csar {
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final String query;
     private final int threadCount;
-    private final boolean benchmarking;
     private final Path projectDirectory;
     private final boolean narrowSearch;
     private final Path ignoreFile;
@@ -34,11 +33,9 @@ public class Csar {
      * @param projectDirectory
      * @param ignoreFile
      */
-    public Csar(String query, int threadCount, boolean benchmarking, Path projectDirectory,
-            boolean narrowSearch, Path ignoreFile) {
+    public Csar(String query, int threadCount, Path projectDirectory, boolean narrowSearch, Path ignoreFile) {
         this.query = query;
         this.threadCount = threadCount;
-        this.benchmarking = benchmarking;
         this.projectDirectory = projectDirectory;
         this.narrowSearch = narrowSearch;
         this.ignoreFile = ignoreFile;
@@ -90,7 +87,7 @@ public class Csar {
         LOGGER.trace("Parsing code...");
 
         for (CsarPlugin plugin : plugins) {
-            plugin.parse(projectDirectory, narrowSearch, ignoreFile, threadCount, benchmarking);
+            plugin.parse(projectDirectory, narrowSearch, ignoreFile, threadCount);
         }
     }
 
@@ -98,7 +95,7 @@ public class Csar {
         LOGGER.trace("Post processing...");
 
         for (CsarPlugin plugin : plugins) {
-            plugin.postprocess(benchmarking);
+            plugin.postprocess();
         }
     }
 
