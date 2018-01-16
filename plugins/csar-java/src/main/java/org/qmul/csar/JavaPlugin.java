@@ -46,7 +46,7 @@ public class JavaPlugin extends Plugin {
         private Map<Path, Statement> code;
 
         @Override
-        public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
+        public boolean parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
             CodeParserFactory factory = null;
 
             try {
@@ -70,10 +70,11 @@ public class JavaPlugin extends Plugin {
             ProjectCodeParser parser = new ProjectCodeParser(factory, it, threadCount);
             parser.setErrorListener(new DefaultPathProcessorErrorListener());
             code = parser.results();
+            return !parser.errorOccurred();
         }
 
         @Override
-        public void postprocess() {
+        public boolean postprocess() {
             QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
             TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver);
             MethodQualifiedTypeResolver methodQualifiedTypeResolver
@@ -85,14 +86,19 @@ public class JavaPlugin extends Plugin {
             CodeAnalyzer javaCodeAnalyzer = new JavaAnalyzer(typeHierarchyResolver,
                     methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
             javaCodeAnalyzer.analyze(code);
+            return true;
         }
 
         @Override
-        public List<Result> search(CsarQuery csarQuery, int threadCount) {
+        public List<Result> search(CsarQuery csarQuery, int threadCount) throws Exception {
             ProjectCodeSearcher searcher = new JavaCodeSearcher(threadCount);
             searcher.setCsarQuery(csarQuery);
             searcher.setIterator(code.entrySet().iterator());
-            return searcher.results();
+            List<Result> results = searcher.results();
+
+            if (searcher.errorOccurred())
+                throw new Exception("error occurred");
+            return results;
         }
     }
 }

@@ -3,7 +3,8 @@ Use Guide
 
 # General
 If you want accurate results from csar you should ensure that your source code is correct.
-csar currently only supports Java 8, `package-info.java` files introduced in Java 9 will be ignored for partial compatibility.
+csar currently only supports Java 8, `package-info.java` files introduced in Java 9 will be ignored for partial
+compatibility.
 Parsing source code with invalid syntax will lead to an error occurring and it being skipped.
 
 # Csar Query Language
@@ -29,5 +30,6 @@ e.g. `SELECT method:def:add(int,int)` will find all method definitions with two 
 | 2 | Error parsing csar query. |
 | 3 | Error parsing code files. |
 | 4 | Error searching code files. |
-| 5 | Error reading ignore file. |
-| 6 | No plugins found. |
+| 5 | No plugins found. |
+| 6 | Error post-processing code files. |
+| 7 | Error formatting search results. |

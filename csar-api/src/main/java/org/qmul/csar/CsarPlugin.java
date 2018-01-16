@@ -13,19 +13,22 @@ import java.util.List;
 public interface CsarPlugin extends ExtensionPoint {
 
     /**
-     * Parses the project code.
+     * Returns if parsing the project code was successful.
      *
      * @param projectDirectory the project directory
      * @param narrowSearch if the search domain should be narrowed
      * @param ignoreFile the csar ignore file to use
      * @param threadCount the amount of threads to use
+     * @return is parsing successful
      */
-    void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount);
+    boolean parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount);
 
     /**
-     * Post-processes the project code.
+     * Returns if post-processing the project code was successful.
+     *
+     * @return is post-processing successful
      */
-    void postprocess();
+    boolean postprocess();
 
     /**
      * Returns the results of searching the project code.
@@ -33,6 +36,7 @@ public interface CsarPlugin extends ExtensionPoint {
      * @param csarQuery the csar query to search for
      * @param threadCount the amount of threads to use
      * @return search results
+     * @throws Exception if an unrecoverable error occurs
      */
-    List<Result> search(CsarQuery csarQuery, int threadCount);
+    List<Result> search(CsarQuery csarQuery, int threadCount) throws Exception;
 }

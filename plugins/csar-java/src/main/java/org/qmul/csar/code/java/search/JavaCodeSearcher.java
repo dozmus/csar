@@ -37,7 +37,6 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
     private CsarQuery query;
     private boolean errorOccurred = false;
     private boolean running = false;
-    private boolean initialized = false; // TODO remove unused decl
 
     /**
      * Creates a new {@link JavaCodeSearcher} with the argument thread count.
@@ -71,8 +70,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
      * Returns a list containing the results from {@link #it} which matched the search query.
      * If {@link #it} contains no files then an empty list is returned.
      * @return returns the results.
-     * @throws IllegalStateException if it has already been called on this instance, or if it is currently running,
-     * or if it is not initialized ({@link #initialized} is <tt>false</tt>).
+     * @throws IllegalStateException if it has already been called on this instance, or if it is currently running.
      */
     public List<Result> results() {
         // Check if ready to run

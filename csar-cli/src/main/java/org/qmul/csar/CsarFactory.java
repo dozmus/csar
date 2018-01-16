@@ -1,7 +1,5 @@
 package org.qmul.csar;
 
-import java.io.IOException;
-
 /**
  * A factory for {@link Csar}.
  */
@@ -12,9 +10,8 @@ final class CsarFactory {
      *
      * @param ctx the details of the instance to create
      * @return a {@link Csar} with the details contained in the argument
-     * @throws IOException if an I/O error occurs while reading an ignore file
      */
-    static Csar create(CsarContext ctx) throws IOException {
+    static Csar create(CsarContext ctx) {
         return new Csar(ctx.getQuery(), ctx.getThreads(), ctx.getProjectDirectory(), ctx.isNarrowSearch(),
                 ctx.getIgnoreFile());
     }

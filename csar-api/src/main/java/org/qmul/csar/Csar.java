@@ -59,7 +59,7 @@ public class Csar {
                         .add(new ManifestPluginDescriptorFinder());
             }
         };
-        LOGGER.info("Plugins Directory: {}", pluginManager.getPluginsRoot().toAbsolutePath());
+        LOGGER.trace("Plugins Directory: {}", pluginManager.getPluginsRoot().toAbsolutePath());
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
 
@@ -78,7 +78,7 @@ public class Csar {
      * @return <tt>true</tt> if the query was parsed successfully.
      */
     public boolean parseQuery() {
-        LOGGER.trace("Parsing query...");
+        LOGGER.info("Parsing query...");
 
         try {
             csarQuery = CsarQueryFactory.parse(query);
@@ -90,42 +90,57 @@ public class Csar {
     }
 
     /**
-     * Each underlying language-specific plugin parses the project code.
+     * Returns if parsing the project code was successful on each underlying language-specific plugin.
+     * @return if parsing was successful
      */
-    public void parseCode() {
-        LOGGER.trace("Parsing code...");
+    public boolean parseCode() {
+        LOGGER.info("Parsing code...");
 
         for (CsarPlugin plugin : plugins) {
-            plugin.parse(projectDirectory, narrowSearch, ignoreFile, threadCount);
+            if (!plugin.parse(projectDirectory, narrowSearch, ignoreFile, threadCount)) {
+                return false;
+            }
         }
+        return true;
     }
 
     /**
-     * Each underlying language-specific plugin post-processes the project code.
+     * Returns if post-processing the project code was successful on each underlying language-specific plugin.
+     * @return if post-processing was successful
      */
-    public void postprocess() {
-        LOGGER.trace("Post processing...");
+    public boolean postprocess() {
+        LOGGER.info("Post processing...");
 
         for (CsarPlugin plugin : plugins) {
-            plugin.postprocess();
+            if (!plugin.postprocess()) {
+                return false;
+            }
         }
+        return true;
     }
 
     /**
-     * Each underlying language-specific plugin searches the project code.
+     * Returns if searching the project code was successful on each underlying language-specific plugin.
+     * @return if searching was successful
      */
-    public void searchCode() {
-        LOGGER.trace("Searching code...");
+    public boolean searchCode() {
+        LOGGER.info("Searching code...");
         results = new ArrayList<>();
 
         for (CsarPlugin plugin : plugins) {
-            List<Result> results = plugin.search(csarQuery, threadCount);
-            this.results.addAll(results);
+            try {
+                List<Result> results = plugin.search(csarQuery, threadCount);
+                this.results.addAll(results);
+            } catch (Exception e) {
+                return false;
+            }
         }
+        return true;
     }
 
     /**
      * Returns the search results, aggregated from each underlying language-specific plugin.
+     * This may be a partial list if an unrecoverable error occurred while searching.
      *
      * @return search results.
      */
