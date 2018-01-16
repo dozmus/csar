@@ -1,14 +1,14 @@
 package org.qmul.csar.util;
 
-import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
 /**
  * An error listener which throws a {@link RuntimeException} when
- * {@link ANTLRErrorListener#syntaxError(Recognizer, Object, int, int, String, RecognitionException)} is invoked.
+ * {@link BaseErrorListener#syntaxError(Recognizer, Object, int, int, String, RecognitionException)} is invoked.
  */
-public class ThrowRuntimeExceptionErrorListener extends DummyANTLRErrorListener {
+public class ThrowRuntimeExceptionErrorListener extends BaseErrorListener {
 
     private final String name;
 
