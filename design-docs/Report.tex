@@ -63,7 +63,7 @@
   Semantics-based code searching is a context sensitive variant of code searching.
   There is currently a lack of semantics-based code search tools and furthermore no semantics-based, integrated code search and refactor tool.
   This paper will detail the creation of the csar (code search and refactor) tool, which aims to be versatile, query-driven, semantics-based and language-agnostic.
-  It will cover the pre-requisite knowledge to understand this paper, requirements (general, selected and backlogged), design (with a running example), implementation and background material.
+  It will cover the pre-requisite knowledge to understand this paper, requirements (primary, secondary, and non-functional), design (with a running example), implementation and background material.
 \end{abstract}
 \newpage
 
@@ -77,22 +77,24 @@
 
 csar aims to be a unified framework for code searching and refactoring. It will take as input descriptions of searches and corresponding refactors in a newly devised query language called the csar query language. This results in a versatile and descriptive framework, which can target any programming language without the developer needing to know the specifics.
 
-Furthermore, csar aims to be flexible code-wise. Most of its API will be publicly exposed and documented. Third-party developers will be able to use this to embed csar into complicated build processes and other applications.
+Furthermore, csar aims to be flexible code-wise.
+Most of its API will be publicly exposed and documented.
+Third-party developers will be able to use this to extend csar, or embed csar into complicated build processes and other applications.
 
 \subsection{Pre-requisite Knowledge}
-``Refactoring is the process of changing the structure of software without changing its behavior.". \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
+``Refactoring is the process of changing the structure of software without changing its behavior." \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
 
 ``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \autocite{wikipediasemanticsearch} Henceforth, this is what is meant by `code search' or `search'.
 
-Searching is important because it increases developer productivity by enabling reuse, and it is important because it accounts for a significant portion of a developer's activity. \autocite{reiss2009semantics,stolee2014solving}
+Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity. \autocite{reiss2009semantics,stolee2014solving}
 
 There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results. \autocite{reiss2009semantics,stolee2014solving}
 
-Refactoring increases developer productivity by attempting to automate common tasks, and it is important because it accounts for a significant portion of a developer's activity. \autocite{mens2004survey,murphy2012we}
+Refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity. \autocite{mens2004survey,murphy2012we}
 
 There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused. \autocite{murphy2012we}
 
-Searching and refactoring are both hard to implement because optimally they should be language-agnostic\autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
+Searching and refactoring are both hard to implement because optimally they should be language-agnostic \autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
 
 ``Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
 
@@ -106,14 +108,13 @@ ANTLR is a parser-generator, which in conjunction with appropriate grammars, wil
 \section{Requirements}
 \subsection{Primary Requirements}
 \begin{itemize}
-  \item A user guide detailing how to use the tool and its query language.
-  \item A custom query language to describe the operations to carry out.
-  \item Parsing of source code.
-  \item Language-agnostic searching.
+  \item Use guide.
+  \item Query-driven.
+  \item Source code parsing.
+  \item Searching.
   \item Custom search domains.
-  \item Language-agnostic refactoring.
-  \item Flexible program output.
-  \item High efficiency.
+  \item Refactoring.
+  \item Language-agnosticism.
 \end{itemize}
 
 \subsection{Secondary Requirements}
@@ -162,7 +163,7 @@ csar can be integrated into this IDE in one of two ways:
 
 \subsection{Non-functional Requirements}
 \begin{itemize}
-  \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component level details), readme (how to run csar), and the user guide (how to use csar).
+  \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component-level details), readme (how to run csar), and the user guide (how to use csar).
   \item Efficiency - the implementation will maximize the usage of algorithms which run in polynomial time.
   It will also be benchmarked against a large input, to highlight deficiencies.
   \item Extensibility - csar will be open source, will be language-agnostic so that users can easily implement support for their language of choice, will expose a public API with great usage of interfaces, and will thoroughly utilize dependency injection to allow third-party developers to customize its behaviour.
@@ -189,14 +190,16 @@ My goal is not to develop an exhaustive query language which can express any lan
 
 Parsing of java source code (Java 8) will be supported.
 csar will be designed such that other programming languages can easily be integrated into it in the future.
-They will just need to write a parser written for them, analogously to how the java parser will be written.
+They will just need to write a plugin for them, analogously to how the java plugin will be written.
+This will include the creation of a language parser, post-processor, searcher, and refactorer.
 
 Searching will be implemented to only work on methods (finding their definitions and usages) for now.
 To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved.
 However, this would be a greatly time consuming and tedious task.
 It is also possible that further complications may arise which may need to be addressed in the form of post-processors for the programming languages, this is especially true for dynamic programming languages.
 
-It will also support narrowing the search domain by a `.gitignore' file for directories which are git repositories, and by custom `.csarignore' file. Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.
+It will also support narrowing the search domain by a `.gitignore' file for directories which are git repositories, and by a custom `.csarignore' file.
+Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.
 The git implementation will require calling the git binary with a specific argument and reading the output, which will reveal which files it is currently tracking.
 
 Refactoring is very complicated and time consuming, so we will only consider two operations.
@@ -475,6 +478,11 @@ Refactor Results:
 \end{lstlisting}
 
 Finally, `csar-cli' will terminate.
+
+% Implementation
+\section{Implementation}
+...
+% TODO write
 
 % Background Material
 \section{Background Material}
