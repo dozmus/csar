@@ -16,11 +16,11 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \lstset{
-    basicstyle=\ttfamily,
-    columns=fullflexible,
-    frame=single,
-    breaklines=true,
-    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
 }
 
 % Document metadata
@@ -47,23 +47,23 @@
 
 % Title page
 \begin{titlepage}
-    \centering
-    {\Large \MyTitle\par}
-    \vspace{3cm}
-    {\MyAuthor\par}
-    \vspace{0.5cm}
-    {\itshape Supervised by }{ \supervisor\par}
-    \vspace{13cm}
-    {\today\par}
+  \centering
+  {\Large \MyTitle\par}
+  \vspace{3cm}
+  {\MyAuthor\par}
+  \vspace{0.5cm}
+  {\itshape Supervised by }{ \supervisor\par}
+  \vspace{13cm}
+  {\today\par}
 \end{titlepage}
 
 % Abstract
 \begin{abstract}
-    Software developers frequently search code.
-    Semantics-based code searching is a context sensitive variant of code searching.
-    There is currently a lack of semantics-based code search tools and furthermore no semantics-based, integrated code search and refactor tool.
-    This paper will detail the creation of the csar (code search and refactor) tool, which aims to be versatile, query-driven, semantics-based and language-agnostic.
-    It will cover the pre-requisite knowledge to understand this paper, requirements (general, selected and backlogged), design (with a running example), implementation and background material.
+  Software developers frequently search code.
+  Semantics-based code searching is a context sensitive variant of code searching.
+  There is currently a lack of semantics-based code search tools and furthermore no semantics-based, integrated code search and refactor tool.
+  This paper will detail the creation of the csar (code search and refactor) tool, which aims to be versatile, query-driven, semantics-based and language-agnostic.
+  It will cover the pre-requisite knowledge to understand this paper, requirements (general, selected and backlogged), design (with a running example), implementation and background material.
 \end{abstract}
 \newpage
 
@@ -106,14 +106,14 @@ ANTLR is a parser-generator, which in conjunction with appropriate grammars, wil
 \section{Requirements}
 \subsection{Primary Requirements}
 \begin{itemize}
-    \item A user guide detailing how to use the tool and its query language.
-    \item A custom query language to describe the operations to carry out.
-    \item Parsing of source code.
-    \item Language-agnostic searching.
-    \item Custom search domains.
-    \item Language-agnostic refactoring.
-    \item Flexible program output.
-    \item High efficiency.
+  \item A user guide detailing how to use the tool and its query language.
+  \item A custom query language to describe the operations to carry out.
+  \item Parsing of source code.
+  \item Language-agnostic searching.
+  \item Custom search domains.
+  \item Language-agnostic refactoring.
+  \item Flexible program output.
+  \item High efficiency.
 \end{itemize}
 
 \subsection{Secondary Requirements}
@@ -126,14 +126,14 @@ We also want to maintain an updated index of the code.
 
 We have two storage approaches we can take:
 \begin{enumerate}
-    \item Storage Approach: Flat Files\newline
-    Either map the files to a parallel hierarchy in `.csar` which contains their parsed outputs, or, store them all in the same folder where their file names are the hashes of the input files.
-    The second approach may cause problems if hash collisions occur, so care must be taken when choosing the hashing algorithm to be used.
-    The last modified dates of the source code and their parsed code can be used to determine which files require updating.
-    \item Storage Approach: Database (i.e. SQLite)\newline
-    Store a `(Path, LastModified, ParsedCode)` relation in the database, preferably in a `.csar` directory.
-    Note: `LastModified` is a date, which is the last time that file was modified, as of when it was parsed.
-    We can use this to determine which files need updating.
+  \item Storage Approach: Flat Files\newline
+  Either map the files to a parallel hierarchy in `.csar` which contains their parsed outputs, or, store them all in the same folder where their file names are the hashes of the input files.
+  The second approach may cause problems if hash collisions occur, so care must be taken when choosing the hashing algorithm to be used.
+  The last modified dates of the source code and their parsed code can be used to determine which files require updating.
+  \item Storage Approach: Database (i.e. SQLite)\newline
+  Store a `(Path, LastModified, ParsedCode)` relation in the database, preferably in a `.csar` directory.
+  Note: `LastModified` is a date, which is the last time that file was modified, as of when it was parsed.
+  We can use this to determine which files need updating.
 \end{enumerate}
 
 It is important to note that using the last modified dates of files can be error-prone, since they can be spoofed, but it would offer no advantage to an attacker.
@@ -142,8 +142,8 @@ It is important to note that using the last modified dates of files can be error
 This would be done analogously to the git implementation, but the program arguments we use when invoking their binaries will be different.
 Some possibilities are listed below:
 \begin{itemize}
-    \item Hg: 'hg status --all`
-    \item Svn: `svn list -R' or `svn status'
+  \item Hg: 'hg status --all`
+  \item Svn: `svn list -R' or `svn status'
 \end{itemize}
 
 \subsubsection{Support for further searching}
@@ -152,12 +152,12 @@ The process for this is described earlier, I would simply have to repeat the pro
 \subsubsection{IntelliJ IDEA Integration}
 csar can be integrated into this IDE in one of two ways:
 \begin{itemize}
-    \item Internally - csar can be implemented as an alternative to IDEA's structural search,
-    this would enable it to carry out the following tasks:
-    identifier usage finding, overridden method finding, type hierarchy resolving, refactoring, and semantics-based searching.
-    This requires placing our code in \href{https://github.com/JetBrains/intellij-community/tree/master/platform/structuralsearch/source/com/intellij/structuralsearch}{platform/structuralsearch/...} and creating adapters to enable our code to provide the same interface as the current IDEA ones, to ensure maximum compatibility.
-    \item As a Plugin - csar can be implemented as a third-party plugin which introduces a new query field.
-    This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
+  \item Internally - csar can be implemented as an alternative to IDEA's structural search,
+  this would enable it to carry out the following tasks:
+  identifier usage finding, overridden method finding, type hierarchy resolving, refactoring, and semantics-based searching.
+  This requires placing our code in \href{https://github.com/JetBrains/intellij-community/tree/master/platform/structuralsearch/source/com/intellij/structuralsearch}{platform/structuralsearch/...} and creating adapters to enable our code to provide the same interface as the current IDEA ones, to ensure maximum compatibility.
+  \item As a Plugin - csar can be implemented as a third-party plugin which introduces a new query field.
+  This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
 \end{itemize}
 
 \subsection{Non-functional Requirements}
@@ -224,7 +224,8 @@ A command-line interface `csar-frontend' for csar is provided called `csar-cli' 
 The `csar-api' defines the csar query, csar plugins (using PF4J), and various utilities.
 It does not specify language-specific implementation details.
 
-The language-specific details are specified in plugins (see: `csar-plugins'). These behaviours are: parsing, post-processing, searching, and refactoring.
+The language-specific details are specified in plugins (see: `csar-plugins').
+These behaviours are: parsing, post-processing, searching, and refactoring.
 
 Plugins exhibit a few behaviours of note:
 \begin{itemize}
@@ -256,7 +257,9 @@ To create a plugin for csar the following must be done:
       }
   }
   \end{lstlisting}
-  \item Create a class which implements `CsarPlugin' from `csar-api' and is annotated with `CsarJavaPlugin'. This should have a 0-arguments constructor. Implement the behaviour defined by the interface: parsing, processing, searching, and refactoring.
+  \item Create a class which implements `CsarPlugin' from `csar-api' and is annotated with `CsarJavaPlugin'.
+  This should have a 0-arguments constructor.
+  Implement the behaviour defined by the interface: parsing, processing, searching, and refactoring.
   This is where the language-specific work occurs.
   Example:
   \begin{lstlisting}[language=Java]
@@ -477,25 +480,25 @@ Finally, `csar-cli' will terminate.
 \section{Background Material}
 \subsection{Related Academic Works}
 \begin{itemize}
-    \item \href{http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y}{Ge X, Shepherd D, Damevski K \& Murphy-Hill E. (2016). Design and evaluation of a multi-recommendation system for local code search. \textit{International Journal of Computer Applications}. 138 (6). 9-13.}\newline
-    This work is regarding plain-text code search in local projects and includes various ideas for optimisations.
-    \item \href{https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2}{Wang S, Lo D \& Jiang L. (2016). AutoQuery: Automatic Construction of Dependency Queries for Code Search. \textit{Automated Software Engineering}. 23 (3). 393-425.}\newline
-    This work is regarding dependence-based code searching.
-    They have also devised a query language to make producing Program Dependency Graphs easier.
-    \item \href{http://dl.acm.org.ezproxy.library.qmul.ac.uk/citation.cfm?id=2393612}{Shepherd D, Damevski K, Ropski B \& Fritz T. (2012). Sando: an extensible local code search framework. \textit{Proceedings of the ACM SIGSOFT 20th International Symposium on the foundations of software engineering}.}\newline
-    This work is regarding an extensible plain-text code search in local projects.
+  \item \href{http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y}{Ge X, Shepherd D, Damevski K \& Murphy-Hill E. (2016). Design and evaluation of a multi-recommendation system for local code search. \textit{International Journal of Computer Applications}. 138 (6). 9-13.}\newline
+  This work is regarding plain-text code search in local projects and includes various ideas for optimisations.
+  \item \href{https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2}{Wang S, Lo D \& Jiang L. (2016). AutoQuery: Automatic Construction of Dependency Queries for Code Search. \textit{Automated Software Engineering}. 23 (3). 393-425.}\newline
+  This work is regarding dependence-based code searching.
+  They have also devised a query language to make producing Program Dependency Graphs easier.
+  \item \href{http://dl.acm.org.ezproxy.library.qmul.ac.uk/citation.cfm?id=2393612}{Shepherd D, Damevski K, Ropski B \& Fritz T. (2012). Sando: an extensible local code search framework. \textit{Proceedings of the ACM SIGSOFT 20th International Symposium on the foundations of software engineering}.}\newline
+  This work is regarding an extensible plain-text code search in local projects.
 \end{itemize}
 
 There is also a lot of work on code search engines, ranking code samples and text matching, but these are mostly irrelevant to the development of csar.
 
 \subsection{Related Programs}
 \begin{itemize}
-    \item \href{https://en.wikipedia.org/wiki/Grep}{grep}\newline
-    A command-line utility for searching plain-text data against a regular expression.
-    \item \href{https://beyondgrep.com/}{ack}\newline
-    A command-line utility for searching plain-text data against a regular expression - essentially a better grep.
-    \item \href{https://github.com/ggreer/the_silver_searcher}{ag (aka the silver searcher)}\newline
-    A command-line utility for searching plain-text data against a regular expression - essentially a better ack.
+  \item \href{https://en.wikipedia.org/wiki/Grep}{grep}\newline
+  A command-line utility for searching plain-text data against a regular expression.
+  \item \href{https://beyondgrep.com/}{ack}\newline
+  A command-line utility for searching plain-text data against a regular expression - essentially a better grep.
+  \item \href{https://github.com/ggreer/the_silver_searcher}{ag (aka the silver searcher)}\newline
+  A command-line utility for searching plain-text data against a regular expression - essentially a better ack.
 \end{itemize}
 
 \subsection{Query Language Analysis}
@@ -514,9 +517,9 @@ It is not very expressive: it cannot represent try-catch blocks, anonymous metho
 
 Their queries have a syntax that closely resembles that of Java. Examples below:
 \begin{itemize}
-    \item `call(void Point.setX(int)) || call(void Point.setY(int))'`'
-    \item `call(void Figure.make*(..))'
-    \item `call(public * Figure.* (..))
+  \item `call(void Point.setX(int)) || call(void Point.setY(int))'`'
+  \item `call(void Figure.make*(..))'
+  \item `call(public * Figure.* (..))
 \end{itemize}
 
 You can restrict the domain of queries with logical operators (and, or and not).
@@ -557,14 +560,14 @@ However, declarations and response messages can be useful for creating complex t
 
 \subsection{Code References}
 \begin{itemize}
-    \item Ignore files syntax - \url{https://git-scm.com/docs/gitignore} and \url{https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js}
-    \item Test cases for ignore files - \url{https://www.atlassian.com/git/tutorials/gitignore}
-    \item Git repository integration - \url{https://git-scm.com/docs/git-ls-files}
-    \item Java 8 ANTLR Grammar - \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaLexer.g4}{Java 8 Lexer}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaParser.g4}{Java 8 Parser}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/_grammar-test/src/test/java/TestJava8pt.java}{Java 8 Test} and \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/examples/AllInOne8.java}{Java 8 Test Input}
-    \item `JAVA\_LETTER' rule in `CsarLexer' - \url{https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4}
-    \item Using JCommander parameters in `CsarContext' - \url{http://jcommander.org/}
-    \item ANTLR settings in `build.gradle' - \url{https://docs.gradle.org/4.0.1/userguide/antlr\_plugin.html\#sec:controlling\_the\_antlr\_generator\_process}
-    \item JaCoCo in `build.gradle' - \url{http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/}
+  \item Ignore files syntax - \url{https://git-scm.com/docs/gitignore} and \url{https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js}
+  \item Test cases for ignore files - \url{https://www.atlassian.com/git/tutorials/gitignore}
+  \item Git repository integration - \url{https://git-scm.com/docs/git-ls-files}
+  \item Java 8 ANTLR Grammar - \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaLexer.g4}{Java 8 Lexer}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaParser.g4}{Java 8 Parser}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/_grammar-test/src/test/java/TestJava8pt.java}{Java 8 Test} and \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/examples/AllInOne8.java}{Java 8 Test Input}
+  \item `JAVA\_LETTER' rule in `CsarLexer' - \url{https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4}
+  \item Using JCommander parameters in `CsarContext' - \url{http://jcommander.org/}
+  \item ANTLR settings in `build.gradle' - \url{https://docs.gradle.org/4.0.1/userguide/antlr\_plugin.html\#sec:controlling\_the\_antlr\_generator\_process}
+  \item JaCoCo in `build.gradle' - \url{http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/}
 \end{itemize}
 
 % Bibliography
