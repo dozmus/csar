@@ -43,7 +43,7 @@ public final class MethodSignatureComparator {
             String type1 = param1.getIdentifierType().get();
             String type2 = param2.getIdentifierType().get();
             type1 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type1), typeParameters1);
-            type2 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type2), typeParameters1); // TODO change to typeParameters2 - this is a bug
+            type2 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type2), typeParameters2);
             boolean namesEqual = type1.equals(type2);
             boolean dimensionEquals = TypeHelper.dimensionsEquals(type1, type2);
 
