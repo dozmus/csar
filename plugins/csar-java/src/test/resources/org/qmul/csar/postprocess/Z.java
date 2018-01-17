@@ -17,4 +17,16 @@ public class Z {
     public void test2() {
 
     }
+
+    public void test3() {
+
+    }
+
+    public class Q {
+
+        public void add() {
+            test3();
+        }
+    }
+
 }

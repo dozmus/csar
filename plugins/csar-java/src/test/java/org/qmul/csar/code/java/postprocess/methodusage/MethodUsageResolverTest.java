@@ -231,6 +231,19 @@ public class MethodUsageResolverTest {
         assertEquals(expectedMethodCall, calls.get(0));
     }
 
+//    @Test
+//    public void testMethodCallOnParentInstanceInStaticInnerClass() {
+//        // Expected method call
+//        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
+//        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test3"), new ArrayList<>(),
+//                path, 28);
+//        List<MethodCallExpression> calls = findMethod("Z.java", "void test3()").getMethodUsages();
+//
+//        // Assert
+//        assertEquals(1, calls.size());
+//        assertEquals(expectedMethodCall, calls.get(0));
+//    }
+
     // TODO impl and test: interactions with super of super
 
     private static MethodStatement findMethod(String path, String methodSignature) {
