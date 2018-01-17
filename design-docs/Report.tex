@@ -6,6 +6,10 @@
 \usepackage[style=authoryear,sorting=none,backend=biber]{biblatex}
 \addbibresource{Report Bibliography.bib}
 
+% images
+\usepackage{graphicx}
+\graphicspath{{..}}
+
 % listing and its styles
 \usepackage{lmodern}
 \usepackage{amsmath}
@@ -207,12 +211,109 @@ Specific algorithms to be used are currently unknown, but may become available a
 
 % Design
 \section{Design}
-\subsection{Component Overview}
-Overview:\newline
-CLI $\rightarrow$ Csar Query Parser $\rightarrow$ Project Code Parser $\rightarrow$ Code Post-processors $\rightarrow$ Search $\rightarrow$ Refactor $\rightarrow$ Results.
+\subsection{High-level Structure}
 
-CLI:\newline
-csar receives some command-line arguments including a non-optional search query.
+\begin{figure}[!hb]
+  \centering
+  \caption{High-level Structure}
+  \includegraphics{figure-1}
+\end{figure}
+
+A command-line interface `csar-frontend' for csar is provided called `csar-cli' (you can write your own).
+
+The `csar-api' defines the csar query, csar plugins (using PF4J), and various utilities.
+It does not specify language-specific implementation details.
+
+The language-specific details are specified in plugins (see: `csar-plugins'). These behaviours are: parsing, post-processing, searching, and refactoring.
+
+Plugins exhibit a few behaviours of note:
+\begin{itemize}
+  \item Plugins are not executed concurrently but interleaving during the same step of the process may occur.
+  i.e. All plugins can be told to parse one by one, then to post-process one by one, etc.
+  \item Plugins have unrestricted access to the host machine.
+  \item All plugins have access to all project files, thus it is possible for two plugins to modify the same file.
+  The last plugin to modify it will have its changed kept.
+\end{itemize}
+
+To create a plugin for csar the following must be done:
+\begin{itemize}
+  \item Create a new JVM project which has as dependencies: `csar-api' and `pf4j' version 2.1.0.
+  \item Create a class which extends Plugin from the PF4J framework - this doesn't have to do anything special, although it can.
+  Example:
+  \begin{lstlisting}[language=Java]
+  package org.qmul.csar;
+
+  import org.pf4j.Plugin;
+  import org.pf4j.PluginWrapper;
+
+  /**
+    * The java language plugin.
+    */
+  public class JavaPlugin extends Plugin {
+
+      public JavaPlugin(PluginWrapper wrapper) {
+          super(wrapper);
+      }
+  }
+  \end{lstlisting}
+  \item Create a class which implements `CsarPlugin' from `csar-api' and is annotated with `CsarJavaPlugin'. This should have a 0-arguments constructor. Implement the behaviour defined by the interface: parsing, processing, searching, and refactoring.
+  This is where the language-specific work occurs.
+  Example:
+  \begin{lstlisting}[language=Java]
+  package org.qmul.csar;
+
+  import org.pf4j.Extension;
+  import org.pf4j.Plugin;
+  import org.pf4j.PluginWrapper;
+  import org.qmul.csar.query.CsarQuery;
+  import org.qmul.csar.result.Result;
+
+  import java.nio.file.Path;
+  import java.util.List;
+      
+  /**
+    * The java language csar plugin.
+    */
+  @Extension
+  public static class CsarJavaPlugin implements CsarPlugin {
+
+      @Override
+      public boolean parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
+        // parsing code...
+      }
+
+      @Override
+      public boolean postprocess() {
+        // post-processing code...
+      }
+
+      @Override
+      public List<Result> search(CsarQuery csarQuery, int threadCount) throws Exception {
+        // searching code...
+      }
+  }
+  \end{lstlisting}
+  \item You must also define a few values, if you are using gradle in `gradle.properties' file, if you are not then in a `plugin.properties' file.
+  This file should be as follows (note everything after `//' are comments and should be omitted):
+  \begin{lstlisting}
+  version=0.0.1 // defined in this format: digit '.' digit '.' digit
+
+  pluginId=csar-java // a unique string
+  pluginClass=org.qmul.csar.JavaPlugin // the fully qualified name of the plugin class
+  pluginProvider=Deniz Ozmus // the author name
+  pluginDependencies= // dependencies on other plugins, list them by pluginId separated with spaces
+  \end{lstlisting}
+\end{itemize}
+
+To use the plugin with csar the following must be done:
+\begin{itemize}
+  \item Compile the project into JAR format, rename it to have the `.zip' extension and place it in `/plugins/' relative to the csar front-end jar.
+  \item Run the csar front-end jar, it should automatically detect and delegate tasks to your plugin.
+\end{itemize}
+
+\subsection{High-level Structure Overview}
+A csar front-end is chosen and receives some input defining the task to be carried out.
+The provided `csar-cli' has the following command-line arguments including a non-optional search query.
 These determine what tasks csar will execute.
 
 Its usage format is shown below:
@@ -233,59 +334,55 @@ Usage: java -jar csar.jar [options] Search query
       Narrow search domain (default: true)
     --ignore-file
       Ignore file (default: .csarignore)
-    --benchmark
-      Print benchmarking values (default: false)
     --project-url, --url
       Print project URL
     --help, -h
       Print help information
 \end{lstlisting}
 
-These values are stored in an instance of `CsarContext' using JCommander.
+In `csar-cli' these values are stored in an instance of `CsarContext' using JCommander.
 JCommander will try to match the command-line arguments with fields in said object using the values in their `@Parameter' annotations.
-
 Then, `CsarFactory' will use this instance of `CsarContext' to create a corresponding instance of `Csar'.
 At this stage, a project iterator which determines files to parse is also created.
 
-Csar Query Parser:\newline
-The csar query in `CsarContext' will be parsed using the corresponding ANTLR4 grammar. Each csar query is comprised of four parts, but only the first is required:
+Now, the front-end calls upon the `csar-api' to do some work.
+
+Firstly, the csar query will be parsed using the corresponding ANTLR4 grammar.
+Each csar query is comprised of four parts, but only the first is required:
 \begin{itemize}
-    \item `searchTarget' - The element to select.
-    \item `containsQuery' - What `searchTarget' should contain within it.
-    \item `fromTarget' - Where `searchTarget' should be looked for in.
-    \item `refactorDescriptor' - The transformation to apply to `searchTarget'.
+  \item `searchTarget' - The element to select.
+  \item `containsQuery' - What `searchTarget' should contain within it.
+  \item `fromTarget' - Where `searchTarget' should be looked for in.
+  \item `refactorDescriptor' - The transformation to apply to `searchTarget'.
 \end{itemize}
 
-Project Code Parser:\newline
-The project code will be parsed (currently only Java 8 is supported).
-This is after csar query is parsed because typically it takes longer, and an invalid csar query causes early.
-It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
+Secondly, the api tries to find and load plugins which will provide language-specific implementations.
+Each language specific implementation will perform the following actions and return the results to the api:
 
-Code Post-processors:\newline
-The parsed project code is post-processed to gather further details of how it all fits together. The following post-processors are applied:
 \begin{itemize}
-  \item `TypeHierarchyResolver' - Resolves the type hierarchy (i.e. class hierarchy) of the code base.
-  \item `MethodQualifiedTypeResolver' - Resolves types of each method's return and parameter types.
-  \item `OverriddenMethodsResolver' - Marks each method which is overridden from another.
-  \item `MethodUsageResolver' - Maps each method call to its method definition.
+  \item Code Parsing - The project code will be parsed (currently only Java 8 is supported).
+  This is after csar query is parsed because typically it takes longer, and an invalid csar query causes early.
+  It will also perform some code validation because the Java 8 ANTLR4 grammar relies on post-processing for correctness.
+  \item Code Post-processors - The parsed project code is post-processed to gather further details of how it all fits together. The following post-processors are applied:
+  \begin{itemize}
+    \item `TypeHierarchyResolver' - Resolves the type hierarchy (i.e. class hierarchy) of the code base.
+    \item `MethodQualifiedTypeResolver' - Resolves types of each method's return and parameter types.
+    \item `OverriddenMethodsResolver' - Marks each method which is overridden from another.
+    \item `MethodUsageResolver' - Maps each method call to its method definition.
+  \end{itemize}
+  \item Search - The parsed project code is searched using the visitor design pattern.
+  The search domain is restricted if a `FROM' clause is inserted.
+  Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
+  \item Refactor - The parsed project code will be refactored, and changes will be written to source code files (unimplemented).
 \end{itemize}
 
-Search:\newline
-The parsed project code is searched using the visitor design pattern.
-The search domain is restricted if a `FROM' clause is inserted.
-Each language element in each code file is visited, and if a match to the language descriptor we are looking for is found, then that element is added to the list of search results.
-
-Refactor:\newline
-The parsed project code will be refactored, and changes will be written to source code files (unimplemented).
-
-Results:\newline
-The search and refactor results are printed.
+Finally, the results returned from the `csar-api' to the frontend will be displayed in a human-friendly manner.
 
 Note: If an unrecoverable error occurs at any of the aforementioned stages, the error will be displayed in a user-friendly format and csar will terminate.
 The user may be able to override this behaviour through sub-classing.
 
 \subsection{Running Example}
-Suppose we invoke csar from the command-line with the following command: `java -jar csar.jar SELECT method:def:parse REFACTOR RENAME:parse2 -t 1'.
+Suppose we invoke `csar-cli' from the command-line with the following command: `java -jar csar.jar SELECT method:def:parse REFACTOR RENAME:parse2 -t 1'.
 Furthermore, suppose our project has the following code files in the directory `/project/':
 
 `Main.java':
@@ -312,66 +409,69 @@ public class Parser {
 }
 \end{lstlisting}
 
-Firstly, these command-line arguments will be parsed and be used to instantiate a corresponding instance of `Csar'. The directory is not home to a supported version control and does not have a `.csarignore' file so no filtering of its contents will be applied.
+Firstly, these command-line arguments will be parsed and be used to instantiate a corresponding instance of `Csar'.
+The directory is not home to a supported version control and does not have a `.csarignore' file so no filtering of its contents will be applied.
 
-Secondly, the project code will be parsed (on a single thread) and then post-processed.
+Secondly, the `csar-java' plugin will be found as `/plugins/plugin-csar-java-0.0.1.zip'
+\begin{itemize}
+  \item The project code will be parsed (on a single thread) and then post-processed.
+  \item The search will be performed.
+  In this case method definitions which have the name `parse' will be stored in a search results list.
+  We will have the following search results:
+  \begin{lstlisting}
+  (path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse() {')
+  \end{lstlisting}
 
-Thirdly, the search will be performed. In this case method definitions which have the name `parse' will be stored in a search results list.
+  These results will be formatted and then printed as follows:
+  \begin{lstlisting}
+  Search Results:
+  /project/Parser.java:3 - '  public void parse() {'
+  \end{lstlisting}
+  \item The refactor will be performed.
+  In this case all definitions and corresponding usages (these are graphed in the code post-processing) in the search results list will have their identifier names changed to `parse2'.
+  These changes will then be written to the relevant source code files.
+  
+  We will end up with the following code files:
 
-We will have the following search results:
-\begin{lstlisting}
-(path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse() {')
-\end{lstlisting}
-
-These results will be formatted and then printed as follows:
-\begin{lstlisting}
-Search Results:
-/project/Parser.java:3 - '  public void parse() {'
-\end{lstlisting}
-
-Fourthly, the refactor will be performed. In this case all definitions and corresponding usages (these are graphed in the code post-processing) in the search results list will have their identifier names changed to `parse2'.
-These changes will then be written to the relevant source code files.
-
-We will end up with the following code files:
-
-`Main.java':
-\begin{lstlisting}[language=Java]
-public class Main extends Parser {
-
-  public static void main(String[] args) {
-    new Main().run();
+  `Main.java':
+  \begin{lstlisting}[language=Java]
+  public class Main extends Parser {
+  
+    public static void main(String[] args) {
+      new Main().run();
+    }
+  
+    public void run() {
+      parse2();
+    }
   }
-
-  public void run() {
-    parse2();
+  \end{lstlisting}
+  
+  `Parser.java':
+  \begin{lstlisting}[language=Java]
+  public class Parser {
+  
+    public void parse2() {
+      // ...
+    }
   }
-}
-\end{lstlisting}
+  \end{lstlisting}
+  
+  Furthermore, we will have the following refactor results:
+  \begin{lstlisting}
+  (path='/project/Main.java', lineNumber=8, codeFragment='    parse2();')
+  (path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse2() {')
+  \end{lstlisting}
+\end{itemize}
 
-`Parser.java':
-\begin{lstlisting}[language=Java]
-public class Parser {
-
-  public void parse2() {
-    // ...
-  }
-}
-\end{lstlisting}
-
-Furthermore, we will have the following refactor results:
-\begin{lstlisting}
-(path='/project/Main.java', lineNumber=8, codeFragment='    parse2();')
-(path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse2() {')
-\end{lstlisting}
-
-These results will be formatted and then printed as follows:
+These results will be formatted in `csar-cli' and then printed as follows:
 \begin{lstlisting}
 Refactor Results:
 /project/Main.java:8 - '    parse2();'
 /project/Parser.java:3 - '  public void parse2() {'
 \end{lstlisting}
 
-Finally, csar will terminate.
+Finally, `csar-cli' will terminate.
 
 % Background Material
 \section{Background Material}
