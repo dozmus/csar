@@ -223,7 +223,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
 
                         for (String fromDomain : query.getFromTarget()) {
                             if (fromDomain.equals(fileNameWithoutExt)) {
-                                System.out.println("TRUE");
+                                LOGGER.trace("Accepted: {}", fileNameWithoutExt);
                                 return true;
                             }
                         }
@@ -252,6 +252,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
             for (String fromDomain : query.getFromTarget()) {
                 if (fromDomain.equals(fileNameWithoutExt)) {
                     valid = true;
+                    LOGGER.trace("Accepted: {}", fileNameWithoutExt);
                     break;
                 }
             }
