@@ -6,8 +6,6 @@ import org.pf4j.PluginWrapper;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.DefaultPathProcessorErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
-import org.qmul.csar.code.parse.CodeParserFactory;
-import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
 import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
@@ -16,6 +14,8 @@ import org.qmul.csar.code.java.postprocess.overriddenmethods.OverriddenMethodsRe
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
+import org.qmul.csar.code.parse.CodeParserFactory;
+import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
@@ -47,26 +47,17 @@ public class JavaPlugin extends Plugin {
 
         @Override
         public boolean parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
-            CodeParserFactory factory = null;
+            // Create iterator
+            CodeParserFactory factory;
 
             try {
                 factory = new CodeParserFactory(JavaCodeParser.class);
             } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
+                return false;
             }
-            Iterator<Path> it;
+            Iterator<Path> it = iterator(projectDirectory, narrowSearch, ignoreFile, factory);
 
-            if (Files.exists(ignoreFile)) {
-                try {
-                    it = ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, ignoreFile,
-                            factory);
-                } catch (IOException e) {
-                    it = ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
-                }
-            } else {
-                it = ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
-            }
-
+            // Create parser
             ProjectCodeParser parser = new ProjectCodeParser(factory, it, threadCount);
             parser.setErrorListener(new DefaultPathProcessorErrorListener());
             code = parser.results();
@@ -75,6 +66,7 @@ public class JavaPlugin extends Plugin {
 
         @Override
         public boolean postprocess() {
+            // Create components
             QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
             TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver);
             MethodQualifiedTypeResolver methodQualifiedTypeResolver
@@ -83,6 +75,7 @@ public class JavaPlugin extends Plugin {
                     typeHierarchyResolver);
             MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
 
+            // Create post-processor
             CodePostProcessor javaCodePostProcessor = new JavaPostProcessor(typeHierarchyResolver,
                     methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
             javaCodePostProcessor.analyze(code);
@@ -99,6 +92,20 @@ public class JavaPlugin extends Plugin {
             if (searcher.errorOccurred())
                 throw new Exception("error occurred");
             return results;
+        }
+
+        private static Iterator<Path> iterator(Path projectDirectory, boolean narrowSearch, Path ignoreFile,
+                CodeParserFactory factory) {
+            if (Files.exists(ignoreFile)) {
+                try {
+                    return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, ignoreFile,
+                            factory);
+                } catch (IOException e) {
+                    return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
+                }
+            } else {
+                return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
+            }
         }
     }
 }

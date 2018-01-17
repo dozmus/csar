@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(value = Parameterized.class)
-public final class JavaCodeGeneratorTest {
+public final class JavaCodeParserTest {
 
     private static final BinaryExpression SYSTEM_OUT = new BinaryExpression(identifierUnit("System"),
             BinaryOperation.DOT, identifierUnit("out"));
@@ -35,7 +35,7 @@ public final class JavaCodeGeneratorTest {
     private final TypeStatement expected;
     private final String sampleFileName;
 
-    public JavaCodeGeneratorTest(TypeStatement expected, String sampleFileName) {
+    public JavaCodeParserTest(TypeStatement expected, String sampleFileName) {
         this.expected = expected;
         this.sampleFileName = sampleFileName;
     }
