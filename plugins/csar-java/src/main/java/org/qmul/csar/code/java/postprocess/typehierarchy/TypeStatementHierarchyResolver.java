@@ -15,9 +15,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Resolves the type hierarchy of a given statement.
+ * Resolves the type hierarchy of a given type statement.
  */
-final class TypeResolver extends StatementVisitor {
+final class TypeStatementHierarchyResolver extends StatementVisitor {
 
     private final Map<Path, Statement> code;
     private final List<TypeNode> tmp;
@@ -30,10 +30,9 @@ final class TypeResolver extends StatementVisitor {
     private String currentIdentifierName;
     private int nesting = 0;
 
-    TypeResolver(TypeHierarchyResolver typeHierarchyResolver, Map<Path, Statement> code, List<TypeNode> tmp,
-            Path path, String currentPkg,
-            List<ImportStatement> imports, Optional<PackageStatement> packageStatement,
-            TypeStatement parent) {
+    TypeStatementHierarchyResolver(TypeHierarchyResolver typeHierarchyResolver, Map<Path, Statement> code,
+            List<TypeNode> tmp, Path path, String currentPkg, List<ImportStatement> imports,
+            Optional<PackageStatement> packageStatement, TypeStatement parent) {
         this.typeHierarchyResolver = typeHierarchyResolver;
         this.code = code;
         this.tmp = tmp;

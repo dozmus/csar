@@ -5,6 +5,7 @@ import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.code.java.parse.statement.TopLevelTypeStatement;
+import org.qmul.csar.code.java.postprocess.methodtypes.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
@@ -129,7 +130,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
                 continue;
             String currentPkg = topStatement.getPackageStatement().map(p -> p.getPackageName() + ".").orElse("");
 
-            TypeResolver resolver = new TypeResolver(this, code, partialHierarchies, path, currentPkg,
+            TypeStatementHierarchyResolver resolver = new TypeStatementHierarchyResolver(this, code, partialHierarchies, path, currentPkg,
                     topStatement.getImports(), topStatement.getPackageStatement(), typeStatement);
             resolver.visitStatement(typeStatement);
         }
@@ -182,13 +183,8 @@ public class TypeHierarchyResolver implements CodePostProcessor {
     public boolean isSubtype(String type1, String type2) {
         // TODO sanitize arrays etc?
         // Normalize varargs
-        if (type1.endsWith("...")) {
-            type1 = type1.substring(0, type1.length() - 3) + "[]";
-        }
-
-        if (type2.endsWith("...")) {
-            type2 = type2.substring(0, type2.length() - 3) + "[]";
-        }
+        type1 = TypeHelper.normalizeVarArgs(type1);
+        type2 = TypeHelper.normalizeVarArgs(type2);
         return type1.equals(type2) || isStrictlySubtype(root, type1, type2);
     }
 
