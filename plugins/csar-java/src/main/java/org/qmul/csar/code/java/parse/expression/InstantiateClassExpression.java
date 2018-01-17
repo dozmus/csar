@@ -3,8 +3,8 @@ package org.qmul.csar.code.java.parse.expression;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.java.parse.statement.BlockStatement;
 import org.qmul.csar.lang.Expression;
-import org.qmul.csar.lang.descriptor.ClassDescriptor;
-import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.qmul.csar.lang.descriptors.ClassDescriptor;
+import org.qmul.csar.lang.descriptors.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;

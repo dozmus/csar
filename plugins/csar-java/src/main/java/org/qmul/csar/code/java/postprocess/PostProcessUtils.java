@@ -4,10 +4,10 @@ import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.EnumStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.lang.TypeStatement;
-import org.qmul.csar.lang.descriptor.ClassDescriptor;
-import org.qmul.csar.lang.descriptor.EnumDescriptor;
-import org.qmul.csar.lang.descriptor.MethodDescriptor;
-import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.qmul.csar.lang.descriptors.ClassDescriptor;
+import org.qmul.csar.lang.descriptors.EnumDescriptor;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.VisibilityModifier;
 
 import java.util.ArrayList;
 import java.util.Collections;

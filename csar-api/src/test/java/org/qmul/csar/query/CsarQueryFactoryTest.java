@@ -3,7 +3,7 @@ package org.qmul.csar.query;
 import org.junit.Test;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.IdentifierName;
-import org.qmul.csar.lang.descriptor.*;
+import org.qmul.csar.lang.descriptors.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;

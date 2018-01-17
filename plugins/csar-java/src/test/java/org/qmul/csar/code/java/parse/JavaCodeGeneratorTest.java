@@ -10,7 +10,7 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
-import org.qmul.csar.lang.descriptor.*;
+import org.qmul.csar.lang.descriptors.*;
 
 import java.io.IOException;
 import java.nio.file.Path;

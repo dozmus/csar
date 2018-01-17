@@ -3,7 +3,7 @@ package org.qmul.csar.code.java.parse.statement;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.lang.descriptor.LocalVariableDescriptor;
+import org.qmul.csar.lang.descriptors.LocalVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
 
 import java.util.*;

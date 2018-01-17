@@ -3,7 +3,7 @@ package org.qmul.csar.code.java.search;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.code.java.StatementVisitor;
-import org.qmul.csar.lang.descriptor.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.query.TargetDescriptor;
 
 import java.util.ArrayList;

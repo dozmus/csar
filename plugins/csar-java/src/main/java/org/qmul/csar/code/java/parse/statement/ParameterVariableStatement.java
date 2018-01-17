@@ -4,7 +4,7 @@ import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolv
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
+import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;

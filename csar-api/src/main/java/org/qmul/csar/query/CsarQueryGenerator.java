@@ -1,6 +1,6 @@
 package org.qmul.csar.query;
 
-import org.qmul.csar.lang.descriptor.*;
+import org.qmul.csar.lang.descriptors.*;
 import grammars.csar.CsarParserBaseListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;

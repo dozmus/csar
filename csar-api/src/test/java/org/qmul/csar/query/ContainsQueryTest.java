@@ -2,7 +2,7 @@ package org.qmul.csar.query;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.qmul.csar.lang.descriptor.ClassDescriptor;
+import org.qmul.csar.lang.descriptors.ClassDescriptor;
 
 import java.util.Arrays;
 

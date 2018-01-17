@@ -1,4 +1,4 @@
-package org.qmul.csar.lang.descriptor;
+package org.qmul.csar.lang.descriptors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ClassDescriptor implements Descriptor {
+public class EnumDescriptor implements Descriptor {
 
     private final IdentifierName identifierName;
     private final Optional<VisibilityModifier> visibilityModifier;
@@ -18,32 +18,20 @@ public class ClassDescriptor implements Descriptor {
     private final Optional<Boolean> finalModifier;
     private final Optional<Boolean> abstractModifier;
     private final Optional<Boolean> strictfpModifier;
-    private final Optional<Boolean> interfaceModifier;
     private final Optional<Boolean> inner;
-    private final Optional<Boolean> local;
-    private final Optional<Boolean> anonymous;
-    private final Optional<String> extendedClass;
-    private final List<String> typeParameters;
-    private final List<String> implementedInterfaces;
+    private final List<String> superClasses;
 
-    public ClassDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
+    public EnumDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
             Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
-            Optional<Boolean> strictfpModifier, Optional<Boolean> interfaceModifier, Optional<Boolean> inner,
-            Optional<Boolean> local, Optional<Boolean> anonymous, List<String> typeParameters,
-            List<String> implementedInterfaces, Optional<String> extendedClass) {
+            Optional<Boolean> strictfpModifier, Optional<Boolean> inner, List<String> superClasses) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;
         this.finalModifier = finalModifier;
         this.abstractModifier = abstractModifier;
         this.strictfpModifier = strictfpModifier;
-        this.interfaceModifier = interfaceModifier;
         this.inner = inner;
-        this.local = local;
-        this.anonymous = anonymous;
-        this.typeParameters = typeParameters;
-        this.implementedInterfaces = implementedInterfaces;
-        this.extendedClass = extendedClass;
+        this.superClasses = superClasses;
     }
 
     public IdentifierName getIdentifierName() {
@@ -70,32 +58,12 @@ public class ClassDescriptor implements Descriptor {
         return strictfpModifier;
     }
 
-    public Optional<Boolean> getInterfaceModifier() {
-        return interfaceModifier;
-    }
-
     public Optional<Boolean> getInner() {
         return inner;
     }
 
-    public Optional<Boolean> getLocal() {
-        return local;
-    }
-
-    public Optional<Boolean> getAnonymous() {
-        return anonymous;
-    }
-
-    public Optional<String> getExtendedClass() {
-        return extendedClass;
-    }
-
-    public List<String> getTypeParameters() {
-        return typeParameters;
-    }
-
-    public List<String> getImplementedInterfaces() {
-        return implementedInterfaces;
+    public List<String> getSuperClasses() {
+        return superClasses;
     }
 
     @Override
@@ -107,27 +75,21 @@ public class ClassDescriptor implements Descriptor {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ClassDescriptor that = (ClassDescriptor) o;
+        EnumDescriptor that = (EnumDescriptor) o;
         return Objects.equals(identifierName, that.identifierName)
                 && Objects.equals(visibilityModifier, that.visibilityModifier)
                 && Objects.equals(staticModifier, that.staticModifier)
                 && Objects.equals(finalModifier, that.finalModifier)
                 && Objects.equals(abstractModifier, that.abstractModifier)
                 && Objects.equals(strictfpModifier, that.strictfpModifier)
-                && Objects.equals(interfaceModifier, that.interfaceModifier)
                 && Objects.equals(inner, that.inner)
-                && Objects.equals(local, that.local)
-                && Objects.equals(anonymous, that.anonymous)
-                && Objects.equals(typeParameters, that.typeParameters)
-                && Objects.equals(implementedInterfaces, that.implementedInterfaces)
-                && Objects.equals(extendedClass, that.extendedClass);
+                && Objects.equals(superClasses, that.superClasses);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(identifierName, visibilityModifier, staticModifier, finalModifier, abstractModifier,
-                strictfpModifier, interfaceModifier, inner, local, anonymous, typeParameters, extendedClass,
-                implementedInterfaces);
+                strictfpModifier, inner, superClasses);
     }
 
     @Override
@@ -139,13 +101,8 @@ public class ClassDescriptor implements Descriptor {
                 .append("finalModifier", finalModifier)
                 .append("abstractModifier", abstractModifier)
                 .append("strictfpModifier", strictfpModifier)
-                .append("interfaceModifier", interfaceModifier)
                 .append("inner", inner)
-                .append("local", local)
-                .append("anonymous", anonymous)
-                .append("typeParameters", typeParameters)
-                .append("implementedInterfaces", implementedInterfaces)
-                .append("extendedClass", extendedClass)
+                .append("superClasses", superClasses)
                 .toString();
     }
 
@@ -157,13 +114,8 @@ public class ClassDescriptor implements Descriptor {
         private Optional<Boolean> finalModifier = Optional.empty();
         private Optional<Boolean> abstractModifier = Optional.empty();
         private Optional<Boolean> strictfpModifier = Optional.empty();
-        private Optional<Boolean> interfaceModifier = Optional.empty();
         private Optional<Boolean> inner = Optional.empty();
-        private Optional<Boolean> local = Optional.empty();
-        private Optional<Boolean> anonymous = Optional.empty();
-        private List<String> typeParameters = new ArrayList<>();
-        private List<String> implementedInterfaces = new ArrayList<>();
-        private Optional<String> extendedClass = Optional.empty();
+        private List<String> superClasses = new ArrayList<>();
 
         public static Builder allFalse(String identifierName) {
             return new Builder(identifierName)
@@ -171,10 +123,7 @@ public class ClassDescriptor implements Descriptor {
                     .finalModifier(false)
                     .abstractModifier(false)
                     .strictfpModifier(false)
-                    .interfaceModifier(false)
-                    .inner(false)
-                    .local(false)
-                    .anonymous(false);
+                    .inner(false);
         }
 
         public Builder(String identifierName) {
@@ -210,45 +159,19 @@ public class ClassDescriptor implements Descriptor {
             return this;
         }
 
-        public Builder interfaceModifier(boolean interfaceModifier) {
-            this.interfaceModifier = Optional.of(interfaceModifier);
-            return this;
-        }
-
         public Builder inner(boolean inner) {
             this.inner = Optional.of(inner);
             return this;
         }
 
-        public Builder local(boolean local) {
-            this.local = Optional.of(local);
+        public Builder superClasses(List<String> superClasses) {
+            this.superClasses = superClasses;
             return this;
         }
 
-        public Builder anonymous(boolean anonymous) {
-            this.anonymous = Optional.of(anonymous);
-            return this;
-        }
-
-        public Builder typeParameters(List<String> typeParameters) {
-            this.typeParameters = typeParameters;
-            return this;
-        }
-
-        public Builder extendedClass(String extendedClass) {
-            this.extendedClass = Optional.of(extendedClass);
-            return this;
-        }
-
-        public Builder implementedInterfaces(List<String> implementedInterfaces) {
-            this.implementedInterfaces = implementedInterfaces;
-            return this;
-        }
-
-        public ClassDescriptor build() {
-            return new ClassDescriptor(identifierName, visibilityModifier, staticModifier, finalModifier,
-                    abstractModifier, strictfpModifier, interfaceModifier, inner, local, anonymous, typeParameters,
-                    implementedInterfaces, extendedClass);
+        public EnumDescriptor build() {
+            return new EnumDescriptor(identifierName, visibilityModifier, staticModifier, finalModifier,
+                    abstractModifier, strictfpModifier, inner, superClasses);
         }
     }
 }

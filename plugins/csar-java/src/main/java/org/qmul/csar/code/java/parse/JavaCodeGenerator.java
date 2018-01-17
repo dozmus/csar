@@ -7,7 +7,7 @@ import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
-import org.qmul.csar.lang.descriptor.*;
+import org.qmul.csar.lang.descriptors.*;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

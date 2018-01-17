@@ -2,7 +2,7 @@ package org.qmul.csar.code.java.parse.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.SerializableCode;
-import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.qmul.csar.lang.descriptors.VisibilityModifier;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
 

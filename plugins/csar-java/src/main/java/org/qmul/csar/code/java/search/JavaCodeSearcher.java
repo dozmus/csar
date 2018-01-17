@@ -5,7 +5,7 @@ import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.lang.descriptor.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.SearchType;
 import org.qmul.csar.query.TargetDescriptor;

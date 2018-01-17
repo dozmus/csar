@@ -2,7 +2,7 @@ package org.qmul.csar.query;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
-import org.qmul.csar.lang.descriptor.*;
+import org.qmul.csar.lang.descriptors.*;
 
 import java.util.Collections;
 import java.util.List;

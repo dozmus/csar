@@ -5,8 +5,8 @@ import org.qmul.csar.code.java.parse.statement.ParameterVariableStatement;
 import org.qmul.csar.code.java.postprocess.methodtypes.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
-import org.qmul.csar.lang.descriptor.MethodDescriptor;
-import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 
 import java.util.List;
 

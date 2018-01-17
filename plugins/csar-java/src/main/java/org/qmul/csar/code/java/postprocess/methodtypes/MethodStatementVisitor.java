@@ -9,8 +9,8 @@ import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.lang.TypeStatement;
-import org.qmul.csar.lang.descriptor.MethodDescriptor;
-import org.qmul.csar.lang.descriptor.ParameterVariableDescriptor;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 
 import java.nio.file.Path;
 import java.util.List;

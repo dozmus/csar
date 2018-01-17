@@ -1,4 +1,4 @@
-package org.qmul.csar.lang.descriptor;
+package org.qmul.csar.lang.descriptors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;

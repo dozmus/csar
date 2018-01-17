@@ -8,8 +8,8 @@ import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.lang.TypeStatement;
-import org.qmul.csar.lang.descriptor.ClassDescriptor;
-import org.qmul.csar.lang.descriptor.EnumDescriptor;
+import org.qmul.csar.lang.descriptors.ClassDescriptor;
+import org.qmul.csar.lang.descriptors.EnumDescriptor;
 
 import java.nio.file.Path;
 import java.util.*;

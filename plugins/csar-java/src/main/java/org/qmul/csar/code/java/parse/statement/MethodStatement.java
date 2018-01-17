@@ -7,8 +7,8 @@ import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.lang.descriptor.MethodDescriptor;
-import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
 
 import java.util.ArrayList;

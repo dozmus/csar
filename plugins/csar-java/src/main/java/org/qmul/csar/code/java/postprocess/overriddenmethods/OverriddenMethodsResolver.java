@@ -8,9 +8,9 @@ import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
-import org.qmul.csar.lang.descriptor.ClassDescriptor;
-import org.qmul.csar.lang.descriptor.EnumDescriptor;
-import org.qmul.csar.lang.descriptor.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.ClassDescriptor;
+import org.qmul.csar.lang.descriptors.EnumDescriptor;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

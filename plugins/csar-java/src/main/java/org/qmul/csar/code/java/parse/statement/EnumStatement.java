@@ -1,9 +1,9 @@
 package org.qmul.csar.code.java.parse.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.qmul.csar.lang.descriptor.EnumDescriptor;
+import org.qmul.csar.lang.descriptors.EnumDescriptor;
 import org.qmul.csar.lang.TypeStatement;
-import org.qmul.csar.lang.descriptor.VisibilityModifier;
+import org.qmul.csar.lang.descriptors.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
 
 import java.util.Collections;
