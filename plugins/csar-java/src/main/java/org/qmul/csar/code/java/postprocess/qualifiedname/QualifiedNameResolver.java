@@ -70,7 +70,7 @@ public class QualifiedNameResolver {
 
         // Resolve against inner classes in current class
         statistics.prepare();
-        QualifiedType t0 = resolveInCurrentClass(parent, currentPackage, name);
+        QualifiedType t0 = resolveInCurrentClass(parent, currentPackage, name, path);
         statistics.currentClassTimeTaken += statistics.diff();
 
         if (t0 != null)
@@ -78,7 +78,7 @@ public class QualifiedNameResolver {
 
         // Resolve against inner classes in top-level parent class
         statistics.prepare();
-        QualifiedType t1 = resolveInCurrentClass(topLevelParent, currentPackage, name);
+        QualifiedType t1 = resolveInCurrentClass(topLevelParent, currentPackage, name, path);
         statistics.currentParentClassTimeTaken += statistics.diff();
 
         if (t1 != null)
@@ -111,16 +111,17 @@ public class QualifiedNameResolver {
         // If name contains dots, we assume it is a fully qualified name
         // TODO check this properly
         if (name.contains(".")) {
-            return new QualifiedType(name, null);
+            return new QualifiedType(name, null, null);
         }
 
         // Assume it exists (for external APIs sake)
         // TODO check this properly
-        return new QualifiedType(name, null);
+        return new QualifiedType(name, null, null);
 //        throw new RuntimeException("could not resolve qualified name for " + name + " in " + path.toString());
     }
 
-    private QualifiedType resolveInCurrentClass(TypeStatement parent, Optional<PackageStatement> pkg, String name) {
+    private QualifiedType resolveInCurrentClass(TypeStatement parent, Optional<PackageStatement> pkg, String name,
+            Path path) {
         // TODO make sure this works: results look good though
         if (parent instanceof TopLevelTypeStatement) {
             parent = ((TopLevelTypeStatement)parent).getTypeStatement();
@@ -133,7 +134,7 @@ public class QualifiedNameResolver {
 
         for (String foundQualifiedName : innerSearcher.getTypes()) {
             if (foundQualifiedName.endsWith("." + name) || foundQualifiedName.endsWith("$" + name)) {
-                return new QualifiedType(foundQualifiedName, parent);
+                return new QualifiedType(foundQualifiedName, parent, path);
             }
         }
         return null;
@@ -192,6 +193,7 @@ public class QualifiedNameResolver {
         }
 
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+            Path p = entry.getKey();
             Statement statement = entry.getValue();
 
             if (!(statement instanceof TopLevelTypeStatement))
@@ -216,14 +218,14 @@ public class QualifiedNameResolver {
                 String normalizedQn = foundQualifiedName.replace("$", ".");
 
                 if (normalizedQn.endsWith("." + normalizedName) || normalizedQn.endsWith("$" + normalizedName)) {
-                    return new QualifiedType(foundQualifiedName, statement);
+                    return new QualifiedType(foundQualifiedName, statement, p);
                 }
             }
         }
 
         // Fall-back: assume it exists if it looks like a fully qualified name (handles external APIs in a loose way)
         if (importQualifiedName.endsWith("." + name)) {
-            return new QualifiedType(importQualifiedName, null);
+            return new QualifiedType(importQualifiedName, null, null);
         }
         return null;
     }
@@ -244,6 +246,7 @@ public class QualifiedNameResolver {
         String currentPkg = currentPackage.get().getPackageName();
 
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+            Path p = entry.getKey();
             Statement statement = entry.getValue();
 
             if (!(statement instanceof TopLevelTypeStatement))
@@ -256,7 +259,7 @@ public class QualifiedNameResolver {
 
                 if (targetContainsName(currentPkg, otherPkg, typeStatement, name)) {
                     String qualifiedName = otherPkg + "." + String.join("$", name.split("\\."));
-                    QualifiedType type = new QualifiedType(qualifiedName, statement);
+                    QualifiedType type = new QualifiedType(qualifiedName, statement, p);
                     currentPackageCache.put(currentPackageEntry, type);
                     return type;
                 }
@@ -280,6 +283,7 @@ public class QualifiedNameResolver {
         // Compute
         if (!currentPackage.isPresent()) {
             for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+                Path p = entry.getKey();
                 Statement statement = entry.getValue();
 
                 if (!(statement instanceof TopLevelTypeStatement))
@@ -292,7 +296,7 @@ public class QualifiedNameResolver {
                         && path.getParent().equals(entry.getKey().getParent())) {
                     if (targetContainsName("", "", typeStatement, name)) {
                         String qualifiedName = String.join("$", name.split("\\."));
-                        QualifiedType type = new QualifiedType(qualifiedName, statement);
+                        QualifiedType type = new QualifiedType(qualifiedName, statement, p);
                         defaultPackageCache.put(defaultPackageEntry, type);
                         return type;
                     }

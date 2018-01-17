@@ -290,7 +290,7 @@ public class MethodCallResolver {
                 resolveInContext(currentContext, lTopLevelTypeStatement.getTypeStatement(),
                         lTopLevelTypeStatement, lTopLevelTypeStatement.getPackageStatement(),
                         lTopLevelTypeStatement.getImports(), methodName, methodCallExpression, true, addToUsages);
-                return new QualifiedType(null, null); // so that resolving super or supers doesnt make duplicates adds
+                return new QualifiedType(null, null, null); // so that resolving super or supers doesnt make duplicates adds
             }
         } else { // is identifier
             String rIdentifierName = rue.getValue();

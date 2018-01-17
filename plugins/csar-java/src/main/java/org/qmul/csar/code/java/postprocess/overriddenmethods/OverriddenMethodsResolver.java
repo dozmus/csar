@@ -152,8 +152,8 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
 
                 // Check super classes of super class
                 if (calculateOverridden(code, s.getPackageStatement(), s.getImports(),
-                        PostProcessUtils.superClasses(s2), path, parent,
-                        s, method)) { // TODO some args passed here are incorrect i.e. path
+                        PostProcessUtils.superClasses(s2), resolvedType.getPath(), parent,
+                        s, method)) { // TODO some args passed here are incorrect: make sure parent is right
                     return true;
                 }
             }
