@@ -7,6 +7,9 @@ csar currently only supports Java 8, `package-info.java` files introduced in Jav
 compatibility.
 Parsing source code with invalid syntax will lead to an error occurring and it being skipped.
 
+# Plugins
+See Report section 'High-level Structure'.
+
 # Csar Query Language
 Each csar query is comprised of four parts, but only the first is required:
 * searchTarget - The element to select.
