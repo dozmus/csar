@@ -6,6 +6,9 @@ import org.qmul.csar.lang.Descriptor;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A descriptor being searched for.
+ */
 public class TargetDescriptor {
 
     private final Optional<SearchType> searchType;

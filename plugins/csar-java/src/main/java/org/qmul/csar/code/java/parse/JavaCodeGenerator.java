@@ -34,7 +34,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
      * This is used to make sure {@link #enterTypeDeclaration(TypeDeclarationContext)} is only called once, since it
      * sets the {@link #root} property. Other type declarations are parsed elsewhere.
      */
-    private boolean processedMainTypeDecl = false;
+    private boolean parsedMainTypeDeclaration = false;
     private Path path;
 
     private static void applyModifiers(ClassDescriptor.Builder builder, List<ClassOrInterfaceModifierContext> ctxs) {
@@ -531,10 +531,10 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
                             : ctx.nonWildcardTypeArguments().getText();
                     right = new UnitExpression(UnitExpression.ValueType.NEW, typeArg + ctx.innerCreator().getText());
                 } else if (ctx.explicitGenericInvocation() != null) {
-                    ExplicitGenericInvocationContext invokCtx = ctx.explicitGenericInvocation();
-                    UnitExpression.ValueType valueType = (invokCtx.explicitGenericInvocationSuffix().SUPER() == null)
+                    ExplicitGenericInvocationContext invokeCtx = ctx.explicitGenericInvocation();
+                    UnitExpression.ValueType valueType = (invokeCtx.explicitGenericInvocationSuffix().SUPER() == null)
                             ? UnitExpression.ValueType.METHOD_CALL : UnitExpression.ValueType.SUPER_CALL;
-                    right = new UnitExpression(valueType, invokCtx.getText());
+                    right = new UnitExpression(valueType, invokeCtx.getText());
                 }
                 return new BinaryExpression(left, op, right);
             } else if (op == BinaryOperation.QUESTION) {
@@ -690,8 +690,7 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
 
     private BlockStatement parseBlockStatements(List<BlockStatementContext> ctxs) {
         return ctxs == null ? BlockStatement.EMPTY
-                : new BlockStatement(ctxs.stream().map(this::parseBlockStatement)
-                        .collect(Collectors.toList()));
+                : new BlockStatement(ctxs.stream().map(this::parseBlockStatement).collect(Collectors.toList()));
     }
 
     private Statement parseBlockStatement(BlockStatementContext st) {
@@ -1370,10 +1369,10 @@ public final class JavaCodeGenerator extends JavaParserBaseListener {
     @Override
     public void enterTypeDeclaration(TypeDeclarationContext ctx) {
         // Check if the primary type in this class was processed already
-        if (processedMainTypeDecl)
+        if (parsedMainTypeDeclaration) {
             return;
-        else
-            processedMainTypeDecl = true;
+        }
+        parsedMainTypeDeclaration = true;
 
         // Generate node and add node
         if (ctx.classDeclaration() != null) {

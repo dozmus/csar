@@ -13,6 +13,7 @@ public final class Result {
 
     /**
      * Creates a new Result according to the arguments provided.
+     *
      * @param path the path which contained this result
      * @param lineNumber the line at which the result was found
      * @param codeFragment the code corresponding to the match
