@@ -3,13 +3,13 @@ package org.qmul.csar;
 import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
-import org.qmul.csar.code.CodeAnalyzer;
+import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.DefaultPathProcessorErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.ProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
-import org.qmul.csar.code.java.postprocess.JavaAnalyzer;
+import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
 import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
 import org.qmul.csar.code.java.postprocess.overriddenmethods.OverriddenMethodsResolver;
@@ -83,9 +83,9 @@ public class JavaPlugin extends Plugin {
                     typeHierarchyResolver);
             MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
 
-            CodeAnalyzer javaCodeAnalyzer = new JavaAnalyzer(typeHierarchyResolver,
+            CodePostProcessor javaCodePostProcessor = new JavaPostProcessor(typeHierarchyResolver,
                     methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
-            javaCodeAnalyzer.analyze(code);
+            javaCodePostProcessor.analyze(code);
             return true;
         }
 

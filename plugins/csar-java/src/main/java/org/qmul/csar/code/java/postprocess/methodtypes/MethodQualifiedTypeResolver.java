@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methodtypes;
 
-import org.qmul.csar.code.CodeAnalyzer;
+import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.TopLevelTypeStatement;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class MethodQualifiedTypeResolver implements CodeAnalyzer {
+public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodQualifiedTypeResolver.class);
     private final QualifiedNameResolver qualifiedNameResolver;

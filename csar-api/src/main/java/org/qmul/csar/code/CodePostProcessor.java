@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * A code post-processor.
  */
-public interface CodeAnalyzer {
+public interface CodePostProcessor {
 
     void analyze(Map<Path, Statement> code);
 }

@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.postprocess.overriddenmethods;
 
-import org.qmul.csar.code.CodeAnalyzer;
+import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.PostProcessUtils;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class OverriddenMethodsResolver implements CodeAnalyzer {
+public class OverriddenMethodsResolver implements CodePostProcessor {
 
     // TODO handle methods overridden from java api classes?
 

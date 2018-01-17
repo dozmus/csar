@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.postprocess.typehierarchy;
 
-import org.qmul.csar.code.CodeAnalyzer;
+import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
@@ -21,7 +21,7 @@ import java.util.Optional;
 /**
  * A type hierarchy resolver for a code base, represented as a mapping of {@link Path} to {@link Statement}.
  */
-public class TypeHierarchyResolver implements CodeAnalyzer {
+public class TypeHierarchyResolver implements CodePostProcessor {
 
     // TODO parse java api classes properly
 

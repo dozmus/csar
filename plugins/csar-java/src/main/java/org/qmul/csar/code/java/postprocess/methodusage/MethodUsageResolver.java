@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methodusage;
 
-import org.qmul.csar.code.CodeAnalyzer;
+import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.lang.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class MethodUsageResolver implements CodeAnalyzer {
+public class MethodUsageResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodUsageResolver.class);
 
