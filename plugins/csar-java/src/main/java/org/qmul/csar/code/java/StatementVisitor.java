@@ -110,9 +110,9 @@ public abstract class StatementVisitor {
         } else if (statement instanceof SynchronizedStatement) {
             visitSynchronizedStatement((SynchronizedStatement)statement);
             exitSynchronizedStatement((SynchronizedStatement)statement);
-        } else if (statement instanceof TopLevelTypeStatement) {
-            visitTopLevelTypeStatement((TopLevelTypeStatement)statement);
-            exitTopLevelTypeStatement((TopLevelTypeStatement)statement);
+        } else if (statement instanceof CompilationUnitStatement) {
+            visitTopLevelTypeStatement((CompilationUnitStatement)statement);
+            exitTopLevelTypeStatement((CompilationUnitStatement)statement);
         } else if (statement instanceof TryStatement) {
             visitTryStatement((TryStatement)statement);
             exitTryStatement((TryStatement)statement);
@@ -362,7 +362,7 @@ public abstract class StatementVisitor {
     public void exitThrowStatement(ThrowStatement statement) {
     }
 
-    public void visitTopLevelTypeStatement(TopLevelTypeStatement statement) {
+    public void visitTopLevelTypeStatement(CompilationUnitStatement statement) {
         statement.getPackageStatement().ifPresent(pkg -> {
             visitPackageStatement(pkg);
             exitPackageStatement(pkg);
@@ -371,7 +371,7 @@ public abstract class StatementVisitor {
         visitStatement(statement.getTypeStatement());
     }
 
-    public void exitTopLevelTypeStatement(TopLevelTypeStatement statement) {
+    public void exitTopLevelTypeStatement(CompilationUnitStatement statement) {
     }
 
     public void visitTryStatement(TryStatement statement) {

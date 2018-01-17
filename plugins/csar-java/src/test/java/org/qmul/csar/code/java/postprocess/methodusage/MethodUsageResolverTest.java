@@ -11,7 +11,7 @@ import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.expression.UnitExpression;
 import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
-import org.qmul.csar.code.java.parse.statement.TopLevelTypeStatement;
+import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
@@ -248,8 +248,8 @@ public class MethodUsageResolverTest {
 
     private static MethodStatement findMethod(String path, String methodSignature) {
         Statement code = MethodUsageResolverTest.code.get(Paths.get(SAMPLES_DIRECTORY + path));
-        TopLevelTypeStatement topLevelTypeStatement = (TopLevelTypeStatement)code;
-        ClassStatement clazz = (ClassStatement)topLevelTypeStatement.getTypeStatement();
+        CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement)code;
+        ClassStatement clazz = (ClassStatement) compilationUnitStatement.getTypeStatement();
 
         for (Statement statement : clazz.getBlock().getStatements()) {
             if (statement instanceof MethodStatement) {

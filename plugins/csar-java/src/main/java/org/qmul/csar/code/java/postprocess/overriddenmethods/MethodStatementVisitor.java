@@ -77,15 +77,15 @@ final class MethodStatementVisitor extends StatementVisitor {
         return String.join("", traversalHierarchy);
     }
 
-    public void setTopLevelTypeStatement(TopLevelTypeStatement topLevelTypeStatement) {
+    public void setTopLevelTypeStatement(CompilationUnitStatement compilationUnitStatement) {
         traversedTypeStatements.clear();
         traversalHierarchy.clear();
-        traversedTypeStatements.addLast(topLevelTypeStatement);
-        packageStatement = topLevelTypeStatement.getPackageStatement();
-        imports = topLevelTypeStatement.getImports();
+        traversedTypeStatements.addLast(compilationUnitStatement);
+        packageStatement = compilationUnitStatement.getPackageStatement();
+        imports = compilationUnitStatement.getImports();
 
-        if (topLevelTypeStatement.getPackageStatement().isPresent()) {
-            PackageStatement pkg = topLevelTypeStatement.getPackageStatement().get();
+        if (compilationUnitStatement.getPackageStatement().isPresent()) {
+            PackageStatement pkg = compilationUnitStatement.getPackageStatement().get();
             String[] pkgParts = pkg.getPackageName().split("\\.");
 
             for (int i = 0; i < pkgParts.length; i++) {

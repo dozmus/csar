@@ -144,7 +144,7 @@ public final class JavaCodeParserTest {
                 .build(),
                 new BlockStatement(Arrays.asList(constructor1, constructor2, var1, var2, method1, method2, method3)),
                 new ArrayList<>());
-        return new TopLevelTypeStatement(Optional.of(new PackageStatement("grammars.java8pt", new ArrayList<>())),
+        return new CompilationUnitStatement(Optional.of(new PackageStatement("grammars.java8pt", new ArrayList<>())),
                 new ArrayList<>(), clazz);
     }
 
@@ -221,7 +221,7 @@ public final class JavaCodeParserTest {
         // Top-level class
         BlockStatement block = new BlockStatement(Arrays.asList(var1, method1, method2, var2, method3));
         List<ImportStatement> imports = Arrays.asList(new ImportStatement("java.lang.Runnable", false));
-        return new TopLevelTypeStatement(Optional.empty(), imports,
+        return new CompilationUnitStatement(Optional.empty(), imports,
                 new ClassStatement(ClassDescriptor.Builder.allFalse("Sample2")
                         .visibilityModifier(VisibilityModifier.PUBLIC)
                         .interfaceModifier(true)
@@ -236,7 +236,7 @@ public final class JavaCodeParserTest {
      */
     private static TypeStatement sample3() {
         List<ImportStatement> imports = Arrays.asList(new ImportStatement("a.Enum", true));
-        return new TopLevelTypeStatement(Optional.empty(), imports,
+        return new CompilationUnitStatement(Optional.empty(), imports,
                 createClass(ClassDescriptor.Builder.allFalse("Sample3")
                         .visibilityModifier(VisibilityModifier.PUBLIC)
                         .typeParameters(Arrays.asList("T0 extends Collection<String>", "T1"))
@@ -592,7 +592,7 @@ public final class JavaCodeParserTest {
         // Top-level class
         List<ImportStatement> imports = Arrays.asList(new ImportStatement("p.a", false), new ImportStatement("p.b",
                 false));
-        return new TopLevelTypeStatement(Optional.empty(), imports,
+        return new CompilationUnitStatement(Optional.empty(), imports,
                 new ClassStatement(ClassDescriptor.Builder.allFalse("Sample11")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .build(), new BlockStatement(Arrays.asList(mainMethod)), new ArrayList<>()));
@@ -917,7 +917,7 @@ public final class JavaCodeParserTest {
         ClassStatement clazz = new ClassStatement(ClassDescriptor.Builder.allFalse("Sample13")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE).build(),
                 new BlockStatement(Arrays.asList(aMethod)), new ArrayList<>());
-        return new TopLevelTypeStatement(Optional.empty(), new ArrayList<>(), clazz);
+        return new CompilationUnitStatement(Optional.empty(), new ArrayList<>(), clazz);
     }
 
     @Parameterized.Parameters(name = "{index}: \"{1}\"")
@@ -984,8 +984,8 @@ public final class JavaCodeParserTest {
         return new EnumConstantStatement(identifierName, new ArrayList<>(), Optional.of(block), new ArrayList<>());
     }
 
-    private static TopLevelTypeStatement createTopLevelStatement(TypeStatement typeStatement) {
-        return new TopLevelTypeStatement(Optional.empty(), new ArrayList<>(), typeStatement);
+    private static CompilationUnitStatement createTopLevelStatement(TypeStatement typeStatement) {
+        return new CompilationUnitStatement(Optional.empty(), new ArrayList<>(), typeStatement);
     }
 
     private static ExpressionStatement soutprintlnHelloWorld(Path path, int lineNumber) {

@@ -92,8 +92,8 @@ public class TraversalHierarchy extends ArrayDeque<Statement> {
         while (it.hasNext()) {
             Statement item = it.next();
 
-            if (item instanceof TopLevelTypeStatement) {
-                return ((TopLevelTypeStatement)item).getImports();
+            if (item instanceof CompilationUnitStatement) {
+                return ((CompilationUnitStatement)item).getImports();
             }
         }
         throw new NoSuchElementException();
@@ -105,8 +105,8 @@ public class TraversalHierarchy extends ArrayDeque<Statement> {
         while (it.hasNext()) {
             Statement item = it.next();
 
-            if (item instanceof TopLevelTypeStatement) {
-                return ((TopLevelTypeStatement)item).getPackageStatement();
+            if (item instanceof CompilationUnitStatement) {
+                return ((CompilationUnitStatement)item).getPackageStatement();
             }
         }
         throw new NoSuchElementException();

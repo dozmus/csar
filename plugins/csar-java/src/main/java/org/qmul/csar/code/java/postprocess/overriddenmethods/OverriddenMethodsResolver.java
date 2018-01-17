@@ -54,11 +54,11 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
             Path path = entry.getKey();
             Statement statement = entry.getValue();
 
-            if (statement instanceof TopLevelTypeStatement) {
-                TopLevelTypeStatement topLevelTypeStatement = (TopLevelTypeStatement) statement;
+            if (statement instanceof CompilationUnitStatement) {
+                CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement) statement;
                 visitor.setPath(path);
-                visitor.setTopLevelTypeStatement(topLevelTypeStatement);
-                visitor.visitStatement(topLevelTypeStatement);
+                visitor.setTopLevelTypeStatement(compilationUnitStatement);
+                visitor.visitStatement(compilationUnitStatement);
             }
         }
 
@@ -119,8 +119,8 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
             Statement resolvedStatement = resolvedType.getStatement();
 
             // NOTE we ignore (fully) un-resolved statements here
-            if (resolvedStatement != null && resolvedStatement instanceof TopLevelTypeStatement) {
-                TopLevelTypeStatement s = (TopLevelTypeStatement) resolvedStatement;
+            if (resolvedStatement != null && resolvedStatement instanceof CompilationUnitStatement) {
+                CompilationUnitStatement s = (CompilationUnitStatement) resolvedStatement;
                 TypeStatement s2 = s.getTypeStatement();
                 boolean isClassOrEnum = (s2 instanceof ClassStatement || s2 instanceof EnumStatement);
 

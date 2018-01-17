@@ -50,7 +50,7 @@ public class MethodCallResolver {
         resolve(e, true);
     }
 
-    private TopLevelTypeStatement resolve(MethodCallExpression expression, boolean addToUsages) {
+    private CompilationUnitStatement resolve(MethodCallExpression expression, boolean addToUsages) {
         Expression methodNameExpression = expression.getMethodName();
         System.out.println("type(methodNameExpression) = " + methodNameExpression.getClass().getName());
 
@@ -72,14 +72,14 @@ public class MethodCallResolver {
 
                 if (qualifiedType == null)
                     return null;
-                return qualifiedType.getStatement() instanceof TopLevelTypeStatement
-                        ? (TopLevelTypeStatement)qualifiedType.getStatement()
+                return qualifiedType.getStatement() instanceof CompilationUnitStatement
+                        ? (CompilationUnitStatement)qualifiedType.getStatement()
                         : null;
             }
         } else if (methodNameExpression instanceof BinaryExpression) { // complex method name
             BinaryExpression bexp = (BinaryExpression)methodNameExpression;
             QualifiedType qualifiedType = resolveInBinaryExpression(bexp, expression, 0, addToUsages);
-            return qualifiedType == null ? null : (TopLevelTypeStatement)qualifiedType.getStatement();
+            return qualifiedType == null ? null : (CompilationUnitStatement)qualifiedType.getStatement();
         }
         // XXX unable to resolve
         return null;
@@ -100,24 +100,24 @@ public class MethodCallResolver {
             if (type == null) { // may be external - we ignore it
                 return null;
             }
-            TopLevelTypeStatement topLevelTypeStatement = (TopLevelTypeStatement)type.getStatement();
+            CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement)type.getStatement();
             UnitExpression rue = (UnitExpression)r;
 
             if (rue.getValueType() == UnitExpression.ValueType.IDENTIFIER) {
                 String methodName = rue.getValue();
 
-                if (topLevelTypeStatement == null)
+                if (compilationUnitStatement == null)
                     return null;
 
-                resolveInContext(currentContext, topLevelTypeStatement.getTypeStatement(), topLevelTypeStatement,
-                        topLevelTypeStatement.getPackageStatement(), topLevelTypeStatement.getImports(),
+                resolveInContext(currentContext, compilationUnitStatement.getTypeStatement(), compilationUnitStatement,
+                        compilationUnitStatement.getPackageStatement(), compilationUnitStatement.getImports(),
                         methodName, methodCallExpression, true, addToUsages);
             }
         } else if (l instanceof UnitExpression && r instanceof UnitExpression) { // base case (for supported BinExprs)
             System.out.println("[RBE] Handled");
             UnitExpression lue = (UnitExpression)l;
             UnitExpression rue = (UnitExpression)r;
-            TopLevelTypeStatement lTopLevelTypeStatement = null;
+            CompilationUnitStatement lCompilationUnitStatement = null;
             System.out.println("[RBE] LUnit=" + lue.getValueType() + ", RUnit=" + rue.getValueType() + " [k=" + k + "]");
 
             // l identifier/this/super and r identifiers
@@ -186,9 +186,9 @@ public class MethodCallResolver {
                         QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, targetType,
                                 topLevelParent, packageStatement, imports, superClass);
 
-                        if (resolvedType.getStatement() instanceof TopLevelTypeStatement) {
+                        if (resolvedType.getStatement() instanceof CompilationUnitStatement) {
                             for (Statement st
-                                    : getBlock((TopLevelTypeStatement)resolvedType.getStatement()).getStatements()) {
+                                    : getBlock((CompilationUnitStatement)resolvedType.getStatement()).getStatements()) {
                                 if (lType != null)
                                     break;
 
@@ -212,9 +212,9 @@ public class MethodCallResolver {
 
                 QualifiedType lQualifiedType = qualifiedNameResolver.resolve(code, path, targetType, topLevelParent,
                         packageStatement, imports, lType);
-                if (!(lQualifiedType.getStatement() instanceof TopLevelTypeStatement)) // may be external - we ignore it
+                if (!(lQualifiedType.getStatement() instanceof CompilationUnitStatement)) // may be external - we ignore it
                     return null;
-                lTopLevelTypeStatement = (TopLevelTypeStatement)lQualifiedType.getStatement();
+                lCompilationUnitStatement = (CompilationUnitStatement)lQualifiedType.getStatement();
                 System.out.println("[RBE] Resolved lType");
             } else if (lue.getValueType() == UnitExpression.ValueType.SUPER) {
                 String superClass = PostProcessUtils.extendedClass(targetType);
@@ -225,12 +225,12 @@ public class MethodCallResolver {
 
                 if (lType == null) // may be external - we ignore it
                     return null;
-                lTopLevelTypeStatement = (TopLevelTypeStatement)lQualifiedType.getStatement();
+                lCompilationUnitStatement = (CompilationUnitStatement)lQualifiedType.getStatement();
                 System.out.println("[RBE] Resolved lType");
-                return resolveForRHSOfBinaryExpression(rue, lTopLevelTypeStatement, methodCallExpression, k,
+                return resolveForRHSOfBinaryExpression(rue, lCompilationUnitStatement, methodCallExpression, k,
                         addToUsages);
             } else if (lue.getValueType() == UnitExpression.ValueType.THIS) {
-                lTopLevelTypeStatement = (TopLevelTypeStatement)topLevelParent;
+                lCompilationUnitStatement = (CompilationUnitStatement)topLevelParent;
             } else {
                 System.out.println("[RBE] Unhandled unit expression value type");
                 return null; // XXX unable to resolve
@@ -240,10 +240,10 @@ public class MethodCallResolver {
             // we check the supers of l here too
             QualifiedType qt = null;
 
-            while ((qt = resolveForRHSOfBinaryExpression(rue, lTopLevelTypeStatement, methodCallExpression, k,
+            while ((qt = resolveForRHSOfBinaryExpression(rue, lCompilationUnitStatement, methodCallExpression, k,
                     addToUsages)) == null) {
                 // find super class
-                String superClass = PostProcessUtils.extendedClass(lTopLevelTypeStatement.getTypeStatement());
+                String superClass = PostProcessUtils.extendedClass(lCompilationUnitStatement.getTypeStatement());
                 String lType = superClass;
                 System.out.println("[RBE] lType = " + lType);
 
@@ -255,19 +255,19 @@ public class MethodCallResolver {
                         packageStatement, imports, superClass);
 
                 // check result
-                lTopLevelTypeStatement = (TopLevelTypeStatement)lQualifiedType.getStatement();
+                lCompilationUnitStatement = (CompilationUnitStatement)lQualifiedType.getStatement();
 
-                if (lTopLevelTypeStatement == null)
+                if (lCompilationUnitStatement == null)
                     return null;
             }
             return qt;
         } else if (l instanceof MethodCallExpression && r instanceof UnitExpression) {
             System.out.println("[RBE] Handled");
-            TopLevelTypeStatement lTopLevelTypeStatement = resolve((MethodCallExpression)l, false);
+            CompilationUnitStatement lCompilationUnitStatement = resolve((MethodCallExpression)l, false);
             UnitExpression rue = (UnitExpression)r;
 
             // secondly, r
-            return resolveForRHSOfBinaryExpression(rue, lTopLevelTypeStatement, methodCallExpression, k, addToUsages);
+            return resolveForRHSOfBinaryExpression(rue, lCompilationUnitStatement, methodCallExpression, k, addToUsages);
         }
 
         // XXX unable to resolve
@@ -275,7 +275,7 @@ public class MethodCallResolver {
     }
 
     private QualifiedType resolveForRHSOfBinaryExpression(UnitExpression rue,
-            TopLevelTypeStatement lTopLevelTypeStatement, MethodCallExpression methodCallExpression, int k,
+            CompilationUnitStatement lCompilationUnitStatement, MethodCallExpression methodCallExpression, int k,
             boolean addToUsages) {
         System.out.println("[RBE-RHS] run");
 
@@ -284,19 +284,19 @@ public class MethodCallResolver {
                 String methodName = rue.getValue();
                 System.out.println("[RBE-RHS] rMethod=" + methodName);
 
-                if (lTopLevelTypeStatement == null) { // may be external - we ignore it
+                if (lCompilationUnitStatement == null) { // may be external - we ignore it
                     return null;
                 }
-                resolveInContext(currentContext, lTopLevelTypeStatement.getTypeStatement(),
-                        lTopLevelTypeStatement, lTopLevelTypeStatement.getPackageStatement(),
-                        lTopLevelTypeStatement.getImports(), methodName, methodCallExpression, true, addToUsages);
+                resolveInContext(currentContext, lCompilationUnitStatement.getTypeStatement(),
+                        lCompilationUnitStatement, lCompilationUnitStatement.getPackageStatement(),
+                        lCompilationUnitStatement.getImports(), methodName, methodCallExpression, true, addToUsages);
                 return new QualifiedType(null, null, null); // so that resolving super or supers doesnt make duplicates adds
             }
         } else { // is identifier
             String rIdentifierName = rue.getValue();
             String rType = null;
 
-            for (Statement st : getBlock(lTopLevelTypeStatement).getStatements()) {
+            for (Statement st : getBlock(lCompilationUnitStatement).getStatements()) {
                 // TODO check visibility
 
                 if (st instanceof InstanceVariableStatement) {
@@ -316,8 +316,8 @@ public class MethodCallResolver {
             if (rType == null) // may be external - we ignore it
                 return null;
             return qualifiedNameResolver.resolve(code, path,
-                    lTopLevelTypeStatement.getTypeStatement(), lTopLevelTypeStatement,
-                    lTopLevelTypeStatement.getPackageStatement(), lTopLevelTypeStatement.getImports(), rType);
+                    lCompilationUnitStatement.getTypeStatement(), lCompilationUnitStatement,
+                    lCompilationUnitStatement.getPackageStatement(), lCompilationUnitStatement.getImports(), rType);
         }
         return null;
     }
@@ -368,10 +368,10 @@ public class MethodCallResolver {
         MethodStatement method = null;
         Statement resolvedStatement = resolvedType.getStatement();
 
-        if (resolvedStatement != null && resolvedStatement instanceof TopLevelTypeStatement) {
-            TypeStatement typeStatement = ((TopLevelTypeStatement)resolvedStatement).getTypeStatement();
-            List<ImportStatement> imports = ((TopLevelTypeStatement)resolvedStatement).getImports();
-            Optional<PackageStatement> pkgStatement = ((TopLevelTypeStatement)resolvedStatement).getPackageStatement();
+        if (resolvedStatement != null && resolvedStatement instanceof CompilationUnitStatement) {
+            TypeStatement typeStatement = ((CompilationUnitStatement)resolvedStatement).getTypeStatement();
+            List<ImportStatement> imports = ((CompilationUnitStatement)resolvedStatement).getImports();
+            Optional<PackageStatement> pkgStatement = ((CompilationUnitStatement)resolvedStatement).getPackageStatement();
 
             method = resolveInTypeStatement(typeStatement, methodName, args, expression, onVariable, addToUsages);
 
@@ -395,7 +395,7 @@ public class MethodCallResolver {
         return getBlock(targetType);
     }
 
-    private BlockStatement getBlock(TopLevelTypeStatement statement) {
+    private BlockStatement getBlock(CompilationUnitStatement statement) {
         return statement == null ? new BlockStatement(new ArrayList<>()) : getBlock(statement.getTypeStatement());
     }
 

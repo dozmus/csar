@@ -33,9 +33,9 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
     /**
      * The root <tt>TopLevelTypeStatement</tt> of the parsed document.
      *
-     * @see TopLevelTypeStatement
+     * @see CompilationUnitStatement
      */
-    private TopLevelTypeStatement root = null;
+    private CompilationUnitStatement root = null;
     private Optional<PackageStatement> packageStatement = Optional.empty();
     /**
      * This is used to make sure {@link #enterTypeDeclaration(JavaParser.TypeDeclarationContext)} is only called once,
@@ -1447,15 +1447,15 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
         // Generate node and add node
         if (ctx.classDeclaration() != null) {
-            root = new TopLevelTypeStatement(packageStatement, imports, parseClass(ctx));
+            root = new CompilationUnitStatement(packageStatement, imports, parseClass(ctx));
         } else if (ctx.interfaceDeclaration() != null) {
-            root = new TopLevelTypeStatement(packageStatement, imports, parseInterface(ctx));
+            root = new CompilationUnitStatement(packageStatement, imports, parseInterface(ctx));
         } else if (ctx.enumDeclaration() != null) {
-            root = new TopLevelTypeStatement(packageStatement, imports, parseEnum(ctx));
+            root = new CompilationUnitStatement(packageStatement, imports, parseEnum(ctx));
         } else {
             AnnotationStatement anon = parseAnnotationDefinition(ctx.classOrInterfaceModifier(),
                     ctx.annotationTypeDeclaration());
-            root = new TopLevelTypeStatement(packageStatement, imports, anon);
+            root = new CompilationUnitStatement(packageStatement, imports, anon);
         }
     }
 

@@ -3,7 +3,7 @@ package org.qmul.csar.code.java.postprocess.qualifiedname;
 import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
-import org.qmul.csar.code.java.parse.statement.TopLevelTypeStatement;
+import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 
@@ -123,8 +123,8 @@ public class QualifiedNameResolver {
     private QualifiedType resolveInCurrentClass(TypeStatement parent, Optional<PackageStatement> pkg, String name,
             Path path) {
         // TODO make sure this works: results look good though
-        if (parent instanceof TopLevelTypeStatement) {
-            parent = ((TopLevelTypeStatement)parent).getTypeStatement();
+        if (parent instanceof CompilationUnitStatement) {
+            parent = ((CompilationUnitStatement)parent).getTypeStatement();
         }
         name = name.replace(".", "$");
 
@@ -196,9 +196,9 @@ public class QualifiedNameResolver {
             Path p = entry.getKey();
             Statement statement = entry.getValue();
 
-            if (!(statement instanceof TopLevelTypeStatement))
+            if (!(statement instanceof CompilationUnitStatement))
                 continue;
-            TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
+            CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
             TypeStatement typeStatement = topStatement.getTypeStatement();
 
             if (topStatement.getTypeStatement() instanceof AnnotationStatement)
@@ -249,9 +249,9 @@ public class QualifiedNameResolver {
             Path p = entry.getKey();
             Statement statement = entry.getValue();
 
-            if (!(statement instanceof TopLevelTypeStatement))
+            if (!(statement instanceof CompilationUnitStatement))
                 continue;
-            TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
+            CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
             TypeStatement typeStatement = topStatement.getTypeStatement();
 
             if (topStatement.getPackageStatement().isPresent()) {
@@ -286,9 +286,9 @@ public class QualifiedNameResolver {
                 Path p = entry.getKey();
                 Statement statement = entry.getValue();
 
-                if (!(statement instanceof TopLevelTypeStatement))
+                if (!(statement instanceof CompilationUnitStatement))
                     continue;
-                TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
+                CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
                 TypeStatement typeStatement = topStatement.getTypeStatement();
 
                 // they have to both have no package statement, and be in the same folder

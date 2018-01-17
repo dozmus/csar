@@ -376,12 +376,12 @@ public class MethodUsageStatementVisitor extends StatementVisitor {
     }
 
     @Override
-    public void visitTopLevelTypeStatement(TopLevelTypeStatement statement) {
+    public void visitTopLevelTypeStatement(CompilationUnitStatement statement) {
         super.visitTopLevelTypeStatement(statement);
     }
 
     @Override
-    public void exitTopLevelTypeStatement(TopLevelTypeStatement statement) {
+    public void exitTopLevelTypeStatement(CompilationUnitStatement statement) {
         super.exitTopLevelTypeStatement(statement);
     }
 

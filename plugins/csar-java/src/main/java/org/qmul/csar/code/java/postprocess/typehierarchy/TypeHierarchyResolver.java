@@ -4,7 +4,7 @@ import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
-import org.qmul.csar.code.java.parse.statement.TopLevelTypeStatement;
+import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.postprocess.methodtypes.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
@@ -121,9 +121,9 @@ public class TypeHierarchyResolver implements CodePostProcessor {
             Path path = entry.getKey();
             Statement statement = entry.getValue();
 
-            if (!(statement instanceof TopLevelTypeStatement))
+            if (!(statement instanceof CompilationUnitStatement))
                 continue;
-            TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
+            CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
             TypeStatement typeStatement = topStatement.getTypeStatement();
 
             if (typeStatement instanceof AnnotationStatement)

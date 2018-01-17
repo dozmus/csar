@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class TopLevelTypeStatement implements TypeStatement {
+public class CompilationUnitStatement implements TypeStatement {
 
     private final Optional<PackageStatement> packageStatement;
     private final List<ImportStatement> imports;
     private final TypeStatement typeStatement;
 
-    public TopLevelTypeStatement(Optional<PackageStatement> packageStatement, List<ImportStatement> imports,
+    public CompilationUnitStatement(Optional<PackageStatement> packageStatement, List<ImportStatement> imports,
             TypeStatement typeStatement) {
         this.packageStatement = packageStatement;
         this.imports = imports;
@@ -51,7 +51,7 @@ public class TopLevelTypeStatement implements TypeStatement {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TopLevelTypeStatement that = (TopLevelTypeStatement) o;
+        CompilationUnitStatement that = (CompilationUnitStatement) o;
         return Objects.equals(packageStatement, that.packageStatement)
                 && Objects.equals(imports, that.imports)
                 && Objects.equals(typeStatement, that.typeStatement);

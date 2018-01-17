@@ -40,9 +40,9 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
             Path path = entry.getKey();
             Statement statement = entry.getValue();
 
-            if (!(statement instanceof TopLevelTypeStatement))
+            if (!(statement instanceof CompilationUnitStatement))
                 continue;
-            TopLevelTypeStatement topStatement = (TopLevelTypeStatement) statement;
+            CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
             TypeStatement typeStatement = topStatement.getTypeStatement();
 
             if (typeStatement instanceof AnnotationStatement)
@@ -59,7 +59,7 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
     }
 
     /**
-     * Traverses a {@link TopLevelTypeStatement} and resolves the qualified types for method return types and method
+     * Traverses a {@link CompilationUnitStatement} and resolves the qualified types for method return types and method
      * parameter types.
      */
     public static class MethodStatementVisitor extends StatementVisitor {
@@ -73,14 +73,14 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
         private TypeStatement parent;
 
         public MethodStatementVisitor(QualifiedNameResolver qualifiedNameResolver, Map<Path, Statement> code, Path path,
-                TopLevelTypeStatement topLevelTypeStatement) {
+                CompilationUnitStatement compilationUnitStatement) {
             this.qualifiedNameResolver = qualifiedNameResolver;
             this.code = code;
             this.path = path;
-            this.topLevelParent = topLevelTypeStatement;
-            this.currentPackage = topLevelTypeStatement.getPackageStatement();
-            this.imports = topLevelTypeStatement.getImports();
-            this.parent = topLevelTypeStatement;
+            this.topLevelParent = compilationUnitStatement;
+            this.currentPackage = compilationUnitStatement.getPackageStatement();
+            this.imports = compilationUnitStatement.getImports();
+            this.parent = compilationUnitStatement;
         }
 
         @Override
