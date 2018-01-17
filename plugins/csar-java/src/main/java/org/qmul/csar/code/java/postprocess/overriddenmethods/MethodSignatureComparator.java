@@ -2,7 +2,7 @@ package org.qmul.csar.code.java.postprocess.overriddenmethods;
 
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.parse.statement.ParameterVariableStatement;
-import org.qmul.csar.code.java.postprocess.methodtypes.TypeSanitizer;
+import org.qmul.csar.code.java.postprocess.methodtypes.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.descriptor.MethodDescriptor;
@@ -42,14 +42,14 @@ public final class MethodSignatureComparator {
             // Names
             String type1 = param1.getIdentifierType().get();
             String type2 = param2.getIdentifierType().get();
-            type1 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type1), typeParameters1);
-            type2 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type2), typeParameters1); // TODO change to typeParameters2 - this is a bug
+            type1 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type1), typeParameters1);
+            type2 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type2), typeParameters1); // TODO change to typeParameters2 - this is a bug
             boolean namesEqual = type1.equals(type2);
-            boolean dimensionEquals = TypeSanitizer.dimensionsEquals(type1, type2);
+            boolean dimensionEquals = TypeHelper.dimensionsEquals(type1, type2);
 
             // Generic argument
-            String genericArgument1 = TypeSanitizer.extractGenericArgument(type1);
-            String genericArgument2 = TypeSanitizer.extractGenericArgument(type2);
+            String genericArgument1 = TypeHelper.extractGenericArgument(type1);
+            String genericArgument2 = TypeHelper.extractGenericArgument(type2);
 
             boolean genericTypesEqual = genericArgument1.equals(genericArgument2)
                     || !genericArgument1.isEmpty() && genericArgument2.isEmpty();
@@ -85,15 +85,15 @@ public final class MethodSignatureComparator {
         // Return type
         String type1 = descriptor.getReturnType().get();
         String type2 = oDescriptor.getReturnType().get();
-        type1 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type1), descriptor.getTypeParameters());
-        type2 = TypeSanitizer.resolveGenericTypes(TypeSanitizer.normalizeVarArgs(type2), oDescriptor.getTypeParameters());
+        type1 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type1), descriptor.getTypeParameters());
+        type2 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type2), oDescriptor.getTypeParameters());
 
         if (method.getReturnQualifiedType() != null && oMethod.getReturnQualifiedType() != null) {
             returnTypeEquals = typeHierarchyResolver.isSubtype(method.getReturnQualifiedType().getQualifiedName(),
                     oMethod.getReturnQualifiedType().getQualifiedName())
-                    && TypeSanitizer.dimensionsEquals(type1, type2);
+                    && TypeHelper.dimensionsEquals(type1, type2);
         } else { // assume they can be from java api, so we don't check for correctness
-            returnTypeEquals = type1.equals(type2) && TypeSanitizer.dimensionsEquals(type1, type2);
+            returnTypeEquals = type1.equals(type2) && TypeHelper.dimensionsEquals(type1, type2);
         }
 
         if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent()) {

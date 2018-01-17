@@ -8,33 +8,33 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TypeSanitizerTest {
+public class TypeHelperTest {
 
     private static void assertSanitizeType(String expected, String input) {
         assertSanitizeType(expected, input, Collections.emptyList());
     }
 
     private static void assertSanitizeType(String expected, String input, List<String> typeParameters) {
-        assertEquals(expected, TypeSanitizer.resolveGenericTypes(input, typeParameters));
+        assertEquals(expected, TypeHelper.resolveGenericTypes(input, typeParameters));
     }
 
     private static void assertEraseBoundsOnTypeParameter(String expected, String typeParameter) {
-        assertEquals(expected, TypeSanitizer.eraseBoundsOnTypeParameter(typeParameter));
+        assertEquals(expected, TypeHelper.eraseBoundsOnTypeParameter(typeParameter));
     }
 
     @Test
     public void testRemoveGenericArgument() {
-        assertEquals("String", TypeSanitizer.removeGenericArgument("String"));
-        assertEquals("String[]", TypeSanitizer.removeGenericArgument("String[]"));
-        assertEquals("String[]", TypeSanitizer.removeGenericArgument("String<String>[]"));
-        assertEquals("String...", TypeSanitizer.removeGenericArgument("String<String extends T, E>..."));
+        assertEquals("String", TypeHelper.removeGenericArgument("String"));
+        assertEquals("String[]", TypeHelper.removeGenericArgument("String[]"));
+        assertEquals("String[]", TypeHelper.removeGenericArgument("String<String>[]"));
+        assertEquals("String...", TypeHelper.removeGenericArgument("String<String extends T, E>..."));
     }
 
     @Test
     public void testIdentifierOfGenericTypeParameter() {
-        assertEquals("T", TypeSanitizer.identifierOfGenericTypeParameter("T"));
-        assertEquals("T", TypeSanitizer.identifierOfGenericTypeParameter("T extends String"));
-        assertEquals("T", TypeSanitizer.identifierOfGenericTypeParameter("T super String"));
+        assertEquals("T", TypeHelper.identifierOfGenericTypeParameter("T"));
+        assertEquals("T", TypeHelper.identifierOfGenericTypeParameter("T extends String"));
+        assertEquals("T", TypeHelper.identifierOfGenericTypeParameter("T super String"));
     }
 
     @Test
