@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * A Java8 code parser.
+ * A Java 8 code parser.
  */
 public final class JavaCodeParser extends JavaParserBaseListener implements CodeParser {
 
