@@ -30,7 +30,5 @@ subprojects {
     }
 }
 
-// Set plugins export location
+// Plugins export location
 ext.pluginsDir = childProjects['csar-cli'].projectDir.path + '/plugins/'
-
-task build(dependsOn: [':csar-cli:uberjar'])
