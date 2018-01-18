@@ -3,7 +3,7 @@ package org.qmul.csar.code.java.postprocess.overriddenmethods;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.parse.CodeParserFactory;
-import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -35,7 +35,7 @@ public class OverriddenMethodsResolverTest {
         // Parse sample directory
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false, factory);
-        ProjectCodeParser parser = new ProjectCodeParser(factory, it);
+        DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it);
         Map<Path, Statement> code = parser.results();
 
         // Resolve type hierarchy

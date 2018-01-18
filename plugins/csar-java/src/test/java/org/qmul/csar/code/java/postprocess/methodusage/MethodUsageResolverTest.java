@@ -3,7 +3,7 @@ package org.qmul.csar.code.java.postprocess.methodusage;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.parse.CodeParserFactory;
-import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.parse.expression.BinaryExpression;
 import org.qmul.csar.code.java.parse.expression.BinaryOperation;
@@ -33,7 +33,7 @@ public class MethodUsageResolverTest {
         // Parse sample directory
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false, factory);
-        ProjectCodeParser parser = new ProjectCodeParser(factory, it);
+        DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it);
         code = parser.results();
 
         // Resolve method usages

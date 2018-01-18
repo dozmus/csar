@@ -3,7 +3,7 @@ package org.qmul.csar.code.java.postprocess.typehierarchy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.parse.CodeParserFactory;
-import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
@@ -26,7 +26,7 @@ public class TypeHierarchyResolverTest {
         // Parse sample directory
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false, factory);
-        ProjectCodeParser parser = new ProjectCodeParser(factory, it);
+        DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it);
         Map<Path, Statement> code = parser.results();
 
         // Resolve type hierarchy

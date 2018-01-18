@@ -15,7 +15,7 @@ import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
-import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
@@ -58,7 +58,7 @@ public class JavaPlugin extends Plugin {
             Iterator<Path> it = iterator(projectDirectory, narrowSearch, ignoreFile, factory);
 
             // Create parser
-            ProjectCodeParser parser = new ProjectCodeParser(factory, it, threadCount);
+            DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it, threadCount);
             parser.setErrorListener(new DefaultProjectCodeErrorListener());
             code = parser.results();
             return !parser.errorOccurred();
