@@ -11,6 +11,7 @@ public interface ResultFormatter {
 
     /**
      * Returns a <tt>String</tt> representation of the provided argument.
+     *
      * @param results the results to format
      * @return a <tt>String</tt> representing the argument
      * @throws Exception an arbitrary exception may occur in subclasses, depending on their behaviour

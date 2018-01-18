@@ -1,6 +1,6 @@
 package org.qmul.csar.code.parse;
 
-import org.qmul.csar.code.PathProcessorErrorListener;
+import org.qmul.csar.code.ProjectCodeErrorListener;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.NamedThreadFactory;
@@ -31,7 +31,7 @@ public class ProjectCodeParser {
     private final ConcurrentIterator<Path> it;
     private boolean errorOccurred = false;
     private boolean running = false;
-    private PathProcessorErrorListener errorListener;
+    private ProjectCodeErrorListener errorListener;
     private CodeParserFactory factory;
 
     /**
@@ -156,11 +156,11 @@ public class ProjectCodeParser {
         return map;
     }
 
-    public PathProcessorErrorListener getErrorListener() {
+    public ProjectCodeErrorListener getErrorListener() {
         return errorListener;
     }
 
-    public void setErrorListener(PathProcessorErrorListener errorListener) {
+    public void setErrorListener(ProjectCodeErrorListener errorListener) {
         this.errorListener = errorListener;
     }
 

@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class DefaultPathProcessorErrorListener implements PathProcessorErrorListener {
+public class DefaultProjectCodeErrorListener implements ProjectCodeErrorListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPathProcessorErrorListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultProjectCodeErrorListener.class);
 
     @Override
     public void reportRecoverableError(Path path, Exception ex) {

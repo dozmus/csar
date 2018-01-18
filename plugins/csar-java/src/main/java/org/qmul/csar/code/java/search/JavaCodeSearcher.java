@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.search;
 
-import org.qmul.csar.code.PathProcessorErrorListener;
+import org.qmul.csar.code.ProjectCodeErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
@@ -33,7 +33,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
     private final int threadCount;
     private final ExecutorService executor;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
-    private PathProcessorErrorListener errorListener;
+    private ProjectCodeErrorListener errorListener;
     private CsarQuery query;
     private boolean errorOccurred = false;
     private boolean running = false;
@@ -157,11 +157,11 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
         return results;
     }
 
-    public PathProcessorErrorListener getErrorListener() {
+    public ProjectCodeErrorListener getErrorListener() {
         return errorListener;
     }
 
-    public void setErrorListener(PathProcessorErrorListener errorListener) {
+    public void setErrorListener(ProjectCodeErrorListener errorListener) {
         this.errorListener = errorListener;
     }
 

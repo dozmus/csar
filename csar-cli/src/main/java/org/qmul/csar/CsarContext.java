@@ -20,7 +20,7 @@ import java.util.List;
  * @see Main#printUsage()
  * @see Csar
  */
-public class CsarContext {
+class CsarContext {
 
     /**
      * The root directory of the project.
@@ -60,7 +60,7 @@ public class CsarContext {
      * @param projectDirectory the project base directory
      * @param ignoreFile the ignore file
      */
-    public CsarContext(Path projectDirectory, Path ignoreFile) {
+    private CsarContext(Path projectDirectory, Path ignoreFile) {
         this.projectDirectory = projectDirectory;
         this.ignoreFile = ignoreFile;
     }

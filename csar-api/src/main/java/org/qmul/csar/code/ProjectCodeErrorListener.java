@@ -2,7 +2,7 @@ package org.qmul.csar.code;
 
 import java.nio.file.Path;
 
-public interface PathProcessorErrorListener {
+public interface ProjectCodeErrorListener {
 
     /**
      * Reports a recoverable parsing error.

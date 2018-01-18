@@ -16,7 +16,7 @@ import static grammars.csar.CsarParser.*;
 /**
  * A {@link CsarQuery} generator.
  */
-class CsarQueryGenerator extends CsarParserBaseListener {
+class CsarQueryParser extends CsarParserBaseListener {
 
     private TargetDescriptor searchTarget;
     private final List<String> fromTarget = new ArrayList<>();

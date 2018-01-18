@@ -8,7 +8,7 @@ import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
 
 /**
  * A factory for creating instances of {@link CsarQuery}, by parsing a <tt>String</tt> query.
- * @see CsarQueryGenerator
+ * @see CsarQueryParser
  */
 public final class CsarQueryFactory {
 
@@ -22,7 +22,8 @@ public final class CsarQueryFactory {
      * @return the {@link CsarQuery} represented by the argument
      */
     public static CsarQuery parse(String query) throws IllegalArgumentException {
-        if (query.length() == 0) // suppresses the following msg: line 1:0 no viable alternative at input '<EOF>'
+        // XXX the following suppresses a debug message during testing: line 1:0 no viable alternative at input '<EOF>'
+        if (query.length() == 0)
             throw new IllegalArgumentException("csar query input is empty");
 
         // Create and configure parser
@@ -38,8 +39,8 @@ public final class CsarQueryFactory {
 
         // Generate and return csar query
         ParseTreeWalker walker = new ParseTreeWalker();
-        CsarQueryGenerator gen = new CsarQueryGenerator();
-        walker.walk(gen, parser.csarQuery());
-        return gen.csarQuery();
+        CsarQueryParser queryParser = new CsarQueryParser();
+        walker.walk(queryParser, parser.csarQuery());
+        return queryParser.csarQuery();
     }
 }

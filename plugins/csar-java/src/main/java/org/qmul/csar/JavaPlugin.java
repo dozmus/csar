@@ -4,7 +4,7 @@ import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 import org.qmul.csar.code.CodePostProcessor;
-import org.qmul.csar.code.DefaultPathProcessorErrorListener;
+import org.qmul.csar.code.DefaultProjectCodeErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
@@ -59,7 +59,7 @@ public class JavaPlugin extends Plugin {
 
             // Create parser
             ProjectCodeParser parser = new ProjectCodeParser(factory, it, threadCount);
-            parser.setErrorListener(new DefaultPathProcessorErrorListener());
+            parser.setErrorListener(new DefaultProjectCodeErrorListener());
             code = parser.results();
             return !parser.errorOccurred();
         }
