@@ -111,7 +111,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
      *
      * @param code the code base to resolve for
      */
-    public void analyze(Map<Path, Statement> code) {
+    public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
         List<TypeNode> partialHierarchies = new ArrayList<>();

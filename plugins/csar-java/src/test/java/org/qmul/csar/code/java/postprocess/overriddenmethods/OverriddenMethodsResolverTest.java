@@ -39,13 +39,13 @@ public class OverriddenMethodsResolverTest {
         Map<Path, Statement> code = parser.results();
 
         // Resolve type hierarchy
-        typeHierarchyResolver.analyze(code);
+        typeHierarchyResolver.postprocess(code);
 
         // Resolve method types
-        methodQualifiedTypeResolver.analyze(code);
+        methodQualifiedTypeResolver.postprocess(code);
 
         // Resolve overridden methods
-        resolver.analyze(code);
+        resolver.postprocess(code);
     }
 
     private static void assertIsOverridden(String methodSignature) {

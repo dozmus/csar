@@ -12,7 +12,7 @@ public class MethodUsageResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodUsageResolver.class);
 
-    public void analyze(Map<Path, Statement> code) {
+    public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
 

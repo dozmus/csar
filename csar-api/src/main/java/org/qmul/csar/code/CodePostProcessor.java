@@ -10,5 +10,5 @@ import java.util.Map;
  */
 public interface CodePostProcessor {
 
-    void analyze(Map<Path, Statement> code);
+    void postprocess(Map<Path, Statement> code);
 }

@@ -37,7 +37,7 @@ public class MethodUsageResolverTest {
         code = parser.results();
 
         // Resolve method usages
-        resolver.analyze(code);
+        resolver.postprocess(code);
     }
 
     @Test

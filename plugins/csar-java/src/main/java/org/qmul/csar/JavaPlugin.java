@@ -78,7 +78,7 @@ public class JavaPlugin extends Plugin {
             // Create post-processor
             CodePostProcessor javaCodePostProcessor = new JavaPostProcessor(typeHierarchyResolver,
                     methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
-            javaCodePostProcessor.analyze(code);
+            javaCodePostProcessor.postprocess(code);
             return true;
         }
 

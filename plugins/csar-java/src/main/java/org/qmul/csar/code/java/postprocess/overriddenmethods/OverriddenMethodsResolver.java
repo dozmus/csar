@@ -45,7 +45,7 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
         this.typeHierarchyResolver = typeHierarchyResolver;
     }
 
-    public void analyze(Map<Path, Statement> code) {
+    public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
         MethodStatementVisitor visitor = new MethodStatementVisitor(this, code);

@@ -30,7 +30,7 @@ public class TypeHierarchyResolverTest {
         Map<Path, Statement> code = parser.results();
 
         // Resolve type hierarchy
-        resolver.analyze(code);
+        resolver.postprocess(code);
     }
 
     private void assertIsSubtypeOfObject(String type2) {

@@ -28,12 +28,12 @@ public class JavaPostProcessor implements CodePostProcessor {
     }
 
     /**
-     * Initialize the underlying analyzers.
+     * Initialize the underlying post-processors.
      */
-    public void analyze(Map<Path, Statement> code) {
-        typeHierarchyResolver.analyze(code);
-        methodQualifiedTypeResolver.analyze(code);
-        overriddenMethodsResolver.analyze(code);
-        methodUsageResolver.analyze(code);
+    public void postprocess(Map<Path, Statement> code) {
+        typeHierarchyResolver.postprocess(code);
+        methodQualifiedTypeResolver.postprocess(code);
+        overriddenMethodsResolver.postprocess(code);
+        methodUsageResolver.postprocess(code);
     }
 }
