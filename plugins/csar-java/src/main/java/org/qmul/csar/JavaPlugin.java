@@ -4,7 +4,6 @@ import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 import org.qmul.csar.code.CodePostProcessor;
-import org.qmul.csar.code.DefaultProjectCodeErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
@@ -24,6 +23,7 @@ import org.qmul.csar.result.Result;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,54 +44,65 @@ public class JavaPlugin extends Plugin {
     public static class CsarJavaPlugin implements CsarPlugin {
 
         private Map<Path, Statement> code;
+        private List<CsarErrorListener> errorListeners = new ArrayList<>();
 
         @Override
-        public boolean parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
+        public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
             // Create iterator
             CodeParserFactory factory;
 
             try {
                 factory = new CodeParserFactory(JavaCodeParser.class);
-            } catch (InstantiationException | IllegalAccessException e) {
-                return false;
+            } catch (InstantiationException | IllegalAccessException ex) {
+                errorListeners.forEach(l -> l.fatalInitializingParsing(ex));
+                return;
             }
             Iterator<Path> it = iterator(projectDirectory, narrowSearch, ignoreFile, factory);
 
             // Create parser
             DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it, threadCount);
-            parser.setErrorListener(new DefaultProjectCodeErrorListener());
+            errorListeners.forEach(parser::addErrorListener);
             code = parser.results();
-            return !parser.errorOccurred();
         }
 
         @Override
-        public boolean postprocess() {
-            // Create components
-            QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
-            TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver);
-            MethodQualifiedTypeResolver methodQualifiedTypeResolver
-                    = new MethodQualifiedTypeResolver(qualifiedNameResolver);
-            OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver(qualifiedNameResolver,
-                    typeHierarchyResolver);
-            MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
+        public void postprocess() {
+            try {
+                // Create components
+                QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+                TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver);
+                MethodQualifiedTypeResolver methodQualifiedTypeResolver
+                        = new MethodQualifiedTypeResolver(qualifiedNameResolver);
+                OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver(qualifiedNameResolver,
+                        typeHierarchyResolver);
+                MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
 
-            // Create post-processor
-            CodePostProcessor javaCodePostProcessor = new JavaPostProcessor(typeHierarchyResolver,
-                    methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
-            javaCodePostProcessor.postprocess(code);
-            return true;
+                // Create post-processor
+                CodePostProcessor javaCodePostProcessor = new JavaPostProcessor(typeHierarchyResolver,
+                        methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
+                javaCodePostProcessor.postprocess(code);
+            } catch (Exception ex) {
+                errorListeners.forEach(l -> l.errorPostProcessing(ex));
+            }
         }
 
         @Override
-        public List<Result> search(CsarQuery csarQuery, int threadCount) throws Exception {
+        public List<Result> search(CsarQuery csarQuery, int threadCount) {
             ProjectCodeSearcher searcher = new JavaCodeSearcher(threadCount);
             searcher.setCsarQuery(csarQuery);
             searcher.setIterator(code.entrySet().iterator());
-            List<Result> results = searcher.results();
+            errorListeners.forEach(searcher::addErrorListener);
+            return searcher.results();
+        }
 
-            if (searcher.errorOccurred())
-                throw new Exception("error occurred");
-            return results;
+        @Override
+        public void addErrorListener(CsarErrorListener errorListener) {
+            errorListeners.add(errorListener);
+        }
+
+        @Override
+        public void removeErrorListener(CsarErrorListener errorListener) {
+            errorListeners.remove(errorListener);
         }
 
         private static Iterator<Path> iterator(Path projectDirectory, boolean narrowSearch, Path ignoreFile,

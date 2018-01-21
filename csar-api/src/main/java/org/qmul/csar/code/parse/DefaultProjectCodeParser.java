@@ -1,6 +1,6 @@
 package org.qmul.csar.code.parse;
 
-import org.qmul.csar.code.ProjectCodeErrorListener;
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.NamedThreadFactory;
@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +28,7 @@ public class DefaultProjectCodeParser implements ProjectCodeParser {
     private final ConcurrentIterator<Path> it;
     private boolean errorOccurred = false;
     private boolean running = false;
-    private ProjectCodeErrorListener errorListener;
+    private List<CsarErrorListener> errorListeners = new ArrayList<>();
     private CodeParserFactory factory;
 
     /**
@@ -114,16 +111,14 @@ public class DefaultProjectCodeParser implements ProjectCodeParser {
                             // Print code tree
                             LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                         } catch (IOException | RuntimeException ex) {
-                            if (errorListener != null) {
-                                errorListener.reportRecoverableError(file, ex);
-                            }
+                            Path finalFile = file;
+                            errorListeners.forEach(l -> l.errorParsing(finalFile, ex));
                         }
                         LOGGER.trace("Parsed {}", fileName);
                     }
                 } catch (Exception ex) {
-                    if (errorListener != null) {
-                        errorListener.reportUnrecoverableError(file, ex);
-                    }
+                    Path finalFile = file;
+                    errorListeners.forEach(l -> l.fatalErrorParsing(finalFile, ex));
                     setErrorOccurred();
                     executor.shutdownNow();
                 } finally {
@@ -140,7 +135,7 @@ public class DefaultProjectCodeParser implements ProjectCodeParser {
         try {
             finishedLatch.await();
         } catch (InterruptedException e) {
-            String msg = "Error waiting for termination because the current thread was interrupted- terminating tasks.";
+            String msg = "Error waiting for termination because the current thread was interrupted - terminating tasks.";
             LOGGER.error(msg);
             executor.shutdownNow();
         }
@@ -156,12 +151,14 @@ public class DefaultProjectCodeParser implements ProjectCodeParser {
         return map;
     }
 
-    public ProjectCodeErrorListener getErrorListener() {
-        return errorListener;
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.add(errorListener);
     }
 
-    public void setErrorListener(ProjectCodeErrorListener errorListener) {
-        this.errorListener = errorListener;
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
     }
 
     /**

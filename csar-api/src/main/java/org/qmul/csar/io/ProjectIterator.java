@@ -35,7 +35,7 @@ public class ProjectIterator implements Iterator<Path> {
      * Finds the code files in the working directory and stores them in {@link #files}.
      */
     public void init() {
-        LOGGER.info("Scanning project directory: {}", directory.toString());
+        LOGGER.info("Scanning project directory: {} ({})", directory.toString(), directory.toAbsolutePath().toString());
         scanDir();
         initialized = true;
     }

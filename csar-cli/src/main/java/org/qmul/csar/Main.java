@@ -17,11 +17,21 @@ public final class Main {
     private static final String PROJECT_URL = "https://github.research.its.qmul.ac.uk/ec15116/csar";
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
+    public static final int EXIT_CODE_SUCCESS = 0;
+    public static final int EXIT_CODE_ERROR_PARSING_CLI_ARGUMENTS = 1;
+    public static final int EXIT_CODE_ERROR_PARSING_CSAR_QUERY = 2;
+    public static final int EXIT_CODE_ERROR_PARSING_CODE = 3;
+    public static final int EXIT_CODE_ERROR_SEARCHING_CODE = 4;
+    public static final int EXIT_CODE_INITIALIZING = 5;
+    public static final int EXIT_CODE_ERROR_POSTPROCESSING_CODE = 6;
+    public static final int EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS = 7;
+
     /**
      * Application main method.
      * <p>
      * This parses command-line arguments and stores them in an instance of {@link CsarContext}.
      * Then, it constructs an appropriate instance of {@link Csar} and executes this.
+     * It will use the {@link LoggingCsarErrorListener}.
      *
      * @param args application command-line arguments
      * @see CsarContext
@@ -44,52 +54,41 @@ public final class Main {
             // Print project url
             if (ctx.isPrintProjectUrl()) {
                 System.out.println(PROJECT_URL);
-                System.exit(0);
+                System.exit(EXIT_CODE_SUCCESS);
             }
 
             // Print help
             if (ctx.isPrintHelp()) {
                 printUsage();
-                System.exit(0);
+                System.exit(EXIT_CODE_SUCCESS);
             }
         } catch (ParameterException ex) {
             LOGGER.error("Error parsing command-line arguments: {}", ex.getMessage());
             printUsage();
-            System.exit(1);
+            System.exit(EXIT_CODE_ERROR_PARSING_CLI_ARGUMENTS);
         }
 
         // Run csar
+        System.out.println("Starting csar...");
         Csar csar = CsarFactory.create(ctx);
-        exitIfFalse(csar.init(), 5);
-        exitIfFalse(csar.parseQuery(), 2);
-        exitIfFalse(csar.parseCode(), 3);
-        exitIfFalse(csar.postprocess(), 6);
-        exitIfFalse(csar.searchCode(), 4);
+        csar.init();
+        csar.parseQuery();
+        csar.parseCode();
+        csar.postprocess();
+        csar.searchCode();
 
         try {
             LOGGER.info("Search results:");
             LOGGER.info(ctx.getResultFormatter().format(csar.getResults()));
         } catch (Exception ex) {
             LOGGER.error("Error formatting search results: " + ex.getMessage());
-            System.exit(7);
+            System.exit(EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS);
         }
 
         // TODO refactor
 
         // Fall-back: successful
-        System.exit(0);
-    }
-
-    /**
-     * If the argument boolean is <tt>false</tt>, then this calls {@link System#exit(int)} with the argument integer.
-     *
-     * @param value the argument boolean
-     * @param exitCode the exit code
-     */
-    private static void exitIfFalse(boolean value, int exitCode) {
-        if (!value) {
-            System.exit(exitCode);
-        }
+        System.exit(EXIT_CODE_SUCCESS);
     }
 
     /**

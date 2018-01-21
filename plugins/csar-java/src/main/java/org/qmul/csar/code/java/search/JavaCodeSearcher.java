@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.search;
 
-import org.qmul.csar.code.ProjectCodeErrorListener;
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
@@ -33,7 +33,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
     private final int threadCount;
     private final ExecutorService executor;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
-    private ProjectCodeErrorListener errorListener;
+    private List<CsarErrorListener> errorListeners = new ArrayList<>();
     private CsarQuery query;
     private boolean errorOccurred = false;
     private boolean running = false;
@@ -119,16 +119,14 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
                                         + targetDescriptor.getClass().getName());
                             }
                         } catch (RuntimeException ex) {
-                            if (errorListener != null) {
-                                errorListener.reportRecoverableError(file, ex);
-                            }
+                            Path finalFile = file;
+                            errorListeners.forEach(l -> l.errorSearching(finalFile, ex));
                         }
                         LOGGER.trace("Searched {}", fileName);
                     }
                 } catch (Exception ex) {
-                    if (errorListener != null) {
-                        errorListener.reportUnrecoverableError(file, ex);
-                    }
+                    Path finalFile = file;
+                    errorListeners.forEach(l -> l.fatalErrorSearching(finalFile, ex));
                     setErrorOccurred();
                     executor.shutdownNow();
                 } finally {
@@ -145,7 +143,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
         try {
             finishedLatch.await();
         } catch (InterruptedException e) {
-            String msg = "Error waiting for termination because the current thread was interrupted- terminating tasks.";
+            String msg = "Error waiting for termination because the current thread was interrupted - terminating tasks.";
             LOGGER.error(msg);
             executor.shutdownNow();
         }
@@ -157,12 +155,14 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
         return results;
     }
 
-    public ProjectCodeErrorListener getErrorListener() {
-        return errorListener;
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.add(errorListener);
     }
 
-    public void setErrorListener(ProjectCodeErrorListener errorListener) {
-        this.errorListener = errorListener;
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
     }
 
     /**

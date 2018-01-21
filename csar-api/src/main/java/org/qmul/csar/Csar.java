@@ -8,9 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A code search and refactor tool instance.
@@ -23,12 +21,15 @@ public class Csar {
     private final Path projectDirectory;
     private final boolean narrowSearch;
     private final Path ignoreFile;
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private CsarQuery csarQuery;
     private List<Result> results;
     private List<CsarPlugin> plugins;
+    private boolean errorOccurred = false;
 
     /**
-     * Constructs a new {@link Csar} with the given arguments.
+     * Constructs a new {@link Csar} with the given arguments, this will also add an error listener of type
+     * {@link DefaultCsarErrorListener}. If this is not present Csar will malfunction.
      *
      * @param query the csar query to perform
      * @param threadCount the amount of threads to use
@@ -42,13 +43,17 @@ public class Csar {
         this.projectDirectory = Objects.requireNonNull(projectDirectory);
         this.narrowSearch = narrowSearch;
         this.ignoreFile = Objects.requireNonNull(ignoreFile);
+
+        // Add default error listener
+        addErrorListener(new DefaultCsarErrorListener(this));
     }
 
     /**
-     * Loads plugins.
-     * @return <tt>true</tt> if suitable plugins were found.
+     * Initializes Csar by loading plugins.
      */
-    public boolean init() {
+    public void init() {
+        if (errorOccurred)
+            throw new IllegalStateException("an error has occurred, csar cannot continue");
         LOGGER.info("Loading plugins...");
 
         // Create the plugin manager
@@ -67,75 +72,59 @@ public class Csar {
         plugins = pluginManager.getExtensions(CsarPlugin.class);
 
         if (plugins.size() == 0) {
-            LOGGER.error("Found no suitable plugins.");
-            return false;
+            errorListeners.forEach(CsarErrorListener::errorInitializing);
         }
-        return true;
+
+        // Sets the error listeners
+        for (CsarPlugin plugin : plugins) {
+            errorListeners.forEach(plugin::addErrorListener);
+        }
     }
 
     /**
-     * Returns <tt>true</tt> if {@link #query} was parsed and assigned to {@link #csarQuery} successfully.
-     * @return <tt>true</tt> if the query was parsed successfully.
+     * Parses the csar query.
      */
-    public boolean parseQuery() {
-        LOGGER.info("Parsing query...");
+    public void parseQuery() {
+        if (errorOccurred)
+            throw new IllegalStateException("an error has occurred, csar cannot continue");
 
         try {
             csarQuery = CsarQueryFactory.parse(query);
         } catch (Exception ex) {
-            LOGGER.error("Failed to parse csar query because {}", ex.getMessage());
-            return false;
+            errorListeners.forEach(l -> l.errorParsingCsarQuery(ex));
         }
-        return true;
     }
 
     /**
-     * Returns if parsing the project code was successful on each underlying language-specific plugin.
-     * @return if parsing was successful
+     * Parses the project code on each underlying language-specific plugin.
      */
-    public boolean parseCode() {
-        LOGGER.info("Parsing code...");
-
-        for (CsarPlugin plugin : plugins) {
-            if (!plugin.parse(projectDirectory, narrowSearch, ignoreFile, threadCount)) {
-                return false;
-            }
-        }
-        return true;
+    public void parseCode() {
+        if (errorOccurred)
+            throw new IllegalStateException("an error has occurred, csar cannot continue");
+        plugins.forEach(plugin -> plugin.parse(projectDirectory, narrowSearch, ignoreFile, threadCount));
     }
 
     /**
-     * Returns if post-processing the project code was successful on each underlying language-specific plugin.
-     * @return if post-processing was successful
+     * Post-processing the project code on each underlying language-specific plugin.
      */
-    public boolean postprocess() {
-        LOGGER.info("Post processing...");
-
-        for (CsarPlugin plugin : plugins) {
-            if (!plugin.postprocess()) {
-                return false;
-            }
-        }
-        return true;
+    public void postprocess() {
+        if (errorOccurred)
+            throw new IllegalStateException("an error has occurred, csar cannot continue");
+        plugins.forEach(CsarPlugin::postprocess);
     }
 
     /**
-     * Returns if searching the project code was successful on each underlying language-specific plugin.
-     * @return if searching was successful
+     * Searching the project code on each underlying language-specific plugin.
      */
-    public boolean searchCode() {
-        LOGGER.info("Searching code...");
+    public void searchCode() {
+        if (errorOccurred)
+            throw new IllegalStateException("an error has occurred, csar cannot continue");
         results = new ArrayList<>();
 
         for (CsarPlugin plugin : plugins) {
-            try {
-                List<Result> results = plugin.search(csarQuery, threadCount);
-                this.results.addAll(results);
-            } catch (Exception e) {
-                return false;
-            }
+            List<Result> results = plugin.search(csarQuery, threadCount);
+            this.results.addAll(results);
         }
-        return true;
     }
 
     /**
@@ -145,6 +134,43 @@ public class Csar {
      * @return search results.
      */
     public List<Result> getResults() {
+        if (errorOccurred)
+            throw new IllegalStateException("an error has occurred, csar cannot continue");
         return results;
+    }
+
+    /**
+     * Adds an error listener.
+     *
+     * @param errorListener the error listener
+     */
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.add(errorListener);
+    }
+
+    /**
+     * Removes an error listener.
+     *
+     * @param errorListener the error listener
+     */
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
+    }
+
+
+    /**
+     * Returns if an error occurred.
+     *
+     * @return if an error occurred.
+     */
+    public boolean isErrorOccurred() {
+        return errorOccurred;
+    }
+
+    /**
+     * This tells Csar that an error occurred, do not use this sporadically!
+     */
+    public void setErrorOccurred() {
+        this.errorOccurred = true;
     }
 }

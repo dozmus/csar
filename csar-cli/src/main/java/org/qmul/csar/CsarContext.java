@@ -45,6 +45,7 @@ class CsarContext {
     private boolean printProjectUrl;
     @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 10, help = true)
     private boolean printHelp;
+    private CliCsarErrorListener errorListener;
 
     /**
      * Creates a new {@link CsarContext} with {@link #projectDirectory} set to <tt>Paths.get(".")</tt> and

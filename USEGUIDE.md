@@ -33,6 +33,6 @@ e.g. `SELECT method:def:add(int,int)` will find all method definitions with two 
 | 2 | Error parsing csar query. |
 | 3 | Error parsing code files. |
 | 4 | Error searching code files. |
-| 5 | No plugins found. |
+| 5 | Error initializing csar. |
 | 6 | Error post-processing code files. |
 | 7 | Error formatting search results. |
