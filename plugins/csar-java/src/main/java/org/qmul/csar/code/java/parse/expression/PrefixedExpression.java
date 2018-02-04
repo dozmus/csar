@@ -8,16 +8,16 @@ import java.util.Objects;
 
 public class PrefixedExpression implements Expression {
 
-    private final Expression expr;
+    private final Expression expression;
     private final Prefix prefix;
 
-    public PrefixedExpression(Expression expr, Prefix prefix) {
-        this.expr = expr;
+    public PrefixedExpression(Expression expression, Prefix prefix) {
+        this.expression = expression;
         this.prefix = prefix;
     }
 
-    public Expression getExpr() {
-        return expr;
+    public Expression getExpression() {
+        return expression;
     }
 
     public Prefix getPrefix() {
@@ -29,24 +29,25 @@ public class PrefixedExpression implements Expression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PrefixedExpression that = (PrefixedExpression) o;
-        return Objects.equals(expr, that.expr) && prefix == that.prefix;
+        return Objects.equals(expression, that.expression) && prefix == that.prefix;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(expr, prefix);
+        return Objects.hash(expression, prefix);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("expr", expr)
+                .append("expression", expression)
                 .append("prefix", prefix)
                 .toString();
     }
 
     @Override
     public String toPseudoCode(int indentation) {
-        return String.format("%s%s%s", StringUtils.indentation(indentation), prefix.getSymbol(), expr.toPseudoCode());
+        return String.format("%s%s%s", StringUtils.indentation(indentation), prefix.getSymbol(),
+                expression.toPseudoCode());
     }
 }

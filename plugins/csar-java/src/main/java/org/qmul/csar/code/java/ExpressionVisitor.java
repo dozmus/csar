@@ -117,7 +117,7 @@ public abstract class ExpressionVisitor {
     }
 
     public void visitPostfixedExpression(PostfixedExpression expression) {
-        visitExpression(expression.getExpr());
+        visitExpression(expression.getExpression());
     }
 
     public void exitPostfixedExpression(PostfixedExpression expression) {
@@ -142,7 +142,7 @@ public abstract class ExpressionVisitor {
     }
 
     public void visitPrefixedExpression(PrefixedExpression expression) {
-        visitExpression(expression.getExpr());
+        visitExpression(expression.getExpression());
     }
 
     public void exitPrefixedExpression(PrefixedExpression expression) {

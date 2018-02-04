@@ -4,14 +4,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class ArrayExpression implements Expression {
 
-    private List<Expression> expressions = new ArrayList<>();
+    private List<Expression> expressions;
 
     public ArrayExpression(List<Expression> expressions) {
         this.expressions = Collections.unmodifiableList(expressions);
