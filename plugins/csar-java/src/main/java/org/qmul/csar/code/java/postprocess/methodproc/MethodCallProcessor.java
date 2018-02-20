@@ -6,8 +6,10 @@ import org.qmul.csar.code.java.parse.statement.BlockStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.code.java.postprocess.ExpressionTypeResolver;
+import org.qmul.csar.code.java.postprocess.TypeInstance;
 import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
@@ -25,12 +27,15 @@ public class MethodCallProcessor {
     private final Map<Path, Statement> code;
     private final TraversalHierarchy th;
     private final QualifiedNameResolver qn;
+    private final TypeHierarchyResolver thr;
 
-    public MethodCallProcessor(Path path, Map<Path, Statement> code, TraversalHierarchy th, QualifiedNameResolver qn) {
+    public MethodCallProcessor(Path path, Map<Path, Statement> code, TraversalHierarchy th, QualifiedNameResolver qn,
+            TypeHierarchyResolver thr) {
         this.path = path;
         this.code = code;
         this.th = th;
         this.qn = qn;
+        this.thr = thr;
     }
 
     public void resolve(MethodCallExpression expression) {
@@ -39,6 +44,7 @@ public class MethodCallProcessor {
 
         // Set method source
         if (name instanceof BinaryExpression) {
+            System.out.println("Found binary expression method name");
             BinaryExpression exp = (BinaryExpression)name;
             expression.setMethodSource(resolve(exp));
         }
@@ -56,6 +62,6 @@ public class MethodCallProcessor {
         Optional<PackageStatement> currentPackage = th.getPackageStatement();
         BlockStatement currentContext = th.currentContext();
         return ExpressionTypeResolver.resolve(path, code, topLevelType, currentType, imports, currentPackage,
-                currentContext, qn, th, expr);
+                currentContext, qn, th, thr, expr);
     }
 }

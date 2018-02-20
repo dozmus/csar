@@ -1,14 +1,11 @@
 package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.code.java.parse.expression.*;
-import org.qmul.csar.code.java.parse.statement.BlockStatement;
-import org.qmul.csar.code.java.parse.statement.ClassStatement;
-import org.qmul.csar.code.java.parse.statement.ImportStatement;
-import org.qmul.csar.code.java.parse.statement.PackageStatement;
-import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
+import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
@@ -26,25 +23,31 @@ public class ExpressionTypeResolver {
 
     public static TypeInstance resolve(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
-            BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, Expression expression) {
-        System.out.println("type resolver:" + expression.toPseudoCode());
+            BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
+            Expression expression) {
+        System.out.println("ETR: " + expression.toPseudoCode() + " [" + expression.getClass() + "]");
 
         if (expression instanceof ArrayAccessExpression) {
             ArrayAccessExpression aaexp = (ArrayAccessExpression)expression;
             TypeInstance t = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r,
-                    th, aaexp);
+                    th, thr, aaexp);
 
             if (t != null)
                 t.incrementDimension();
             return t;
         } else if (expression instanceof ArrayExpression) {
             ArrayExpression aexp = (ArrayExpression)expression;
-            TypeInstance t = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r,
-                    th, aexp.getExpressions().get(0)); // might break if type is unable to be resolved from idx=0, try incrementing
 
-            if (t != null)
-                t.decrementDimension();
-            return t;
+            for (Expression e : aexp.getExpressions()) {
+                TypeInstance t = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
+                        r, th, thr, e);
+
+                if (t != null) {
+                    t.decrementDimension();
+                    return t;
+                }
+            }
+            return null; // unable to resolve
         } else if (expression instanceof ArrayInitializationExpression) {
             ArrayInitializationExpression aiexp = (ArrayInitializationExpression)expression;
             String identifierName = aiexp.getTypeName();
@@ -54,10 +57,10 @@ public class ExpressionTypeResolver {
         } else if (expression instanceof BinaryExpression) {
             BinaryExpression bexp = (BinaryExpression)expression;
             TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
-                    r, th, bexp.getLeft());
+                    r, th, thr, bexp.getLeft());
             BinaryOperation op = bexp.getOp();
             TypeInstance rhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
-                    r, th, bexp.getRight());
+                    r, th, thr, bexp.getRight());
             return resolveBinaryExpression(topLevelType, currentType, imports, currentPackage, currentContext, r, th,
                     lhs, op, rhs);
         } else if (expression instanceof CastExpression) {
@@ -82,20 +85,19 @@ public class ExpressionTypeResolver {
             // TODO parse further when full java api support introduced
             return new TypeInstance("Supplier", null, null, 0);
         } else if (expression instanceof MethodCallExpression) {
-            MethodCallExpression mexp = (MethodCallExpression)expression;
-            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r, th, mexp);
+            return resolveMethodCallExpression(path, code, r, th, thr, (MethodCallExpression)expression);
         } else if (expression instanceof ParenthesisExpression) {
-            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r, th,
+            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r, th, thr,
                     ((ParenthesisExpression)expression).getExpression());
         } else if (expression instanceof PostfixedExpression) {
-            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r, th,
+            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r, th, thr,
                     ((PostfixedExpression)expression).getExpression());
         } else if (expression instanceof PrefixedExpression) {
-            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r, th,
+            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r, th, thr,
                     ((PrefixedExpression)expression).getExpression());
         } else if (expression instanceof TernaryExpression) {
             return resolveTernaryExpression(path, code, topLevelType, currentType, imports, currentPackage,
-                    currentContext, r, th, (TernaryExpression)expression);
+                    currentContext, r, th, thr, (TernaryExpression)expression);
         } else if (expression instanceof UnitExpression) {
             UnitExpression uexp = (UnitExpression)expression;
 
@@ -103,8 +105,8 @@ public class ExpressionTypeResolver {
                 case LITERAL:
                     return resolveLiteral(uexp.getValue());
                 case IDENTIFIER:
-                    // return the type of identifier once its found
-                    break;
+                    return resolveIdentifier(path, code, topLevelType, currentType, imports, currentPackage,
+                            currentContext, r, th, uexp);
                 case CLASS_REFERENCE:
                     break;
                 case METHOD_REFERENCE:
@@ -125,21 +127,138 @@ public class ExpressionTypeResolver {
                 case NEW:
                     break;
                 case METHOD_CALL:
-                    // resolve method
+                    // resolve method?
                     break;
             }
         }
         return null; // fall-back: failed to resolve
     }
 
+    private static TypeInstance resolveIdentifier(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
+            TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
+            BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, UnitExpression uexp) {
+        String lIdentifierName = uexp.getValue();
+        int dimensions = 0;
+        String lType = null;
+
+        // ... in local context
+        for (ParameterVariableStatement parameter : th.currentContextParameters()) { // parameters
+            if (lType != null)
+                break;
+
+            String localIdentifierName = parameter.getDescriptor().getIdentifierName().get().toString();
+            String localIdentifierType = parameter.getDescriptor().getIdentifierType().get();
+
+            if (localIdentifierName.equals(lIdentifierName)) {
+                lType = localIdentifierType;
+                dimensions = TypeHelper.dimensions(lType);
+            }
+        }
+
+        for (Statement st : currentContext.getStatements()) { // current context
+            // TODO fix correctness (only accept locals before the current line)
+            if (lType != null)
+                break;
+
+            if (st instanceof LocalVariableStatements) {
+                LocalVariableStatements locals = (LocalVariableStatements)st;
+
+                for (LocalVariableStatement local : locals.getLocals()) {
+                    if (lType != null)
+                        break;
+
+                    String localIdentifierName = local.getDescriptor().getIdentifierName().toString();
+                    String localIdentifierType = local.getDescriptor().getIdentifierType().get();
+
+                    if (localIdentifierName.equals(lIdentifierName)) {
+                        lType = localIdentifierType;
+                        dimensions = TypeHelper.dimensions(lType);
+                    }
+                }
+            }
+        }
+
+        // TODO look at stuff in for loops, etc
+
+        // ... in current class
+        if (lType == null) {
+            for (Statement st : PostProcessUtils.getBlock(currentType).getStatements()) {
+                if (lType != null)
+                    break;
+
+                if (st instanceof InstanceVariableStatement) {
+                    InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                    String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                    String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+
+                    if (instanceIdentifierName.equals(lIdentifierName)) {
+                        lType = instanceIdentifierType;
+                        dimensions = TypeHelper.dimensions(lType);
+                    }
+                }
+            }
+        }
+
+        // ... in super classes of current class
+        if (lType == null) {
+            for (String superClass : PostProcessUtils.superClasses(currentType)) {
+                if (lType != null)
+                    break;
+                QualifiedType resolvedType = r.resolve(code, path, currentType, topLevelType, currentPackage, imports,
+                        superClass);
+
+                if (resolvedType.getStatement() instanceof CompilationUnitStatement) {
+                    for (Statement st
+                            : PostProcessUtils.getBlock((CompilationUnitStatement)resolvedType.getStatement()).getStatements()) {
+                        if (lType != null)
+                            break;
+
+                        // TODO check visibility
+                        if (st instanceof InstanceVariableStatement) {
+                            InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                            String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                            String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+
+                            if (instanceIdentifierName.equals(lIdentifierName)) {
+                                lType = instanceIdentifierType;
+                                dimensions = TypeHelper.dimensions(lType);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (lType == null) // may be external - we ignore it
+            return null;
+
+        QualifiedType lQualifiedType = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, lType);
+
+        if (lQualifiedType == null) // may be external - we ignore it
+            return null;
+        return new TypeInstance(lQualifiedType, dimensions);
+    }
+
+    private static TypeInstance resolveMethodCallExpression(Path path, Map<Path, Statement> code,
+            QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
+            MethodCallExpression expression) {
+        MethodResolver resolver = new MethodResolver(path, code, r, thr);
+        MethodStatement method = resolver.resolve(expression, th);
+
+        if (method != null) {
+            int dimensions = TypeHelper.dimensions(method.getDescriptor().getReturnType().get());
+            return new TypeInstance(method.getReturnQualifiedType(), dimensions);
+        }
+        return null;
+    }
+
     private static int arrayInitializerDimensions(List<Expression> expressions) { // TODO is this ok?
         return (int) expressions.stream().filter(e -> e instanceof SquareBracketsExpression).count();
     }
 
-    private static TypeInstance resolveBinaryExpression(TypeStatement topLevelType,
-            TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
-            BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th,
-            TypeInstance lhs, BinaryOperation op, TypeInstance rhs) {
+    private static TypeInstance resolveBinaryExpression(TypeStatement topLevelType, TypeStatement currentType,
+            List<ImportStatement> imports, Optional<PackageStatement> currentPackage, BlockStatement currentContext,
+            QualifiedNameResolver r, TraversalHierarchy th, TypeInstance lhs, BinaryOperation op, TypeInstance rhs) {
         if (op.isArithmeticOperation()) {
             String lhType = lhs.getQualifiedName();
             String rhType = rhs.getQualifiedName();
@@ -182,11 +301,12 @@ public class ExpressionTypeResolver {
 
     private static TypeInstance resolveTernaryExpression(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
-            BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TernaryExpression texp) {
+            BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
+            TernaryExpression texp) {
         TypeInstance t1 = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r,
-                th, texp.getValueIfTrue());
+                th, thr, texp.getValueIfTrue());
         TypeInstance t2 = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r,
-                th, texp.getValueIfFalse());
+                th, thr, texp.getValueIfFalse());
 
         if (t1 != null && t2 != null) {
             if (t1.getQualifiedName().equals("null") && t2.getQualifiedName().equals("null")) {

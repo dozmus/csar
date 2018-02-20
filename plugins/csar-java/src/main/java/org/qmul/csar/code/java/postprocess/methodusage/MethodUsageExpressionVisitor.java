@@ -2,6 +2,8 @@ package org.qmul.csar.code.java.postprocess.methodusage;
 
 import org.qmul.csar.code.java.ExpressionVisitor;
 import org.qmul.csar.code.java.parse.expression.*;
+import org.qmul.csar.code.java.parse.statement.MethodStatement;
+import org.qmul.csar.code.java.postprocess.MethodResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
@@ -177,8 +179,12 @@ public class MethodUsageExpressionVisitor extends ExpressionVisitor {
         System.out.println("--------------------------------------------------------");
         System.out.println("resolve:" + expression.toPseudoCode());
 
-        MethodCallResolver methodCallResolver = new MethodCallResolver(path, code, qualifiedNameResolver,
-                typeHierarchyResolver);
-        methodCallResolver.resolve(expression, traversalHierarchy);
+
+        MethodResolver resolver = new MethodResolver(path, code, qualifiedNameResolver, typeHierarchyResolver);
+        MethodStatement method = resolver.resolve(expression, traversalHierarchy);
+
+        if (method != null) {
+            method.getMethodUsages().add(expression);
+        }
     }
 }

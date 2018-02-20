@@ -1,11 +1,8 @@
-package org.qmul.csar.code.java.postprocess.methodusage;
+package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.*;
-import org.qmul.csar.code.java.postprocess.PostProcessUtils;
-import org.qmul.csar.code.java.postprocess.TypeHelper;
-import org.qmul.csar.code.java.postprocess.ExpressionTypeResolver;
-import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
+import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
@@ -21,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class MethodCallResolver {
+public class MethodResolver {
 
     private final Path path;
     private final Map<Path, Statement> code;
@@ -35,7 +32,7 @@ public class MethodCallResolver {
     private MethodCallExpression methodCall;
     private List<TypeInstance> parameterTypeInstances;
 
-    public MethodCallResolver(Path path, Map<Path, Statement> code, QualifiedNameResolver qualifiedNameResolver,
+    public MethodResolver(Path path, Map<Path, Statement> code, QualifiedNameResolver qualifiedNameResolver,
             TypeHierarchyResolver typeHierarchyResolver) {
         this.path = path;
         this.code = code;
@@ -44,7 +41,7 @@ public class MethodCallResolver {
         this.parameterTypeInstances = new ArrayList<>();
     }
 
-    public boolean resolve(MethodCallExpression e, TraversalHierarchy traversalHierarchy) {
+    public MethodStatement resolve(MethodCallExpression e, TraversalHierarchy traversalHierarchy) {
         // Set context
         baseTopLevelParent = traversalHierarchy.getFirstTypeStatement();
         baseTypeStatement = traversalHierarchy.getLastTypeStatement();
@@ -58,76 +55,77 @@ public class MethodCallResolver {
 
         for (Expression arg : methodCall.getArguments()) {
             TypeInstance t = ExpressionTypeResolver.resolve(path, code, baseTopLevelParent, baseTypeStatement,
-                    baseImports, basePackageStatement, baseContext, qualifiedNameResolver, traversalHierarchy, arg);
+                    baseImports, basePackageStatement, baseContext, qualifiedNameResolver, traversalHierarchy,
+                    typeHierarchyResolver, arg);
             parameterTypeInstances.add(t);
         }
 
         // Resolve in current context, then in current type statement, then in superclasses
-        return resolveInBlock(baseContext) || resolveInTypeStatement(baseTypeStatement)
-                || resolveInSuperClasses(baseTypeStatement, baseTopLevelParent, basePackageStatement, baseImports);
+        MethodStatement m;
+
+        if ((m = resolveInBlock(baseContext)) != null)
+            return m;
+
+        if ((m = resolveInTypeStatement(baseTypeStatement)) != null)
+            return m;
+        return resolveInSuperClasses(baseTypeStatement, baseTopLevelParent, basePackageStatement, baseImports);
     }
 
-    private boolean resolveInTypeStatement(TypeStatement typeStatement) {
+    private MethodStatement resolveInTypeStatement(TypeStatement typeStatement) {
         return resolveInBlock(PostProcessUtils.getBlock(typeStatement));
     }
 
-    private boolean resolveInSuperClasses(TypeStatement targetType, TypeStatement topLevelParent,
+    private MethodStatement resolveInSuperClasses(TypeStatement targetType, TypeStatement topLevelParent,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports) {
         for (String superClass : PostProcessUtils.superClasses(targetType)) {
             QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, targetType, topLevelParent,
                     packageStatement, imports, superClass);
+            MethodStatement m = resolveInQualifiedType(resolvedType, topLevelParent);
 
-            boolean found = resolveInQualifiedType(resolvedType, topLevelParent);
-
-            if (found)
-                return true;
+            if (m != null)
+                return m;
         }
-        return false;
+        return null;
     }
 
-    private boolean resolveInQualifiedType(QualifiedType resolvedType, TypeStatement topLevelParent) {
+    private MethodStatement resolveInQualifiedType(QualifiedType resolvedType, TypeStatement topLevelParent) {
         Statement resolvedStatement = resolvedType.getStatement();
 
         if (resolvedStatement != null && resolvedStatement instanceof CompilationUnitStatement) {
             TypeStatement typeStatement = ((CompilationUnitStatement)resolvedStatement).getTypeStatement();
             List<ImportStatement> imports = ((CompilationUnitStatement)resolvedStatement).getImports();
             Optional<PackageStatement> pkgStatement = ((CompilationUnitStatement)resolvedStatement).getPackageStatement();
+            MethodStatement m = resolveInTypeStatement(typeStatement);
 
-            boolean found = resolveInTypeStatement(typeStatement);
-
-            if (found)
-                return true;
+            if (m != null)
+                return m;
 
             // Check super classes
             return resolveInSuperClasses(typeStatement, topLevelParent, pkgStatement, imports);
         }
-        return false;
+        return null;
     }
 
-    private boolean resolveInBlock(BlockStatement block) {
+    private MethodStatement resolveInBlock(BlockStatement block) {
         List<Statement> statements = block.getStatements();
 
         if (statements.size() == 0)
-            return false;
+            return null;
         String methodName = methodCall.getMethodIdentifier();
-        List<Expression> args = methodCall.getArguments();
 
         return statements.stream()
                 .filter(s -> s instanceof MethodStatement)
                 .map(s -> (MethodStatement)s)
-                .anyMatch(method -> {
-            MethodDescriptor desc = method.getDescriptor();
+                .filter(method -> {
+                    MethodDescriptor desc = method.getDescriptor();
 
-            boolean methodNameEquals = methodName.equals(desc.getIdentifierName().toString());
-            boolean argsEquals = parametersSignatureEquals(method.getParameters(), desc.getTypeParameters());
-            // TODO check visibility modifier and accessibility
+                    boolean methodNameEquals = methodName.equals(desc.getIdentifierName().toString());
+                    boolean argsEquals = parametersSignatureEquals(method.getParameters(), desc.getTypeParameters());
+                    // TODO check visibility modifier and accessibility
 
-            if (methodNameEquals && argsEquals) {
-                method.getMethodUsages().add(methodCall);
-                return true;
-            }
-            return false;
-        });
+                    return methodNameEquals && argsEquals;
+                })
+                .findFirst().orElse(null);
     }
 
     private boolean parametersSignatureEquals(List<ParameterVariableStatement> parameters,

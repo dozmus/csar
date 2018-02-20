@@ -4,6 +4,7 @@ import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 
@@ -17,8 +18,10 @@ public class CompilationUnitVisitor extends StatementVisitor {
     private Map<Path, Statement> code;
     private Path path;
 
-    public CompilationUnitVisitor(Map<Path, Statement> code, Path path, QualifiedNameResolver qualifiedNameResolver) {
-        this.expressionVisitor = new MethodCallExpressionVisitor(traversalHierarchy, path, code, qualifiedNameResolver);
+    public CompilationUnitVisitor(Map<Path, Statement> code, Path path, QualifiedNameResolver qualifiedNameResolver,
+            TypeHierarchyResolver typeHierarchyResolver) {
+        this.expressionVisitor = new MethodCallExpressionVisitor(traversalHierarchy, path, code, qualifiedNameResolver,
+                typeHierarchyResolver);
         this.code = code;
         this.path = path;
     }

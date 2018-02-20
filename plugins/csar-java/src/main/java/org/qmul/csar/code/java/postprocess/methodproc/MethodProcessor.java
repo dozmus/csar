@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.postprocess.methodproc;
 
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ public class MethodProcessor implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodProcessor.class);
     private QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+    private TypeHierarchyResolver typeHierarchyResolver;
 
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
@@ -22,12 +24,17 @@ public class MethodProcessor implements CodePostProcessor {
             Path path = file.getKey();
             Statement statement = file.getValue();
 
-            CompilationUnitVisitor visitor = new CompilationUnitVisitor(code, path, qualifiedNameResolver);
+            CompilationUnitVisitor visitor = new CompilationUnitVisitor(code, path, qualifiedNameResolver,
+                    typeHierarchyResolver);
             visitor.visitStatement(statement);
         }
 
         // Log completion message
         LOGGER.debug("Time Taken: {}ms", (System.currentTimeMillis() - startTime));
         LOGGER.info("Finished");
+    }
+
+    public void setTypeHierarchyResolver(TypeHierarchyResolver typeHierarchyResolver) {
+        this.typeHierarchyResolver = typeHierarchyResolver;
     }
 }

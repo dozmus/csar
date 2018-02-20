@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.parse.expression;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
+import org.qmul.csar.code.java.postprocess.TypeInstance;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 

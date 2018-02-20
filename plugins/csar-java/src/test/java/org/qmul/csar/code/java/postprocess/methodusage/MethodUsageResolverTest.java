@@ -2,17 +2,18 @@ package org.qmul.csar.code.java.postprocess.methodusage;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
-import org.qmul.csar.code.parse.CodeParserFactory;
-import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.parse.expression.BinaryExpression;
 import org.qmul.csar.code.java.parse.expression.BinaryOperation;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.expression.UnitExpression;
 import org.qmul.csar.code.java.parse.statement.ClassStatement;
-import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
+import org.qmul.csar.code.java.parse.statement.MethodStatement;
+import org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.parse.CodeParserFactory;
+import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.io.ProjectIteratorFactory;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class MethodUsageResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
+    private static final MethodProcessor processor = new MethodProcessor();
     private static final MethodUsageResolver resolver = new MethodUsageResolver();
     private static final TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver();
     private static Map<Path, Statement> code;
@@ -40,6 +42,8 @@ public class MethodUsageResolverTest {
 
         // Resolve method usages
         typeHierarchyResolver.postprocess(code);
+        processor.setTypeHierarchyResolver(typeHierarchyResolver);
+        processor.postprocess(code);
         resolver.setTypeHierarchyResolver(typeHierarchyResolver);
         resolver.postprocess(code);
     }

@@ -40,6 +40,7 @@ public class JavaPostProcessor implements CodePostProcessor {
         overriddenMethodsResolver.postprocess(code);
         methodUsageResolver.setTypeHierarchyResolver(typeHierarchyResolver);
         methodUsageResolver.postprocess(code);
+        methodProcessor.setTypeHierarchyResolver(typeHierarchyResolver);
         methodProcessor.postprocess(code);
     }
 }

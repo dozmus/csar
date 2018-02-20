@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.methodproc;
+package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.TypeStatement;

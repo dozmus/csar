@@ -4,6 +4,7 @@ import org.qmul.csar.code.java.ExpressionVisitor;
 import org.qmul.csar.code.java.parse.expression.*;
 import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;
@@ -15,13 +16,15 @@ public class MethodCallExpressionVisitor extends ExpressionVisitor {
     private final Path path;
     private final Map<Path, Statement> code;
     private final QualifiedNameResolver qualifiedNameResolver;
+    private final TypeHierarchyResolver typeHierarchyResolver;
 
     public MethodCallExpressionVisitor(TraversalHierarchy traversalHierarchy, Path path, Map<Path, Statement> code,
-            QualifiedNameResolver qualifiedNameResolver) {
+            QualifiedNameResolver qualifiedNameResolver, TypeHierarchyResolver typeHierarchyResolver) {
         this.traversalHierarchy = traversalHierarchy;
         this.path = path;
         this.code = code;
         this.qualifiedNameResolver = qualifiedNameResolver;
+        this.typeHierarchyResolver = typeHierarchyResolver;
     }
 
     @Override
@@ -169,7 +172,8 @@ public class MethodCallExpressionVisitor extends ExpressionVisitor {
         System.out.println("=============================================");
         System.out.println("resolve method's type stuff:" + expression.toPseudoCode());
 
-        MethodCallProcessor methodCallProcessor = new MethodCallProcessor(path, code, traversalHierarchy, qualifiedNameResolver);
+        MethodCallProcessor methodCallProcessor = new MethodCallProcessor(path, code, traversalHierarchy,
+                qualifiedNameResolver, typeHierarchyResolver);
         methodCallProcessor.resolve(expression);
     }
 }

@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.parse.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
+import org.qmul.csar.code.java.postprocess.TypeInstance;
 import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
