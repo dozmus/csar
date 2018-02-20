@@ -1,12 +1,11 @@
-package org.qmul.csar.code.java.postprocess.methodproc;
+package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.code.java.parse.expression.*;
 import org.qmul.csar.code.java.parse.statement.BlockStatement;
 import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
-import org.qmul.csar.code.java.postprocess.PostProcessUtils;
-import org.qmul.csar.code.java.postprocess.TypeHelper;
+import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
 import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
@@ -29,6 +28,7 @@ public class ExpressionTypeResolver {
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, Expression expression) {
         System.out.println("type resolver:" + expression.toPseudoCode());
+
         if (expression instanceof ArrayAccessExpression) {
             ArrayAccessExpression aaexp = (ArrayAccessExpression)expression;
             TypeInstance t = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r,

@@ -5,6 +5,7 @@ import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.BlockStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
+import org.qmul.csar.code.java.postprocess.ExpressionTypeResolver;
 import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.lang.Expression;
@@ -18,14 +19,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class MethodCallResolver {
+public class MethodCallProcessor {
 
     private final Path path;
     private final Map<Path, Statement> code;
     private final TraversalHierarchy th;
     private final QualifiedNameResolver qn;
 
-    public MethodCallResolver(Path path, Map<Path, Statement> code, TraversalHierarchy th, QualifiedNameResolver qn) {
+    public MethodCallProcessor(Path path, Map<Path, Statement> code, TraversalHierarchy th, QualifiedNameResolver qn) {
         this.path = path;
         this.code = code;
         this.th = th;

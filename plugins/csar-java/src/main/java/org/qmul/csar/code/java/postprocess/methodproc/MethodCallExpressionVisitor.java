@@ -169,7 +169,7 @@ public class MethodCallExpressionVisitor extends ExpressionVisitor {
         System.out.println("=============================================");
         System.out.println("resolve method's type stuff:" + expression.toPseudoCode());
 
-        MethodCallResolver methodCallResolver = new MethodCallResolver(path, code, traversalHierarchy, qualifiedNameResolver);
-        methodCallResolver.resolve(expression);
+        MethodCallProcessor methodCallProcessor = new MethodCallProcessor(path, code, traversalHierarchy, qualifiedNameResolver);
+        methodCallProcessor.resolve(expression);
     }
 }

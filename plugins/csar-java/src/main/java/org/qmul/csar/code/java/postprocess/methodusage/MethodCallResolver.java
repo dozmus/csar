@@ -4,7 +4,7 @@ import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.PostProcessUtils;
 import org.qmul.csar.code.java.postprocess.TypeHelper;
-import org.qmul.csar.code.java.postprocess.methodproc.ExpressionTypeResolver;
+import org.qmul.csar.code.java.postprocess.ExpressionTypeResolver;
 import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
