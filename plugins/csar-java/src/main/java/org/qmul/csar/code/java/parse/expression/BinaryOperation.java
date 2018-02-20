@@ -32,4 +32,20 @@ public enum BinaryOperation {
     public String getSymbol() {
         return symbol;
     }
+
+    public boolean isArithmeticOperation() {
+        return this == MUL || this == DIV || this == MOD || this == ADD || this == SUB || this == LSHIFT
+                || this == RSHIFT || this == UNSIGNED_RSHIFT || this == BITAND || this == BITOR || this == BITXOR;
+    }
+
+    public boolean isArithmeticAssignOperation() {
+        return this == ASSIGN || this == ADD_ASSIGN || this == SUB_ASSIGN || this == MUL_ASSIGN || this == DIV_ASSIGN
+                || this == RSHIFT_ASSIGN || this == LSHIFT_ASSIGN || this == UNSIGNED_RSHIFT_ASSIGN || this == AND_ASSIGN
+                || this == XOR_ASSIGN || this == OR_ASSIGN || this == MOD_ASSIGN;
+    }
+
+    public boolean isBoolean() {
+        return this == AND || this == OR || this == EQUALS || this == NOTEQUALS || this == LE || this == GE
+                || this == GT || this == LT;
+    }
 }

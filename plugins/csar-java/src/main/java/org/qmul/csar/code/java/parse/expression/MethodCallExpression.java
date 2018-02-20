@@ -1,6 +1,7 @@
 package org.qmul.csar.code.java.parse.expression;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
@@ -16,6 +17,14 @@ public class MethodCallExpression implements Expression {
     private final List<Expression> arguments;
     private final Path path;
     private final int lineNumber;
+    /**
+     * Set during post-processing by {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor}.
+     */
+    private TypeInstance methodNameType;
+    /**
+     * Set during post-processing by {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor}.
+     */
+    private List<TypeInstance> argumentTypes;
 
     public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber) {
         this.methodName = methodName;
@@ -42,6 +51,22 @@ public class MethodCallExpression implements Expression {
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    public void setMethodNameType(TypeInstance methodNameType) {
+        this.methodNameType = methodNameType;
+    }
+
+    public void setArgumentTypes(List<TypeInstance> argumentTypes) {
+        this.argumentTypes = argumentTypes;
+    }
+
+    public TypeInstance getMethodNameType() {
+        return methodNameType;
+    }
+
+    public List<TypeInstance> getArgumentTypes() {
+        return argumentTypes;
     }
 
     @Override

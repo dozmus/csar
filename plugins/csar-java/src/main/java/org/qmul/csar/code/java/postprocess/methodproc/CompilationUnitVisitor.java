@@ -1,23 +1,24 @@
-package org.qmul.csar.code.java.postprocess.methodusage;
+package org.qmul.csar.code.java.postprocess.methodproc;
 
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
-import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
+import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;
 import java.util.Map;
 
-public class MethodUsageStatementVisitor extends StatementVisitor {
+public class CompilationUnitVisitor extends StatementVisitor {
 
     private final TraversalHierarchy traversalHierarchy = new TraversalHierarchy();
-    private final MethodUsageExpressionVisitor expressionVisitor;
+    private final MethodCallExpressionVisitor expressionVisitor;
     private Map<Path, Statement> code;
     private Path path;
 
-    public MethodUsageStatementVisitor(Map<Path, Statement> code, Path path, TypeHierarchyResolver typeHierarchyResolver) {
-        this.expressionVisitor = new MethodUsageExpressionVisitor(traversalHierarchy, typeHierarchyResolver, path, code);
+    public CompilationUnitVisitor(Map<Path, Statement> code, Path path, QualifiedNameResolver qualifiedNameResolver) {
+        this.expressionVisitor = new MethodCallExpressionVisitor(traversalHierarchy, path, code, qualifiedNameResolver);
         this.code = code;
         this.path = path;
     }

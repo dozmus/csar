@@ -3,6 +3,8 @@ package org.qmul.csar.code.java.postprocess.methodtypes;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
+import org.qmul.csar.code.java.postprocess.TypeHelper;
+import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
@@ -117,7 +119,8 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
                 // Resolve
                 QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage,
                         imports, parameterTypeQualifiedName);
-                param.setQualifiedType(type);
+                TypeInstance typeInstance = new TypeInstance(type, TypeHelper.dimensions(paramDescriptor.getIdentifierType().get()));
+                param.setTypeInstance(typeInstance);
             }
         }
     }

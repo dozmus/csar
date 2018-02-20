@@ -1,35 +1,27 @@
-package org.qmul.csar.code.java.postprocess.methodusage;
+package org.qmul.csar.code.java.postprocess.methodproc;
 
 import org.qmul.csar.code.java.ExpressionVisitor;
 import org.qmul.csar.code.java.parse.expression.*;
+import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
-import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;
 import java.util.Map;
 
-public class MethodUsageExpressionVisitor extends ExpressionVisitor {
+public class MethodCallExpressionVisitor extends ExpressionVisitor {
 
-    // TODO delegate some stuff here to a statementvisitor again
     private final TraversalHierarchy traversalHierarchy;
+    private final Path path;
+    private final Map<Path, Statement> code;
     private final QualifiedNameResolver qualifiedNameResolver;
-    private Path path;
-    private Map<Path, Statement> code;
-    private TypeHierarchyResolver typeHierarchyResolver;
 
-    public MethodUsageExpressionVisitor(TraversalHierarchy traversalHierarchy, Path path, Map<Path, Statement> code,
-            QualifiedNameResolver qualifiedNameResolver, TypeHierarchyResolver typeHierarchyResolver) {
+    public MethodCallExpressionVisitor(TraversalHierarchy traversalHierarchy, Path path, Map<Path, Statement> code,
+            QualifiedNameResolver qualifiedNameResolver) {
         this.traversalHierarchy = traversalHierarchy;
         this.path = path;
         this.code = code;
         this.qualifiedNameResolver = qualifiedNameResolver;
-        this.typeHierarchyResolver = typeHierarchyResolver;
-    }
-
-    public MethodUsageExpressionVisitor(TraversalHierarchy traversalHierarchy,
-            TypeHierarchyResolver typeHierarchyResolver, Path path, Map<Path, Statement> code) {
-        this(traversalHierarchy, path, code, new QualifiedNameResolver(), typeHierarchyResolver);
     }
 
     @Override
@@ -174,11 +166,10 @@ public class MethodUsageExpressionVisitor extends ExpressionVisitor {
     }
 
     private void resolveMethodCall(MethodCallExpression expression) {
-        System.out.println("--------------------------------------------------------");
-        System.out.println("resolve:" + expression.toPseudoCode());
+        System.out.println("=============================================");
+        System.out.println("resolve method's type stuff:" + expression.toPseudoCode());
 
-        MethodCallResolver methodCallResolver = new MethodCallResolver(path, code, traversalHierarchy,
-                qualifiedNameResolver, typeHierarchyResolver);
-        methodCallResolver.resolve(expression, traversalHierarchy);
+        MethodCallResolver methodCallResolver = new MethodCallResolver(path, code, traversalHierarchy, qualifiedNameResolver);
+        methodCallResolver.resolve(expression);
     }
 }

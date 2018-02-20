@@ -1,8 +1,8 @@
 package org.qmul.csar.code.java.parse.statement;
 
-import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
+import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
@@ -21,7 +21,7 @@ public class ParameterVariableStatement implements Statement {
     /**
      * Updated by {@link MethodQualifiedTypeResolver} in post-processing.
      */
-    private QualifiedType qualifiedType;
+    private TypeInstance typeInstance;
 
     public ParameterVariableStatement(ParameterVariableDescriptor descriptor, List<Annotation> annotations) {
         this.descriptor = descriptor;
@@ -36,12 +36,12 @@ public class ParameterVariableStatement implements Statement {
         return annotations;
     }
 
-    public QualifiedType getQualifiedType() {
-        return qualifiedType;
+    public TypeInstance getTypeInstance() {
+        return typeInstance;
     }
 
-    public void setQualifiedType(QualifiedType qualifiedType) {
-        this.qualifiedType = qualifiedType;
+    public void setTypeInstance(TypeInstance typeInstance) {
+        this.typeInstance = typeInstance;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class ParameterVariableStatement implements Statement {
         ParameterVariableStatement that = (ParameterVariableStatement) o;
         return Objects.equals(descriptor, that.descriptor)
                 && Objects.equals(annotations, that.annotations)
-                && Objects.equals(qualifiedType, that.qualifiedType);
+                && Objects.equals(typeInstance, that.typeInstance);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ParameterVariableStatement implements Statement {
         return new ToStringBuilder(this)
                 .append("descriptor", descriptor)
                 .append("annotations", annotations)
-                .append("returnQualifiedType", qualifiedType)
+                .append("typeInstance", typeInstance)
                 .toString();
     }
 

@@ -7,6 +7,7 @@ import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
+import org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor;
 import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
 import org.qmul.csar.code.java.postprocess.overriddenmethods.OverriddenMethodsResolver;
@@ -73,13 +74,14 @@ public class JavaPlugin extends Plugin {
                 TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver);
                 MethodQualifiedTypeResolver methodQualifiedTypeResolver
                         = new MethodQualifiedTypeResolver(qualifiedNameResolver);
-                OverriddenMethodsResolver overriddenMethodsResolver = new OverriddenMethodsResolver(qualifiedNameResolver,
-                        typeHierarchyResolver);
+                OverriddenMethodsResolver overriddenMethodsResolver
+                        = new OverriddenMethodsResolver(qualifiedNameResolver, typeHierarchyResolver);
                 MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
+                MethodProcessor methodProcessor = new MethodProcessor();
 
                 // Create post-processor
                 CodePostProcessor javaCodePostProcessor = new JavaPostProcessor(typeHierarchyResolver,
-                        methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver);
+                        methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver, methodProcessor);
                 javaCodePostProcessor.postprocess(code);
             } catch (Exception ex) {
                 errorListeners.forEach(l -> l.errorPostProcessing(ex));

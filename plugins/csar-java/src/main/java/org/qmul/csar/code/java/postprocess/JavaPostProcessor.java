@@ -1,6 +1,7 @@
 package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.code.CodePostProcessor;
+import org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor;
 import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
 import org.qmul.csar.code.java.postprocess.overriddenmethods.OverriddenMethodsResolver;
@@ -16,15 +17,18 @@ public class JavaPostProcessor implements CodePostProcessor {
     private final MethodQualifiedTypeResolver methodQualifiedTypeResolver;
     private final OverriddenMethodsResolver overriddenMethodsResolver;
     private final MethodUsageResolver methodUsageResolver;
+    private final MethodProcessor methodProcessor;
 
     public JavaPostProcessor(TypeHierarchyResolver typeHierarchyResolver,
             MethodQualifiedTypeResolver methodQualifiedTypeResolver,
             OverriddenMethodsResolver overriddenMethodsResolver,
-            MethodUsageResolver methodUsageResolver) {
+            MethodUsageResolver methodUsageResolver,
+            MethodProcessor methodProcessor) {
         this.typeHierarchyResolver = typeHierarchyResolver;
         this.methodQualifiedTypeResolver = methodQualifiedTypeResolver;
         this.overriddenMethodsResolver = overriddenMethodsResolver;
         this.methodUsageResolver = methodUsageResolver;
+        this.methodProcessor = methodProcessor;
     }
 
     /**
@@ -34,6 +38,8 @@ public class JavaPostProcessor implements CodePostProcessor {
         typeHierarchyResolver.postprocess(code);
         methodQualifiedTypeResolver.postprocess(code);
         overriddenMethodsResolver.postprocess(code);
+        methodUsageResolver.setTypeHierarchyResolver(typeHierarchyResolver);
         methodUsageResolver.postprocess(code);
+        methodProcessor.postprocess(code);
     }
 }

@@ -5,7 +5,7 @@ import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
-import org.qmul.csar.code.java.postprocess.methodtypes.TypeHelper;
+import org.qmul.csar.code.java.postprocess.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
@@ -182,6 +182,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
      */
     public boolean isSubtype(String type1, String type2) {
         // TODO sanitize arrays etc?
+        // TODO hard code support for primitives
         // Normalize varargs
         type1 = TypeHelper.normalizeVarArgs(type1);
         type2 = TypeHelper.normalizeVarArgs(type2);

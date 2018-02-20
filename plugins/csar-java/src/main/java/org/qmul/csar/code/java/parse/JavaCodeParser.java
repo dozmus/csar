@@ -694,6 +694,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                         : Optional.empty();
                 return new InstantiateClassExpression(descriptor, statement, arguments, typeArgs, hasTypeArguments);
             } else { // createdName arrayCreatorRest
+                String typeName = creator.createdName().getText();
                 JavaParser.ArrayCreatorRestContext rest = creator.arrayCreatorRest();
                 List<Expression> contents = new ArrayList<>();
 
@@ -717,7 +718,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                         contents.add(new SquareBracketsExpression());
                     }
                 }
-                return new ArrayInitializationExpression(contents);
+                return new ArrayInitializationExpression(typeName, contents);
             }
         }
 

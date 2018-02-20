@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.methodtypes;
+package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.util.StringUtils;
 
@@ -22,9 +22,12 @@ public class TypeHelper {
     }
 
     public static int compareDimensions(String type1, String type2) {
+        return dimensions(type1) - dimensions(type2);
+    }
+
+    public static int dimensions(String type1) {
         String t1 = removeGenericArgument(normalizeVarArgs(type1));
-        String t2 = removeGenericArgument(normalizeVarArgs(type2));
-        return StringUtils.count(t1, "[]") - StringUtils.count(t2, "[]");
+        return StringUtils.count(t1, "[]");
     }
 
     public static boolean dimensionsEquals(String type1, String type2) {
@@ -106,5 +109,23 @@ public class TypeHelper {
         Pattern p = Pattern.compile("<(.*)>");
         Matcher m = p.matcher(type);
         return m.find() ? m.group(0) : "";
+    }
+
+    public static boolean isInbuiltType(String type) {
+        switch (type) {
+            case "int":
+            case "float":
+            case "double":
+            case "long":
+            case "short":
+            case "byte":
+            case "String":
+            case "char":
+            case "boolean":
+            case "Object":
+                return true;
+            default:
+                return false;
+        }
     }
 }

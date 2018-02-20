@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.postprocess.methodusage;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
@@ -26,6 +27,7 @@ public class MethodUsageResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final MethodUsageResolver resolver = new MethodUsageResolver();
+    private static final TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver();
     private static Map<Path, Statement> code;
 
     @BeforeClass
@@ -37,6 +39,8 @@ public class MethodUsageResolverTest {
         code = parser.results();
 
         // Resolve method usages
+        typeHierarchyResolver.postprocess(code);
+        resolver.setTypeHierarchyResolver(typeHierarchyResolver);
         resolver.postprocess(code);
     }
 

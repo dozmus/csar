@@ -12,9 +12,15 @@ import java.util.stream.Collectors;
 public class ArrayInitializationExpression implements Expression {
 
     private final List<Expression> expressions;
+    private final String typeName;
 
-    public ArrayInitializationExpression(List<Expression> expressions) {
+    public ArrayInitializationExpression(String typeName, List<Expression> expressions) {
+        this.typeName = typeName;
         this.expressions = Collections.unmodifiableList(expressions);
+    }
+
+    public String getTypeName() {
+        return typeName;
     }
 
     public List<Expression> getExpressions() {
@@ -26,7 +32,7 @@ public class ArrayInitializationExpression implements Expression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ArrayInitializationExpression that = (ArrayInitializationExpression) o;
-        return Objects.equals(expressions, that.expressions);
+        return Objects.equals(typeName, that.typeName) && Objects.equals(expressions, that.expressions);
     }
 
     @Override
@@ -37,6 +43,7 @@ public class ArrayInitializationExpression implements Expression {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("typeName", typeName)
                 .append("expressions", expressions)
                 .toString();
     }

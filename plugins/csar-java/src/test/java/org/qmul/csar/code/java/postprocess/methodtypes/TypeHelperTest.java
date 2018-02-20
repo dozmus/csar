@@ -1,6 +1,7 @@
 package org.qmul.csar.code.java.postprocess.methodtypes;
 
 import org.junit.Test;
+import org.qmul.csar.code.java.postprocess.TypeHelper;
 
 import java.util.Arrays;
 import java.util.Collections;

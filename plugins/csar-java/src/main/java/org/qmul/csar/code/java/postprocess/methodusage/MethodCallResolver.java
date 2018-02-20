@@ -5,12 +5,17 @@ import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.expression.UnitExpression;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.PostProcessUtils;
+import org.qmul.csar.code.java.postprocess.methodproc.ExpressionTypeResolver;
+import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
+import org.qmul.csar.code.java.postprocess.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
+import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,6 +29,7 @@ public class MethodCallResolver {
     private final Path path;
     private final Map<Path, Statement> code;
     private final TraversalHierarchy traversalHierarchy;
+    private final TypeHierarchyResolver typeHierarchyResolver;
     private TypeStatement topLevelParent;
     private TypeStatement targetType;
     private List<ImportStatement> imports;
@@ -31,11 +37,12 @@ public class MethodCallResolver {
     private BlockStatement currentContext;
 
     public MethodCallResolver(Path path, Map<Path, Statement> code, TraversalHierarchy traversalHierarchy,
-            QualifiedNameResolver qualifiedNameResolver) {
+            QualifiedNameResolver qualifiedNameResolver, TypeHierarchyResolver typeHierarchyResolver) {
         this.path = path;
         this.code = code;
         this.traversalHierarchy = traversalHierarchy;
         this.qualifiedNameResolver = qualifiedNameResolver;
+        this.typeHierarchyResolver = typeHierarchyResolver;
     }
 
     public void resolve(MethodCallExpression e, TraversalHierarchy traversalHierarchy) {
@@ -425,14 +432,13 @@ public class MethodCallResolver {
                 MethodDescriptor desc = method.getDescriptor();
 
                 boolean methodNameEquals = methodName.equals(desc.getIdentifierName().toString());
-                boolean argsCountEquals = desc.getParameterCount().get() == args.size();
+                boolean argsEquals = parametersSignatureEquals(method.getParameters(), desc.getTypeParameters(), args);
                 boolean accessibilityIsValid = onVariable
                         || !(currentContextIsStatic && !desc.getStaticModifier().get());
                 System.out.println("methodName vs. " + desc.getIdentifierName() + " | valid=" + accessibilityIsValid);
                 // TODO check visibility modifier
-                // TODO check method args types
 
-                if (methodNameEquals && argsCountEquals && accessibilityIsValid) {
+                if (methodNameEquals && accessibilityIsValid && argsEquals) {
                     System.out.println("accepted.");
 
                     if (addToUsages)
@@ -446,5 +452,50 @@ public class MethodCallResolver {
 
     private void addMethodUsage(MethodStatement method, MethodCallExpression methodCallExpression) {
         method.getMethodUsages().add(methodCallExpression);
+    }
+
+    private boolean parametersSignatureEquals(List<ParameterVariableStatement> parameters,
+            List<String> typeParameters1, List<Expression> arguments) {
+        // TODO ensure correctness: may breakdown
+        // XXX list1 is the method's parameters, arguments are from a method call
+        if (parameters.size() != arguments.size())
+            return false;
+
+        for (int i = 0; i < parameters.size(); i++) {
+            ParameterVariableDescriptor param1 = parameters.get(i).getDescriptor();
+            TypeInstance qtype1 = parameters.get(i).getTypeInstance();
+            TypeInstance qtype2 = ExpressionTypeResolver.resolve(path, code, topLevelParent, targetType, imports,
+                    packageStatement, currentContext, qualifiedNameResolver, traversalHierarchy,
+                    arguments.get(i));
+
+            if (!param1.getIdentifierType().isPresent())
+                return false;
+
+            // Names
+            String type1 = param1.getIdentifierType().get();
+            String type2 = qtype2.getType();
+            type1 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type1), typeParameters1);
+            type2 = TypeHelper.normalizeVarArgs(type2);
+            boolean namesEqual = type1.equals(type2);
+            boolean dimensionEquals = TypeHelper.dimensionsEquals(type1, type2);
+
+            // Generic argument
+            String genericArgument1 = TypeHelper.extractGenericArgument(type1);
+            String genericArgument2 = TypeHelper.extractGenericArgument(type2);
+
+            boolean genericTypesEqual = genericArgument1.equals(genericArgument2)
+                    || !genericArgument1.isEmpty() && genericArgument2.isEmpty();
+
+            // Check base types
+            if (qtype1 != null && qtype2 != null) {
+                if (!typeHierarchyResolver.isSubtype(qtype1.getQualifiedName(), qtype2.getQualifiedName())
+                        || !genericTypesEqual || !dimensionEquals) {
+                    return false;
+                }
+            } else if (!namesEqual || !genericTypesEqual || !dimensionEquals) { // fall-back comparison, to support java api
+                return false;
+            }
+        }
+        return true;
     }
 }

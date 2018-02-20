@@ -848,7 +848,7 @@ public final class JavaCodeParserTest {
                 .identifierType("int[]")
                 .finalModifier(false)
                 .build(),
-                Optional.of(new ArrayInitializationExpression(Arrays.asList(
+                Optional.of(new ArrayInitializationExpression(typeName, Arrays.asList(
                         new SquareBracketsExpression(Optional.of(literalUnit("3")))
                 ))),
                 new ArrayList<>());
@@ -858,7 +858,7 @@ public final class JavaCodeParserTest {
                 .identifierType("int[]")
                 .finalModifier(false)
                 .build(),
-                Optional.of(new ArrayInitializationExpression(Arrays.asList(
+                Optional.of(new ArrayInitializationExpression(typeName, Arrays.asList(
                         new SquareBracketsExpression(Optional.of(literalUnit("3"))),
                         new SquareBracketsExpression()
                 ))),

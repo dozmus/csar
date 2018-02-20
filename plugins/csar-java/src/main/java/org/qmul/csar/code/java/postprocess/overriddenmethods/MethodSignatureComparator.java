@@ -2,8 +2,8 @@ package org.qmul.csar.code.java.postprocess.overriddenmethods;
 
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.parse.statement.ParameterVariableStatement;
-import org.qmul.csar.code.java.postprocess.methodtypes.TypeHelper;
-import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.postprocess.methodproc.TypeInstance;
+import org.qmul.csar.code.java.postprocess.TypeHelper;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
@@ -33,8 +33,8 @@ public final class MethodSignatureComparator {
         for (int i = 0; i < list1.size(); i++) {
             ParameterVariableDescriptor param1 = list1.get(i).getDescriptor();
             ParameterVariableDescriptor param2 = list2.get(i).getDescriptor();
-            QualifiedType qtype1 = list1.get(i).getQualifiedType();
-            QualifiedType qtype2 = list2.get(i).getQualifiedType();
+            TypeInstance qtype1 = list1.get(i).getTypeInstance();
+            TypeInstance qtype2 = list2.get(i).getTypeInstance();
 
             if (!param1.getIdentifierType().isPresent() || !param2.getIdentifierType().isPresent())
                 return false;
@@ -45,7 +45,7 @@ public final class MethodSignatureComparator {
             type1 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type1), typeParameters1);
             type2 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type2), typeParameters2);
             boolean namesEqual = type1.equals(type2);
-            boolean dimensionEquals = TypeHelper.dimensionsEquals(type1, type2);
+            boolean dimensionEquals = qtype1.getDimensions() == qtype2.getDimensions();
 
             // Generic argument
             String genericArgument1 = TypeHelper.extractGenericArgument(type1);

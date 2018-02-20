@@ -1,7 +1,7 @@
-package org.qmul.csar.code.java.postprocess.methodusage;
+package org.qmul.csar.code.java.postprocess.methodproc;
 
 import org.qmul.csar.code.CodePostProcessor;
-import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.lang.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class MethodUsageResolver implements CodePostProcessor {
+public class MethodProcessor implements CodePostProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodUsageResolver.class);
-    private TypeHierarchyResolver typeHierarchyResolver;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodProcessor.class);
+    private QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
 
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
@@ -22,16 +22,12 @@ public class MethodUsageResolver implements CodePostProcessor {
             Path path = file.getKey();
             Statement statement = file.getValue();
 
-            MethodUsageStatementVisitor visitor = new MethodUsageStatementVisitor(code, path, typeHierarchyResolver);
+            CompilationUnitVisitor visitor = new CompilationUnitVisitor(code, path, qualifiedNameResolver);
             visitor.visitStatement(statement);
         }
 
         // Log completion message
         LOGGER.debug("Time Taken: {}ms", (System.currentTimeMillis() - startTime));
         LOGGER.info("Finished");
-    }
-
-    public void setTypeHierarchyResolver(TypeHierarchyResolver typeHierarchyResolver) {
-        this.typeHierarchyResolver = typeHierarchyResolver;
     }
 }
