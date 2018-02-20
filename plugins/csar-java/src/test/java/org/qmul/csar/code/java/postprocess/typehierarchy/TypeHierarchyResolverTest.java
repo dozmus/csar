@@ -134,4 +134,22 @@ public class TypeHierarchyResolverTest {
         assertIsSubtype("B", "B");
         assertIsSubtype("base.B", "base.B");
     }
+
+    @Test
+    public void testIsSubtypePrimitiveArgument() {
+        assertIsSubtype("Double", "Integer");
+        assertIsSubtype("java.lang.Double", "Integer");
+        assertIsSubtype("Double", "java.lang.Integer");
+        assertIsSubtype("java.lang.Double", "java.lang.Integer");
+        assertIsSubtype("Double", "int");
+        assertIsSubtype("java.lang.Double", "int");
+    }
+
+    @Test
+    public void testIsSubtypeSamePrimitiveArgument() {
+        assertIsSubtype("Double", "Double");
+        assertIsSubtype("java.lang.Double", "Double");
+        assertIsSubtype("java.lang.Double", "double");
+        assertIsSubtype("double", "java.lang.Double");
+    }
 }

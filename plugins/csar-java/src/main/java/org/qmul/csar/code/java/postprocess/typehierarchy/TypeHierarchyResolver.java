@@ -42,6 +42,33 @@ public class TypeHierarchyResolver implements CodePostProcessor {
 
     public TypeHierarchyResolver(QualifiedNameResolver qualifiedNameResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
+        initRoot();
+    }
+
+    private void initRoot() {
+        // TODO update once java api is fully supported
+        TypeNode doublen = new PrimitiveTypeNode("java.lang.Double", "double");
+        TypeNode floatn = new PrimitiveTypeNode("java.lang.Float", "float");
+        doublen.getChildren().add(floatn);
+
+        TypeNode longn = new PrimitiveTypeNode("java.lang.Long", "long");
+        floatn.getChildren().add(longn);
+        TypeNode intn = new PrimitiveTypeNode("java.lang.Integer", "int");
+        longn.getChildren().add(intn);
+        TypeNode shortn = new PrimitiveTypeNode("java.lang.Short", "short");
+        intn.getChildren().add(shortn);
+        TypeNode byten = new PrimitiveTypeNode("java.lang.Byte", "byte");
+        shortn.getChildren().add(byten);
+
+        TypeNode stringn = new PrimitiveTypeNode("java.lang.String", "String");
+        TypeNode charn = new PrimitiveTypeNode("java.lang.Character", "char");
+        TypeNode booleann = new PrimitiveTypeNode("java.lang.Boolean", "boolean");
+
+        // Add to root
+        root.getChildren().add(doublen);
+        root.getChildren().add(stringn);
+        root.getChildren().add(charn);
+        root.getChildren().add(booleann);
     }
 
     /**
@@ -94,15 +121,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
      * @return returns if the first type is a superclass of the second type
      */
     private static boolean isStrictlySubtype(TypeNode root, String type1, String type2) {
-        if (root.getQualifiedName().equals(type1)) {
-            return root.containsQualifiedName(type2);
-        } else {
-            for (TypeNode child : root.getChildren()) {
-                if (isStrictlySubtype(child, type1, type2))
-                    return true;
-            }
-        }
-        return false;
+        return root.isStrictlySubtype(type1, type2);
     }
 
     /**
@@ -182,7 +201,6 @@ public class TypeHierarchyResolver implements CodePostProcessor {
      */
     public boolean isSubtype(String type1, String type2) {
         // TODO sanitize arrays etc?
-        // TODO hard code support for primitives
         // Normalize varargs
         type1 = TypeHelper.normalizeVarArgs(type1);
         type2 = TypeHelper.normalizeVarArgs(type2);

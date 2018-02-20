@@ -9,35 +9,13 @@ import java.util.List;
 /**
  * A node representing the type hierarchy of a single type.
  */
-final class TypeNode {
+class TypeNode {
 
     private final String qualifiedName;
     private final List<TypeNode> children = new ArrayList<>();
 
     public TypeNode(String qualifiedName) {
         this.qualifiedName = qualifiedName;
-    }
-
-    /**
-     * Returns <tt>true</tt> if the argument <tt>String</tt> is contained in any child of the argument
-     * <tt>TypeNode</tt>. The argument <tt>TypeNode</tt>'s value is only checked if <tt>checkCurrent</tt> is
-     * <tt>true</tt>.
-     *
-     * @param node the node to check
-     * @param qualifiedName the name to check for
-     * @param checkCurrent if the current node's value should be checked too
-     * @return if the argument node contains the argument qualifiedName
-     */
-    private static boolean containsQualifiedName(TypeNode node, String qualifiedName, boolean checkCurrent) {
-        if (checkCurrent && node.qualifiedName.equals(qualifiedName)) {
-            return true;
-        } else {
-            for (TypeNode child : node.children) {
-                if (containsQualifiedName(child, qualifiedName, true))
-                    return true;
-            }
-            return false;
-        }
     }
 
     /**
@@ -52,12 +30,16 @@ final class TypeNode {
      * @return <tt>true</tt> if insertion was successful
      */
     public static boolean insert(TypeNode root, TypeNode node) {
-        if (root.qualifiedName.equals(node.qualifiedName)) {
-            root.children.addAll(node.children);
+        return node.insert(root);
+    }
+
+    public boolean insert(TypeNode root) {
+        if (root.qualifiedName.equals(qualifiedName)) {
+            root.children.addAll(children);
             return true;
         } else {
             for (TypeNode child : root.children) {
-                if (insert(child, node))
+                if (insert(child, this))
                     return true;
             }
         }
@@ -65,7 +47,40 @@ final class TypeNode {
     }
 
     public boolean containsQualifiedName(String qualifiedName) {
-        return containsQualifiedName(this, qualifiedName, false);
+        return containsQualifiedName(qualifiedName, false);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the argument <tt>String</tt> is contained in any child of the argument
+     * <tt>TypeNode</tt>. The argument <tt>TypeNode</tt>'s value is only checked if <tt>checkCurrent</tt> is
+     * <tt>true</tt>.
+     *
+     * @param qualifiedName the name to check for
+     * @param checkCurrent if the current node's value should be checked too
+     * @return if the argument node contains the argument qualifiedName
+     */
+    public boolean containsQualifiedName(String qualifiedName, boolean checkCurrent) {
+        if (checkCurrent && this.qualifiedName.equals(qualifiedName)) {
+            return true;
+        } else {
+            for (TypeNode child : children) {
+                if (child.containsQualifiedName(qualifiedName, true))
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    public boolean isStrictlySubtype(String type1, String type2) {
+        if (qualifiedName.equals(type1)) {
+            return containsQualifiedName(type2);
+        } else {
+            for (TypeNode child : children) {
+                if (child.isStrictlySubtype(type1, type2))
+                    return true;
+            }
+        }
+        return false;
     }
 
     public String getQualifiedName() {

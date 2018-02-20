@@ -34,7 +34,7 @@ public class TypeHelper {
         return compareDimensions(type1, type2) == 0;
     }
 
-    static String removeGenericArgument(String type) {
+    public static String removeGenericArgument(String type) {
         return type.replaceAll("<(.*)>", "");
     }
 
@@ -49,7 +49,7 @@ public class TypeHelper {
         return type;
     }
 
-    static String identifierOfGenericTypeParameter(String type) {
+    public static String identifierOfGenericTypeParameter(String type) {
         int spaceIdx = type.indexOf(" ");
         return (spaceIdx > 0) ? type.substring(0, spaceIdx) : type;
     }
@@ -76,7 +76,7 @@ public class TypeHelper {
         return type;
     }
 
-    static String eraseBoundsOnTypeParameter(String typeParameter) {
+    public static String eraseBoundsOnTypeParameter(String typeParameter) {
         // Try to find its bounds and erase them
         Pattern p = Pattern.compile("(.*) (extends|super) (.*)(,|$)");
         Matcher m = p.matcher(typeParameter);
