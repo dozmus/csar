@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.postprocess.methodproc;
 
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
-import org.qmul.csar.lang.Statement;
+import org.qmul.csar.lang.TypeStatement;
 
 import java.nio.file.Path;
 
@@ -11,11 +11,11 @@ import java.nio.file.Path;
 public final class TypeInstance {
 
     private final String qualifiedName;
-    private final Statement statement;
+    private final TypeStatement statement;
     private final Path path;
     private int dimensions;
 
-    public TypeInstance(String qualifiedName, Statement statement, Path path, int dimensions) {
+    public TypeInstance(String qualifiedName, TypeStatement statement, Path path, int dimensions) {
         this.qualifiedName = qualifiedName;
         this.statement = statement;
         this.path = path;
@@ -23,14 +23,14 @@ public final class TypeInstance {
     }
 
     public TypeInstance(QualifiedType type, int dimensions) {
-        this(type.getQualifiedName(), type.getStatement(), type.getPath(), dimensions);
+        this(type.getQualifiedName(), (TypeStatement)type.getStatement(), type.getPath(), dimensions);
     }
 
     public String getQualifiedName() {
         return qualifiedName;
     }
 
-    public Statement getStatement() {
+    public TypeStatement getStatement() {
         return statement;
     }
 

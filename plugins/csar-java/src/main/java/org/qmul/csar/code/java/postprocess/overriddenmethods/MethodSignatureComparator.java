@@ -45,7 +45,7 @@ public final class MethodSignatureComparator {
             type1 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type1), typeParameters1);
             type2 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type2), typeParameters2);
             boolean namesEqual = type1.equals(type2);
-            boolean dimensionEquals = qtype1.getDimensions() == qtype2.getDimensions();
+            boolean dimensionEquals = TypeHelper.dimensionsEquals(type1, type2);
 
             // Generic argument
             String genericArgument1 = TypeHelper.extractGenericArgument(type1);
@@ -56,12 +56,16 @@ public final class MethodSignatureComparator {
 
             // Check base types
             if (qtype1 != null && qtype2 != null) {
+                dimensionEquals = qtype1.getDimensions() == qtype2.getDimensions();
+
                 if (!typeHierarchyResolver.isSubtype(qtype1.getQualifiedName(), qtype2.getQualifiedName())
                         || !genericTypesEqual || !dimensionEquals) {
                     return false;
                 }
-            } else if (!namesEqual || !genericTypesEqual || !dimensionEquals) { // fall-back comparison, to support java api
-                return false;
+            } else {
+                if (!namesEqual || !genericTypesEqual || !dimensionEquals) { // fall-back comparison, to support java api)
+                    return false;
+                }
             }
         }
         return true;

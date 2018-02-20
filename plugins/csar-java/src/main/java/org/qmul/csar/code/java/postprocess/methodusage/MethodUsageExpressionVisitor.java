@@ -177,8 +177,8 @@ public class MethodUsageExpressionVisitor extends ExpressionVisitor {
         System.out.println("--------------------------------------------------------");
         System.out.println("resolve:" + expression.toPseudoCode());
 
-        MethodCallResolver methodCallResolver = new MethodCallResolver(path, code, traversalHierarchy,
-                qualifiedNameResolver, typeHierarchyResolver);
+        MethodCallResolver methodCallResolver = new MethodCallResolver(path, code, qualifiedNameResolver,
+                typeHierarchyResolver);
         methodCallResolver.resolve(expression, traversalHierarchy);
     }
 }

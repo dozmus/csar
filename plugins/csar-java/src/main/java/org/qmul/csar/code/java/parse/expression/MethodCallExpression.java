@@ -19,8 +19,9 @@ public class MethodCallExpression implements Expression {
     private final int lineNumber;
     /**
      * Set during post-processing by {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor}.
+     * This is null if unset, or if the source is the same class as the method call is in.
      */
-    private TypeInstance methodNameType;
+    private TypeInstance methodSource;
     /**
      * Set during post-processing by {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor}.
      */
@@ -53,20 +54,27 @@ public class MethodCallExpression implements Expression {
         return lineNumber;
     }
 
-    public void setMethodNameType(TypeInstance methodNameType) {
-        this.methodNameType = methodNameType;
+    public void setMethodSource(TypeInstance methodSource) {
+        this.methodSource = methodSource;
     }
 
     public void setArgumentTypes(List<TypeInstance> argumentTypes) {
         this.argumentTypes = argumentTypes;
     }
 
-    public TypeInstance getMethodNameType() {
-        return methodNameType;
+    public TypeInstance getMethodSource() {
+        return methodSource;
     }
 
     public List<TypeInstance> getArgumentTypes() {
         return argumentTypes;
+    }
+
+    public String getMethodIdentifier() {
+        UnitExpression name = (methodName instanceof BinaryExpression)
+                ? (UnitExpression) ((BinaryExpression)methodName).getRight()
+                : (UnitExpression)methodName;
+        return name.getValue();
     }
 
     @Override

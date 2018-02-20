@@ -1,7 +1,11 @@
 package org.qmul.csar.code.java.postprocess.methodproc;
 
 import org.qmul.csar.code.java.parse.expression.*;
-import org.qmul.csar.code.java.parse.statement.*;
+import org.qmul.csar.code.java.parse.statement.BlockStatement;
+import org.qmul.csar.code.java.parse.statement.ClassStatement;
+import org.qmul.csar.code.java.parse.statement.ImportStatement;
+import org.qmul.csar.code.java.parse.statement.PackageStatement;
+import org.qmul.csar.code.java.postprocess.PostProcessUtils;
 import org.qmul.csar.code.java.postprocess.TypeHelper;
 import org.qmul.csar.code.java.postprocess.methodusage.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -18,11 +22,13 @@ import java.util.Optional;
 
 public class ExpressionTypeResolver {
 
+    // TODO allow 'java.lang.String' instead of String, etc. throughout6
     // TODO make sure path is always set as much as possible
 
     public static TypeInstance resolve(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, Expression expression) {
+        System.out.println("type resolver:" + expression.toPseudoCode());
         if (expression instanceof ArrayAccessExpression) {
             ArrayAccessExpression aaexp = (ArrayAccessExpression)expression;
             TypeInstance t = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r,
@@ -73,7 +79,7 @@ public class ExpressionTypeResolver {
             ClassStatement statement = new ClassStatement(ins.getDescriptor(), block, new ArrayList<>());
             return new TypeInstance(qualifiedName, statement, null, 0);
         } else if (expression instanceof LambdaExpression) {
-            // TODO parser further when full java api support introduced
+            // TODO parse further when full java api support introduced
             return new TypeInstance("Supplier", null, null, 0);
         } else if (expression instanceof MethodCallExpression) {
             MethodCallExpression mexp = (MethodCallExpression)expression;
@@ -102,22 +108,24 @@ public class ExpressionTypeResolver {
                 case CLASS_REFERENCE:
                     break;
                 case METHOD_REFERENCE:
-                    break;
-                case SUPER:
+                    // if return void type then it's a Runnable, otherwise it may be a Predicate or a Function
                     break;
                 case THIS:
-                    return new TypeInstance("", topLevelType, path, 0); // TODO set qualifiedName
                 case THIS_CALL:
-                    break;
-                case SUPER_CALL:
-                    break;
+                    return new TypeInstance("", topLevelType, path, 0); // TODO set qualifiedName
+                case SUPER:
+                case SUPER_CALL: // extended class
+                    String superClass = PostProcessUtils.extendedClass(currentType);
+                    QualifiedType qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports,
+                            superClass);
+                    return new TypeInstance(qt, 0);
                 case TYPE:
-                    QualifiedType qt = r.resolve(code, path, topLevelType, topLevelType, currentPackage, imports,
-                            uexp.getValue());
+                    qt = r.resolve(code, path, topLevelType, topLevelType, currentPackage, imports, uexp.getValue());
                     return new TypeInstance(qt, 0);
                 case NEW:
                     break;
                 case METHOD_CALL:
+                    // resolve method
                     break;
             }
         }
@@ -165,6 +173,7 @@ public class ExpressionTypeResolver {
             return lhs;
         } else if (op.equals(BinaryOperation.DOT)) {
             // TODO impl
+            // take lhs and look for rhs in it
         } else if (op.equals(BinaryOperation.INSTANCE_OF) || op.isBoolean()) {
             return literalType("boolean");
         }

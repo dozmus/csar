@@ -1,8 +1,6 @@
 package org.qmul.csar.code.java.postprocess;
 
-import org.qmul.csar.code.java.parse.statement.ClassStatement;
-import org.qmul.csar.code.java.parse.statement.EnumStatement;
-import org.qmul.csar.code.java.parse.statement.PackageStatement;
+import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.EnumDescriptor;
@@ -78,5 +76,15 @@ public final class PostProcessUtils {
             }
         }
         return false;
+    }
+
+    public static BlockStatement getBlock(TypeStatement type) {
+        if (type instanceof ClassStatement) {
+            return ((ClassStatement)type).getBlock();
+        } else if (type instanceof EnumStatement) {
+            return ((EnumStatement)type).getBlock();
+        } else { // fall-back: annotation
+            return ((AnnotationStatement)type).getBlock();
+        }
     }
 }

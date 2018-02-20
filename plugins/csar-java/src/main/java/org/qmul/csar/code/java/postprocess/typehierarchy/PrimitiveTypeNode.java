@@ -41,7 +41,6 @@ class PrimitiveTypeNode extends TypeNode {
      * @return if the argument node contains the argument qualifiedName
      */
     public boolean containsQualifiedName(String qualifiedName, boolean checkCurrent) {
-        System.out.println(qualifiedName + " called");
         if (checkCurrent && qualifiedNameEquals(qualifiedName)) {
             return true;
         } else {

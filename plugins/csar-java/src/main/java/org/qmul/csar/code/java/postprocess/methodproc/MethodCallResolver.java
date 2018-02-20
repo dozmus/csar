@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methodproc;
 
+import org.qmul.csar.code.java.parse.expression.BinaryExpression;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.BlockStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
@@ -35,7 +36,13 @@ public class MethodCallResolver {
         Expression name = expression.getMethodName();
         List<Expression> args = expression.getArguments();
 
-        expression.setMethodNameType(resolve(name));
+        // Set method source
+        if (name instanceof BinaryExpression) {
+            BinaryExpression exp = (BinaryExpression)name;
+            expression.setMethodSource(resolve(exp));
+        }
+
+        // Set argument types
         List<TypeInstance> argsTypes = args.stream().map(this::resolve).collect(Collectors.toList());
         expression.setArgumentTypes(Collections.unmodifiableList(argsTypes));
     }
