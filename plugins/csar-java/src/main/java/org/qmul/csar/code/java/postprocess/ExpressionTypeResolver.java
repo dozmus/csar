@@ -18,10 +18,12 @@ import java.util.Optional;
 
 public class ExpressionTypeResolver {
 
-    // TODO allow 'java.lang.String' instead of String, etc. throughout6
+    // TODO allow 'java.lang.String' instead of String, etc. throughout
     // TODO make sure path is always set as much as possible
 
-    public static TypeInstance resolve(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
+    private int nestedBinaryExpressionLevel = 0;
+
+    public TypeInstance resolve(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             Expression expression) {
@@ -56,20 +58,16 @@ public class ExpressionTypeResolver {
             return new TypeInstance(qt, dimensions);
         } else if (expression instanceof BinaryExpression) {
             BinaryExpression bexp = (BinaryExpression)expression;
-            TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
-                    r, th, thr, bexp.getLeft());
-            BinaryOperation op = bexp.getOp();
-            TypeInstance rhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
-                    r, th, thr, bexp.getRight());
-            return resolveBinaryExpression(topLevelType, currentType, imports, currentPackage, currentContext, r, th,
-                    lhs, op, rhs);
+            nestedBinaryExpressionLevel++;
+            return resolveBinaryExpression(path, code, topLevelType, currentType, imports, currentPackage,
+                    currentContext, r, th, thr, bexp.getLeft(), bexp.getOp(), bexp.getRight());
         } else if (expression instanceof CastExpression) {
             CastExpression cexp = (CastExpression)expression;
             String apparentType = TypeHelper.removeDimensions(cexp.getApparentType());
             int dimensions = TypeHelper.dimensions(cexp.getApparentType());
 
             if (TypeHelper.isInbuiltType(apparentType))
-                return new TypeInstance(apparentType, null, null, dimensions);
+                return new TypeInstance(apparentType, dimensions);
 
             QualifiedType qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, apparentType);
             return new TypeInstance(qt, dimensions);
@@ -80,10 +78,10 @@ public class ExpressionTypeResolver {
             // Create statement - TODO is this ok
             BlockStatement block = ins.getBlock().orElse(BlockStatement.EMPTY);
             ClassStatement statement = new ClassStatement(ins.getDescriptor(), block, new ArrayList<>());
-            return new TypeInstance(qualifiedName, statement, null, 0);
+            return new TypeInstance(qualifiedName, statement, (CompilationUnitStatement)topLevelType, null, 0);
         } else if (expression instanceof LambdaExpression) {
             // TODO parse further when full java api support introduced
-            return new TypeInstance("Supplier", null, null, 0);
+            return new TypeInstance("Supplier", 0);
         } else if (expression instanceof MethodCallExpression) {
             return resolveMethodCallExpression(path, code, r, th, thr, (MethodCallExpression)expression);
         } else if (expression instanceof ParenthesisExpression) {
@@ -100,6 +98,7 @@ public class ExpressionTypeResolver {
                     currentContext, r, th, thr, (TernaryExpression)expression);
         } else if (expression instanceof UnitExpression) {
             UnitExpression uexp = (UnitExpression)expression;
+            QualifiedType qt;
 
             switch (uexp.getValueType()) {
                 case LITERAL:
@@ -114,19 +113,22 @@ public class ExpressionTypeResolver {
                     break;
                 case THIS:
                 case THIS_CALL:
-                    return new TypeInstance("", topLevelType, path, 0); // TODO set qualifiedName
+                    String className = PostProcessUtils.getIdentifierName(currentType);
+                    qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, className);
+                    return new TypeInstance(qt, 0);
                 case SUPER:
                 case SUPER_CALL: // extended class
                     String superClass = PostProcessUtils.extendedClass(currentType);
-                    QualifiedType qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports,
-                            superClass);
+                    qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, superClass);
                     return new TypeInstance(qt, 0);
                 case TYPE:
                     qt = r.resolve(code, path, topLevelType, topLevelType, currentPackage, imports, uexp.getValue());
                     return new TypeInstance(qt, 0);
                 case NEW:
+                    // not sure how this fits into things
                     break;
                 case METHOD_CALL:
+                    System.out.println("UnitExpression.ValueType=METHOD_CALL");
                     // resolve method?
                     break;
             }
@@ -134,7 +136,7 @@ public class ExpressionTypeResolver {
         return null; // fall-back: failed to resolve
     }
 
-    private static TypeInstance resolveIdentifier(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
+    private TypeInstance resolveIdentifier(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, UnitExpression uexp) {
         String lIdentifierName = uexp.getValue();
@@ -146,11 +148,11 @@ public class ExpressionTypeResolver {
             if (lType != null)
                 break;
 
-            String localIdentifierName = parameter.getDescriptor().getIdentifierName().get().toString();
-            String localIdentifierType = parameter.getDescriptor().getIdentifierType().get();
+            String paramIdentifierName = parameter.getDescriptor().getIdentifierName().get().toString();
+            String paramIdentifierType = parameter.getDescriptor().getIdentifierType().get();
 
-            if (localIdentifierName.equals(lIdentifierName)) {
-                lType = localIdentifierType;
+            if (paramIdentifierName.equals(lIdentifierName)) {
+                lType = paramIdentifierType;
                 dimensions = TypeHelper.dimensions(lType);
             }
         }
@@ -208,8 +210,9 @@ public class ExpressionTypeResolver {
                         superClass);
 
                 if (resolvedType.getStatement() instanceof CompilationUnitStatement) {
-                    for (Statement st
-                            : PostProcessUtils.getBlock((CompilationUnitStatement)resolvedType.getStatement()).getStatements()) {
+                    CompilationUnitStatement cus = (CompilationUnitStatement)resolvedType.getStatement();
+
+                    for (Statement st : PostProcessUtils.getBlock(cus.getTypeStatement()).getStatements()) {
                         if (lType != null)
                             break;
 
@@ -239,9 +242,10 @@ public class ExpressionTypeResolver {
         return new TypeInstance(lQualifiedType, dimensions);
     }
 
-    private static TypeInstance resolveMethodCallExpression(Path path, Map<Path, Statement> code,
+    private TypeInstance resolveMethodCallExpression(Path path, Map<Path, Statement> code,
             QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             MethodCallExpression expression) {
+        System.out.println("resolveMethodCallExpression");
         MethodResolver resolver = new MethodResolver(path, code, r, thr);
         MethodStatement method = resolver.resolve(expression, th);
 
@@ -256,10 +260,17 @@ public class ExpressionTypeResolver {
         return (int) expressions.stream().filter(e -> e instanceof SquareBracketsExpression).count();
     }
 
-    private static TypeInstance resolveBinaryExpression(TypeStatement topLevelType, TypeStatement currentType,
-            List<ImportStatement> imports, Optional<PackageStatement> currentPackage, BlockStatement currentContext,
-            QualifiedNameResolver r, TraversalHierarchy th, TypeInstance lhs, BinaryOperation op, TypeInstance rhs) {
+    private TypeInstance resolveBinaryExpression(Path path, Map<Path, Statement> code,
+            TypeStatement topLevelType, TypeStatement currentType, List<ImportStatement> imports,
+            Optional<PackageStatement> currentPackage, BlockStatement currentContext, QualifiedNameResolver r,
+            TraversalHierarchy th, TypeHierarchyResolver thr, Expression left, BinaryOperation op, Expression right) {
+        System.out.println("resolveBinaryExpression");
+
         if (op.isArithmeticOperation()) {
+            TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
+                    r, th, thr, left);
+            TypeInstance rhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
+                    r, th, thr, right);
             String lhType = lhs.getQualifiedName();
             String rhType = rhs.getQualifiedName();
 
@@ -289,17 +300,89 @@ public class ExpressionTypeResolver {
                 return lhs;
             }
         } else if (op.isArithmeticAssignOperation()) {
+            TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
+                    r, th, thr, left);
             return lhs;
         } else if (op.equals(BinaryOperation.DOT)) {
-            // TODO impl
-            // take lhs and look for rhs in it
-        } else if (op.equals(BinaryOperation.INSTANCE_OF) || op.isBoolean()) {
+            System.out.println("BinaryOperation=DOT");
+            TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
+                    r, th, thr, left);
+            if (lhs == null)
+                return null;
+
+            System.out.println("lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
+            return resolveBinaryExpressionDotRhs(lhs, path, code,
+                    r, right, th, thr);
+        } else if (op.equals(BinaryOperation.INSTANCE_OF) || op.isBooleanOperation()) {
             return literalType("boolean");
         }
         return null; // TODO impl
     }
 
-    private static TypeInstance resolveTernaryExpression(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
+    private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
+            QualifiedNameResolver r, Expression right, TraversalHierarchy th, TypeHierarchyResolver thr) {
+        System.out.println("resolveBinaryExpressionRhs [right=" + right.getClass() + "]");
+        // TODO fix
+        if (lhs == null)
+            return null;
+
+        UnitExpression rue = (UnitExpression)right;
+        CompilationUnitStatement lCompilationUnitStatement = lhs.getCompilationUnitStatement();
+
+        if (nestedBinaryExpressionLevel == 1) { // rhs is the identifier of a method call
+//            if (rue.getValueType() == UnitExpression.ValueType.IDENTIFIER) {
+//                String methodName = rue.getValue();
+//                System.out.println("[resolveBinaryExpressionRhs rMethodName=" + methodName);
+//
+//                if (lCompilationUnitStatement == null) { // may be external - we ignore it
+//                    return null;
+//                }
+//                MethodResolver methodResolver = new MethodResolver(lhs.getPath(), code, r, thr);
+//                MethodStatement method
+//                        = methodResolver.resolveOnVariable((MethodCallExpression)binaryExpressionRighestMost,
+//                        lCompilationUnitStatement, th);
+//
+//                if (method != null) {
+//                    int dimensions = TypeHelper.dimensions(method.getDescriptor().getReturnType().get());
+//                    return new TypeInstance(method.getReturnQualifiedType(), dimensions);
+//                }
+//            }
+            return lhs;
+        } else { // is identifier another
+            // TODO handle the possibility that it might be a fully qualified method call
+            String rIdentifierName = rue.getValue();
+            String rType = null;
+
+            for (Statement st : PostProcessUtils.getBlock(lCompilationUnitStatement.getTypeStatement()).getStatements()) {
+                // TODO check visibility
+
+                if (st instanceof InstanceVariableStatement) {
+                    if (rType != null)
+                        break;
+
+                    InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                    String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                    String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+
+                    if (instanceIdentifierName.equals(rIdentifierName))
+                        rType = instanceIdentifierType;
+                }
+            }
+            System.out.println("[RBE-RHS] rType = " + rType);
+
+            if (rType == null) // may be external - we ignore it
+                return null;
+            int dimensions = TypeHelper.dimensions(rType);
+            String typeName = TypeHelper.removeDimensions(rType);
+            QualifiedType qt = r.resolve(code, path, lCompilationUnitStatement.getTypeStatement(),
+                    lCompilationUnitStatement, lCompilationUnitStatement.getPackageStatement(),
+                    lCompilationUnitStatement.getImports(), typeName);
+            return new TypeInstance(qt, dimensions);
+        }
+//        return null;
+    }
+
+    private TypeInstance resolveTernaryExpression(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             TernaryExpression texp) {
@@ -310,7 +393,7 @@ public class ExpressionTypeResolver {
 
         if (t1 != null && t2 != null) {
             if (t1.getQualifiedName().equals("null") && t2.getQualifiedName().equals("null")) {
-                return new TypeInstance("java.lang.Object", null, null, 0);
+                return literalType("java.lang.Object");
             } else if (!t1.getQualifiedName().equals("null") && t2.getQualifiedName().equals("null")) {
                 return t1;
             } else if (t1.getQualifiedName().equals("null") && !t2.getQualifiedName().equals("null")) {
@@ -320,12 +403,12 @@ public class ExpressionTypeResolver {
             }
         } else if (t1 != null) {
             if (t1.getQualifiedName().equals("null")) {
-                return new TypeInstance("java.lang.Object", null, null, 0);
+                return literalType("java.lang.Object");
             }
             return t1;
         } else if (t2 != null) {
             if (t2.getQualifiedName().equals("null")) {
-                return new TypeInstance("java.lang.Object", null, null, 0);
+                return literalType("java.lang.Object");
             }
             return t2;
         }
@@ -355,6 +438,6 @@ public class ExpressionTypeResolver {
     }
 
     private static TypeInstance literalType(String type) { // TODO update when java api is fully supported
-        return new TypeInstance(type, null, null, 0);
+        return new TypeInstance(type, 0);
     }
 }

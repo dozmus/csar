@@ -149,8 +149,9 @@ public class TypeHierarchyResolver implements CodePostProcessor {
                 continue;
             String currentPkg = topStatement.getPackageStatement().map(p -> p.getPackageName() + ".").orElse("");
 
-            TypeStatementHierarchyResolver resolver = new TypeStatementHierarchyResolver(this, code, partialHierarchies, path, currentPkg,
-                    topStatement.getImports(), topStatement.getPackageStatement(), typeStatement);
+            TypeStatementHierarchyResolver resolver = new TypeStatementHierarchyResolver(this, code, partialHierarchies,
+                    path, currentPkg, topStatement.getImports(), topStatement.getPackageStatement(), typeStatement,
+                    topStatement);
             resolver.visitStatement(typeStatement);
         }
 
@@ -170,16 +171,18 @@ public class TypeHierarchyResolver implements CodePostProcessor {
      * @param list the type hierarchy list
      * @param code the code base
      * @param path the path of the child
+     * @param parent the type which contains the child
      * @param packageStatement the package statement of the child class
      * @param imports the imports of the child class
      * @param child the name of the child class
      * @param superClasses the superclasses of the child class
+     * @param topLevelParent the top-level parent of the parent
      */
     public void placeInList(List<TypeNode> list, Map<Path, Statement> code, Path path, TypeStatement parent,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports, String child,
-            List<String> superClasses) {
+            List<String> superClasses, TypeStatement topLevelParent) {
         for (String superClass : superClasses) {
-            QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, parent,
+            QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, topLevelParent,
                     packageStatement, imports, superClass);
             String resolvedSuperClassName = resolvedType.getQualifiedName();
 

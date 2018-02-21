@@ -87,4 +87,14 @@ public final class PostProcessUtils {
             return ((AnnotationStatement)type).getBlock();
         }
     }
+
+    public static String getIdentifierName(TypeStatement type) {
+        if (type instanceof ClassStatement) {
+            return ((ClassStatement)type).getDescriptor().getIdentifierName().toString();
+        } else if (type instanceof EnumStatement) {
+            return ((EnumStatement)type).getDescriptor().getIdentifierName().toString();
+        } else { // fall-back: annotation
+            return ((AnnotationStatement)type).getDescriptor().getIdentifierName().toString();
+        }
+    }
 }

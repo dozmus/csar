@@ -91,7 +91,7 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
             ClassStatement classStatement = (ClassStatement) typeStatement;
             ClassDescriptor descriptor = classStatement.getDescriptor();
 
-            if (!descriptor.getExtendedClass().isPresent() && descriptor.getImplementedInterfaces().size() == 0)
+            if (!descriptor.getExtendedClass().isPresent() && descriptor.getImplementedInterfaces().size() == 0) // TODO update once java api supported
                 return false;
             List<String> superClasses = PostProcessUtils.superClasses(classStatement);
             return calculateOverridden(code, pkg, imports, superClasses, path, typeStatement, parent, method);
@@ -99,7 +99,7 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
             EnumStatement enumStatement = (EnumStatement) typeStatement;
             EnumDescriptor descriptor = enumStatement.getDescriptor();
 
-            if (descriptor.getSuperClasses().size() == 0)
+            if (descriptor.getSuperClasses().size() == 0) // TODO update once java api supported
                 return false;
             return calculateOverridden(code, pkg, imports, descriptor.getSuperClasses(), path, typeStatement, parent,
                     method);
@@ -116,22 +116,22 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
         for (String superClass : superClasses) {
             QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, topLevelParent,
                     packageStatement, imports, superClass);
-            Statement resolvedStatement = resolvedType.getStatement();
+            Statement resolvedStatement = resolvedType.getTopLevelStatement();
 
             // NOTE we ignore (fully) un-resolved statements here
-            if (resolvedStatement != null && resolvedStatement instanceof CompilationUnitStatement) {
-                CompilationUnitStatement s = (CompilationUnitStatement) resolvedStatement;
-                TypeStatement s2 = s.getTypeStatement();
-                boolean isClassOrEnum = (s2 instanceof ClassStatement || s2 instanceof EnumStatement);
+            if (resolvedStatement != null) {
+                CompilationUnitStatement superTopLevel = (CompilationUnitStatement) resolvedStatement;
+                TypeStatement superType = superTopLevel.getTypeStatement();
+                boolean isClassOrEnum = (superType instanceof ClassStatement || superType instanceof EnumStatement);
 
                 // Check current class
-                if (!s2.equals(parent) && isClassOrEnum) {
+                if (!superType.equals(parent) && isClassOrEnum) {
                     BlockStatement blockStatement;
 
-                    if (s.getTypeStatement() instanceof ClassStatement) {
-                        blockStatement = ((ClassStatement) s.getTypeStatement()).getBlock();
+                    if (superTopLevel.getTypeStatement() instanceof ClassStatement) {
+                        blockStatement = ((ClassStatement) superTopLevel.getTypeStatement()).getBlock();
                     } else { // enum
-                        blockStatement = ((EnumStatement) s.getTypeStatement()).getBlock();
+                        blockStatement = ((EnumStatement) superTopLevel.getTypeStatement()).getBlock();
                     }
 
                     for (Statement statement : blockStatement.getStatements()) {
@@ -142,7 +142,7 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
                         boolean signatureEquals = MethodSignatureComparator.signatureEquals(m2, method,
                                 typeHierarchyResolver);
                         boolean accessible = PostProcessUtils.isAccessible(desc, desc2, packageStatement,
-                                s.getPackageStatement(), s2);
+                                superTopLevel.getPackageStatement(), superType);
 
                         if (!desc2.getStaticModifier().get() && signatureEquals && accessible) {
                             return !desc2.getFinalModifier().get();
@@ -151,9 +151,9 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
                 }
 
                 // Check super classes of super class
-                if (calculateOverridden(code, s.getPackageStatement(), s.getImports(),
-                        PostProcessUtils.superClasses(s2), resolvedType.getPath(), parent,
-                        s, method)) { // TODO some args passed here are incorrect: make sure parent is right
+                if (calculateOverridden(code, superTopLevel.getPackageStatement(), superTopLevel.getImports(),
+                        PostProcessUtils.superClasses(superType), resolvedType.getPath(), superTopLevel,
+                        superTopLevel, method)) {
                     return true;
                 }
             }

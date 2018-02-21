@@ -1,17 +1,19 @@
 package org.qmul.csar.code.java.postprocess.qualifiedname;
 
+import org.qmul.csar.code.java.StatementVisitor;
+import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.EnumStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.lang.IdentifierName;
-import org.qmul.csar.code.java.StatementVisitor;
+import org.qmul.csar.lang.Statement;
 
 import java.util.*;
 
 final class TargetTypeSearcherForInnerClass extends StatementVisitor {
 
     private final Deque<String> traversalHierarchy = new ArrayDeque<>();
-    private final List<String> types = new ArrayList<>();
+    private final Map<String, Statement> types = new HashMap<>();
     private boolean inner = false;
 
     public void resetState(Optional<PackageStatement> packageStatement) {
@@ -46,21 +48,28 @@ final class TargetTypeSearcherForInnerClass extends StatementVisitor {
 
     @Override
     public void visitClassStatement(ClassStatement statement) {
-        appendCurrentIdentifier(statement.getDescriptor().getIdentifierName());
+        updateTypes(statement.getDescriptor().getIdentifierName(), statement);
         super.visitClassStatement(statement);
         traversalHierarchy.removeLast();
     }
 
     @Override
     public void visitEnumStatement(EnumStatement statement) {
-        appendCurrentIdentifier(statement.getDescriptor().getIdentifierName());
+        updateTypes(statement.getDescriptor().getIdentifierName(), statement);
         super.visitEnumStatement(statement);
         traversalHierarchy.removeLast();
     }
 
-    private void appendCurrentIdentifier(IdentifierName identifierName) {
+    @Override
+    public void visitAnnotationStatement(AnnotationStatement statement) {
+        updateTypes(statement.getDescriptor().getIdentifierName(), statement);
+        super.visitAnnotationStatement(statement);
+        traversalHierarchy.removeLast();
+    }
+
+    private void updateTypes(IdentifierName identifierName, Statement statement) {
         traversalHierarchy.addLast(prefix() + identifierName.toString());
-        types.add(String.join("", traversalHierarchy));
+        types.put(String.join("", traversalHierarchy), statement);
         inner = true;
     }
 
@@ -70,7 +79,7 @@ final class TargetTypeSearcherForInnerClass extends StatementVisitor {
         return inner ? "$" : ".";
     }
 
-    public List<String> getTypes() {
+    public Map<String, Statement> getTypes() {
         return types;
     }
 }

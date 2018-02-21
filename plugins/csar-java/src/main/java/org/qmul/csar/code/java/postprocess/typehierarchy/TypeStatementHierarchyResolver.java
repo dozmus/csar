@@ -25,14 +25,15 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
     private final Optional<PackageStatement> packageStatement;
     private final Map<Integer, String> map = new HashMap<>(); // maps 'nesting number' to 'prefix' at that nesting
     private final Path path;
-    private final TypeStatement parent;
+    private final TypeStatement targetType;
+    private final TypeStatement topStatement;
     private TypeHierarchyResolver typeHierarchyResolver;
     private String currentIdentifierName;
     private int nesting = 0;
 
     TypeStatementHierarchyResolver(TypeHierarchyResolver typeHierarchyResolver, Map<Path, Statement> code,
             List<TypeNode> tmp, Path path, String currentPkg, List<ImportStatement> imports,
-            Optional<PackageStatement> packageStatement, TypeStatement parent) {
+            Optional<PackageStatement> packageStatement, TypeStatement targetType, TypeStatement topStatement) {
         this.typeHierarchyResolver = typeHierarchyResolver;
         this.code = code;
         this.tmp = tmp;
@@ -40,7 +41,8 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
         this.imports = imports;
         this.packageStatement = packageStatement;
         this.currentIdentifierName = currentPkg;
-        this.parent = parent;
+        this.targetType = targetType;
+        this.topStatement = topStatement;
     }
 
     @Override
@@ -70,8 +72,8 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
         if (superClasses.size() == 0) {
             typeHierarchyResolver.getRoot().getChildren().add(getFromListOrDefault(tmp, currentIdentifierName));
         } else {
-            typeHierarchyResolver.placeInList(tmp, code, path, parent, packageStatement, imports, currentIdentifierName,
-                    superClasses);
+            typeHierarchyResolver.placeInList(tmp, code, path, targetType, packageStatement, imports,
+                    currentIdentifierName, superClasses, topStatement);
         }
         nesting++;
     }

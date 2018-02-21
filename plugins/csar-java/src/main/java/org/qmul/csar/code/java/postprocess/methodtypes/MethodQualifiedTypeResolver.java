@@ -28,6 +28,10 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
         this.qualifiedNameResolver = qualifiedNameResolver;
     }
 
+    public MethodQualifiedTypeResolver() {
+        this(new QualifiedNameResolver());
+    }
+
     /**
      * Resolves the types of each method in the argument codebase.
      *

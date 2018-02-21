@@ -11,6 +11,7 @@ import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor;
+import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
@@ -30,6 +31,7 @@ public class MethodUsageResolverTest {
     private static final MethodProcessor processor = new MethodProcessor();
     private static final MethodUsageResolver resolver = new MethodUsageResolver();
     private static final TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver();
+    private static final MethodQualifiedTypeResolver methodTypeResolver = new MethodQualifiedTypeResolver();
     private static Map<Path, Statement> code;
 
     @BeforeClass
@@ -42,6 +44,7 @@ public class MethodUsageResolverTest {
 
         // Resolve method usages
         typeHierarchyResolver.postprocess(code);
+        methodTypeResolver.postprocess(code);
         processor.setTypeHierarchyResolver(typeHierarchyResolver);
         processor.postprocess(code);
         resolver.setTypeHierarchyResolver(typeHierarchyResolver);

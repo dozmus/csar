@@ -70,7 +70,7 @@ public class QualifiedNameResolver {
 
         // Resolve against inner classes in current class
         statistics.prepare();
-        QualifiedType t0 = resolveInCurrentClass(parent, currentPackage, name, path);
+        QualifiedType t0 = resolveInCurrentClass(topLevelParent, parent, currentPackage, name, path);
         statistics.currentClassTimeTaken += statistics.diff();
 
         if (t0 != null)
@@ -78,7 +78,7 @@ public class QualifiedNameResolver {
 
         // Resolve against inner classes in top-level parent class
         statistics.prepare();
-        QualifiedType t1 = resolveInCurrentClass(topLevelParent, currentPackage, name, path);
+        QualifiedType t1 = resolveInCurrentClass(topLevelParent, topLevelParent, currentPackage, name, path);
         statistics.currentParentClassTimeTaken += statistics.diff();
 
         if (t1 != null)
@@ -111,30 +111,32 @@ public class QualifiedNameResolver {
         // If name contains dots, we assume it is a fully qualified name
         // TODO check this properly
         if (name.contains(".")) {
-            return new QualifiedType(name, null, null);
+            return new QualifiedType(name);
         }
 
         // Assume it exists (for external APIs sake)
         // TODO check this properly
-        return new QualifiedType(name, null, null);
+        return new QualifiedType(name);
 //        throw new RuntimeException("could not resolve qualified name for " + name + " in " + path.toString());
     }
 
-    private QualifiedType resolveInCurrentClass(TypeStatement parent, Optional<PackageStatement> pkg, String name,
-            Path path) {
-        // TODO make sure this works: results look good though
-        if (parent instanceof CompilationUnitStatement) {
-            parent = ((CompilationUnitStatement)parent).getTypeStatement();
+    private QualifiedType resolveInCurrentClass(TypeStatement topLevelParent, TypeStatement targetType,
+            Optional<PackageStatement> pkg, String name, Path path) {
+        if (targetType instanceof CompilationUnitStatement) {
+            targetType = ((CompilationUnitStatement)targetType).getTypeStatement();
         }
         name = name.replace(".", "$");
 
         // Compute
         innerSearcher.resetState(pkg);
-        innerSearcher.visitStatement(parent);
+        innerSearcher.visitStatement(targetType);
 
-        for (String foundQualifiedName : innerSearcher.getTypes()) {
-            if (foundQualifiedName.endsWith("." + name) || foundQualifiedName.endsWith("$" + name)) {
-                return new QualifiedType(foundQualifiedName, parent, path);
+        for (Map.Entry<String, Statement> innerType : innerSearcher.getTypes().entrySet()) {
+            String qualifiedName = innerType.getKey();
+            Statement type = innerType.getValue();
+
+            if (qualifiedName.endsWith("." + name) || qualifiedName.endsWith("$" + name)) {
+                return new QualifiedType(qualifiedName, type, (CompilationUnitStatement)topLevelParent, path);
             }
         }
         return null;
@@ -214,18 +216,20 @@ public class QualifiedNameResolver {
             innerSearcher.resetStatePkgName(currentPkg);
             innerSearcher.visitStatement(typeStatement);
 
-            for (String foundQualifiedName : innerSearcher.getTypes()) {
-                String normalizedQn = foundQualifiedName.replace("$", ".");
+            for (Map.Entry<String, Statement> innerType : innerSearcher.getTypes().entrySet()) {
+                String qualifiedName = innerType.getKey();
+                Statement type = innerType.getValue();
+                String normalizedQn = qualifiedName.replace("$", ".");
 
                 if (normalizedQn.endsWith("." + normalizedName) || normalizedQn.endsWith("$" + normalizedName)) {
-                    return new QualifiedType(foundQualifiedName, statement, p);
+                    return new QualifiedType(qualifiedName, type, topStatement, p);
                 }
             }
         }
 
         // Fall-back: assume it exists if it looks like a fully qualified name (handles external APIs in a loose way)
         if (importQualifiedName.endsWith("." + name)) {
-            return new QualifiedType(importQualifiedName, null, null);
+            return new QualifiedType(importQualifiedName);
         }
         return null;
     }
@@ -251,15 +255,16 @@ public class QualifiedNameResolver {
 
             if (!(statement instanceof CompilationUnitStatement))
                 continue;
-            CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
-            TypeStatement typeStatement = topStatement.getTypeStatement();
+            CompilationUnitStatement topLevelParent = (CompilationUnitStatement) statement;
+            TypeStatement typeStatement = topLevelParent.getTypeStatement();
 
-            if (topStatement.getPackageStatement().isPresent()) {
-                String otherPkg = topStatement.getPackageStatement().get().getPackageName();
+            if (topLevelParent.getPackageStatement().isPresent()) {
+                String otherPkg = topLevelParent.getPackageStatement().get().getPackageName();
+                Statement matchedStatement = typeContainsName(currentPkg, otherPkg, typeStatement, name);
 
-                if (targetContainsName(currentPkg, otherPkg, typeStatement, name)) {
+                if (matchedStatement != null) {
                     String qualifiedName = otherPkg + "." + String.join("$", name.split("\\."));
-                    QualifiedType type = new QualifiedType(qualifiedName, statement, p);
+                    QualifiedType type = new QualifiedType(qualifiedName, matchedStatement, topLevelParent, p);
                     currentPackageCache.put(currentPackageEntry, type);
                     return type;
                 }
@@ -288,15 +293,17 @@ public class QualifiedNameResolver {
 
                 if (!(statement instanceof CompilationUnitStatement))
                     continue;
-                CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
-                TypeStatement typeStatement = topStatement.getTypeStatement();
+                CompilationUnitStatement topLevelParent = (CompilationUnitStatement) statement;
+                TypeStatement typeStatement = topLevelParent.getTypeStatement();
 
                 // they have to both have no package statement, and be in the same folder
-                if (!topStatement.getPackageStatement().isPresent()
+                if (!topLevelParent.getPackageStatement().isPresent()
                         && path.getParent().equals(entry.getKey().getParent())) {
-                    if (targetContainsName("", "", typeStatement, name)) {
+                    Statement matchedStatement = typeContainsName("", "", typeStatement, name);
+
+                    if (matchedStatement != null) {
                         String qualifiedName = String.join("$", name.split("\\."));
-                        QualifiedType type = new QualifiedType(qualifiedName, statement, p);
+                        QualifiedType type = new QualifiedType(qualifiedName, matchedStatement, topLevelParent, p);
                         defaultPackageCache.put(defaultPackageEntry, type);
                         return type;
                     }
@@ -310,25 +317,25 @@ public class QualifiedNameResolver {
     }
 
     /**
-     * Returns <tt>true</tt> if the target type statement contains the given qualified name. If <tt>currentPkg</tt>
-     * and <tt>otherPkg</tt> are not equal, then <tt>false</tt> is returned.
+     * Returns the statement corresponding to the given qualified name if it was in the argument type.
+     * If <tt>currentPkg</tt> and <tt>otherPkg</tt> are not equal, or it is not found, then <tt>null</tt> is returned.
      *
      * @param currentPkg the package <tt>qualifiedName</tt> is defined in
      * @param otherPkg the package target is in
-     * @param target the target type statement
+     * @param type the type statement to search
      * @param qualifiedName the qualified name to check is contained in the target
-     * @return returns <tt>true</tt> if the target type statement contains the given qualified name
+     * @return returns the statement corresponding to the given qualified name if it was in the argument type
      * @see TargetTypeSearcher
      */
-    private boolean targetContainsName(String currentPkg, String otherPkg, TypeStatement target, String qualifiedName) {
+    private Statement typeContainsName(String currentPkg, String otherPkg, TypeStatement type, String qualifiedName) {
         // Compare packages
         if (!otherPkg.equals(currentPkg))
-            return false;
+            return null;
 
         // Perform search in target
         searcher.resetState(qualifiedName);
-        searcher.visitStatement(target);
-        return searcher.isMatched();
+        searcher.visitStatement(type);
+        return searcher.getMatchedStatement();
     }
 
     public Statistics getStatistics() {
@@ -374,8 +381,7 @@ public class QualifiedNameResolver {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             OtherPackagesEntry that = (OtherPackagesEntry) o;
-            return Objects.equals(importStatement, that.importStatement)
-                    && Objects.equals(name, that.name);
+            return Objects.equals(importStatement, that.importStatement) && Objects.equals(name, that.name);
         }
 
         @Override
@@ -390,8 +396,7 @@ public class QualifiedNameResolver {
         private final Optional<PackageStatement> currentPackage;
         private final String name;
 
-        public DefaultPackageEntry(Path path,
-                Optional<PackageStatement> currentPackage, String name) {
+        public DefaultPackageEntry(Path path, Optional<PackageStatement> currentPackage, String name) {
             this.path = path;
             this.currentPackage = currentPackage;
             this.name = name;

@@ -42,7 +42,7 @@ public class MethodCallProcessor {
         Expression name = expression.getMethodName();
         List<Expression> args = expression.getArguments();
 
-        // Set method source
+        // Set method source if applicable
         if (name instanceof BinaryExpression) {
             System.out.println("Found binary expression method name");
             BinaryExpression exp = (BinaryExpression)name;
@@ -61,7 +61,7 @@ public class MethodCallProcessor {
         List<ImportStatement> imports = th.getImports();
         Optional<PackageStatement> currentPackage = th.getPackageStatement();
         BlockStatement currentContext = th.currentContext();
-        return ExpressionTypeResolver.resolve(path, code, topLevelType, currentType, imports, currentPackage,
+        return new ExpressionTypeResolver().resolve(path, code, topLevelType, currentType, imports, currentPackage,
                 currentContext, qn, th, thr, expr);
     }
 }

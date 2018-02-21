@@ -24,13 +24,10 @@ public class MethodResolver {
     private final Map<Path, Statement> code;
     private final QualifiedNameResolver qualifiedNameResolver;
     private final TypeHierarchyResolver typeHierarchyResolver;
-    private TypeStatement baseTopLevelParent;
-    private TypeStatement baseTypeStatement;
-    private List<ImportStatement> baseImports;
-    private Optional<PackageStatement> basePackageStatement;
-    private BlockStatement baseContext;
     private MethodCallExpression methodCall;
     private List<TypeInstance> parameterTypeInstances;
+    private TraversalHierarchy traversalHierarchy;
+    private boolean onVariable;
 
     public MethodResolver(Path path, Map<Path, Statement> code, QualifiedNameResolver qualifiedNameResolver,
             TypeHierarchyResolver typeHierarchyResolver) {
@@ -41,34 +38,60 @@ public class MethodResolver {
         this.parameterTypeInstances = new ArrayList<>();
     }
 
-    public MethodStatement resolve(MethodCallExpression e, TraversalHierarchy traversalHierarchy) {
+    public MethodStatement resolve(MethodCallExpression e, TypeStatement baseTopLevelParent,
+            TypeStatement baseTypeStatement, List<ImportStatement> baseImports,
+            Optional<PackageStatement> basePackageStatement, BlockStatement baseContext,
+            TraversalHierarchy traversalHierarchy) {
         // Set context
-        baseTopLevelParent = traversalHierarchy.getFirstTypeStatement();
-        baseTypeStatement = traversalHierarchy.getLastTypeStatement();
-        baseImports = traversalHierarchy.getImports();
-        basePackageStatement = traversalHierarchy.getPackageStatement();
-        baseContext = traversalHierarchy.currentContext();
+        this.traversalHierarchy = traversalHierarchy;
         methodCall = e;
 
         // Set argument type instances
         parameterTypeInstances.clear();
 
         for (Expression arg : methodCall.getArguments()) {
-            TypeInstance t = ExpressionTypeResolver.resolve(path, code, baseTopLevelParent, baseTypeStatement,
+            TypeInstance t = new ExpressionTypeResolver().resolve(path, code, baseTopLevelParent, baseTypeStatement,
                     baseImports, basePackageStatement, baseContext, qualifiedNameResolver, traversalHierarchy,
                     typeHierarchyResolver, arg);
             parameterTypeInstances.add(t);
         }
 
-        // Resolve in current context, then in current type statement, then in superclasses
+        // Resolve the method
         MethodStatement m;
 
-        if ((m = resolveInBlock(baseContext)) != null)
-            return m;
+        if (methodCall.getMethodSource() != null) { // Resolve it potentially in another class
+            onVariable = true;
+            TypeInstance source = methodCall.getMethodSource();
 
-        if ((m = resolveInTypeStatement(baseTypeStatement)) != null)
-            return m;
-        return resolveInSuperClasses(baseTypeStatement, baseTopLevelParent, basePackageStatement, baseImports);
+            if (source.getStatement() == null) // is an unresolved class, probably a part of the java api
+                return null;
+
+            System.out.println("method has source attached of name: " + source.getQualifiedName() + " type: " + source.getType());
+
+            if ((m = resolveInTypeStatement(source.getStatement())) != null)
+                return m;
+
+            if ((m = resolveInSuperClasses(source.getStatement(), source.getCompilationUnitStatement(),
+                    source.getCompilationUnitStatement().getPackageStatement(),
+                    source.getCompilationUnitStatement().getImports())) != null)
+                return m;
+        } else { // Resolve in current context, then in current type statement, then in superclasses
+            if ((m = resolveInBlock(baseContext)) != null)
+                return m;
+
+            if ((m = resolveInTypeStatement(baseTypeStatement)) != null)
+                return m;
+
+            if ((m = resolveInSuperClasses(baseTypeStatement, baseTopLevelParent, basePackageStatement,
+                    baseImports)) != null)
+                return m;
+        }
+        return null;
+    }
+
+    public MethodStatement resolve(MethodCallExpression e, TraversalHierarchy th) {
+        return resolve(e, th.getFirstTypeStatement(), th.getLastTypeStatement(), th.getImports(),
+                th.getPackageStatement(), th.currentContext(), th);
     }
 
     private MethodStatement resolveInTypeStatement(TypeStatement typeStatement) {
@@ -106,12 +129,31 @@ public class MethodResolver {
         return null;
     }
 
+    private MethodStatement resolveInTypeInstance(TypeInstance typeInstance, TypeStatement topLevelParent) {
+        Statement resolvedStatement = typeInstance.getStatement();
+
+        if (resolvedStatement != null && resolvedStatement instanceof CompilationUnitStatement) {
+            TypeStatement typeStatement = ((CompilationUnitStatement)resolvedStatement).getTypeStatement();
+            List<ImportStatement> imports = ((CompilationUnitStatement)resolvedStatement).getImports();
+            Optional<PackageStatement> pkgStatement = ((CompilationUnitStatement)resolvedStatement).getPackageStatement();
+            MethodStatement m = resolveInTypeStatement(typeStatement);
+
+            if (m != null)
+                return m;
+
+            // Check super classes
+            return resolveInSuperClasses(typeStatement, topLevelParent, pkgStatement, imports);
+        }
+        return null;
+    }
+
     private MethodStatement resolveInBlock(BlockStatement block) {
         List<Statement> statements = block.getStatements();
 
         if (statements.size() == 0)
             return null;
         String methodName = methodCall.getMethodIdentifier();
+        boolean currentContextIsStatic = traversalHierarchy.isCurrentContextStatic();
 
         return statements.stream()
                 .filter(s -> s instanceof MethodStatement)
@@ -121,9 +163,11 @@ public class MethodResolver {
 
                     boolean methodNameEquals = methodName.equals(desc.getIdentifierName().toString());
                     boolean argsEquals = parametersSignatureEquals(method.getParameters(), desc.getTypeParameters());
-                    // TODO check visibility modifier and accessibility
+                    boolean accessibilityIsValid = onVariable
+                            || !(currentContextIsStatic && !desc.getStaticModifier().get());
+                    // TODO check visibility modifier and make sure accessibility is correct
 
-                    return methodNameEquals && argsEquals;
+                    return methodNameEquals && argsEquals && accessibilityIsValid;
                 })
                 .findFirst().orElse(null);
     }

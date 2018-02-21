@@ -44,7 +44,7 @@ public enum BinaryOperation {
                 || this == XOR_ASSIGN || this == OR_ASSIGN || this == MOD_ASSIGN;
     }
 
-    public boolean isBoolean() {
+    public boolean isBooleanOperation() {
         return this == AND || this == OR || this == EQUALS || this == NOTEQUALS || this == LE || this == GE
                 || this == GT || this == LT;
     }

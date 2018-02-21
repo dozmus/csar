@@ -177,7 +177,7 @@ public class MethodUsageExpressionVisitor extends ExpressionVisitor {
 
     private void resolveMethodCall(MethodCallExpression expression) {
         System.out.println("--------------------------------------------------------");
-        System.out.println("resolve:" + expression.toPseudoCode());
+        System.out.println("resolve method call:" + expression.toPseudoCode());
 
 
         MethodResolver resolver = new MethodResolver(path, code, qualifiedNameResolver, typeHierarchyResolver);
