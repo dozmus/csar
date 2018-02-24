@@ -49,7 +49,7 @@ public final class Main {
             com.parse(args);
 
             // Set logging level
-            System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, ctx.getLogLevel().toString());
+            System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, ctx.getLogLevel().toString()); // TODO is this working properly with the new plugins stuff?
 
             // Print project url
             if (ctx.isPrintProjectUrl()) {

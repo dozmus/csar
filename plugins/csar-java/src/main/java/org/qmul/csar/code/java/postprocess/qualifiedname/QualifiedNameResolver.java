@@ -62,6 +62,12 @@ public class QualifiedNameResolver {
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name) {
+        return resolve(code, path, parent, topLevelParent, currentPackage, imports, name, false);
+    }
+
+    public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
+            TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
+            String name, boolean strict) {
         // If the name contains generic arguments, we omit it
         int leftAngleBracketIdx = name.indexOf('<');
 
@@ -108,6 +114,9 @@ public class QualifiedNameResolver {
         if (t4 != null)
             return t4;
 
+        if (strict)
+            return null;
+
         // If name contains dots, we assume it is a fully qualified name
         // TODO check this properly
         if (name.contains(".")) {
@@ -117,7 +126,6 @@ public class QualifiedNameResolver {
         // Assume it exists (for external APIs sake)
         // TODO check this properly
         return new QualifiedType(name);
-//        throw new RuntimeException("could not resolve qualified name for " + name + " in " + path.toString());
     }
 
     private QualifiedType resolveInCurrentClass(TypeStatement topLevelParent, TypeStatement targetType,

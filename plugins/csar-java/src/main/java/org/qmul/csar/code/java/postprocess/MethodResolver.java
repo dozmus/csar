@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MethodResolver {
 
@@ -48,18 +49,24 @@ public class MethodResolver {
 
         // Set argument type instances
         parameterTypeInstances.clear();
+        System.out.println("resolving args");
 
         for (Expression arg : methodCall.getArguments()) {
-            TypeInstance t = new ExpressionTypeResolver().resolve(path, code, baseTopLevelParent, baseTypeStatement,
+            TypeInstance t = new ExpressionTypeResolver(true).resolve(path, code, baseTopLevelParent, baseTypeStatement,
                     baseImports, basePackageStatement, baseContext, qualifiedNameResolver, traversalHierarchy,
                     typeHierarchyResolver, arg);
             parameterTypeInstances.add(t);
         }
+        System.out.println("ArgumentTypes=" + parameterTypeInstances.stream()
+                .map(t -> t == null ? "null" : t.getType()).collect(Collectors.toList()));
 
         // Resolve the method
         MethodStatement m;
 
+        System.out.println("resolving method itself: " + methodCall.getMethodSource());
+
         if (methodCall.getMethodSource() != null) { // Resolve it potentially in another class
+            System.out.println("method source != null");
             onVariable = true;
             TypeInstance source = methodCall.getMethodSource();
 
@@ -80,15 +87,28 @@ public class MethodResolver {
         } else { // Resolve in current context, then in current type statement, then in superclasses
             if ((m = resolveInBlock(baseContext)) != null)
                 return m;
+            System.out.println("not in block");
 
             if ((m = resolveInTypeStatement(baseTypeStatement)) != null)
                 return m;
+            System.out.println("not in type statement");
 
             if ((m = resolveInSuperClasses(baseTypeStatement, baseTopLevelParent, basePackageStatement,
                     baseImports)) != null)
                 return m;
+            System.out.println("not in super classes");
         }
+        System.out.println("not found");
         return null;
+    }
+
+    public MethodStatement resolveOnVariable(MethodCallExpression e, TypeStatement baseTopLevelParent,
+            TypeStatement baseTypeStatement, List<ImportStatement> baseImports,
+            Optional<PackageStatement> basePackageStatement, BlockStatement baseContext,
+            TraversalHierarchy traversalHierarchy) {
+        onVariable = true;
+        return resolve(e, baseTopLevelParent, baseTypeStatement, baseImports, basePackageStatement, baseContext,
+                traversalHierarchy);
     }
 
     public MethodStatement resolve(MethodCallExpression e, TraversalHierarchy th) {
@@ -171,7 +191,7 @@ public class MethodResolver {
             TypeInstance qtype1 = parameters.get(i).getTypeInstance();
             TypeInstance qtype2 = parameterTypeInstances.get(i);
 
-            if (!param1.getIdentifierType().isPresent())
+            if (!param1.getIdentifierType().isPresent() || qtype2 == null || qtype2.getType() == null)
                 return false;
 
             // Names
@@ -190,7 +210,7 @@ public class MethodResolver {
                     || !genericArgument1.isEmpty() && genericArgument2.isEmpty();
 
             // Check base types
-            if (qtype1 != null && qtype2 != null) {
+            if (qtype1 != null) {
                 if (!typeHierarchyResolver.isSubtype(qtype1.getQualifiedName(), qtype2.getQualifiedName())
                         || !genericTypesEqual || !dimensionEquals) {
                     return false;

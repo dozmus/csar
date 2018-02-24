@@ -47,13 +47,15 @@ public class MethodCallProcessor {
             System.out.println("Found binary expression method name");
             BinaryExpression exp = (BinaryExpression)name;
             expression.setMethodSource(resolve(exp));
-//            System.out.println("Set source to: " + expression.getMethodSource().getType() + " "
-//                    + expression.getMethodSource().getQualifiedName());
+            System.out.println("MethodSource="
+                    + (expression.getMethodSource() == null ? "null" : expression.getMethodSource().getType()));
         }
 
         // Set argument types
         List<TypeInstance> argsTypes = args.stream().map(this::resolve).collect(Collectors.toList());
         expression.setArgumentTypes(Collections.unmodifiableList(argsTypes));
+        System.out.println("ArgumentTypes=" + argsTypes.stream()
+                .map(t -> t == null ? "null" : t.getType()).collect(Collectors.toList()));
     }
 
     private TypeInstance resolve(Expression expr) {

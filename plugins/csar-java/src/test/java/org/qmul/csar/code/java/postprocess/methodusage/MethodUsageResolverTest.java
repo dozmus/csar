@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methodusage;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
@@ -24,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MethodUsageResolverTest {
 
@@ -241,6 +243,114 @@ public class MethodUsageResolverTest {
         assertEquals(1, calls.size());
         assertEquals(expectedMethodCall, calls.get(0));
     }
+
+    @Test
+    public void testMethodCallWithSubtypeArgumentValue1() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "A0.java");
+        List<Expression> args = Arrays.asList(identifier("b"));
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")),
+                args, path, 8);
+        List<MethodCallExpression> calls = findMethod("Class1.java", "void method2(A)").getMethodUsages();
+
+        // Assert
+        assertTrue(calls.size() > 0);
+
+        for (MethodCallExpression me : calls) {
+            System.out.println("testMethodCallWithSubtypeArgumentValue1" + me.toPseudoCode());
+            if (me.equals(expectedMethodCall)) {
+                return;
+            }
+        }
+        Assert.fail("Expected method call not found.");
+    }
+
+    @Test
+    public void testMethodCallWithSubtypeArgumentValue2() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "A0.java");
+        List<Expression> args = Arrays.asList(new MethodCallExpression(identifier("getB"), path, 13));
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")),
+                args, path, 13);
+        List<MethodCallExpression> calls = findMethod("Class1.java", "void method2(A)").getMethodUsages();
+
+        // Assert
+        assertTrue(calls.size() > 0);
+
+        for (MethodCallExpression me : calls) {
+            if (me.equals(expectedMethodCall)) {
+                return;
+            }
+        }
+        Assert.fail("Expected method call not found.");
+    }
+
+    @Test
+    public void testMethodCallWithSubtypeArgumentValue3() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "A0.java");
+        List<Expression> args = Arrays.asList(
+                new MethodCallExpression(new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("getB")),
+                        path, 18)
+        );
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")),
+                args, path, 18);
+        List<MethodCallExpression> calls = findMethod("Class1.java", "void method2(A)").getMethodUsages();
+
+        // Assert
+        assertTrue(calls.size() > 0);
+
+        for (MethodCallExpression me : calls) {
+            if (me.equals(expectedMethodCall)) {
+                return;
+            }
+        }
+        Assert.fail("Expected method call not found.");
+    }
+
+    @Test
+    public void testStaticMethodCallOnClassName() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(identifier("V"), BinaryOperation.DOT, identifier("staticAdd2")),
+                new ArrayList<>(), path, 6);
+        List<MethodCallExpression> calls = findMethod("V.java", "void staticAdd2()").getMethodUsages();
+
+        // Assert
+        assertTrue(calls.size() > 0);
+
+        for (MethodCallExpression me : calls) {
+            if (me.equals(expectedMethodCall)) {
+                return;
+            }
+        }
+        Assert.fail("Expected method call not found.");
+    }
+
+//    @Test
+//    public void testStaticMethodCallOnFullyQualifiedName() {
+//        // Expected method call
+//        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
+//        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+//                new BinaryExpression(identifier("base"), BinaryOperation.DOT,
+//                        new BinaryExpression(identifier("V"), BinaryOperation.DOT, identifier("staticAdd2"))),
+//                new ArrayList<>(), path, 6);
+//        List<MethodCallExpression> calls = findMethod("V.java", "void staticAdd2()").getMethodUsages();
+//
+//        // Assert
+//        assertTrue(calls.size() > 0);
+//
+//        for (MethodCallExpression me : calls) {
+//            if (me.equals(expectedMethodCall)) {
+//                return;
+//            }
+//        }
+//        Assert.fail("Expected method call not found.");
+//    }
 
 //    @Test
 //    public void testMethodCallOnParentInstanceInStaticInnerClass() {
