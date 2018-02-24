@@ -59,8 +59,10 @@ public class ExpressionTypeResolver {
         } else if (expression instanceof BinaryExpression) {
             BinaryExpression bexp = (BinaryExpression)expression;
             nestedBinaryExpressionLevel++;
-            return resolveBinaryExpression(path, code, topLevelType, currentType, imports, currentPackage,
-                    currentContext, r, th, thr, bexp.getLeft(), bexp.getOp(), bexp.getRight());
+            TypeInstance instance = resolveBinaryExpression(path, code, topLevelType, currentType, imports,
+                    currentPackage, currentContext, r, th, thr, bexp.getLeft(), bexp.getOp(), bexp.getRight());
+            nestedBinaryExpressionLevel--;
+            return instance;
         } else if (expression instanceof CastExpression) {
             CastExpression cexp = (CastExpression)expression;
             String apparentType = TypeHelper.removeDimensions(cexp.getApparentType());
@@ -312,7 +314,7 @@ public class ExpressionTypeResolver {
 
             System.out.println("lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
             return resolveBinaryExpressionDotRhs(lhs, path, code,
-                    r, right, th, thr);
+                    r, right);
         } else if (op.equals(BinaryOperation.INSTANCE_OF) || op.isBooleanOperation()) {
             return literalType("boolean");
         }
@@ -320,54 +322,20 @@ public class ExpressionTypeResolver {
     }
 
     private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
-            QualifiedNameResolver r, Expression right, TraversalHierarchy th, TypeHierarchyResolver thr) {
+            QualifiedNameResolver r, Expression right) {
         System.out.println("resolveBinaryExpressionRhs [right=" + right.getClass() + "]");
-        // TODO fix
         if (lhs == null)
             return null;
 
         UnitExpression rue = (UnitExpression)right;
         CompilationUnitStatement lCompilationUnitStatement = lhs.getCompilationUnitStatement();
 
-        if (nestedBinaryExpressionLevel == 1) { // rhs is the identifier of a method call
-//            if (rue.getValueType() == UnitExpression.ValueType.IDENTIFIER) {
-//                String methodName = rue.getValue();
-//                System.out.println("[resolveBinaryExpressionRhs rMethodName=" + methodName);
-//
-//                if (lCompilationUnitStatement == null) { // may be external - we ignore it
-//                    return null;
-//                }
-//                MethodResolver methodResolver = new MethodResolver(lhs.getPath(), code, r, thr);
-//                MethodStatement method
-//                        = methodResolver.resolveOnVariable((MethodCallExpression)binaryExpressionRighestMost,
-//                        lCompilationUnitStatement, th);
-//
-//                if (method != null) {
-//                    int dimensions = TypeHelper.dimensions(method.getDescriptor().getReturnType().get());
-//                    return new TypeInstance(method.getReturnQualifiedType(), dimensions);
-//                }
-//            }
+        if (nestedBinaryExpressionLevel == 1) { // XXX rhs is the identifier of a method call, so we dont touch it - this is done elsewhere making this class a bit 'broken'
             return lhs;
         } else { // is identifier another
             // TODO handle the possibility that it might be a fully qualified method call
-            String rIdentifierName = rue.getValue();
-            String rType = null;
-
-            for (Statement st : PostProcessUtils.getBlock(lCompilationUnitStatement.getTypeStatement()).getStatements()) {
-                // TODO check visibility
-
-                if (st instanceof InstanceVariableStatement) {
-                    if (rType != null)
-                        break;
-
-                    InstanceVariableStatement instance = (InstanceVariableStatement)st;
-                    String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
-                    String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
-
-                    if (instanceIdentifierName.equals(rIdentifierName))
-                        rType = instanceIdentifierType;
-                }
-            }
+            String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
+                    code, path);
             System.out.println("[RBE-RHS] rType = " + rType);
 
             if (rType == null) // may be external - we ignore it
@@ -380,6 +348,40 @@ public class ExpressionTypeResolver {
             return new TypeInstance(qt, dimensions);
         }
 //        return null;
+    }
+
+    private String resolveBinaryExpressionDotRhsIdentifierType(CompilationUnitStatement topLevelParent,
+            String identifierName, QualifiedNameResolver r, Map<Path, Statement> code, Path path) {
+        // Check target
+        for (Statement st : PostProcessUtils.getBlock(topLevelParent.getTypeStatement()).getStatements()) {
+            // TODO check visibility
+            System.out.println("content: " + st.getClass());
+
+            if (st instanceof InstanceVariableStatement) {
+                InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+                System.out.println("identifierName=" + instanceIdentifierName);
+
+                if (instanceIdentifierName.equals(identifierName))
+                    return instanceIdentifierType;
+            }
+        }
+
+        // Check its super classes
+        for (String superClass : PostProcessUtils.superClasses(topLevelParent.getTypeStatement())) {
+            QualifiedType resolvedType = r.resolve(code, path, topLevelParent.getTypeStatement(), topLevelParent,
+                    topLevelParent.getPackageStatement(), topLevelParent.getImports(), superClass);
+
+            if (resolvedType != null && resolvedType.getTopLevelStatement() != null) {
+                String type = resolveBinaryExpressionDotRhsIdentifierType(resolvedType.getTopLevelStatement(),
+                        identifierName, r, code, path);
+
+                if (type != null)
+                    return type;
+            }
+        }
+        return null;
     }
 
     private TypeInstance resolveTernaryExpression(Path path, Map<Path, Statement> code, TypeStatement topLevelType,

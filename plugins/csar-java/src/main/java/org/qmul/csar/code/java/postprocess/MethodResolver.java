@@ -70,11 +70,13 @@ public class MethodResolver {
 
             if ((m = resolveInTypeStatement(source.getStatement())) != null)
                 return m;
+            System.out.println("not in type statement");
 
             if ((m = resolveInSuperClasses(source.getStatement(), source.getCompilationUnitStatement(),
                     source.getCompilationUnitStatement().getPackageStatement(),
                     source.getCompilationUnitStatement().getImports())) != null)
                 return m;
+            System.out.println("not in super classes");
         } else { // Resolve in current context, then in current type statement, then in superclasses
             if ((m = resolveInBlock(baseContext)) != null)
                 return m;
@@ -112,30 +114,14 @@ public class MethodResolver {
     }
 
     private MethodStatement resolveInQualifiedType(QualifiedType resolvedType, TypeStatement topLevelParent) {
+        System.out.println("resolveInQualifiedType");
         Statement resolvedStatement = resolvedType.getStatement();
 
-        if (resolvedStatement != null && resolvedStatement instanceof CompilationUnitStatement) {
-            TypeStatement typeStatement = ((CompilationUnitStatement)resolvedStatement).getTypeStatement();
-            List<ImportStatement> imports = ((CompilationUnitStatement)resolvedStatement).getImports();
-            Optional<PackageStatement> pkgStatement = ((CompilationUnitStatement)resolvedStatement).getPackageStatement();
-            MethodStatement m = resolveInTypeStatement(typeStatement);
-
-            if (m != null)
-                return m;
-
-            // Check super classes
-            return resolveInSuperClasses(typeStatement, topLevelParent, pkgStatement, imports);
-        }
-        return null;
-    }
-
-    private MethodStatement resolveInTypeInstance(TypeInstance typeInstance, TypeStatement topLevelParent) {
-        Statement resolvedStatement = typeInstance.getStatement();
-
-        if (resolvedStatement != null && resolvedStatement instanceof CompilationUnitStatement) {
-            TypeStatement typeStatement = ((CompilationUnitStatement)resolvedStatement).getTypeStatement();
-            List<ImportStatement> imports = ((CompilationUnitStatement)resolvedStatement).getImports();
-            Optional<PackageStatement> pkgStatement = ((CompilationUnitStatement)resolvedStatement).getPackageStatement();
+        if (resolvedType != null && resolvedStatement != null) {
+            System.out.println("looking further");
+            TypeStatement typeStatement = resolvedType.getTopLevelStatement().getTypeStatement();
+            List<ImportStatement> imports = resolvedType.getTopLevelStatement().getImports();
+            Optional<PackageStatement> pkgStatement = resolvedType.getTopLevelStatement().getPackageStatement();
             MethodStatement m = resolveInTypeStatement(typeStatement);
 
             if (m != null)

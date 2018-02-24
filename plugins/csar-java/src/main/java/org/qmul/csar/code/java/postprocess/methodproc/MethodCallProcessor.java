@@ -47,6 +47,8 @@ public class MethodCallProcessor {
             System.out.println("Found binary expression method name");
             BinaryExpression exp = (BinaryExpression)name;
             expression.setMethodSource(resolve(exp));
+//            System.out.println("Set source to: " + expression.getMethodSource().getType() + " "
+//                    + expression.getMethodSource().getQualifiedName());
         }
 
         // Set argument types
