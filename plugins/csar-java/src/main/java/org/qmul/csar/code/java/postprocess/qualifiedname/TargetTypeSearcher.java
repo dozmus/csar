@@ -10,17 +10,15 @@ import org.qmul.csar.lang.Statement;
 final class TargetTypeSearcher extends StatementVisitor {
 
     private String[] targetName;
-    private int matches = 0;
-    private int nesting = 0;
+    private boolean[] matches;
+    private int nesting = -1;
     private Statement matchedStatement;
-    private boolean notFound;
 
     public void resetState(String targetName) {
         this.targetName = targetName.split("\\.");
-        matches = 0;
+        matches = new boolean[this.targetName.length];
         nesting = -1;
         matchedStatement = null;
-        notFound = false;
     }
 
     public void visitStatement(Statement statement) {
@@ -37,7 +35,7 @@ final class TargetTypeSearcher extends StatementVisitor {
         if (match) {
             super.visitClassStatement(statement);
         } else {
-            notFound = true;
+            matches[nesting] = false;
         }
         nesting--;
     }
@@ -50,7 +48,7 @@ final class TargetTypeSearcher extends StatementVisitor {
         if (match) {
             super.visitEnumStatement(statement);
         } else {
-            notFound = true;
+            matches[nesting] = false;
         }
         nesting--;
     }
@@ -63,14 +61,14 @@ final class TargetTypeSearcher extends StatementVisitor {
         if (match) {
             super.visitAnnotationStatement(statement);
         } else {
-            notFound = true;
+            matches[nesting] = false;
         }
         nesting--;
     }
 
     private boolean matches(Statement statement, IdentifierName name) {
         if (name.toString().equals(targetName[nesting])) {
-            matches++;
+            matches[nesting] = true;
 
             if (isMatched()) {
                 matchedStatement = statement;
@@ -81,7 +79,11 @@ final class TargetTypeSearcher extends StatementVisitor {
     }
 
     public boolean isMatched() {
-        return !notFound && matches == targetName.length;
+        for (boolean b : matches) {
+            if (!b)
+                return false;
+        }
+        return true;
     }
 
     public Statement getMatchedStatement() {
