@@ -190,11 +190,32 @@ public class MethodDescriptor implements Descriptor {
                 && OptionalUtils.lenientEquals(defaultModifier, that.defaultModifier)
                 && OptionalUtils.lenientEquals(overridden, that.overridden)
                 && OptionalUtils.lenientEquals(stub, that.stub)
-                && OptionalUtils.lenientEquals(hasParameters, parameters, that.hasParameters, that.parameters)
+                && lenientEqualsParametersList(hasParameters, parameters, that.hasParameters, that.parameters)
                 && OptionalUtils.lenientEquals(hasThrownExceptions, thrownExceptions, that.hasThrownExceptions,
                         that.thrownExceptions)
                 && OptionalUtils.lenientEquals(hasTypeArguments, typeParameters, that.hasTypeArguments,
                         that.typeParameters);
+    }
+
+    public static boolean lenientEqualsParametersList(Optional<Boolean> present,
+            List<ParameterVariableDescriptor> elements, Optional<Boolean> otherPresent,
+            List<ParameterVariableDescriptor> otherElements) {
+        if (!present.isPresent())
+            return false;
+        if (!otherPresent.isPresent() || otherElements.size() == 0)
+            return true;
+        if (elements.size() != otherElements.size())
+            return false;
+
+        for (int i = 0; i < elements.size(); i++) {
+            ParameterVariableDescriptor e1 = elements.get(i);
+            ParameterVariableDescriptor e2 = otherElements.get(i);
+
+            if (!e1.lenientEquals(e2)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
