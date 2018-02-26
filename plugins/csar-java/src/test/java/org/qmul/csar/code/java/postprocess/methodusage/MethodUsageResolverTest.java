@@ -1,6 +1,5 @@
 package org.qmul.csar.code.java.postprocess.methodusage;
 
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
@@ -256,14 +255,7 @@ public class MethodUsageResolverTest {
 
         // Assert
         assertTrue(calls.size() > 0);
-
-        for (MethodCallExpression me : calls) {
-            System.out.println("testMethodCallWithSubtypeArgumentValue1" + me.toPseudoCode());
-            if (me.equals(expectedMethodCall)) {
-                return;
-            }
-        }
-        Assert.fail("Expected method call not found.");
+        assertTrue(calls.contains(expectedMethodCall));
     }
 
     @Test
@@ -278,13 +270,7 @@ public class MethodUsageResolverTest {
 
         // Assert
         assertTrue(calls.size() > 0);
-
-        for (MethodCallExpression me : calls) {
-            if (me.equals(expectedMethodCall)) {
-                return;
-            }
-        }
-        Assert.fail("Expected method call not found.");
+        assertTrue(calls.contains(expectedMethodCall));
     }
 
     @Test
@@ -302,13 +288,7 @@ public class MethodUsageResolverTest {
 
         // Assert
         assertTrue(calls.size() > 0);
-
-        for (MethodCallExpression me : calls) {
-            if (me.equals(expectedMethodCall)) {
-                return;
-            }
-        }
-        Assert.fail("Expected method call not found.");
+        assertTrue(calls.contains(expectedMethodCall));
     }
 
     @Test
@@ -322,13 +302,7 @@ public class MethodUsageResolverTest {
 
         // Assert
         assertTrue(calls.size() > 0);
-
-        for (MethodCallExpression me : calls) {
-            if (me.equals(expectedMethodCall)) {
-                return;
-            }
-        }
-        Assert.fail("Expected method call not found.");
+        assertTrue(calls.contains(expectedMethodCall));
     }
 
 //    @Test
@@ -343,13 +317,7 @@ public class MethodUsageResolverTest {
 //
 //        // Assert
 //        assertTrue(calls.size() > 0);
-//
-//        for (MethodCallExpression me : calls) {
-//            if (me.equals(expectedMethodCall)) {
-//                return;
-//            }
-//        }
-//        Assert.fail("Expected method call not found.");
+//        assertTrue(calls.contains(expectedMethodCall));
 //    }
 
 //    @Test
