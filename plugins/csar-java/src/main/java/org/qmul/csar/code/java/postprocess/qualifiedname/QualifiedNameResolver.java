@@ -118,14 +118,12 @@ public class QualifiedNameResolver {
             return null;
 
         // If name contains dots, we assume it is a fully qualified name
-        // TODO check this properly
-        if (name.contains(".")) {
+        if (name.contains(".")) { // TODO resolve this properly
             return new QualifiedType(name);
         }
 
         // Assume it exists (for external APIs sake)
-        // TODO check this properly
-        return new QualifiedType(name);
+        return new QualifiedType(name); // TODO resolve this properly
     }
 
     private QualifiedType resolveInCurrentClass(TypeStatement topLevelParent, TypeStatement targetType,

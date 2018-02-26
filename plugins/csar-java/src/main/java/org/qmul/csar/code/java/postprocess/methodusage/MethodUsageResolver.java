@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Map;
 
+/**
+ * This maps method usages to their corresponding definitions. It requires {@link TypeHierarchyResolver} and
+ * {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor} to be run first.
+ */
 public class MethodUsageResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodUsageResolver.class);

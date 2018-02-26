@@ -5,7 +5,7 @@ import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
-import org.qmul.csar.code.java.postprocess.TypeHelper;
+import org.qmul.csar.code.java.postprocess.util.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;

@@ -3,8 +3,8 @@ package org.qmul.csar.code.java.postprocess.methodtypes;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
-import org.qmul.csar.code.java.postprocess.TypeHelper;
-import org.qmul.csar.code.java.postprocess.TypeInstance;
+import org.qmul.csar.code.java.postprocess.util.TypeHelper;
+import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.Statement;
@@ -105,8 +105,8 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
             // TODO do properly: compare generic args qualified names
 
             // Resolve
-            QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage, imports,
-                    returnTypeQualifiedName);
+            QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage,
+                    imports, returnTypeQualifiedName);
             statement.setReturnQualifiedType(type);
         }
 
@@ -123,7 +123,8 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
                 // Resolve
                 QualifiedType type = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, currentPackage,
                         imports, parameterTypeQualifiedName);
-                TypeInstance typeInstance = new TypeInstance(type, TypeHelper.dimensions(paramDescriptor.getIdentifierType().get()));
+                int dimensions = TypeHelper.dimensions(paramDescriptor.getIdentifierType().get());
+                TypeInstance typeInstance = new TypeInstance(type, dimensions);
                 param.setTypeInstance(typeInstance);
             }
         }

@@ -2,8 +2,8 @@ package org.qmul.csar.code.java.postprocess.overriddenmethods;
 
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.parse.statement.ParameterVariableStatement;
-import org.qmul.csar.code.java.postprocess.TypeInstance;
-import org.qmul.csar.code.java.postprocess.TypeHelper;
+import org.qmul.csar.code.java.postprocess.util.TypeInstance;
+import org.qmul.csar.code.java.postprocess.util.TypeHelper;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;

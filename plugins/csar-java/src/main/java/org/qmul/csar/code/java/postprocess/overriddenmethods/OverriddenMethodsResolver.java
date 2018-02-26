@@ -2,7 +2,7 @@ package org.qmul.csar.code.java.postprocess.overriddenmethods;
 
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
-import org.qmul.csar.code.java.postprocess.PostProcessUtils;
+import org.qmul.csar.code.java.postprocess.util.PostProcessUtils;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;

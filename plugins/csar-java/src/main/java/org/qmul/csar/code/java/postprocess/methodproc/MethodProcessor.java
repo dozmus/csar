@@ -24,7 +24,7 @@ public class MethodProcessor implements CodePostProcessor {
             Path path = file.getKey();
             Statement statement = file.getValue();
 
-            CompilationUnitVisitor visitor = new CompilationUnitVisitor(code, path, qualifiedNameResolver,
+            MethodCallExpressionVisitor visitor = new MethodCallExpressionVisitor(code, path, qualifiedNameResolver,
                     typeHierarchyResolver);
             visitor.visitStatement(statement);
         }
