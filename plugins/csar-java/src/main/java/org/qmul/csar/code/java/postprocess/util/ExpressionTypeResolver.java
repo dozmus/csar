@@ -128,7 +128,7 @@ public class ExpressionTypeResolver {
                     String className = PostProcessUtils.getIdentifierName(currentType);
                     qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, className);
                     return new TypeInstance(qt, 0);
-                case SUPER:
+                case SUPER: // TODO super in an inner non-static class, is its parent!
                 case SUPER_CALL: // extended class
                     String superClass = PostProcessUtils.extendedClass(currentType);
                     qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, superClass);
@@ -189,18 +189,26 @@ public class ExpressionTypeResolver {
         }
 
         // ... in current class
-        for (Statement st : PostProcessUtils.getBlock(currentType).getStatements()) { // local class
-            if (lType != null)
-                break;
+        boolean firstOne = true;
 
-            if (st instanceof InstanceVariableStatement) {
-                InstanceVariableStatement instance = (InstanceVariableStatement)st;
-                String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
-                String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+        for (TypeStatement ts : th.typeStatements()) { // local class, and then parent ones if applicable
+            if (firstOne || !PostProcessUtils.isStaticTypeStatement(ts)) {
+                firstOne = false;
 
-                if (instanceIdentifierName.equals(lIdentifierName)) {
-                    lType = instanceIdentifierType;
-                    dimensions = TypeHelper.dimensions(lType);
+                for (Statement st : PostProcessUtils.getBlock(ts).getStatements()) {
+                    if (lType != null)
+                        break;
+
+                    if (st instanceof InstanceVariableStatement) {
+                        InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                        String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                        String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+
+                        if (instanceIdentifierName.equals(lIdentifierName)) {
+                            lType = instanceIdentifierType;
+                            dimensions = TypeHelper.dimensions(lType);
+                        }
+                    }
                 }
             }
         }

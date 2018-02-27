@@ -22,10 +22,17 @@ public class Z {
 
     }
 
+    public void test4(int a) {
+
+    }
+
+    int number = 3;
+
     public class Q {
 
         public void add() {
             test3();
+            test4(number);
         }
     }
 

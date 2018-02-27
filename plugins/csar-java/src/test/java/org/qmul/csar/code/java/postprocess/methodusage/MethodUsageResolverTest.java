@@ -362,10 +362,23 @@ public class MethodUsageResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test3"), new ArrayList<>(),
-                path, 28);
+                path, 34);
 
         // Assert
         List<MethodCallExpression> calls = findMethod("Z.java", "void test3()").getMethodUsages();
+        assertTrue(calls.contains(expectedMethodCall));
+    }
+
+    @Test
+    public void testMethodCallWithArgumentInParentInstanceInStaticInnerClass() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
+        List<Expression> args = Arrays.asList(identifier("number"));
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test4"), args,
+                path, 35);
+
+        // Assert
+        List<MethodCallExpression> calls = findMethod("Z.java", "void test4(int)").getMethodUsages();
         assertTrue(calls.contains(expectedMethodCall));
     }
 
