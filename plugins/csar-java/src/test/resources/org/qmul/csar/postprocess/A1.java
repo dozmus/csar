@@ -34,4 +34,12 @@ public class A1 {
             }
         }
     }
+
+    public void testMethodCallWithLocalVariableArgumentFromForEachLoop() {
+        A adder = new A();
+
+        for (int i : integers) {
+            adder.add(i, 5);
+        }
+    }
 }

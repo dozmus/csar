@@ -170,7 +170,7 @@ public class ExpressionTypeResolver {
             }
         }
 
-        for (LocalVariableStatements locals : th.currentContextLocalVariables()) { // locals
+        for (LocalVariableStatements locals : th.currentContextLocalVariables()) { // locals, includes for-loops etc.
             if (lType != null)
                 break;
 
@@ -187,8 +187,6 @@ public class ExpressionTypeResolver {
                 }
             }
         }
-
-        // TODO look at stuff in for loops, etc
 
         // ... in current class
         for (Statement st : PostProcessUtils.getBlock(currentType).getStatements()) { // local class

@@ -330,6 +330,19 @@ public class MethodUsageResolverTest {
         assertTrue(calls.contains(expectedMethodCall));
     }
 
+    @Test
+    public void testMethodCallWithLocalVariableArgumentFromForEachLoop() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
+        List<Expression> args = Arrays.asList(identifier("i"), literal("5"));
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 42);
+
+        // Assert
+        List<MethodCallExpression> calls = findMethod("A.java", "int add(int,int)").getMethodUsages();
+        assertTrue(calls.contains(expectedMethodCall));
+    }
+
 //    @Test
 //    public void testStaticMethodCallOnFullyQualifiedName() {
 //        // Expected method call
