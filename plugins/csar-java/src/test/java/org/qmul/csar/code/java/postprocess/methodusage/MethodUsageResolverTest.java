@@ -357,17 +357,17 @@ public class MethodUsageResolverTest {
 //        assertTrue(calls.contains(expectedMethodCall));
 //    }
 
-//    @Test
-//    public void testMethodCallOnParentInstanceInStaticInnerClass() {
-//        // Expected method call
-//        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
-//        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test3"), new ArrayList<>(),
-//                path, 28);
-//
-//        // Assert
-//        List<MethodCallExpression> calls = findMethod("Z.java", "void test3()").getMethodUsages();
-//        assertTrue(calls.contains(expectedMethodCall));
-//    }
+    @Test
+    public void testMethodCallOnParentInstanceInStaticInnerClass() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test3"), new ArrayList<>(),
+                path, 28);
+
+        // Assert
+        List<MethodCallExpression> calls = findMethod("Z.java", "void test3()").getMethodUsages();
+        assertTrue(calls.contains(expectedMethodCall));
+    }
 
     // TODO impl and test: interactions with super of super
 

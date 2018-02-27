@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 
 public class MethodResolver {
 
-    // TODO fix for testMethodCallOnParentInstanceInStaticInnerClass
-
     private final Path path;
     private final Map<Path, Statement> code;
     private final QualifiedNameResolver qualifiedNameResolver;
@@ -91,7 +89,7 @@ public class MethodResolver {
                 return m;
             System.out.println("not in block");
 
-            if ((m = resolveInTypeStatement(baseTypeStatement)) != null)
+            if ((m = resolveCurrentTypeStatement()) != null)
                 return m;
             System.out.println("not in type statement");
 
@@ -116,6 +114,21 @@ public class MethodResolver {
     public MethodStatement resolve(MethodCallExpression e, TraversalHierarchy th) {
         return resolve(e, th.getFirstTypeStatement(), th.getLastTypeStatement(), th.getImports(),
                 th.getPackageStatement(), th.currentContext(), th);
+    }
+
+    private MethodStatement resolveCurrentTypeStatement() {
+        boolean firstOne = true;
+
+        for (TypeStatement ts : traversalHierarchy.typeStatements()) {
+            if (firstOne || !PostProcessUtils.isStaticTypeStatement(ts)) {
+                MethodStatement method = resolveInBlock(PostProcessUtils.getBlock(ts));
+                firstOne = false;
+
+                if (method != null)
+                    return method;
+            }
+        }
+        return null;
     }
 
     private MethodStatement resolveInTypeStatement(TypeStatement typeStatement) {
@@ -163,7 +176,7 @@ public class MethodResolver {
         if (statements.size() == 0)
             return null;
         String methodName = methodCall.getMethodIdentifier();
-        boolean currentContextIsStatic = traversalHierarchy.isCurrentContextStatic();
+        boolean currentContextIsStatic = traversalHierarchy.isCurrentLocalContextStatic();
 
         return statements.stream()
                 .filter(s -> s instanceof MethodStatement)

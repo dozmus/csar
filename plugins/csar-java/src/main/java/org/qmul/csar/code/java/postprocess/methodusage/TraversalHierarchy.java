@@ -28,7 +28,24 @@ public class TraversalHierarchy extends ArrayDeque<Statement> {
         throw new NoSuchElementException();
     }
 
-    public boolean isCurrentContextStatic() {
+    /**
+     * Returns all {@link TypeStatement}.
+     * This is in order from ascending 'closeness' to the current context.
+     */
+    public List<TypeStatement> typeStatements() {
+        List<TypeStatement> types = new ArrayList<>();
+        Iterator<Statement> it = descendingIterator();
+        while (it.hasNext()) {
+            Statement item = it.next();
+
+            if (item instanceof TypeStatement) {
+                types.add((TypeStatement)item);
+            }
+        }
+        return types;
+    }
+
+    public boolean isCurrentLocalContextStatic() {
         Iterator<Statement> it = descendingIterator();
 
         while (it.hasNext()) {

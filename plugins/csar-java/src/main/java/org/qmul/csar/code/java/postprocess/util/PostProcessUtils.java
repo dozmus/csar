@@ -14,6 +14,13 @@ import java.util.Optional;
 
 public final class PostProcessUtils {
 
+    public static boolean isStaticTypeStatement(TypeStatement typeStatement) {
+        if (typeStatement instanceof ClassStatement) {
+            return ((ClassStatement)typeStatement).getDescriptor().getStaticModifier().orElse(false);
+        }
+        return true;
+    }
+
     public static List<String> superClasses(TypeStatement typeStatement) {
         if (typeStatement instanceof ClassStatement) {
             ClassStatement classStatement = (ClassStatement) typeStatement;
