@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 
 public class MethodResolver {
 
+    // TODO fix for testMethodCallOnParentInstanceInStaticInnerClass
+
     private final Path path;
     private final Map<Path, Statement> code;
     private final QualifiedNameResolver qualifiedNameResolver;
@@ -135,20 +137,22 @@ public class MethodResolver {
 
     private MethodStatement resolveInQualifiedType(QualifiedType resolvedType, TypeStatement topLevelParent) {
         System.out.println("resolveInQualifiedType");
-        Statement resolvedStatement = resolvedType.getStatement();
 
-        if (resolvedType != null && resolvedStatement != null) {
-            System.out.println("looking further");
-            TypeStatement typeStatement = resolvedType.getTopLevelStatement().getTypeStatement();
-            List<ImportStatement> imports = resolvedType.getTopLevelStatement().getImports();
-            Optional<PackageStatement> pkgStatement = resolvedType.getTopLevelStatement().getPackageStatement();
-            MethodStatement m = resolveInTypeStatement(typeStatement);
+        if (resolvedType != null) {
+            Statement resolvedStatement = resolvedType.getStatement();
 
-            if (m != null)
-                return m;
+            if (resolvedStatement != null) {
+                TypeStatement typeStatement = resolvedType.getTopLevelStatement().getTypeStatement();
+                List<ImportStatement> imports = resolvedType.getTopLevelStatement().getImports();
+                Optional<PackageStatement> pkgStatement = resolvedType.getTopLevelStatement().getPackageStatement();
+                MethodStatement m = resolveInTypeStatement(typeStatement);
 
-            // Check super classes
-            return resolveInSuperClasses(typeStatement, topLevelParent, pkgStatement, imports);
+                if (m != null)
+                    return m;
+
+                // Check super classes
+                return resolveInSuperClasses(typeStatement, topLevelParent, pkgStatement, imports);
+            }
         }
         return null;
     }

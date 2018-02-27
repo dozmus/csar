@@ -191,7 +191,7 @@ public class ExpressionTypeResolver {
         // TODO look at stuff in for loops, etc
 
         // ... in current class
-        for (Statement st : PostProcessUtils.getBlock(currentType).getStatements()) {
+        for (Statement st : PostProcessUtils.getBlock(currentType).getStatements()) { // local class
             if (lType != null)
                 break;
 
