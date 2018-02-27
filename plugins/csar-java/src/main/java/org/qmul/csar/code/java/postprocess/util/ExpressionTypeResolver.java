@@ -81,14 +81,11 @@ public class ExpressionTypeResolver {
 
             QualifiedType qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, apparentType);
             return new TypeInstance(qt, dimensions);
-        } else if (expression instanceof InstantiateClassExpression) {
+        } else if (expression instanceof InstantiateClassExpression) { // TODO parse body?
             InstantiateClassExpression ins = (InstantiateClassExpression)expression;
-            String qualifiedName = ins.getDescriptor().getIdentifierName().toString(); // TODO generate fully qualified name
-
-            // Create statement - TODO is this ok
-            BlockStatement block = ins.getBlock().orElse(BlockStatement.EMPTY);
-            ClassStatement statement = new ClassStatement(ins.getDescriptor(), block, new ArrayList<>());
-            return new TypeInstance(qualifiedName, statement, (CompilationUnitStatement)topLevelType, null, 0);
+            String qualifiedName = ins.getDescriptor().getIdentifierName().toString();
+            QualifiedType qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, qualifiedName);
+            return new TypeInstance(qt, 0);
         } else if (expression instanceof LambdaExpression) {
             // TODO parse further when full java api support introduced
             return new TypeInstance("Supplier", 0);
@@ -160,7 +157,6 @@ public class ExpressionTypeResolver {
         System.out.println("resolveIdentifier: " + lIdentifierName);
 
         // ... in local context
-        // TODO check non-final parameters from previous contexts with parameters
         for (ParameterVariableStatement parameter : th.currentContextParameters()) { // parameters
             if (lType != null)
                 break;
@@ -174,25 +170,20 @@ public class ExpressionTypeResolver {
             }
         }
 
-        for (Statement st : currentContext.getStatements()) { // current context
-            // TODO fix correctness (only accept locals before the current line)
+        for (LocalVariableStatements locals : th.currentContextLocalVariables()) { // locals
             if (lType != null)
                 break;
 
-            if (st instanceof LocalVariableStatements) {
-                LocalVariableStatements locals = (LocalVariableStatements)st;
+            for (LocalVariableStatement local : locals.getLocals()) {
+                if (lType != null)
+                    break;
 
-                for (LocalVariableStatement local : locals.getLocals()) {
-                    if (lType != null)
-                        break;
+                String localIdentifierName = local.getDescriptor().getIdentifierName().toString();
+                String localIdentifierType = local.getDescriptor().getIdentifierType().get();
 
-                    String localIdentifierName = local.getDescriptor().getIdentifierName().toString();
-                    String localIdentifierType = local.getDescriptor().getIdentifierType().get();
-
-                    if (localIdentifierName.equals(lIdentifierName)) {
-                        lType = localIdentifierType;
-                        dimensions = TypeHelper.dimensions(lType);
-                    }
+                if (localIdentifierName.equals(lIdentifierName)) {
+                    lType = localIdentifierType;
+                    dimensions = TypeHelper.dimensions(lType);
                 }
             }
         }
@@ -200,49 +191,45 @@ public class ExpressionTypeResolver {
         // TODO look at stuff in for loops, etc
 
         // ... in current class
-        if (lType == null) {
-            for (Statement st : PostProcessUtils.getBlock(currentType).getStatements()) {
-                if (lType != null)
-                    break;
+        for (Statement st : PostProcessUtils.getBlock(currentType).getStatements()) {
+            if (lType != null)
+                break;
 
-                if (st instanceof InstanceVariableStatement) {
-                    InstanceVariableStatement instance = (InstanceVariableStatement)st;
-                    String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
-                    String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+            if (st instanceof InstanceVariableStatement) {
+                InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
 
-                    if (instanceIdentifierName.equals(lIdentifierName)) {
-                        lType = instanceIdentifierType;
-                        dimensions = TypeHelper.dimensions(lType);
-                    }
+                if (instanceIdentifierName.equals(lIdentifierName)) {
+                    lType = instanceIdentifierType;
+                    dimensions = TypeHelper.dimensions(lType);
                 }
             }
         }
 
         // ... in super classes of current class
-        if (lType == null) {
-            for (String superClass : PostProcessUtils.superClasses(currentType)) {
-                if (lType != null)
-                    break;
-                QualifiedType resolvedType = r.resolve(code, path, currentType, topLevelType, currentPackage, imports,
-                        superClass);
+        for (String superClass : PostProcessUtils.superClasses(currentType)) {
+            if (lType != null)
+                break;
+            QualifiedType resolvedType = r.resolve(code, path, currentType, topLevelType, currentPackage, imports,
+                    superClass);
 
-                if (resolvedType.getStatement() instanceof CompilationUnitStatement) {
-                    CompilationUnitStatement cus = (CompilationUnitStatement)resolvedType.getStatement();
+            if (resolvedType.getStatement() instanceof CompilationUnitStatement) {
+                CompilationUnitStatement cus = (CompilationUnitStatement)resolvedType.getStatement();
 
-                    for (Statement st : PostProcessUtils.getBlock(cus.getTypeStatement()).getStatements()) {
-                        if (lType != null)
-                            break;
+                for (Statement st : PostProcessUtils.getBlock(cus.getTypeStatement()).getStatements()) {
+                    if (lType != null)
+                        break;
 
-                        // TODO check visibility
-                        if (st instanceof InstanceVariableStatement) {
-                            InstanceVariableStatement instance = (InstanceVariableStatement)st;
-                            String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
-                            String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+                    // TODO check visibility
+                    if (st instanceof InstanceVariableStatement) {
+                        InstanceVariableStatement instance = (InstanceVariableStatement)st;
+                        String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
+                        String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
 
-                            if (instanceIdentifierName.equals(lIdentifierName)) {
-                                lType = instanceIdentifierType;
-                                dimensions = TypeHelper.dimensions(lType);
-                            }
+                        if (instanceIdentifierName.equals(lIdentifierName)) {
+                            lType = instanceIdentifierType;
+                            dimensions = TypeHelper.dimensions(lType);
                         }
                     }
                 }

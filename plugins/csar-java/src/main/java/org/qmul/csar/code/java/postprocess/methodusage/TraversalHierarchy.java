@@ -5,6 +5,7 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TraversalHierarchy extends ArrayDeque<Statement> {
 
@@ -71,19 +72,61 @@ public class TraversalHierarchy extends ArrayDeque<Statement> {
         throw new NoSuchElementException();
     }
 
+    /**
+     * Returns all {@link MethodStatement} and {@link ConstructorStatement} parameters visible in the current context.
+     * This is in order from ascending 'closeness' to the current context.
+     */
     public List<ParameterVariableStatement> currentContextParameters() {
         Iterator<Statement> it = descendingIterator();
+        List<ParameterVariableStatement> parameters = new ArrayList<>();
 
         while (it.hasNext()) {
             Statement item = it.next();
 
             if (item instanceof MethodStatement) {
-                return ((MethodStatement)item).getParameters();
+                parameters.addAll(((MethodStatement)item).getParameters());
             } else if (item instanceof ConstructorStatement) {
-                return ((ConstructorStatement)item).getParameters();
+                parameters.addAll(((ConstructorStatement)item).getParameters());
             }
         }
-        return new ArrayList<>();
+        return parameters;
+    }
+
+    /**
+     * Returns all local variables visible in the current context.
+     * This is in order from ascending 'closeness' to the current context.
+     */
+    public List<LocalVariableStatements> currentContextLocalVariables() {
+        Iterator<Statement> it = descendingIterator();
+        List<LocalVariableStatements> locals = new ArrayList<>();
+
+        while (it.hasNext()) {
+            Statement item = it.next();
+
+            if (item instanceof StaticBlockStatement) {
+                locals.addAll(localVariables(((StaticBlockStatement)item).getBlock()));
+            } else if (item instanceof MethodStatement) {
+                locals.addAll(localVariables(((MethodStatement)item).getBlock()));
+            } else if (item instanceof ConstructorStatement) {
+                locals.addAll(localVariables(((ConstructorStatement)item).getBlock()));
+            } else if (item instanceof TypeStatement) {
+                if (item instanceof ClassStatement) {
+                    locals.addAll(localVariables(((ClassStatement)item).getBlock()));
+                } else if (item instanceof EnumStatement) {
+                    locals.addAll(localVariables(((EnumStatement)item).getBlock()));
+                } else if (item instanceof AnnotationStatement) {
+                    locals.addAll(localVariables(((AnnotationStatement)item).getBlock()));
+                }
+            }
+        }
+        return locals;
+    }
+
+    private static List<LocalVariableStatements> localVariables(BlockStatement block) {
+        return block.getStatements().stream()
+                .filter(s -> s instanceof LocalVariableStatements)
+                .map(s -> (LocalVariableStatements)s)
+                .collect(Collectors.toList());
     }
 
     public List<ImportStatement> getImports() {
