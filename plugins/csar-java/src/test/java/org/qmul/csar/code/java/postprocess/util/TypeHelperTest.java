@@ -48,7 +48,6 @@ public class TypeHelperTest {
 
     @Test
     public void testResolveGenericTypes() {
-        // TODO write
         assertEquals("Class<String, Integer>", TypeHelper.resolveGenericTypes("Class<E, V>",
                 Arrays.asList("E extends String", "V super Integer")));
         assertEquals("Class<String, String>", TypeHelper.resolveGenericTypes("Class<E, V>",

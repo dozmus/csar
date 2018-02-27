@@ -81,7 +81,7 @@ public class ExpressionTypeResolver {
 
             QualifiedType qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, apparentType);
             return new TypeInstance(qt, dimensions);
-        } else if (expression instanceof InstantiateClassExpression) { // TODO parse body?
+        } else if (expression instanceof InstantiateClassExpression) { // TODO check body?
             InstantiateClassExpression ins = (InstantiateClassExpression)expression;
             String qualifiedName = ins.getDescriptor().getIdentifierName().toString();
             QualifiedType qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, qualifiedName);
