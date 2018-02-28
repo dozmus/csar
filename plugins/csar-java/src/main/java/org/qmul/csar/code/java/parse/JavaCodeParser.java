@@ -1049,7 +1049,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
     private AnnotationStatement parseAnnotationDefinition(List<JavaParser.ClassOrInterfaceModifierContext> modifiers,
             JavaParser.AnnotationTypeDeclarationContext dec, boolean inner) {
         String identifierName = dec.IDENTIFIER().getText();
-        AnnotationDescriptor.Builder builder = new AnnotationDescriptor.Builder(identifierName)
+        AnnotationDescriptor.Builder builder = AnnotationDescriptor.Builder.allFalse(identifierName)
                 .inner(inner)
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE);
 
@@ -1152,6 +1152,9 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
         applyModifiers(builder, classOrInterfaceModifierContexts);
 
         // Implemented interfaces
+        if (dec.typeList() != null) {
+            builder.hasSuperClasses(true);
+        }
         builder.superClasses(parseTypesList(dec.typeList()));
 
         // Enum constants

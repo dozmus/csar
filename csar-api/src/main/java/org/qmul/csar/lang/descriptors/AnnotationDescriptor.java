@@ -4,19 +4,21 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.IdentifierName;
+import org.qmul.csar.util.OptionalUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class AnnotationDescriptor implements Descriptor {
 
     private final IdentifierName identifierName;
-    private final VisibilityModifier visibilityModifier;
-    private final boolean abstractModifier;
-    private final boolean strictfpModifier;
-    private final boolean inner;
+    private final Optional<VisibilityModifier> visibilityModifier;
+    private final Optional<Boolean> abstractModifier;
+    private final Optional<Boolean> strictfpModifier;
+    private final Optional<Boolean> inner;
 
-    public AnnotationDescriptor(IdentifierName identifierName, VisibilityModifier visibilityModifier,
-            boolean abstractModifier, boolean strictfpModifier, boolean inner) {
+    public AnnotationDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
+            Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier, Optional<Boolean> inner) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.abstractModifier = abstractModifier;
@@ -28,25 +30,32 @@ public class AnnotationDescriptor implements Descriptor {
         return identifierName;
     }
 
-    public VisibilityModifier getVisibilityModifier() {
+    public Optional<VisibilityModifier> getVisibilityModifier() {
         return visibilityModifier;
     }
 
-    public boolean isAbstractModifier() {
+    public Optional<Boolean> getAbstractModifier() {
         return abstractModifier;
     }
 
-    public boolean isStrictfpModifier() {
+    public Optional<Boolean> getStrictfpModifier() {
         return strictfpModifier;
     }
 
-    public boolean isInner() {
+    public Optional<Boolean> getInner() {
         return inner;
     }
 
     @Override
-    public boolean lenientEquals(Descriptor other) {
-        return false; // TODO impl
+    public boolean lenientEquals(Descriptor o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnnotationDescriptor that = (AnnotationDescriptor) o;
+        return identifierName.nameEquals(that.identifierName)
+                && OptionalUtils.lenientEquals(visibilityModifier, that.visibilityModifier)
+                && OptionalUtils.lenientEquals(abstractModifier, that.abstractModifier)
+                && OptionalUtils.lenientEquals(strictfpModifier, that.strictfpModifier)
+                && OptionalUtils.lenientEquals(inner, that.inner);
     }
 
     @Override
@@ -54,11 +63,11 @@ public class AnnotationDescriptor implements Descriptor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AnnotationDescriptor that = (AnnotationDescriptor) o;
-        return abstractModifier == that.abstractModifier
-                && strictfpModifier == that.strictfpModifier
-                && inner == that.inner
-                && Objects.equals(identifierName, that.identifierName)
-                && visibilityModifier == that.visibilityModifier;
+        return Objects.equals(identifierName, that.identifierName)
+                && Objects.equals(visibilityModifier, that.visibilityModifier)
+                && Objects.equals(abstractModifier, that.abstractModifier)
+                && Objects.equals(strictfpModifier, that.strictfpModifier)
+                && Objects.equals(inner, that.inner);
     }
 
     @Override
@@ -80,10 +89,17 @@ public class AnnotationDescriptor implements Descriptor {
     public static class Builder {
 
         private final IdentifierName identifierName;
-        private VisibilityModifier visibilityModifier;
-        private boolean abstractModifier;
-        private boolean strictfpModifier;
-        private boolean inner;
+        private Optional<VisibilityModifier> visibilityModifier = Optional.empty();
+        private Optional<Boolean> abstractModifier = Optional.empty();
+        private Optional<Boolean> strictfpModifier = Optional.empty();
+        private Optional<Boolean> inner = Optional.empty();
+
+        public static Builder allFalse(String identifierName) {
+            return new Builder(identifierName)
+                    .abstractModifier(false)
+                    .strictfpModifier(false)
+                    .inner(false);
+        }
 
         public Builder(String identifierName) {
             this.identifierName = new IdentifierName.Static(identifierName);
@@ -94,22 +110,22 @@ public class AnnotationDescriptor implements Descriptor {
         }
 
         public Builder visibilityModifier(VisibilityModifier visibilityModifier) {
-            this.visibilityModifier = visibilityModifier;
+            this.visibilityModifier = Optional.of(visibilityModifier);
             return this;
         }
 
         public Builder abstractModifier(boolean abstractModifier) {
-            this.abstractModifier = abstractModifier;
+            this.abstractModifier = Optional.of(abstractModifier);
             return this;
         }
 
         public Builder strictfpModifier(boolean strictfpModifier) {
-            this.strictfpModifier = strictfpModifier;
+            this.strictfpModifier = Optional.of(strictfpModifier);
             return this;
         }
 
         public Builder inner(boolean inner) {
-            this.inner = inner;
+            this.inner = Optional.of(inner);
             return this;
         }
 

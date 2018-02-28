@@ -2,6 +2,7 @@ package org.qmul.csar.lang.descriptors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.util.OptionalUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -20,8 +21,12 @@ public class BlockCommentDescriptor extends AbstractCommentDescriptor {
     }
 
     @Override
-    public boolean lenientEquals(Descriptor other) {
-        return false; // TODO impl
+    public boolean lenientEquals(Descriptor o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        BlockCommentDescriptor that = (BlockCommentDescriptor) o;
+        return OptionalUtils.lenientEquals(javadoc, that.javadoc);
     }
 
     @Override

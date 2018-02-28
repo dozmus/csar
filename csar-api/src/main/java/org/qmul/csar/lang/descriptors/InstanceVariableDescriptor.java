@@ -3,6 +3,7 @@ package org.qmul.csar.lang.descriptors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.IdentifierName;
+import org.qmul.csar.util.OptionalUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -29,8 +30,13 @@ public class InstanceVariableDescriptor extends AbstractVariableDescriptor {
     }
 
     @Override
-    public boolean lenientEquals(Descriptor other) {
-        return false; // TODO impl
+    public boolean lenientEquals(Descriptor o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InstanceVariableDescriptor that = (InstanceVariableDescriptor) o;
+        return OptionalUtils.lenientEquals(visibilityModifier, that.visibilityModifier)
+                && OptionalUtils.lenientEquals(staticModifier, that.staticModifier);
     }
 
     @Override

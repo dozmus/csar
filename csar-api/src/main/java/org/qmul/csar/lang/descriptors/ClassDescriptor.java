@@ -1,9 +1,9 @@
 package org.qmul.csar.lang.descriptors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.IdentifierName;
+import org.qmul.csar.util.OptionalUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +23,17 @@ public class ClassDescriptor implements Descriptor {
     private final Optional<Boolean> local;
     private final Optional<Boolean> anonymous;
     private final Optional<String> extendedClass;
+    private final Optional<Boolean> hasTypeArguments;
+    private final Optional<Boolean> hasImplementedInterfaces;
     private final List<String> typeParameters;
     private final List<String> implementedInterfaces;
 
     public ClassDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
             Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
             Optional<Boolean> strictfpModifier, Optional<Boolean> interfaceModifier, Optional<Boolean> inner,
-            Optional<Boolean> local, Optional<Boolean> anonymous, List<String> typeParameters,
-            List<String> implementedInterfaces, Optional<String> extendedClass) {
+            Optional<Boolean> local, Optional<Boolean> anonymous, Optional<Boolean> hasTypeArguments,
+            List<String> typeParameters, Optional<Boolean> hasImplementedInterfaces, List<String> implementedInterfaces,
+            Optional<String> extendedClass) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;
@@ -41,7 +44,9 @@ public class ClassDescriptor implements Descriptor {
         this.inner = inner;
         this.local = local;
         this.anonymous = anonymous;
+        this.hasTypeArguments = hasTypeArguments;
         this.typeParameters = typeParameters;
+        this.hasImplementedInterfaces = hasImplementedInterfaces;
         this.implementedInterfaces = implementedInterfaces;
         this.extendedClass = extendedClass;
     }
@@ -98,9 +103,34 @@ public class ClassDescriptor implements Descriptor {
         return implementedInterfaces;
     }
 
+    public Optional<Boolean> getHasTypeArguments() {
+        return hasTypeArguments;
+    }
+
+    public Optional<Boolean> getHasImplementedInterfaces() {
+        return hasImplementedInterfaces;
+    }
+
     @Override
-    public boolean lenientEquals(Descriptor other) {
-        return false; // TODO impl
+    public boolean lenientEquals(Descriptor o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassDescriptor that = (ClassDescriptor) o;
+        return identifierName.nameEquals(that.identifierName)
+                && OptionalUtils.lenientEquals(visibilityModifier, that.visibilityModifier)
+                && OptionalUtils.lenientEquals(staticModifier, that.staticModifier)
+                && OptionalUtils.lenientEquals(finalModifier, that.finalModifier)
+                && OptionalUtils.lenientEquals(abstractModifier, that.abstractModifier)
+                && OptionalUtils.lenientEquals(strictfpModifier, that.strictfpModifier)
+                && OptionalUtils.lenientEquals(interfaceModifier, that.interfaceModifier)
+                && OptionalUtils.lenientEquals(inner, that.inner)
+                && OptionalUtils.lenientEquals(local, that.local)
+                && OptionalUtils.lenientEquals(anonymous, that.anonymous)
+                && OptionalUtils.lenientEquals(extendedClass, that.extendedClass)
+                && OptionalUtils.lenientEquals(hasImplementedInterfaces, implementedInterfaces,
+                that.hasImplementedInterfaces, that.implementedInterfaces)
+                && OptionalUtils.lenientEquals(hasTypeArguments, typeParameters, that.hasTypeArguments,
+                that.typeParameters);
     }
 
     @Override
@@ -118,21 +148,23 @@ public class ClassDescriptor implements Descriptor {
                 && Objects.equals(inner, that.inner)
                 && Objects.equals(local, that.local)
                 && Objects.equals(anonymous, that.anonymous)
+                && Objects.equals(extendedClass, that.extendedClass)
+                && Objects.equals(hasTypeArguments, that.hasTypeArguments)
+                && Objects.equals(hasImplementedInterfaces, that.hasImplementedInterfaces)
                 && Objects.equals(typeParameters, that.typeParameters)
-                && Objects.equals(implementedInterfaces, that.implementedInterfaces)
-                && Objects.equals(extendedClass, that.extendedClass);
+                && Objects.equals(implementedInterfaces, that.implementedInterfaces);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(identifierName, visibilityModifier, staticModifier, finalModifier, abstractModifier,
-                strictfpModifier, interfaceModifier, inner, local, anonymous, typeParameters, extendedClass,
-                implementedInterfaces);
+                strictfpModifier, interfaceModifier, inner, local, anonymous, extendedClass, hasTypeArguments,
+                hasImplementedInterfaces, typeParameters, implementedInterfaces);
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+        return new ToStringBuilder(this)
                 .append("identifierName", identifierName)
                 .append("visibilityModifier", visibilityModifier)
                 .append("staticModifier", staticModifier)
@@ -143,9 +175,11 @@ public class ClassDescriptor implements Descriptor {
                 .append("inner", inner)
                 .append("local", local)
                 .append("anonymous", anonymous)
+                .append("extendedClass", extendedClass)
+                .append("hasTypeArguments", hasTypeArguments)
+                .append("hasImplementedInterfaces", hasImplementedInterfaces)
                 .append("typeParameters", typeParameters)
                 .append("implementedInterfaces", implementedInterfaces)
-                .append("extendedClass", extendedClass)
                 .toString();
     }
 
@@ -161,6 +195,8 @@ public class ClassDescriptor implements Descriptor {
         private Optional<Boolean> inner = Optional.empty();
         private Optional<Boolean> local = Optional.empty();
         private Optional<Boolean> anonymous = Optional.empty();
+        private Optional<Boolean> hasTypeArguments = Optional.empty();
+        private Optional<Boolean> hasImplementedInterfaces = Optional.empty();
         private List<String> typeParameters = new ArrayList<>();
         private List<String> implementedInterfaces = new ArrayList<>();
         private Optional<String> extendedClass = Optional.empty();
@@ -174,7 +210,9 @@ public class ClassDescriptor implements Descriptor {
                     .interfaceModifier(false)
                     .inner(false)
                     .local(false)
-                    .anonymous(false);
+                    .anonymous(false)
+                    .hasImplementedInterfaces(false)
+                    .hasTypeArguments(false);
         }
 
         public Builder(String identifierName) {
@@ -245,10 +283,20 @@ public class ClassDescriptor implements Descriptor {
             return this;
         }
 
+        public Builder hasTypeArguments(boolean hasTypeArguments) {
+            this.hasTypeArguments = Optional.of(hasTypeArguments);
+            return this;
+        }
+
+        public Builder hasImplementedInterfaces(boolean hasImplementedInterfaces) {
+            this.hasImplementedInterfaces = Optional.of(hasImplementedInterfaces);
+            return this;
+        }
+
         public ClassDescriptor build() {
             return new ClassDescriptor(identifierName, visibilityModifier, staticModifier, finalModifier,
-                    abstractModifier, strictfpModifier, interfaceModifier, inner, local, anonymous, typeParameters,
-                    implementedInterfaces, extendedClass);
+                    abstractModifier, strictfpModifier, interfaceModifier, inner, local, anonymous, hasTypeArguments,
+                    typeParameters, hasImplementedInterfaces, implementedInterfaces, extendedClass);
         }
     }
 }

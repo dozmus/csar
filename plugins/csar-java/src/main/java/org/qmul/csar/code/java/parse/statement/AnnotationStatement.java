@@ -72,17 +72,17 @@ public class AnnotationStatement implements TypeStatement {
                     .append(System.lineSeparator()));
         }
         builder.append(StringUtils.indentation(indentation));
-        builder.append(descriptor.getVisibilityModifier().toPseudoCode()).append(" ");
+        builder.append(descriptor.getVisibilityModifier().get().toPseudoCode()).append(" ");
 
-        if (descriptor.isAbstractModifier()) {
+        if (descriptor.getAbstractModifier().orElse(false)) {
             builder.append("abstract ");
         }
 
-        if (descriptor.isStrictfpModifier()) {
+        if (descriptor.getStrictfpModifier().orElse(false)) {
             builder.append("strictfp ");
         }
 
-        if (descriptor.isInner()) {
+        if (descriptor.getInner().orElse(false)) {
             builder.append("(inner) ");
         }
         builder.append(descriptor.getIdentifierName());

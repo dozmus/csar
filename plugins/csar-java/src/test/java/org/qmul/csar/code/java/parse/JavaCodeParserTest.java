@@ -438,6 +438,7 @@ public final class JavaCodeParserTest {
         // Top-level enum
         EnumDescriptor desc = EnumDescriptor.Builder.allFalse("SimpleOperators")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
+                .hasSuperClasses(true)
                 .superClasses(Arrays.asList("Operator<Integer>"))
                 .build();
         return createTopLevelStatement(new EnumStatement(desc, new BlockStatement(Arrays.asList(const1, const2)),
@@ -514,11 +515,8 @@ public final class JavaCodeParserTest {
                 Arrays.asList(new Annotation("Deprecated", Optional.empty())));
 
         // Top-level annotation type
-        return createTopLevelStatement(new AnnotationStatement(new AnnotationDescriptor.Builder("FileChange")
+        return createTopLevelStatement(new AnnotationStatement(AnnotationDescriptor.Builder.allFalse("FileChange")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
-                .inner(false)
-                .abstractModifier(false)
-                .strictfpModifier(false)
                 .build(), new BlockStatement(Arrays.asList(author, date)), Arrays.asList(apiClassAnnotation)));
     }
 
@@ -897,11 +895,7 @@ public final class JavaCodeParserTest {
 
         // Inner class instantiation
         ExpressionStatement innerClassInstantiation = new ExpressionStatement(new InstantiateClassExpression(
-                new ClassDescriptor(
-                        new IdentifierName.Static("Worker"), Optional.empty(), Optional.of(false), Optional.of(false),
-                        Optional.of(false), Optional.of(false), Optional.of(false), Optional.of(false),
-                        Optional.of(true), Optional.of(false), new ArrayList<>(), new ArrayList<>(), Optional.empty()
-                ),
+                ClassDescriptor.Builder.allFalse("Worker").local(true).build(),
                 Optional.of(new BlockStatement(Arrays.asList(runMethod))), new ArrayList<>(), new ArrayList<>(), false
         ));
 

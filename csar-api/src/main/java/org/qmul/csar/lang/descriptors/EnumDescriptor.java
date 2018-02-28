@@ -1,9 +1,9 @@
 package org.qmul.csar.lang.descriptors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.IdentifierName;
+import org.qmul.csar.util.OptionalUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,12 @@ public class EnumDescriptor implements Descriptor {
     private final Optional<Boolean> strictfpModifier;
     private final Optional<Boolean> inner;
     private final List<String> superClasses;
+    private final Optional<Boolean> hasSuperClasses;
 
     public EnumDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
             Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
-            Optional<Boolean> strictfpModifier, Optional<Boolean> inner, List<String> superClasses) {
+            Optional<Boolean> strictfpModifier, Optional<Boolean> inner,
+            Optional<Boolean> hasSuperClasses, List<String> superClasses) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;
@@ -31,6 +33,7 @@ public class EnumDescriptor implements Descriptor {
         this.abstractModifier = abstractModifier;
         this.strictfpModifier = strictfpModifier;
         this.inner = inner;
+        this.hasSuperClasses = hasSuperClasses;
         this.superClasses = superClasses;
     }
 
@@ -62,13 +65,28 @@ public class EnumDescriptor implements Descriptor {
         return inner;
     }
 
+    public Optional<Boolean> getHasSuperClasses() {
+        return hasSuperClasses;
+    }
+
     public List<String> getSuperClasses() {
         return superClasses;
     }
 
     @Override
-    public boolean lenientEquals(Descriptor other) {
-        return false; // TODO impl
+    public boolean lenientEquals(Descriptor o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EnumDescriptor that = (EnumDescriptor) o;
+        return identifierName.nameEquals(that.identifierName)
+                && OptionalUtils.lenientEquals(visibilityModifier, that.visibilityModifier)
+                && OptionalUtils.lenientEquals(staticModifier, that.staticModifier)
+                && OptionalUtils.lenientEquals(finalModifier, that.finalModifier)
+                && OptionalUtils.lenientEquals(abstractModifier, that.abstractModifier)
+                && OptionalUtils.lenientEquals(strictfpModifier, that.strictfpModifier)
+                && OptionalUtils.lenientEquals(inner, that.inner)
+                && OptionalUtils.lenientEquals(hasSuperClasses, superClasses, that.hasSuperClasses,
+                that.superClasses);
     }
 
     @Override
@@ -83,18 +101,19 @@ public class EnumDescriptor implements Descriptor {
                 && Objects.equals(abstractModifier, that.abstractModifier)
                 && Objects.equals(strictfpModifier, that.strictfpModifier)
                 && Objects.equals(inner, that.inner)
-                && Objects.equals(superClasses, that.superClasses);
+                && Objects.equals(superClasses, that.superClasses)
+                && Objects.equals(hasSuperClasses, that.hasSuperClasses);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(identifierName, visibilityModifier, staticModifier, finalModifier, abstractModifier,
-                strictfpModifier, inner, superClasses);
+                strictfpModifier, inner, superClasses, hasSuperClasses);
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+        return new ToStringBuilder(this)
                 .append("identifierName", identifierName)
                 .append("visibilityModifier", visibilityModifier)
                 .append("staticModifier", staticModifier)
@@ -103,6 +122,7 @@ public class EnumDescriptor implements Descriptor {
                 .append("strictfpModifier", strictfpModifier)
                 .append("inner", inner)
                 .append("superClasses", superClasses)
+                .append("hasSuperClasses", hasSuperClasses)
                 .toString();
     }
 
@@ -115,6 +135,7 @@ public class EnumDescriptor implements Descriptor {
         private Optional<Boolean> abstractModifier = Optional.empty();
         private Optional<Boolean> strictfpModifier = Optional.empty();
         private Optional<Boolean> inner = Optional.empty();
+        private Optional<Boolean> hasSuperClasses = Optional.empty();
         private List<String> superClasses = new ArrayList<>();
 
         public static Builder allFalse(String identifierName) {
@@ -123,7 +144,8 @@ public class EnumDescriptor implements Descriptor {
                     .finalModifier(false)
                     .abstractModifier(false)
                     .strictfpModifier(false)
-                    .inner(false);
+                    .inner(false)
+                    .hasSuperClasses(false);
         }
 
         public Builder(String identifierName) {
@@ -164,6 +186,11 @@ public class EnumDescriptor implements Descriptor {
             return this;
         }
 
+        public Builder hasSuperClasses(boolean hasSuperClasses) {
+            this.hasSuperClasses = Optional.of(hasSuperClasses);
+            return this;
+        }
+
         public Builder superClasses(List<String> superClasses) {
             this.superClasses = superClasses;
             return this;
@@ -171,7 +198,7 @@ public class EnumDescriptor implements Descriptor {
 
         public EnumDescriptor build() {
             return new EnumDescriptor(identifierName, visibilityModifier, staticModifier, finalModifier,
-                    abstractModifier, strictfpModifier, inner, superClasses);
+                    abstractModifier, strictfpModifier, inner, hasSuperClasses, superClasses);
         }
     }
 }
