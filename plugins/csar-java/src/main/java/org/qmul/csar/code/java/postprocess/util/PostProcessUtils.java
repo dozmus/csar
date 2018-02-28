@@ -104,4 +104,23 @@ public final class PostProcessUtils {
             return ((AnnotationStatement)type).getDescriptor().getIdentifierName().toString();
         }
     }
+
+    /**
+     *
+     * @param variableVisibilityModifier
+     * @param isChildClass if the context it's being accessed in, is a child class to where the variable is.
+     * @return
+     */
+    public static boolean isAccessible(VisibilityModifier variableVisibilityModifier, boolean isChildClass,
+            Optional<PackageStatement> superPkg, Optional<PackageStatement> callerPkg) {
+        if (variableVisibilityModifier == VisibilityModifier.PUBLIC)
+            return true;
+        if (variableVisibilityModifier == VisibilityModifier.PRIVATE)
+            return false;
+        if (variableVisibilityModifier == VisibilityModifier.PROTECTED)
+            return isChildClass;
+
+        // no modifier, check packages
+        return (!superPkg.isPresent() && !callerPkg.isPresent()) || superPkg.equals(callerPkg);
+    }
 }

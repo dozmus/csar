@@ -9,6 +9,7 @@ import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
+import org.qmul.csar.lang.descriptors.VisibilityModifier;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -227,13 +228,15 @@ public class ExpressionTypeResolver {
                     if (lType != null)
                         break;
 
-                    // TODO check visibility
                     if (st instanceof InstanceVariableStatement) {
                         InstanceVariableStatement instance = (InstanceVariableStatement)st;
                         String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
                         String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
+                        VisibilityModifier visibilityModifier = instance.getDescriptor().getVisibilityModifier().get();
+                        boolean isAccessible = PostProcessUtils.isAccessible(visibilityModifier, true,
+                                cus.getPackageStatement(), currentPackage);
 
-                        if (instanceIdentifierName.equals(lIdentifierName)) {
+                        if (isAccessible && instanceIdentifierName.equals(lIdentifierName)) {
                             lType = instanceIdentifierType;
                             dimensions = TypeHelper.dimensions(lType);
                         }
@@ -368,7 +371,7 @@ public class ExpressionTypeResolver {
         } else { // is identifier another
             // TODO handle the possibility that it might be a fully qualified method call
             String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
-                    code, path);
+                    code, path, false, lCompilationUnitStatement.getPackageStatement());
             System.out.println("[RBE-RHS] rType = " + rType);
 
             if (rType == null) // may be external - we ignore it
@@ -383,19 +386,19 @@ public class ExpressionTypeResolver {
     }
 
     private String resolveBinaryExpressionDotRhsIdentifierType(CompilationUnitStatement topLevelParent,
-            String identifierName, QualifiedNameResolver r, Map<Path, Statement> code, Path path) {
+            String identifierName, QualifiedNameResolver r, Map<Path, Statement> code, Path path,
+            boolean checkingSuper, Optional<PackageStatement> baseCallPkg) {
         // Check target
         for (Statement st : PostProcessUtils.getBlock(topLevelParent.getTypeStatement()).getStatements()) {
-            // TODO check visibility
-            System.out.println("content: " + st.getClass());
-
             if (st instanceof InstanceVariableStatement) {
                 InstanceVariableStatement instance = (InstanceVariableStatement)st;
                 String instanceIdentifierName = instance.getDescriptor().getIdentifierName().toString();
                 String instanceIdentifierType = instance.getDescriptor().getIdentifierType().get();
-                System.out.println("identifierName=" + instanceIdentifierName);
+                VisibilityModifier visibilityModifier = instance.getDescriptor().getVisibilityModifier().get();
+                boolean isAccessible = !checkingSuper || PostProcessUtils.isAccessible(visibilityModifier, true,
+                        topLevelParent.getPackageStatement(), baseCallPkg);
 
-                if (instanceIdentifierName.equals(identifierName))
+                if (isAccessible && instanceIdentifierName.equals(identifierName))
                     return instanceIdentifierType;
             }
         }
@@ -407,7 +410,7 @@ public class ExpressionTypeResolver {
 
             if (resolvedType != null && resolvedType.getTopLevelStatement() != null) {
                 String type = resolveBinaryExpressionDotRhsIdentifierType(resolvedType.getTopLevelStatement(),
-                        identifierName, r, code, path);
+                        identifierName, r, code, path, true, baseCallPkg);
 
                 if (type != null)
                     return type;
