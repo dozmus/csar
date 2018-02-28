@@ -52,7 +52,7 @@ public class MethodResolver {
         System.out.println("resolving args");
 
         for (Expression arg : methodCall.getArguments()) {
-            TypeInstance t = new ExpressionTypeResolver(true).resolve(path, code, baseTopLevelParent, baseTypeStatement,
+            TypeInstance t = new ExpressionTypeResolver(false).resolve(path, code, baseTopLevelParent, baseTypeStatement,
                     baseImports, basePackageStatement, baseContext, qualifiedNameResolver, traversalHierarchy,
                     typeHierarchyResolver, arg);
             parameterTypeInstances.add(t);

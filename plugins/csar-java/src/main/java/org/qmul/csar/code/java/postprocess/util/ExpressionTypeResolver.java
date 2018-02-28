@@ -9,27 +9,34 @@ import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
+import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.VisibilityModifier;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Stack;
 
 public class ExpressionTypeResolver {
 
-    // TODO allow 'java.lang.String' instead of String, etc. throughout
+    // TODO support fully qualified named throughout
     // TODO make sure path is always set as much as possible
     // TODO does this work with new Class(). ...
 
     private int nestedBinaryExpressionLevel = 0;
+    /**
+     * If this is true, the right-most value in a {@link BinaryExpression} with a type of {@link BinaryOperation#DOT}
+     * will not be resolved.
+     * This means {@link #resolve(Path, Map, TypeStatement, TypeStatement, List, Optional, BlockStatement,
+     * QualifiedNameResolver, TraversalHierarchy, TypeHierarchyResolver, Expression)} will essentially return the type
+     * the right-most value is acting upon.
+     */
     private boolean resolvingMethodIdentifierMode;
     private Stack<MethodCallExpression> methodCallStack = new Stack<>();
 
     public ExpressionTypeResolver(boolean resolvingMethodIdentifierMode) {
         this.resolvingMethodIdentifierMode = resolvingMethodIdentifierMode;
-    }
-
-    public ExpressionTypeResolver() {
-        this(false);
     }
 
     public TypeInstance resolve(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
@@ -129,9 +136,29 @@ public class ExpressionTypeResolver {
                     String className = PostProcessUtils.getIdentifierName(currentType);
                     qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, className);
                     return new TypeInstance(qt, 0);
-                case SUPER: // TODO super in an inner non-static class, is its parent!
+                case SUPER:
                 case SUPER_CALL: // extended class
-                    String superClass = PostProcessUtils.extendedClass(currentType);
+                    String superClass = null;
+
+                    if (currentType instanceof ClassStatement) {
+                        ClassStatement clazz = (ClassStatement) currentType;
+                        ClassDescriptor desc = clazz.getDescriptor();
+
+                        // 'super' in an inner non-static class is its parent class
+                        if (desc.getInner().orElse(false) && !desc.getStaticModifier().orElse(false)) {
+                            for (TypeStatement ts : th.typeStatements()) {
+                                if (!ts.equals(clazz)) {
+                                    superClass = PostProcessUtils.getIdentifierName(ts);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (superClass == null) { // if not found, or otherwise, we just set it to its direct super class
+                        superClass = PostProcessUtils.extendedClass(currentType);
+                    }
+
                     qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, superClass);
                     return new TypeInstance(qt, 0);
                 case TYPE:
@@ -339,7 +366,7 @@ public class ExpressionTypeResolver {
 
     private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
             QualifiedNameResolver r, Expression right, TypeHierarchyResolver thr, TraversalHierarchy th) {
-        System.out.println("resolveBinaryExpressionRhs [right=" + right.getClass() + "]");
+        System.out.println("resolveBinaryExpressionDotRhs [right=" + right.getClass().getSimpleName() + "]");
         if (lhs == null)
             return null;
 
@@ -347,11 +374,24 @@ public class ExpressionTypeResolver {
         CompilationUnitStatement lCompilationUnitStatement = lhs.getCompilationUnitStatement();
 
         if (nestedBinaryExpressionLevel == 1) {
-            if (!resolvingMethodIdentifierMode) {
+            if (resolvingMethodIdentifierMode) {
                 return lhs; // XXX rhs is the identifier of a method call, we handle it elsewhere
-            } else {
-                if (methodCallStack.empty())
-                    return lhs;
+            } else if (methodCallStack.empty()) { // is another identifier
+                System.out.println("METHOD CALL STACK EMPTY");
+                // TODO handle the possibility that it might be a fully qualified method call
+                String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
+                        code, path, false, lCompilationUnitStatement.getPackageStatement());
+                System.out.println("[RBE-RHS] rType = " + rType);
+
+                if (rType == null) // may be external - we ignore it
+                    return null;
+                int dimensions = TypeHelper.dimensions(rType);
+                String typeName = TypeHelper.removeDimensions(rType);
+                QualifiedType qt = r.resolve(code, path, lCompilationUnitStatement.getTypeStatement(),
+                        lCompilationUnitStatement, lCompilationUnitStatement.getPackageStatement(),
+                        lCompilationUnitStatement.getImports(), typeName);
+                return new TypeInstance(qt, dimensions);
+            } else { // is a method
                 System.out.println("resolving method properly: " + methodCallStack.peek().toPseudoCode());
 
                 if (lCompilationUnitStatement == null) // may be external - we ignore it
@@ -368,7 +408,7 @@ public class ExpressionTypeResolver {
                 }
                 return null;
             }
-        } else { // is identifier another
+        } else { // is another identifier
             // TODO handle the possibility that it might be a fully qualified method call
             String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
                     code, path, false, lCompilationUnitStatement.getPackageStatement());
@@ -397,6 +437,7 @@ public class ExpressionTypeResolver {
                 VisibilityModifier visibilityModifier = instance.getDescriptor().getVisibilityModifier().get();
                 boolean isAccessible = !checkingSuper || PostProcessUtils.isAccessible(visibilityModifier, true,
                         topLevelParent.getPackageStatement(), baseCallPkg);
+                System.out.println(instanceIdentifierName + "," + isAccessible);
 
                 if (isAccessible && instanceIdentifierName.equals(identifierName))
                     return instanceIdentifierType;

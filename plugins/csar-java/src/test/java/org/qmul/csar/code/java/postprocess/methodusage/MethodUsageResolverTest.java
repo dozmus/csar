@@ -358,7 +358,7 @@ public class MethodUsageResolverTest {
 //    }
 
     @Test
-    public void testMethodCallOnParentInstanceInStaticInnerClass() {
+    public void testMethodCallOnParentInstanceInInnerClass() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test3"), new ArrayList<>(),
@@ -370,12 +370,39 @@ public class MethodUsageResolverTest {
     }
 
     @Test
-    public void testMethodCallWithArgumentInParentInstanceInStaticInnerClass() {
+    public void testMethodCallWithArgumentInParentInstanceInInnerClass() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
         List<Expression> args = Arrays.asList(identifier("number"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test4"), args,
-                path, 35);
+                path, 38);
+
+        // Assert
+        List<MethodCallExpression> calls = findMethod("Z.java", "void test4(int)").getMethodUsages();
+        assertTrue(calls.contains(expectedMethodCall));
+    }
+
+    @Test
+    public void testMethodCallWithSuperKeywordArgumentInParentInstanceInInnerClass() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
+        List<Expression> args = Arrays.asList(new BinaryExpression(superKeyword(), BinaryOperation.DOT,
+                identifier("number")));
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test4"), args,
+                path, 42);
+
+        // Assert
+        List<MethodCallExpression> calls = findMethod("Z.java", "void test4(int)").getMethodUsages();
+        assertTrue(calls.contains(expectedMethodCall));
+    }
+
+    @Test
+    public void testMethodCallOnSuperKeywordInParentInstanceInInnerClass() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
+        List<Expression> args = Arrays.asList(literal("100"));
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("test4")), args, path, 46);
 
         // Assert
         List<MethodCallExpression> calls = findMethod("Z.java", "void test4(int)").getMethodUsages();

@@ -30,10 +30,20 @@ public class Z {
 
     public class Q {
 
-        public void add() {
+        public void testMethodCallOnParentInstanceInInnerClass() {
             test3();
+        }
+
+        public void testMethodCallWithArgumentInParentInstanceInInnerClass() {
             test4(number);
         }
-    }
 
+        public void testMethodCallWithSuperKeywordArgumentInParentInstanceInInnerClass() {
+            test4(super.number);
+        }
+
+        public void testMethodCallOnSuperKeywordInParentInstanceInInnerClass() {
+            super.test4(100);
+        }
+    }
 }

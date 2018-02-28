@@ -46,26 +46,26 @@ public class MethodCallProcessor {
         if (name instanceof BinaryExpression) {
             System.out.println("Found binary expression method name");
             BinaryExpression exp = (BinaryExpression)name;
-            expression.setMethodSource(resolve(exp));
+            expression.setMethodSource(resolve(exp, true));
             System.out.println("MethodSource="
                     + (expression.getMethodSource() == null ? "null" : expression.getMethodSource().getType()));
         }
 
         // Set argument types
-        List<TypeInstance> argsTypes = args.stream().map(this::resolve).collect(Collectors.toList());
+        List<TypeInstance> argsTypes = args.stream().map(t -> resolve(t, false)).collect(Collectors.toList());
         expression.setArgumentTypes(Collections.unmodifiableList(argsTypes));
         System.out.println("ArgumentTypes=" + argsTypes.stream()
                 .map(t -> t == null ? "null" : t.getType()).collect(Collectors.toList()));
     }
 
-    private TypeInstance resolve(Expression expr) {
+    private TypeInstance resolve(Expression expr, boolean resolvingMethodIdentifierMode) {
         // Set context
         TypeStatement topLevelType = th.getFirstTypeStatement();
         TypeStatement currentType = th.getLastTypeStatement();
         List<ImportStatement> imports = th.getImports();
         Optional<PackageStatement> currentPackage = th.getPackageStatement();
         BlockStatement currentContext = th.currentContext();
-        return new ExpressionTypeResolver().resolve(path, code, topLevelType, currentType, imports, currentPackage,
-                currentContext, qn, th, thr, expr);
+        return new ExpressionTypeResolver(resolvingMethodIdentifierMode).resolve(path, code, topLevelType, currentType,
+                imports, currentPackage, currentContext, qn, th, thr, expr);
     }
 }
