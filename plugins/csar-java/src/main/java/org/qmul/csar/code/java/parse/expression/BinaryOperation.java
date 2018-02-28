@@ -12,6 +12,9 @@ public enum BinaryOperation {
     XOR_ASSIGN("^="), RSHIFT_ASSIGN(">>="), LSHIFT_ASSIGN("<<="), UNSIGNED_RSHIFT_ASSIGN(">>>="), MOD_ASSIGN("%="),
     LSHIFT("<<"), RSHIFT(">>"), UNSIGNED_RSHIFT(">>>"),
     DOT("."),
+    /**
+     * This is only used within JavaCodeParser to identify ternary statements.
+     */
     QUESTION("?");
 
     private final String symbol;
@@ -40,12 +43,12 @@ public enum BinaryOperation {
 
     public boolean isArithmeticAssignOperation() {
         return this == ASSIGN || this == ADD_ASSIGN || this == SUB_ASSIGN || this == MUL_ASSIGN || this == DIV_ASSIGN
-                || this == RSHIFT_ASSIGN || this == LSHIFT_ASSIGN || this == UNSIGNED_RSHIFT_ASSIGN || this == AND_ASSIGN
-                || this == XOR_ASSIGN || this == OR_ASSIGN || this == MOD_ASSIGN;
+                || this == RSHIFT_ASSIGN || this == LSHIFT_ASSIGN || this == UNSIGNED_RSHIFT_ASSIGN
+                || this == AND_ASSIGN || this == XOR_ASSIGN || this == OR_ASSIGN || this == MOD_ASSIGN;
     }
 
     public boolean isBooleanOperation() {
         return this == AND || this == OR || this == EQUALS || this == NOTEQUALS || this == LE || this == GE
-                || this == GT || this == LT;
+                || this == GT || this == LT || this == INSTANCE_OF;
     }
 }

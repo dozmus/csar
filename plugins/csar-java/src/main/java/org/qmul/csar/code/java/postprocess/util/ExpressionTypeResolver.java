@@ -331,10 +331,10 @@ public class ExpressionTypeResolver {
 
             System.out.println("lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
             return resolveBinaryExpressionDotRhs(lhs, path, code, r, right, thr, th);
-        } else if (op.equals(BinaryOperation.INSTANCE_OF) || op.isBooleanOperation()) {
+        } else if (op.isBooleanOperation()) {
             return literalType("boolean");
         }
-        return null; // TODO impl
+        return null; // XXX wont get here since BinaryOperation.QUESTION is unused outside of JavaCodeParser
     }
 
     private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
