@@ -11,8 +11,6 @@ import java.nio.file.Path;
  */
 public final class TypeInstance {
 
-    // TODO introduce compilationStatement here
-
     private final String qualifiedName;
     private final TypeStatement statement;
     private final Path path;

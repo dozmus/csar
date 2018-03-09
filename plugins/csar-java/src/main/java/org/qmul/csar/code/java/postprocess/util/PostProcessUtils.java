@@ -107,12 +107,12 @@ public final class PostProcessUtils {
 
     /**
      *
-     * @param variableVisibilityModifier
      * @param isChildClass if the context it's being accessed in, is a child class to where the variable is.
      * @return
      */
     public static boolean isAccessible(VisibilityModifier variableVisibilityModifier, boolean isChildClass,
             Optional<PackageStatement> superPkg, Optional<PackageStatement> callerPkg) {
+        // TODO make sure the stuff to do with accessibility is right: if no pkg then check folder instead
         if (variableVisibilityModifier == VisibilityModifier.PUBLIC)
             return true;
         if (variableVisibilityModifier == VisibilityModifier.PRIVATE)
