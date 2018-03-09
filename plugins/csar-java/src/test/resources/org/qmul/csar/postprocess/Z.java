@@ -6,7 +6,7 @@ public class Z {
         return null;
     }
 
-    public void otherAdd2() {
+    public void testMethodCallOnMethodCall() {
         otherAdd1().add7(1, 2);
     }
 

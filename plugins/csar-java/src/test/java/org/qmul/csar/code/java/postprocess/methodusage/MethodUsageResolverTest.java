@@ -53,6 +53,17 @@ public class MethodUsageResolverTest {
         resolver.postprocess(code);
     }
 
+    /**
+     * Attempts to find the method in the argument path with the argument signature, and asserts that the method is not
+     * null and that its method called contains the argument expected.
+     */
+    private static void assertContainsMethodCall(String path, String methodSignature, MethodCallExpression expected) {
+        MethodStatement methodStatement = findMethod(path, methodSignature);
+        assertTrue(methodStatement != null);
+        List<MethodCallExpression> calls = methodStatement.getMethodUsages();
+        assertTrue(calls.contains(expected));
+    }
+
     @Test
     public void testSameClassInstanceMethodCall() {
         // Expected method call
@@ -61,20 +72,18 @@ public class MethodUsageResolverTest {
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, path, 10);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("A.java", "int add(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
     }
 
     @Test
     public void testSameClassRecursiveInstanceMethodCall() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A.java");
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), new ArrayList<>(), path,
-                11);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                identifier("testSameClassRecursiveInstanceMethodCall"), new ArrayList<>(), path, 16);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("A.java", "void add()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("A.java", "void testSameClassRecursiveInstanceMethodCall()", expectedMethodCall);
     }
 
     @Test
@@ -82,11 +91,10 @@ public class MethodUsageResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>(),
-                path, 12);
+                path, 20);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("A.java", "void staticAdd()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("A.java", "void staticAdd()", expectedMethodCall);
     }
 
     @Test
@@ -97,8 +105,7 @@ public class MethodUsageResolverTest {
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, path, 6);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("U.java", "int add(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "int add(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -106,11 +113,10 @@ public class MethodUsageResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "T.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>(),
-                path, 7);
+                path, 10);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("U.java", "void staticAdd()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "void staticAdd()", expectedMethodCall);
     }
 
     @Test
@@ -122,8 +128,7 @@ public class MethodUsageResolverTest {
                 path, 7);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("U.java", "int add2(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "int add2(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -135,8 +140,7 @@ public class MethodUsageResolverTest {
                 path, 11);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("U.java", "int add3(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "int add3(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -148,8 +152,7 @@ public class MethodUsageResolverTest {
                 path, 8);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("U.java", "int add4(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "int add4(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -161,8 +164,7 @@ public class MethodUsageResolverTest {
         MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path, 6);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("U.java", "int add5(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "int add5(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -174,8 +176,7 @@ public class MethodUsageResolverTest {
         MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path, 10);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("U.java", "int add6(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "int add6(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -192,15 +193,13 @@ public class MethodUsageResolverTest {
                 path, 10);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Z.java", "U otherAdd1()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Z.java", "U otherAdd1()", expectedMethodCall);
 
         // Prepare for the latter method call
         expectedMethodCall = new MethodCallExpression(call, args, path, 10);
 
         // Assert
-        calls = findMethod("U.java", "int add7(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("U.java", "int add7(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -212,8 +211,7 @@ public class MethodUsageResolverTest {
                         BinaryOperation.DOT, identifier("test1")), new ArrayList<>(), path, 14);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Z.java", "void test1()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Z.java", "void test1()", expectedMethodCall);
     }
 
     @Test
@@ -225,8 +223,7 @@ public class MethodUsageResolverTest {
                         BinaryOperation.DOT, identifier("test2")), new ArrayList<>(), path, 18);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Z.java", "void test2()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Z.java", "void test2()", expectedMethodCall);
     }
 
     @Test
@@ -239,8 +236,7 @@ public class MethodUsageResolverTest {
                 args, path, 8);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Class1.java", "void method2(A)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Class1.java", "void method2(A)", expectedMethodCall);
     }
 
     @Test
@@ -253,8 +249,7 @@ public class MethodUsageResolverTest {
                 args, path, 13);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Class1.java", "void method2(A)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Class1.java", "void method2(A)", expectedMethodCall);
     }
 
     @Test
@@ -270,8 +265,7 @@ public class MethodUsageResolverTest {
                 args, path, 18);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Class1.java", "void method2(A)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Class1.java", "void method2(A)", expectedMethodCall);
     }
 
     @Test
@@ -279,12 +273,11 @@ public class MethodUsageResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                new BinaryExpression(identifier("V"), BinaryOperation.DOT, identifier("staticAdd2")),
+                new BinaryExpression(identifier("V"), BinaryOperation.DOT, identifier("testLocalVariableMethodCall")),
                 new ArrayList<>(), path, 6);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("V.java", "void staticAdd2()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("V.java", "void testLocalVariableMethodCall()", expectedMethodCall);
     }
 
     @Test
@@ -296,8 +289,7 @@ public class MethodUsageResolverTest {
                 new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 18);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("A.java", "int add(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -313,8 +305,7 @@ public class MethodUsageResolverTest {
                 new BinaryExpression(classDef, BinaryOperation.DOT, identifier("add")), args, path, 24);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("A.java", "int add(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -326,8 +317,7 @@ public class MethodUsageResolverTest {
                 new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 33);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("A.java", "int add(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -339,8 +329,7 @@ public class MethodUsageResolverTest {
                 new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 42);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("A.java", "int add(int,int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
     }
 
 //    @Test
@@ -349,12 +338,12 @@ public class MethodUsageResolverTest {
 //        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
 //        MethodCallExpression expectedMethodCall = new MethodCallExpression(
 //                new BinaryExpression(identifier("base"), BinaryOperation.DOT,
-//                        new BinaryExpression(identifier("V"), BinaryOperation.DOT, identifier("staticAdd2"))),
+//                        new BinaryExpression(identifier("V"), BinaryOperation.DOT,
+//                                identifier("testLocalVariableMethodCall"))),
 //                new ArrayList<>(), path, 6);
 //
 //        // Assert
-//        List<MethodCallExpression> calls = findMethod("V.java", "void staticAdd2()").getMethodUsages();
-//        assertTrue(calls.contains(expectedMethodCall));
+//        assertContainsMethodCall("V.java", "void testLocalVariableMethodCall()", expectedMethodCall);
 //    }
 
     @Test
@@ -365,8 +354,7 @@ public class MethodUsageResolverTest {
                 path, 34);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Z.java", "void test3()").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Z.java", "void test3()", expectedMethodCall);
     }
 
     @Test
@@ -378,8 +366,7 @@ public class MethodUsageResolverTest {
                 path, 38);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Z.java", "void test4(int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Z.java", "void test4(int)", expectedMethodCall);
     }
 
     @Test
@@ -392,8 +379,7 @@ public class MethodUsageResolverTest {
                 path, 42);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Z.java", "void test4(int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Z.java", "void test4(int)", expectedMethodCall);
     }
 
     @Test
@@ -405,8 +391,7 @@ public class MethodUsageResolverTest {
                 new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("test4")), args, path, 46);
 
         // Assert
-        List<MethodCallExpression> calls = findMethod("Z.java", "void test4(int)").getMethodUsages();
-        assertTrue(calls.contains(expectedMethodCall));
+        assertContainsMethodCall("Z.java", "void test4(int)", expectedMethodCall);
     }
 
     // TODO impl and test: interactions with super of super

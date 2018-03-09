@@ -4,7 +4,7 @@ public class W {
 
     private U u;
 
-    public void staticAdd() {
+    public void testInstanceVariableMethodCall() {
         u.add4(1, 2);
     }
 }

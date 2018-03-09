@@ -6,9 +6,17 @@ public class A {
         return a + b;
     }
 
-    private void add() {
+    private void testSameClassInstanceMethodCall() {
         add(1, 2);
         add();
+        staticAdd();
+    }
+
+    private void testSameClassRecursiveInstanceMethodCall() {
+        testSameClassRecursiveInstanceMethodCall();
+    }
+
+    private void testSameClassStaticMethodCall() {
         staticAdd();
     }
 

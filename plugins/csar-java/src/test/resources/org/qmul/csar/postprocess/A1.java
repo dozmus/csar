@@ -3,11 +3,11 @@ package base;
 public class A1 {
 
     public void testStaticMethodCallOnClassName() {
-        V.staticAdd2();
+        V.testLocalVariableMethodCall();
     }
 
     public void testStaticMethodCallOnFullyQualifiedName() {
-        base.V.staticAdd2();
+        base.V.testLocalVariableMethodCall();
     }
 
     public void testMethodCallWithNestedParameterArguments(int a, int b) {

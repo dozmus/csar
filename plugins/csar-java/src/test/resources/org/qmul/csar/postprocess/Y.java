@@ -2,19 +2,19 @@ package base;
 
 public class Y extends U {
 
-    public void otherAdd1() {
+    public void testSuperMethodCall() {
         super.add5(1, 2);
     }
 
-    public void otherAdd2() {
+    public void testThisMethodCall() {
         this.add6(1, 2);
     }
 
-    public void otherAdd3() {
+    public void testSuperVariableMethodCall() {
         super.z.test1();
     }
 
-    public void otherAdd4() {
+    public void testThisVariableMethodCall() {
         this.z.test2();
     }
 }
