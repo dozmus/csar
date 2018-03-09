@@ -59,12 +59,45 @@ public class QualifiedNameResolver {
     private final Map<DefaultPackageEntry, QualifiedType> defaultPackageCache = new HashMap<>();
     private final Statistics statistics = new Statistics();
 
+    /**
+     * Resolves a qualified name with <tt>strict</tt> set to <tt>false</tt>.
+     * @see #resolve(Map, Path, TypeStatement, TypeStatement, Optional, List, String, boolean)
+     */
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name) {
         return resolve(code, path, parent, topLevelParent, currentPackage, imports, name, false);
     }
 
+    /**
+     * Resolves a fully qualified name.
+     */
+    public QualifiedType resolveFullyQualifiedName(Map<Path, Statement> code, String name) {
+        // TODO make faster by ignoring package names with no content
+        // 1. break up repeatedly name into pkg and name
+        int dotIdx = name.indexOf(".");
+        String pkg = "";
+
+        while (dotIdx != -1) {
+            pkg += name.substring(0, dotIdx);
+            name = name.substring(dotIdx + 1);
+
+            // 2. resolve against classes in target package package
+            Optional<PackageStatement> currentPackage = Optional.of(new PackageStatement(pkg, new ArrayList<>()));
+
+            statistics.prepare();
+            QualifiedType t = resolveInCurrentPackage(code, currentPackage, name);
+            statistics.samePackageTimeTaken += statistics.diff();
+
+            if (t != null)
+                return t;
+        }
+        return null;
+    }
+
+    /**
+     * Resolves a qualified name.
+     */
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name, boolean strict) {
@@ -73,6 +106,8 @@ public class QualifiedNameResolver {
 
         if (leftAngleBracketIdx != -1)
             name = name.substring(0, leftAngleBracketIdx);
+
+        // TODO handle if name is a fully qualified name
 
         // Resolve against inner classes in current class
         statistics.prepare();
@@ -114,7 +149,7 @@ public class QualifiedNameResolver {
         if (t4 != null)
             return t4;
 
-        if (strict)
+        if (strict) // TODO remove strict mode once external libraries are handled
             return null;
 
         // If name contains dots, we assume it is a fully qualified name

@@ -332,19 +332,18 @@ public class MethodUsageResolverTest {
         assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
     }
 
-//    @Test
-//    public void testStaticMethodCallOnFullyQualifiedName() {
-//        // Expected method call
-//        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
-//        MethodCallExpression expectedMethodCall = new MethodCallExpression(
-//                new BinaryExpression(identifier("base"), BinaryOperation.DOT,
-//                        new BinaryExpression(identifier("V"), BinaryOperation.DOT,
-//                                identifier("testLocalVariableMethodCall"))),
-//                new ArrayList<>(), path, 6);
-//
-//        // Assert
-//        assertContainsMethodCall("V.java", "void testLocalVariableMethodCall()", expectedMethodCall);
-//    }
+    @Test
+    public void testStaticMethodCallOnFullyQualifiedName() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(new BinaryExpression(identifier("base"), BinaryOperation.DOT, identifier("V")),
+                        BinaryOperation.DOT, identifier("testLocalVariableMethodCall")),
+                new ArrayList<>(), path, 10);
+
+        // Assert
+        assertContainsMethodCall("V.java", "void testLocalVariableMethodCall()", expectedMethodCall);
+    }
 
     @Test
     public void testMethodCallOnParentInstanceInInnerClass() {

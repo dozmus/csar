@@ -20,7 +20,6 @@ import java.util.Stack;
 
 public class ExpressionTypeResolver {
 
-    // TODO support fully qualified named throughout
     // TODO make sure path is always set as much as possible
     // TODO does this work with new Class(). ...
 
@@ -351,21 +350,62 @@ public class ExpressionTypeResolver {
             return lhs;
         } else if (op.equals(BinaryOperation.DOT)) {
             System.out.println("BinaryOperation=DOT");
+
             TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
                     r, th, thr, left);
+
+            if (lhs != null) {
+                System.out.println("[Attempt 1] lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
+                TypeInstance out = resolveBinaryExpressionDotRhs(lhs, path, code, r, right, thr, th, true);
+
+                if (out != null)
+                    return out;
+            }
+
+            // fall-back: current target was not found so it might be a fully qualified name
+            lhs = resolveFullyQualifiedName(code, r, left);
+
             if (lhs == null)
                 return null;
 
-            System.out.println("lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
-            return resolveBinaryExpressionDotRhs(lhs, path, code, r, right, thr, th);
+            System.out.println("[Attempt 2] lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
+            return resolveBinaryExpressionDotRhs(lhs, path, code, r, right, thr, th, true);
         } else if (op.isBooleanOperation()) {
             return literalType("boolean");
         }
         return null; // XXX wont get here since BinaryOperation.QUESTION is unused outside of JavaCodeParser
     }
 
+    private TypeInstance resolveFullyQualifiedName(Map<Path, Statement> code, QualifiedNameResolver r,
+            Expression left) {
+        String fullyQualifiedName = binaryExpressionIdentifierDotSequenceToString(left);
+
+        if (fullyQualifiedName == null || !fullyQualifiedName.contains("."))
+            return null;
+        QualifiedType qt = r.resolveFullyQualifiedName(code, fullyQualifiedName);
+
+        if (qt != null)
+            System.out.println(">>>>>>>>>>>>>>>> " + fullyQualifiedName + " => " + qt.getQualifiedName()
+                    + "," + (qt.getTopLevelStatement() == null));
+        return qt == null ? null : new TypeInstance(qt, 0);
+    }
+
+    private String binaryExpressionIdentifierDotSequenceToString(Expression e) {
+        if (e instanceof UnitExpression) {
+            UnitExpression ue = (UnitExpression)e;
+            return ue.getValueType() == UnitExpression.ValueType.IDENTIFIER ? ue.getValue() : null;
+        } else if (e instanceof BinaryExpression) {
+            BinaryExpression bexp = (BinaryExpression)e;
+            return binaryExpressionIdentifierDotSequenceToString(bexp.getLeft())
+                    + "." + binaryExpressionIdentifierDotSequenceToString(bexp.getRight());
+        } else {
+            return null;
+        }
+    }
+
     private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
-            QualifiedNameResolver r, Expression right, TypeHierarchyResolver thr, TraversalHierarchy th) {
+            QualifiedNameResolver r, Expression right, TypeHierarchyResolver thr, TraversalHierarchy th,
+            boolean onVariable) {
         System.out.println("resolveBinaryExpressionDotRhs [right=" + right.getClass().getSimpleName() + "]");
         if (lhs == null)
             return null;
@@ -378,7 +418,6 @@ public class ExpressionTypeResolver {
                 return lhs; // XXX rhs is the identifier of a method call, we handle it elsewhere
             } else if (methodCallStack.empty()) { // is another identifier
                 System.out.println("METHOD CALL STACK EMPTY");
-                // TODO handle the possibility that it might be a fully qualified method call
                 String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
                         code, path, false, lCompilationUnitStatement.getPackageStatement());
                 System.out.println("[RBE-RHS] rType = " + rType);
@@ -397,10 +436,19 @@ public class ExpressionTypeResolver {
                 if (lCompilationUnitStatement == null) // may be external - we ignore it
                     return null;
                 MethodResolver methodResolver = new MethodResolver(lhs.getPath(), code, r, thr);
-                MethodStatement method = methodResolver.resolveOnVariable(methodCallStack.peek(),
-                        lCompilationUnitStatement, lCompilationUnitStatement.getTypeStatement(),
-                        lCompilationUnitStatement.getImports(), lCompilationUnitStatement.getPackageStatement(),
-                        th.currentContext(), th);
+                MethodStatement method;
+
+                if (onVariable) {
+                    method = methodResolver.resolveOnVariable(methodCallStack.peek(),
+                            lCompilationUnitStatement, lCompilationUnitStatement.getTypeStatement(),
+                            lCompilationUnitStatement.getImports(), lCompilationUnitStatement.getPackageStatement(),
+                            th.currentContext(), th);
+                } else {
+                    method = methodResolver.resolve(methodCallStack.peek(),
+                            lCompilationUnitStatement, lCompilationUnitStatement.getTypeStatement(),
+                            lCompilationUnitStatement.getImports(), lCompilationUnitStatement.getPackageStatement(),
+                            th.currentContext(), th);
+                }
 
                 if (method != null) {
                     int dimensions = TypeHelper.dimensions(method.getDescriptor().getReturnType().get());
@@ -409,7 +457,6 @@ public class ExpressionTypeResolver {
                 return null;
             }
         } else { // is another identifier
-            // TODO handle the possibility that it might be a fully qualified method call
             String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
                     code, path, false, lCompilationUnitStatement.getPackageStatement());
             System.out.println("[RBE-RHS] rType = " + rType);
