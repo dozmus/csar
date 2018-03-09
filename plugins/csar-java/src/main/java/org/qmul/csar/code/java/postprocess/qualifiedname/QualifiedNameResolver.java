@@ -81,6 +81,7 @@ public class QualifiedNameResolver {
         while (dotIdx != -1) {
             pkg += name.substring(0, dotIdx);
             name = name.substring(dotIdx + 1);
+            dotIdx = name.indexOf(".");
 
             // 2. resolve against classes in target package package
             Optional<PackageStatement> currentPackage = Optional.of(new PackageStatement(pkg, new ArrayList<>()));

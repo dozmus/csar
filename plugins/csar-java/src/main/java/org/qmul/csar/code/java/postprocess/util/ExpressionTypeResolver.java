@@ -418,6 +418,9 @@ public class ExpressionTypeResolver {
                 return lhs; // XXX rhs is the identifier of a method call, we handle it elsewhere
             } else if (methodCallStack.empty()) { // is another identifier
                 System.out.println("METHOD CALL STACK EMPTY");
+
+                if (lCompilationUnitStatement == null) // may be external - we ignore it
+                    return null;
                 String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
                         code, path, false, lCompilationUnitStatement.getPackageStatement());
                 System.out.println("[RBE-RHS] rType = " + rType);
