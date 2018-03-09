@@ -10,10 +10,8 @@ It may occupy more than one line. */
  *
  * @author John Doe
  */
-package grammars.java8pt;
+package grammars.java8;
 
-import java.util.*;
-import java.*;
 import static screen.ColorName.*;
 
 public class AbstractClass {

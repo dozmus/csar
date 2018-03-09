@@ -1,7 +1,7 @@
-package java8pt;
+package java8;
 
-import grammars.java8pt.JavaLexer;
-import grammars.java8pt.JavaParser;
+import grammars.java8.JavaLexer;
+import grammars.java8.JavaParser;
 import org.antlr.v4.runtime.*;
 import org.junit.Test;
 
@@ -13,9 +13,9 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.fail;
 
-public final class TestJava8PTGrammar {
+public final class Java8GrammarTest {
 
-    private static final Path SAMPLES_DIRECTORY = Paths.get("src/test/resources/grammars/java8pt");
+    private static final Path SAMPLES_DIRECTORY = Paths.get("src/test/resources/grammars/java8");
 
     @Test
     public void testValidJava8Files() throws IOException {

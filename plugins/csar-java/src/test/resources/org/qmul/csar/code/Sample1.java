@@ -1,4 +1,4 @@
-package grammars.java8pt;
+package grammars.java8;
 
 public strictfp abstract class Sample1 extends AbstractSample {
 

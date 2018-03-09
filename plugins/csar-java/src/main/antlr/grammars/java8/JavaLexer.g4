@@ -30,7 +30,7 @@
 lexer grammar JavaLexer;
 
 @lexer::header {
-    package grammars.java8pt;
+    package grammars.java8;
 }
 
 // Keywords

@@ -1,4 +1,4 @@
-package grammars.java8pt;
+package grammars.java8;
 
 interface Expandable<T extends Number> {
     void addItem(T item);

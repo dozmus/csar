@@ -144,7 +144,7 @@ public final class JavaCodeParserTest {
                 .build(),
                 new BlockStatement(Arrays.asList(constructor1, constructor2, var1, var2, method1, method2, method3)),
                 new ArrayList<>());
-        return new CompilationUnitStatement(Optional.of(new PackageStatement("grammars.java8pt", new ArrayList<>())),
+        return new CompilationUnitStatement(Optional.of(new PackageStatement("grammars.java8", new ArrayList<>())),
                 new ArrayList<>(), clazz);
     }
 

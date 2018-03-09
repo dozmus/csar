@@ -31,11 +31,11 @@
 parser grammar JavaParser;
 
 @parser::header {
-    package grammars.java8pt;
+    package grammars.java8;
 }
 
 options {
-    tokenVocab='grammars/java8pt/JavaLexer';
+    tokenVocab='grammars/java8/JavaLexer';
 }
 
 compilationUnit

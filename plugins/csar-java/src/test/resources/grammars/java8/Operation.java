@@ -1,4 +1,4 @@
-package grammars.java8pt;
+package grammars.java8;
 
 class Operation {
     public int doSomething() {

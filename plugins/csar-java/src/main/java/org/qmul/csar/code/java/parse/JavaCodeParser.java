@@ -1,8 +1,8 @@
 package org.qmul.csar.code.java.parse;
 
-import grammars.java8pt.JavaLexer;
-import grammars.java8pt.JavaParser;
-import grammars.java8pt.JavaParserBaseListener;
+import grammars.java8.JavaLexer;
+import grammars.java8.JavaParser;
+import grammars.java8.JavaParserBaseListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
