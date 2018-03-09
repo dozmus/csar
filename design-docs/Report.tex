@@ -73,63 +73,91 @@
 
 % Introduction
 \section{Introduction}
-\subsection{What is csar?}
+The problem this paper will detail the creation of the csar (code search and refactor) tool, which aims to be versatile, query-driven, semantics-based and language-agnostic.
+This introduction will explain the general functionality of csar, and the pre-requisite knowledge required to understand this paper.
 
-csar aims to be a unified framework for code searching and refactoring. It will take as input descriptions of searches and corresponding refactors in a newly devised query language called the csar query language. This results in a versatile and descriptive framework, which can target any programming language without the developer needing to know the specifics.
+\subsection{What is csar?}
+csar aims to be a unified framework for code searching and refactoring whose users are developers.
+It will take as input descriptions of searches and corresponding refactors in a newly devised query language called the csar query language.
+This results in a versatile and descriptive framework, which can target any programming language without the users needing to know the specifics.
 
 Furthermore, csar aims to be flexible code-wise.
 Most of its API will be publicly exposed and documented.
-Third-party developers will be able to use this to extend csar, or embed csar into complicated build processes and other applications.
+Users of csar which will be developers will be able to use this to extend csar, or embed csar into complicated build processes and other applications.
+
+For example, suppose a user wants to be able to move methods matching a certain signature.
+They should be able to subclass an interface describing how to perform a refactor, and implement such functionality.
+Then they will recompile and rebuild csar, and then use it.
 
 \subsection{Pre-requisite Knowledge}
 ``Refactoring is the process of changing the structure of software without changing its behavior." \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
 
 ``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \autocite{wikipediasemanticsearch} Henceforth, this is what is meant by `code search' or `search'.
 
-Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity. \autocite{reiss2009semantics,stolee2014solving}
+Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity \autocite{reiss2009semantics,stolee2014solving}.
 
-There have been attempts to solve searching which have failed, the reasons for this includes: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results. \autocite{reiss2009semantics,stolee2014solving}
+There have been attempts to solve searching which have failed including:
+\begin{itemize}
+  \item CodeGenie which used user-defined test cases to build search queries;
+  \item Various works using keywords from comments and variable names;
+  \item Assieme, Sorcerer, and Codifier which incorporate program code semantics \autocite{reiss2009semantics};
+  \item AutoQuery (see \nameref{sec:AutoQuery}).
+\end{itemize}
 
-Refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity. \autocite{mens2004survey,murphy2012we}
+The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
 
-There have been attempts to solve refactoring which have failed, the reasons for this includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused. \autocite{murphy2012we}
+Automated refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity \autocite{mens2004survey,murphy2012we}.
+
+There have been attempts to solve automated refactoring which have failed including:
+\begin{itemize}
+  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring.
+  \item Netbeans - this is an IDE with integrated automated refactoring.
+  \item Eclipse - this is an IDE with integrated automated refactoring.
+\end{itemize}
+
+The reasons for their failures includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused \autocite{murphy2012we}.
 
 Searching and refactoring are both hard to implement because optimally they should be language-agnostic \autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
 
-``Parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
+csar parses source code to operate on it, ``parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
 
+csar frequently uses the visitor design pattern to iterate over the elements of a source file.
 ``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \autocite{wikipediavisitorpattern}
 
-ANTLR is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
+csar uses ANTLR, which is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
 
-```A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
+``A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
 
 % Requirements
 \section{Requirements}
+We will define csar in terms of its requirements, these are categorised as primary requirements (necessary functionality), secondary requirements (unnecessary but useful functionality), and non-functional requirements.
+These are elaborated on in the Scope subsection.
+
 \subsection{Primary Requirements}
 \begin{itemize}
-  \item Use guide.
-  \item Query-driven.
-  \item Source code parsing.
-  \item Searching.
-  \item Custom search domains.
-  \item Refactoring.
-  \item Language-agnosticism.
+  \item Use guide - a small document describing how to use the implemented functionality of csar.
+  \item Query-driven - csar should operate on inputs in query form.
+  \item Source code parsing - csar should be able to parse source code, otherwise it cannot search or refactor them with the necessary amount of flexibility.
+  \item Searching - csar should be able to search source code.
+  \item Custom search domains - the user should be able to specify what files to search within the input query.
+  \item Refactoring - csar should be able to refactor the source base being operated on.
+  \item Language-agnosticism - csar should be designed to be language-agnostic, such that it can operate on any language if it is implemented in a simple way.
 \end{itemize}
 
 \subsection{Secondary Requirements}
 These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift.
-The implementation details of each will be outlined.
+The benefits and implementation details of each will be outlined.
 
 \subsubsection{Indexing parsed project source code}
-We want to index previously parsed project code and use this to speed up further interactions with the same project code.
-We also want to maintain an updated index of the code.
+In many cases csar may act on the same project code, perhaps with some differences.
+We could make csar faster by taking this into account.
+We would index parsed project code and only re-parse them if they have changed.
 
 We have two storage approaches we can take:
 \begin{enumerate}
   \item Storage Approach: Flat Files\newline
   Either map the files to a parallel hierarchy in `.csar` which contains their parsed outputs, or, store them all in the same folder where their file names are the hashes of the input files.
-  The second approach may cause problems if hash collisions occur, so care must be taken when choosing the hashing algorithm to be used.
+  The second approach may cause problems if hash collisions occur, thus an appropriate hashing algorithm must be used.
   The last modified dates of the source code and their parsed code can be used to determine which files require updating.
   \item Storage Approach: Database (i.e. SQLite)\newline
   Store a `(Path, LastModified, ParsedCode)` relation in the database, preferably in a `.csar` directory.
@@ -140,6 +168,7 @@ We have two storage approaches we can take:
 It is important to note that using the last modified dates of files can be error-prone, since they can be spoofed, but it would offer no advantage to an attacker.
 
 \subsubsection{Supporting Mercurial (hg)/Subversion (svn) repositories}
+In rare cases csar may be used on a project using outdated version control systems, using them to narrow the search domain will be useful to the developer and make csar faster.
 This would be done analogously to the git implementation, but the program arguments we use when invoking their binaries will be different.
 Some possibilities are listed below:
 \begin{itemize}
@@ -147,11 +176,9 @@ Some possibilities are listed below:
   \item Svn: `svn list -R' or `svn status'
 \end{itemize}
 
-\subsubsection{Support for further searching}
-The process for this is described earlier, I would simply have to repeat the process for each additional element I want to support searching for.
-
 \subsubsection{IntelliJ IDEA Integration}
-csar can be integrated into this IDE in one of two ways:
+We may want to integrate csar into the IntelliJ IDEA IDE such that if a user of csar uses this IDE, they can use csar from within it. 
+csar can be integrated into it in one of two ways:
 \begin{itemize}
   \item Internally - csar can be implemented as an alternative to IDEA's structural search,
   this would enable it to carry out the following tasks:
@@ -170,7 +197,7 @@ csar can be integrated into this IDE in one of two ways:
   \item Interoperability - csar will have a user guide explaining how to invoke it from other applications and will support flexible output formats.
   \item Open source
   \item Portable - csar will be written in Java (version 8) which is a cross-platform framework.
-  Java 8 runs on platforms including recent versions of Windows, Mac OS X, and various Linux distributions. \autocite{javasysreqs}
+  Java 8 runs on platforms including recent versions of Windows, Mac OS X, and various Linux distributions \autocite{javasysreqs}.
   \item Quality/Reliability - csar will be well designed and make appropriate use of configuration management and unit testing to detect bugs early in the software development life cycle.
   csar will also make use of well-tested and maintained libraries and platforms where possible (within reason).
   If necessary, contributions to third-party libraries will also be made to ensure high quality dependencies.
@@ -190,8 +217,8 @@ My goal is not to develop an exhaustive query language which can express any lan
 
 Parsing of java source code (Java 8) will be supported.
 csar will be designed such that other programming languages can easily be integrated into it in the future.
-They will just need to write a plugin for them, analogously to how the java plugin will be written.
-This will include the creation of a language parser, post-processor, searcher, and refactorer.
+A developer will need to write a plugin for each programming language they wish to use, analogously to how the java plugin will be written.
+This will include the implementation of a language parser, post-processors, searcher, and refactorer.
 
 Searching will be implemented to only work on methods (finding their definitions and usages) for now.
 To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved.
@@ -205,6 +232,7 @@ The git implementation will require calling the git binary with a specific argum
 Refactoring is very complicated and time consuming, so we will only consider two operations.
 The first is changing method parameters, this involves resolving all usages of the method in question (in various contexts), modifying the method calls and its definition and ensuring no naming collisions occur.
 The second is renaming methods, this should follow from changing method parameters, since if we resolve all method usages we should be able to simply rename them all and ensure no naming collisions occur.
+Renaming is a very common activity for our users (programmers) and hence very valuable to include \autocite{murphy2012we}.
 
 The program output could technically support thousands of formats, but for simplicity it will only support two: plain text and JSON.
 If alternatives are required, a third-party developer will be able to easily add their own result formatter.
@@ -214,108 +242,8 @@ Specific algorithms to be used are currently unknown, but may become available a
 
 % Design
 \section{Design}
-\subsection{High-level Structure}
 
-\begin{figure}[!hb]
-  \centering
-  \caption{High-level Structure}
-  \includegraphics{figure-1}
-\end{figure}
-
-A command-line interface `csar-frontend' for csar is provided called `csar-cli' (you can write your own).
-
-The `csar-api' defines the csar query, csar plugins (using PF4J), and various utilities.
-It does not specify language-specific implementation details.
-
-The language-specific details are specified in plugins (see: `csar-plugins').
-These behaviours are: parsing, post-processing, searching, and refactoring.
-
-Plugins exhibit a few behaviours of note:
-\begin{itemize}
-  \item Plugins are not executed concurrently but interleaving during the same step of the process may occur.
-  i.e. All plugins can be told to parse one by one, then to post-process one by one, etc.
-  \item Plugins have unrestricted access to the host machine.
-  \item All plugins have access to all project files, thus it is possible for two plugins to modify the same file.
-  The last plugin to modify it will have its changed kept.
-\end{itemize}
-
-To create a plugin for csar the following must be done:
-\begin{itemize}
-  \item Create a new JVM project which has as dependencies: `csar-api' and `pf4j' version 2.1.0.
-  \item Create a class which extends Plugin from the PF4J framework - this doesn't have to do anything special, although it can.
-  Example:
-  \begin{lstlisting}[language=Java]
-  package org.qmul.csar;
-
-  import org.pf4j.Plugin;
-  import org.pf4j.PluginWrapper;
-
-  /**
-    * The java language plugin.
-    */
-  public class JavaPlugin extends Plugin {
-
-      public JavaPlugin(PluginWrapper wrapper) {
-          super(wrapper);
-      }
-  }
-  \end{lstlisting}
-  \item Create a class which implements `CsarPlugin' from `csar-api' and is annotated with `CsarJavaPlugin'.
-  This should have a 0-arguments constructor.
-  Implement the behaviour defined by the interface: parsing, processing, searching, and refactoring.
-  This is where the language-specific work occurs.
-  Example:
-  \begin{lstlisting}[language=Java]
-  package org.qmul.csar;
-
-  import org.pf4j.Extension;
-  import org.pf4j.Plugin;
-  import org.pf4j.PluginWrapper;
-  import org.qmul.csar.query.CsarQuery;
-  import org.qmul.csar.result.Result;
-
-  import java.nio.file.Path;
-  import java.util.List;
-      
-  /**
-    * The java language csar plugin.
-    */
-  @Extension
-  public static class CsarJavaPlugin implements CsarPlugin {
-
-      @Override
-      public boolean parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
-        // parsing code...
-      }
-
-      @Override
-      public boolean postprocess() {
-        // post-processing code...
-      }
-
-      @Override
-      public List<Result> search(CsarQuery csarQuery, int threadCount) throws Exception {
-        // searching code...
-      }
-  }
-  \end{lstlisting}
-  \item You must also define a few values, if you are using gradle in `gradle.properties' file, if you are not then in a `plugin.properties' file.
-  This file should be as follows (note everything after `//' are comments and should be omitted):
-  \begin{lstlisting}
-  version=0.0.1 // defined in this format: digit '.' digit '.' digit
-
-  pluginId=csar-java // a unique string
-  pluginClass=org.qmul.csar.JavaPlugin // the fully qualified name of the plugin class
-  pluginProvider=Deniz Ozmus // the author name
-  pluginDependencies= // dependencies on other plugins, list them by pluginId separated with spaces
-  \end{lstlisting}
-\end{itemize}
-
-To use the plugin with csar the following must be done:
-\begin{itemize}
-  \item Compile the project into JAR format, rename it to have the `.zip' extension and place it in `/plugins/' relative to the csar front-end jar.
-  \item Run the csar front-end jar, it should automatically detect and delegate tasks to your plugin.
-\end{itemize}
+csar's design will be described at a high-level (component-wise) and followed up with a running example will also be provided to help illustrate how it works in a step-by-step manner.
 
 \subsection{High-level Structure Overview}
 A csar front-end is chosen and receives some input defining the task to be carried out.
@@ -479,6 +407,108 @@ Refactor Results:
 
 Finally, `csar-cli' will terminate.
 
+\subsection{High-level Structure}
+
+\begin{figure}[!hb]
+  \centering
+  \caption{High-level Structure}
+  \includegraphics{figure-1}
+\end{figure}
+
+A command-line interface `csar-frontend' for csar is provided called `csar-cli', however a user can write their own.
+
+The `csar-api' defines the csar query, csar plugins (using PF4J), and various utilities.
+It does not specify language-specific implementation details.
+
+The language-specific details are specified in plugins (see: `csar-plugins').
+These behaviours are: parsing, post-processing, searching, and refactoring.
+
+Plugins exhibit a few behaviours of note:
+\begin{itemize}
+  \item Plugins are not executed concurrently but interleaving during the same step of csar process may occur, i.e. all plugins may be told to parse one by one, then to post-process one by one, etc.
+  \item Plugins have unrestricted access to the host machine.
+  \item All plugins have access to all project files, thus it is possible for two plugins to modify the same file.
+  The last plugin to modify it will have its changed kept.
+\end{itemize}
+
+To create a plugin for csar the following must be done:
+\begin{itemize}
+  \item Create a new JVM project which has as dependencies: `csar-api' and `pf4j' version 2.1.0.
+  \item Create a class which extends Plugin from the PF4J framework - this doesn't have to do anything special, although it can.
+  Example:
+  \begin{lstlisting}[language=Java]
+  package org.qmul.csar;
+
+  import org.pf4j.Plugin;
+  import org.pf4j.PluginWrapper;
+
+  /**
+    * The java language plugin.
+    */
+  public class JavaPlugin extends Plugin {
+
+      public JavaPlugin(PluginWrapper wrapper) {
+          super(wrapper);
+      }
+  }
+  \end{lstlisting}
+  \item Create a class which implements `CsarPlugin' from `csar-api' and is annotated with `CsarJavaPlugin'.
+  This should have a 0-arguments constructor.
+  Implement the behaviour defined by the interface: parsing, processing, searching, and refactoring.
+  This is where the language-specific work occurs.
+  Example:
+  \begin{lstlisting}[language=Java]
+  package org.qmul.csar;
+
+  import org.pf4j.Extension;
+  import org.pf4j.Plugin;
+  import org.pf4j.PluginWrapper;
+  import org.qmul.csar.query.CsarQuery;
+  import org.qmul.csar.result.Result;
+
+  import java.nio.file.Path;
+  import java.util.List;
+      
+  /**
+    * The java language csar plugin.
+    */
+  @Extension
+  public static class CsarJavaPlugin implements CsarPlugin {
+
+      @Override
+      public boolean parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
+        // parsing code...
+      }
+
+      @Override
+      public boolean postprocess() {
+        // post-processing code...
+      }
+
+      @Override
+      public List<Result> search(CsarQuery csarQuery, int threadCount) throws Exception {
+        // searching code...
+      }
+  }
+  \end{lstlisting}
+  \item You must also define a few values, if you are using gradle in `gradle.properties' file, if you are not then in a `plugin.properties' file.
+  This file should be as follows (note everything after `//' are comments and should be omitted):
+  \begin{lstlisting}
+  version=0.0.1 // defined in this format: digit '.' digit '.' digit
+
+  pluginId=csar-java // a unique string
+  pluginClass=org.qmul.csar.JavaPlugin // the fully qualified name of the plugin class
+  pluginProvider=Deniz Ozmus // the author name
+  pluginDependencies= // dependencies on other plugins, list them by pluginId separated with spaces
+  \end{lstlisting}
+\end{itemize}
+
+To use the plugin with csar the following must be done:
+\begin{itemize}
+  \item Compile the project into JAR format, rename it to have the `.zip' extension and place it in `/plugins/' relative to the csar front-end jar.
+  \item Run the csar front-end jar, it should automatically detect and delegate tasks to your plugin.
+\end{itemize}
+
 % Implementation
 \section{Implementation}
 ...
@@ -513,6 +543,7 @@ There is also a lot of work on code search engines, ranking code samples and tex
 The following languages do not necessarily address my problem but they may influence the development of my own query language.
 
 \subsubsection{AutoQuery}
+\label{sec:AutoQuery}
 Its queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.
 Each group can have 0 or more pieces of information within it, so it is descriptive.
 
