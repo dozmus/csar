@@ -1,6 +1,6 @@
-package org.qmul.csar;
+package org.qmul.csar.plugin;
 
-import org.pf4j.ExtensionPoint;
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.result.Result;
 
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * A Csar implementation for a specific language.
  */
-public interface CsarPlugin extends ExtensionPoint {
+public interface CsarPlugin {
 
     /**
      * Parses the project code.

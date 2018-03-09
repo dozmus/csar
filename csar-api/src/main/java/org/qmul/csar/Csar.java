@@ -1,6 +1,7 @@
 package org.qmul.csar;
 
-import org.pf4j.*;
+import org.qmul.csar.plugin.CsarPlugin;
+import org.qmul.csar.plugin.CsarPluginLoader;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
 import org.qmul.csar.result.Result;
@@ -8,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A code search and refactor tool instance.
@@ -24,7 +27,6 @@ public class Csar {
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private CsarQuery csarQuery;
     private List<Result> results;
-    private List<CsarPlugin> plugins;
     private boolean errorOccurred = false;
 
     /**
@@ -56,28 +58,11 @@ public class Csar {
             throw new IllegalStateException("an error has occurred, csar cannot continue");
         LOGGER.info("Loading plugins...");
 
-        // Create the plugin manager
-        PluginManager pluginManager = new DefaultPluginManager() {
-            @Override
-            protected CompoundPluginDescriptorFinder createPluginDescriptorFinder() {
-                return new CompoundPluginDescriptorFinder()
-                        .add(new ManifestPluginDescriptorFinder());
-            }
-        };
-        LOGGER.trace("Plugins Directory: {}", pluginManager.getPluginsRoot().toAbsolutePath());
-        pluginManager.loadPlugins();
-        pluginManager.startPlugins();
+        // Create the service provider
+        CsarPluginLoader pluginService = CsarPluginLoader.getInstance();
 
-        // Retrieves the extensions
-        plugins = pluginManager.getExtensions(CsarPlugin.class);
-
-        if (plugins.size() == 0) {
+        if (!pluginService.plugins().hasNext()) {
             errorListeners.forEach(CsarErrorListener::errorInitializing);
-        }
-
-        // Sets the error listeners
-        for (CsarPlugin plugin : plugins) {
-            errorListeners.forEach(plugin::addErrorListener);
         }
     }
 
@@ -101,7 +86,8 @@ public class Csar {
     public void parseCode() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        plugins.forEach(plugin -> plugin.parse(projectDirectory, narrowSearch, ignoreFile, threadCount));
+        CsarPluginLoader.getInstance().forEachPlugin(p -> p.parse(projectDirectory, narrowSearch, ignoreFile,
+                threadCount));
     }
 
     /**
@@ -110,7 +96,7 @@ public class Csar {
     public void postprocess() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        plugins.forEach(CsarPlugin::postprocess);
+        CsarPluginLoader.getInstance().forEachPlugin(CsarPlugin::postprocess);
     }
 
     /**
@@ -121,15 +107,16 @@ public class Csar {
             throw new IllegalStateException("an error has occurred, csar cannot continue");
         results = new ArrayList<>();
 
-        for (CsarPlugin plugin : plugins) {
-            List<Result> results = plugin.search(csarQuery, threadCount);
+        CsarPluginLoader.getInstance().forEachPlugin(p -> {
+            List<Result> results = p.search(csarQuery, threadCount);
             this.results.addAll(results);
-        }
+        });
     }
 
     /**
      * Returns the search results, aggregated from each underlying language-specific plugin.
-     * This may be a partial list if an unrecoverable error occurred while searching.
+     * This will be a partial list if an unrecoverable error occurred while searching, and <tt>null</tt> if searching
+     * was never initiated.
      *
      * @return search results.
      */

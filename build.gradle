@@ -29,6 +29,3 @@ subprojects {
         additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
     }
 }
-
-// Plugins export location
-ext.pluginsDir = childProjects['csar-cli'].projectDir.path + '/plugins/'

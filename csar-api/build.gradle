@@ -1,8 +1,6 @@
 apply plugin: 'antlr'
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.pf4j/pf4j
-    compile group: 'org.pf4j', name: 'pf4j', version: '2.1.0'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
     // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime

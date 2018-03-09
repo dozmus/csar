@@ -1,38 +1,5 @@
-subprojects {
-    jar {
-        manifest {
-            attributes 'Plugin-Class': "${pluginClass}",
-                    'Plugin-Id': "${pluginId}",
-                    'Plugin-Version': "${version}",
-                    'Plugin-Provider': "${pluginProvider}"
-        }
-    }
-
-    task distZip(type: Jar) {
-        group = 'distribution'
-        baseName = "plugin-${pluginId}"
-        extension('zip')
-
-        into('classes') {
-            with jar
-        }
-
-        // the following breaks the jar because it contains 2 definitions of the CsarPlugin interface (due to csar-api)
-//        into('lib') {
-//            from configurations.compile
-//        }
-    }
-
-    task assemblePlugin(type: Copy) {
-        group = 'distribution'
-        from distZip
-        into pluginsDir
+jar {
+    subprojects {
+        jar
     }
 }
-
-task assemblePlugins(type: Copy) {
-    group = 'distribution'
-    dependsOn subprojects.assemblePlugin
-}
-
-build.dependsOn project.tasks.assemblePlugins

@@ -2,8 +2,6 @@ apply plugin: 'antlr'
 
 dependencies {
     compile project(':csar-api')
-    // https://mvnrepository.com/artifact/org.pf4j/pf4j
-    compile group: 'org.pf4j', name: 'pf4j', version: '2.1.0'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
     // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
@@ -16,4 +14,8 @@ dependencies {
 generateGrammarSource {
     maxHeapSize = '64m'
     arguments += ['-visitor', '-long-messages']
+}
+
+jar {
+    destinationDir = file(project.project(':csar-cli').projectDir.toPath())
 }
