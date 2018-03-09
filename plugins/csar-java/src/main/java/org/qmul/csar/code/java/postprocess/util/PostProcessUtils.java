@@ -7,6 +7,7 @@ import org.qmul.csar.lang.descriptors.EnumDescriptor;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.lang.descriptors.VisibilityModifier;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,16 +49,10 @@ public final class PostProcessUtils {
 
     /**
      * Returns if the given child method descriptor can access the given super method descriptor.
-     *
-     * @param childDesc
-     * @param superDesc
-     * @param childPkg
-     * @param superPkg
-     * @param superType
-     * @return
      */
     public static boolean isAccessible(MethodDescriptor childDesc, MethodDescriptor superDesc,
-            Optional<PackageStatement> childPkg, Optional<PackageStatement> superPkg, TypeStatement superType) {
+            Optional<PackageStatement> childPkg, Optional<PackageStatement> superPkg, TypeStatement superType,
+            Path childPath, Path superPath) {
         // is the super class an interface
         boolean isSuperInterface = false;
 
@@ -77,9 +72,12 @@ public final class PostProcessUtils {
             } else if (superVis == VisibilityModifier.PROTECTED
                     && (childVis == VisibilityModifier.PROTECTED || childVis == VisibilityModifier.PUBLIC)) {
                 return true;
-            } else if (superVis == VisibilityModifier.PACKAGE_PRIVATE
-                    && childPkg.isPresent() && childPkg.equals(superPkg) && childVis != VisibilityModifier.PRIVATE) {
-                return true;
+            } else if (superVis == VisibilityModifier.PACKAGE_PRIVATE && childVis != VisibilityModifier.PRIVATE) {
+                if (childPkg.isPresent() && childPkg.equals(superPkg)) { // in same package
+                    return true;
+                }
+                return !childPkg.isPresent() && !superPkg.isPresent()
+                        && childPath.getParent().equals(superPath.getParent()); // or in same folder, if no pkg present
             }
         }
         return false;

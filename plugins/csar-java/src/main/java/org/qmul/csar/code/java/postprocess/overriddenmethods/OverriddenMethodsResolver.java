@@ -142,7 +142,7 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
                         boolean signatureEquals = MethodSignatureComparator.signatureEquals(m2, method,
                                 typeHierarchyResolver);
                         boolean accessible = PostProcessUtils.isAccessible(desc, desc2, packageStatement,
-                                superTopLevel.getPackageStatement(), superType);
+                                superTopLevel.getPackageStatement(), superType, path, resolvedType.getPath());
 
                         if (!desc2.getStaticModifier().get() && signatureEquals && accessible) {
                             return !desc2.getFinalModifier().get();
