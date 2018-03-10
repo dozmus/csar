@@ -33,7 +33,6 @@ Example: `java -jar csar.jar SELECT method:def:add -t 4`
 ### Gradle cheat sheet
 * Build: `build`
 * Run: `:csar-cli:run`
-* Assemble plugins: `assemblePlugins`
 * Distribution jar: `:csar-cli:distJar`
 * Specify Java arguments to `:csar-cli:run` with `-Pjargs="SELECT method:def:add -t 1 --log-level TRACE"`
 

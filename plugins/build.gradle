@@ -1,5 +1,40 @@
-jar {
+build.dependsOn.add ':plugins:jar'
+
+jar { // don't create plugins.jar which happens because plugins project is a 'java' project
+    actions = []
+}
+
+jar.doLast { // instead, create the jars of the subproject and move them to where they belong
     subprojects {
         jar
     }
+    copyJars
+}
+
+task copyJars(type: Copy) {
+    def jars = getSubprojectJars()
+
+    copy { // copy jars into plugins/build/libs folder
+        from jars
+        into libsDir
+    }
+
+    copy { // copy jars into csar-cli root folder for :csar-cli:run
+        from jars
+        into file(project.project(':csar-cli').projectDir.toPath())
+    }
+
+    copy { // copy jars into csar-cli root folder for :csar-cli:run
+        from jars
+        into file(project.project(':csar-cli').buildDir.toPath().toString() + '/distributions/')
+    }
+}
+
+def getSubprojectJars() {
+    def jars = []
+
+    subprojects.each {
+        jars += it.libsDir
+    }
+    return jars
 }

@@ -15,7 +15,3 @@ generateGrammarSource {
     maxHeapSize = '64m'
     arguments += ['-visitor', '-long-messages']
 }
-
-jar {
-    destinationDir = file(project.project(':csar-cli').projectDir.toPath())
-}
