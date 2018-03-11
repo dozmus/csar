@@ -35,8 +35,6 @@ class CsarContext {
     @Parameter(names = {"--format", "-f"}, description = "Output format", order = 4,
             converter = ResultFormatterConverter.class)
     private ResultFormatter resultFormatter = new PlainTextResultFormatter();
-    @Parameter(names = {"--output", "-o"}, description = "Output file name", order = 5, converter = PathConverter.class)
-    private Path outputFile;
     @Parameter(names = {"--narrow-search"}, description = "Narrow search domain", order = 6)
     private boolean narrowSearch = true;
     @Parameter(names = {"--ignore-file"}, description = "Ignore file", order = 7, converter = PathConverter.class)
@@ -85,10 +83,6 @@ class CsarContext {
 
     public ResultFormatter getResultFormatter() {
         return resultFormatter;
-    }
-
-    public Path getOutputFile() {
-        return outputFile;
     }
 
     public boolean isNarrowSearch() {

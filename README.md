@@ -16,8 +16,6 @@ Usage: java -jar csar.jar [options] Search query
     --format, -f
       Output format (default: PlainText)
       Possible Values: PlainText, JSON
-    --output, -o
-      Output file name
     --narrow-search
       Narrow search domain (default: true)
     --ignore-file
