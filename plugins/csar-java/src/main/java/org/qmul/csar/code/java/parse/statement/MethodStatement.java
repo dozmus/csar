@@ -151,7 +151,9 @@ public class MethodStatement implements Statement {
             builder.append(" throws ").append(String.join(", ", descriptor.getThrownExceptions())).append("");
         }
 
-        if (block.equals(BlockStatement.EMPTY)) {
+        if (descriptor.getStub().orElse(false)) {
+            builder.append(";");
+        } else if (block.equals(BlockStatement.EMPTY)) {
             builder.append(" { }");
         } else {
             builder.append(" {")
