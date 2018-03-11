@@ -15,7 +15,6 @@ public final class Main {
      * The project website URL.
      */
     private static final String PROJECT_URL = "https://github.research.its.qmul.ac.uk/ec15116/csar";
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static final int EXIT_CODE_SUCCESS = 0;
     public static final int EXIT_CODE_ERROR_PARSING_CLI_ARGUMENTS = 1;
@@ -63,10 +62,23 @@ public final class Main {
                 System.exit(EXIT_CODE_SUCCESS);
             }
         } catch (ParameterException ex) {
-            LOGGER.error("Error parsing command-line arguments: {}", ex.getMessage());
+            Logger logger = LoggerFactory.getLogger(Main.class);
+            logger.error("Error parsing command-line arguments: {}", ex.getMessage());
             printUsage();
             System.exit(EXIT_CODE_ERROR_PARSING_CLI_ARGUMENTS);
         }
+
+        // Run
+        new Main().main(ctx);
+    }
+
+    /**
+     * This is an extension of {@link #main(String[])} because once any {@link Logger} is created, all following
+     * instantiations of it will have the same logging level. Thus, the logger instance in this class is not
+     * <tt>static</tt>, and this method exists so that it can be used once configured.
+     */
+    private void main(CsarContext ctx) {
+        Logger logger = LoggerFactory.getLogger(Main.class);
 
         // Run csar
         System.out.println("Starting csar...");
@@ -78,10 +90,10 @@ public final class Main {
         csar.searchCode();
 
         try {
-            LOGGER.info("Search results:");
-            LOGGER.info(ctx.getResultFormatter().format(csar.getResults()));
+            logger.info("Search results:");
+            logger.info(ctx.getResultFormatter().format(csar.getResults()));
         } catch (Exception ex) {
-            LOGGER.error("Error formatting search results: " + ex.getMessage());
+            logger.error("Error formatting search results: " + ex.getMessage());
             System.exit(EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS);
         }
 
