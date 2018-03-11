@@ -452,8 +452,51 @@ To use the plugin with csar the following must be done:
 \end{itemize}
 
 \subsubsection{csar-cli}
-...
-% TODO write about: cli argument parsing, arg converters, csar factory + error listener, result formatter
+csar-cli's command-line usage format is as follows:
+\begin{lstlisting}
+Usage: java -jar csar.jar [options] Search query
+  Options:
+    --threads, -t
+      Thread count (default: 1)
+    --log-level
+      Log level (default: INFO)
+      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
+    --format, -f
+      Output format (default: PlainText)
+      Possible Values: PlainText, JSON
+    --narrow-search
+      Narrow search domain (default: true)
+    --ignore-file
+      Ignore file (default: .csarignore)
+    --project-url, --url
+      Print project URL
+    --help, -h
+      Print help information
+\end{lstlisting}
+
+These command-line arguments are stored in an instance of `CsarContext' using the JCommander library.
+JCommander uses reflection to try to match the command-line arguments with fields in `CsarContext' using their configuration in their `@Parameter' annotations.
+JCommander will also use the classes `Slf4jLevelConverter' and `ResultFormatterConverter' to convert the textual representations of log levels and result formatters respectively to instances.
+
+Then, `CsarFactory' will use this instance of `CsarContext' to create a corresponding instance of `Csar'.
+Furthermore, this `Csar' instance will have a default error listener attached to it which terminates the program with certain return codes depending on which fatal error occurs.
+These return codes are follows:
+\begin{tabular}{ l l }
+  Exit Code & Description \\
+  0 & Successful execution. \\
+  1 & Error parsing CLI arguments. \\
+  2 & Error parsing csar query. \\
+  3 & Error parsing code files. \\
+  4 & Error searching code files. \\
+  5 & Error initializing csar. \\
+  6 & Error post-processing code files. \\
+  7 & Error formatting search results. \\
+\end{tabular}
+
+Once `Csar' has finished running, `csar-cli' will use the specified `ResultFormatter' to format these results, and then will print them.
+
+It is important to note that, you could build your own frontend on top of `csar-cli' to create `Csar' instances using `CsarContext'.
+This is because `CsarContext' has more configurable fields than exposed through the command-line interface, and also allows subclassing.
 
 \subsubsection{csar-api}
 ...
