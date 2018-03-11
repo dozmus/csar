@@ -250,7 +250,8 @@ csar will work on any recent, mainstream variant of Windows, Mac, or Linux, whic
 The csar binaries should be placed in the same folder that you wish to conduct your search in, alongside your `.csarignore' file if you have one.
 
 \subsection{Overview}
-Firstly, a chosen csar frontend is invoked with some input defining what the user wants csar to do.
+Firstly, a chosen csar frontend containing a main method is invoked by the JVM.
+This frontend should query the user for some input defining what the user wants csar to do.
 The provided `csar-cli' takes the input as command-line arguments which includes a non-optional csar query.
 
 A csar query is a query-based description of what csar should do, this must include a searching action but not necessarily a refactoring action.
@@ -452,7 +453,7 @@ To use the plugin with csar the following must be done:
 \end{itemize}
 
 \subsubsection{csar-cli}
-csar-cli's command-line usage format is as follows:
+csar-cli's command-line usage format has a non-optional search query, and is as follows:
 \begin{lstlisting}
 Usage: java -jar csar.jar [options] Search query
   Options:
@@ -481,6 +482,7 @@ JCommander will also use the classes `Slf4jLevelConverter' and `ResultFormatterC
 Then, `CsarFactory' will use this instance of `CsarContext' to create a corresponding instance of `Csar'.
 Furthermore, this `Csar' instance will have a default error listener attached to it which terminates the program with certain return codes depending on which fatal error occurs.
 These return codes are follows:
+
 \begin{tabular}{ l l }
   Exit Code & Description \\
   0 & Successful execution. \\
@@ -493,10 +495,11 @@ These return codes are follows:
   7 & Error formatting search results. \\
 \end{tabular}
 
+Then it will operate on the Csar instance performing the following tasks in order: initialize, parse query, parse code, post-process, search code and then refactor.
 Once `Csar' has finished running, `csar-cli' will use the specified `ResultFormatter' to format these results, and then will print them.
 
 It is important to note that, you could build your own frontend on top of `csar-cli' to create `Csar' instances using `CsarContext'.
-This is because `CsarContext' has more configurable fields than exposed through the command-line interface, and also allows subclassing.
+This is useful because `CsarContext' is simple, has more configurable fields than exposed through the command-line interface, and also allows sub-classing.
 
 \subsubsection{csar-api}
 ...
