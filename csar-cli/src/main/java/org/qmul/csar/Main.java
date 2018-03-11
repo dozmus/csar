@@ -81,7 +81,6 @@ public final class Main {
         Logger logger = LoggerFactory.getLogger(Main.class);
 
         // Run csar
-        System.out.println("Starting csar...");
         Csar csar = CsarFactory.create(ctx);
         csar.init();
         csar.parseQuery();
