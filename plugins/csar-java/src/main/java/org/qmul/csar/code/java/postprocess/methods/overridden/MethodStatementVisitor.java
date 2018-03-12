@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.overriddenmethods;
+package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;

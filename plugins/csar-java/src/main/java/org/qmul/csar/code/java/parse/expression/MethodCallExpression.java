@@ -1,6 +1,7 @@
 package org.qmul.csar.code.java.parse.expression;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
@@ -18,12 +19,12 @@ public class MethodCallExpression implements Expression {
     private final Path path;
     private final int lineNumber;
     /**
-     * Set during post-processing by {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor}.
+     * Set during post-processing by {@link MethodCallTypeInstanceResolver}.
      * This is null if unset, or if the source is the same class as the method call is in.
      */
     private TypeInstance methodSource;
     /**
-     * Set during post-processing by {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor}.
+     * Set during post-processing by {@link MethodCallTypeInstanceResolver}.
      */
     private List<TypeInstance> argumentTypes;
 

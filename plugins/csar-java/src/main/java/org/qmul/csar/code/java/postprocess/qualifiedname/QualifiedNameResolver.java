@@ -10,6 +10,9 @@ import org.qmul.csar.lang.TypeStatement;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * A qualified name resolver.
+ */
 public class QualifiedNameResolver {
 
     /**

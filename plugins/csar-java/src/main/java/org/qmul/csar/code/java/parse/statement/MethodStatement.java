@@ -2,8 +2,8 @@ package org.qmul.csar.code.java.parse.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
-import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
-import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
+import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
+import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
@@ -31,7 +31,7 @@ public class MethodStatement implements Statement {
      */
     private QualifiedType returnQualifiedType;
     /**
-     * Updated by {@link MethodUsageResolver} in post-processing.
+     * Updated by {@link MethodUseResolver} in post-processing.
      */
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
     private final int lineNumber;

@@ -1,6 +1,7 @@
-package org.qmul.csar.code.java.postprocess.methodusage;
+package org.qmul.csar.code.java.postprocess.methods.use;
 
 import org.qmul.csar.code.CodePostProcessor;
+import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
 import org.slf4j.Logger;
@@ -11,11 +12,11 @@ import java.util.Map;
 
 /**
  * This maps method usages to their corresponding definitions. It requires {@link TypeHierarchyResolver} and
- * {@link org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor} to be run first.
+ * {@link MethodCallTypeInstanceResolver} to be run first.
  */
-public class MethodUsageResolver implements CodePostProcessor {
+public class MethodUseResolver implements CodePostProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodUsageResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodUseResolver.class);
     private TypeHierarchyResolver typeHierarchyResolver;
 
     public void postprocess(Map<Path, Statement> code) {
@@ -26,7 +27,7 @@ public class MethodUsageResolver implements CodePostProcessor {
             Path path = file.getKey();
             Statement statement = file.getValue();
 
-            MethodUsageStatementVisitor visitor = new MethodUsageStatementVisitor(code, path, typeHierarchyResolver);
+            MethodUseStatementVisitor visitor = new MethodUseStatementVisitor(code, path, typeHierarchyResolver);
             visitor.visitStatement(statement);
         }
 

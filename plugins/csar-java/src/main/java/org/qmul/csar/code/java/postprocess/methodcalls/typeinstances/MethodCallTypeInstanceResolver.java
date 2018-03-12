@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.methodproc;
+package org.qmul.csar.code.java.postprocess.methodcalls.typeinstances;
 
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -10,9 +10,13 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class MethodProcessor implements CodePostProcessor {
+/**
+ * A post-processor which attaches to each {@link org.qmul.csar.code.java.parse.expression.MethodCallExpression}
+ * a {@link org.qmul.csar.code.java.postprocess.util.TypeInstance} for its source and all of its parameters.
+ */
+public class MethodCallTypeInstanceResolver implements CodePostProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodCallTypeInstanceResolver.class);
     private QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
     private TypeHierarchyResolver typeHierarchyResolver;
 

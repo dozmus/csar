@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.methodusage;
+package org.qmul.csar.code.java.postprocess.methods.use;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -7,8 +7,8 @@ import org.qmul.csar.code.java.parse.expression.*;
 import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
-import org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor;
-import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
+import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
+import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
@@ -23,7 +23,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
-public class MethodUsageResolverTest {
+public class MethodUseResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static Map<Path, Statement> code;
@@ -43,12 +43,12 @@ public class MethodUsageResolverTest {
         MethodQualifiedTypeResolver methodQualifiedTypeResolver = new MethodQualifiedTypeResolver();
         methodQualifiedTypeResolver.postprocess(code);
 
-        MethodProcessor processor = new MethodProcessor();
+        MethodCallTypeInstanceResolver processor = new MethodCallTypeInstanceResolver();
         processor.setTypeHierarchyResolver(typeHierarchyResolver);
         processor.postprocess(code);
 
         // Resolve method usages
-        MethodUsageResolver resolver = new MethodUsageResolver();
+        MethodUseResolver resolver = new MethodUseResolver();
         resolver.setTypeHierarchyResolver(typeHierarchyResolver);
         resolver.postprocess(code);
     }
@@ -396,7 +396,7 @@ public class MethodUsageResolverTest {
     // TODO impl and test: interactions with super of super
 
     private static MethodStatement findMethod(String path, String methodSignature) {
-        Statement code = MethodUsageResolverTest.code.get(Paths.get(SAMPLES_DIRECTORY + path));
+        Statement code = MethodUseResolverTest.code.get(Paths.get(SAMPLES_DIRECTORY + path));
         CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement)code;
         ClassStatement clazz = (ClassStatement) compilationUnitStatement.getTypeStatement();
 

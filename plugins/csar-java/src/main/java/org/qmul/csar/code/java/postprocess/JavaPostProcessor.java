@@ -1,10 +1,10 @@
 package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.code.CodePostProcessor;
-import org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor;
-import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
-import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
-import org.qmul.csar.code.java.postprocess.overriddenmethods.OverriddenMethodsResolver;
+import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
+import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
+import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
+import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.lang.Statement;
 
@@ -16,19 +16,19 @@ public class JavaPostProcessor implements CodePostProcessor {
     private final TypeHierarchyResolver typeHierarchyResolver;
     private final MethodQualifiedTypeResolver methodQualifiedTypeResolver;
     private final OverriddenMethodsResolver overriddenMethodsResolver;
-    private final MethodUsageResolver methodUsageResolver;
-    private final MethodProcessor methodProcessor;
+    private final MethodUseResolver methodUseResolver;
+    private final MethodCallTypeInstanceResolver methodCallTypeInstanceResolver;
 
     public JavaPostProcessor(TypeHierarchyResolver typeHierarchyResolver,
             MethodQualifiedTypeResolver methodQualifiedTypeResolver,
             OverriddenMethodsResolver overriddenMethodsResolver,
-            MethodUsageResolver methodUsageResolver,
-            MethodProcessor methodProcessor) {
+            MethodUseResolver methodUseResolver,
+            MethodCallTypeInstanceResolver methodCallTypeInstanceResolver) {
         this.typeHierarchyResolver = typeHierarchyResolver;
         this.methodQualifiedTypeResolver = methodQualifiedTypeResolver;
         this.overriddenMethodsResolver = overriddenMethodsResolver;
-        this.methodUsageResolver = methodUsageResolver;
-        this.methodProcessor = methodProcessor;
+        this.methodUseResolver = methodUseResolver;
+        this.methodCallTypeInstanceResolver = methodCallTypeInstanceResolver;
     }
 
     /**
@@ -38,9 +38,9 @@ public class JavaPostProcessor implements CodePostProcessor {
         typeHierarchyResolver.postprocess(code);
         methodQualifiedTypeResolver.postprocess(code);
         overriddenMethodsResolver.postprocess(code);
-        methodProcessor.setTypeHierarchyResolver(typeHierarchyResolver);
-        methodProcessor.postprocess(code);
-        methodUsageResolver.setTypeHierarchyResolver(typeHierarchyResolver);
-        methodUsageResolver.postprocess(code);
+        methodCallTypeInstanceResolver.setTypeHierarchyResolver(typeHierarchyResolver);
+        methodCallTypeInstanceResolver.postprocess(code);
+        methodUseResolver.setTypeHierarchyResolver(typeHierarchyResolver);
+        methodUseResolver.postprocess(code);
     }
 }

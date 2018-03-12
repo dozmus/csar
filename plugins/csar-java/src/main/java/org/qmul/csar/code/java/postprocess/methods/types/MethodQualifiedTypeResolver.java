@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.methodtypes;
+package org.qmul.csar.code.java.postprocess.methods.types;
 
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A post-processor which attaches to each {@link MethodStatement} a {@link QualifiedType} for its return type and
+ * all of its parameters.
+ */
 public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodQualifiedTypeResolver.class);

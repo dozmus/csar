@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.overriddenmethods;
+package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A post-processor which assigns to each {@link MethodStatement} whether its overridden or not, to its
+ * {@link MethodDescriptor#getOverridden()}.
+ */
 public class OverriddenMethodsResolver implements CodePostProcessor {
 
     // TODO handle methods overridden from java api classes?

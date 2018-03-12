@@ -4,10 +4,10 @@ import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
-import org.qmul.csar.code.java.postprocess.methodproc.MethodProcessor;
-import org.qmul.csar.code.java.postprocess.methodtypes.MethodQualifiedTypeResolver;
-import org.qmul.csar.code.java.postprocess.methodusage.MethodUsageResolver;
-import org.qmul.csar.code.java.postprocess.overriddenmethods.OverriddenMethodsResolver;
+import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
+import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
+import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
+import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
@@ -64,12 +64,13 @@ public class CsarJavaPlugin implements CsarPlugin {
                     = new MethodQualifiedTypeResolver(qualifiedNameResolver);
             OverriddenMethodsResolver overriddenMethodsResolver
                     = new OverriddenMethodsResolver(qualifiedNameResolver, typeHierarchyResolver);
-            MethodUsageResolver methodUsageResolver = new MethodUsageResolver();
-            MethodProcessor methodProcessor = new MethodProcessor();
+            MethodUseResolver methodUseResolver = new MethodUseResolver();
+            MethodCallTypeInstanceResolver methodCallTypeInstanceResolver = new MethodCallTypeInstanceResolver();
 
             // Create post-processor
             CodePostProcessor javaPostProcessor = new JavaPostProcessor(typeHierarchyResolver,
-                    methodQualifiedTypeResolver, overriddenMethodsResolver, methodUsageResolver, methodProcessor);
+                    methodQualifiedTypeResolver, overriddenMethodsResolver, methodUseResolver,
+                    methodCallTypeInstanceResolver);
             javaPostProcessor.postprocess(code);
         } catch (Exception ex) {
             errorListeners.forEach(l -> l.errorPostProcessing(ex));

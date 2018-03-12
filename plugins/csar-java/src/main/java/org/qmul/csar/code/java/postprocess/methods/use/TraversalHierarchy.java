@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.methodusage;
+package org.qmul.csar.code.java.postprocess.methods.use;
 
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.lang.Statement;
