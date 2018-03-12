@@ -1,6 +1,5 @@
 package org.qmul.csar;
 
-import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.plugin.CsarPluginLoader;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
@@ -96,7 +95,7 @@ public class Csar {
     public void postprocess() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        CsarPluginLoader.getInstance().forEachPlugin(CsarPlugin::postprocess);
+        CsarPluginLoader.getInstance().forEachPlugin(p -> p.postprocess(threadCount));
     }
 
     /**

@@ -196,7 +196,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
     }
 
     /**
-     * Returns <tt>true</tt> if the first type is a superclass of, or equal to, the second type.
+     * Returns <tt>true</tt> if the first type is a superclass of, or equal to, the second type. This is thread-safe.
      *
      * @param type1 a qualified name which may be a superclass
      * @param type2 a qualified name which may be a subclass

@@ -24,8 +24,10 @@ public interface CsarPlugin {
 
     /**
      * Post-processes the code.
+     *
+     * @param threadCount the amount of threads to use
      */
-    void postprocess();
+    void postprocess(int threadCount);
 
     /**
      * Returns the results of searching the project code.

@@ -2,29 +2,31 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
-import org.qmul.csar.code.java.postprocess.util.PostProcessUtils;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.java.postprocess.util.PostProcessUtils;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.EnumDescriptor;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
+import org.qmul.csar.util.ConcurrentIterator;
+import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A post-processor which assigns to each {@link MethodStatement} whether its overridden or not, to its
  * {@link MethodDescriptor#getOverridden()}.
  */
-public class OverriddenMethodsResolver implements CodePostProcessor {
+public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implements CodePostProcessor {
 
     // TODO handle methods overridden from java api classes?
 
@@ -33,7 +35,7 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
      * Maps a method's full signature to whether it's overridden or not. e.g. 'com.example.MyClass#int add(int,int)' ->
      * 'true'.
      */
-    private final Map<String, Boolean> map = new HashMap<>();
+    private final ConcurrentHashMap<String, Boolean> map = new ConcurrentHashMap<>();
     /**
      * The qualified name resolver to use.
      */
@@ -42,39 +44,36 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
      * The type hierarchy resolver to use.
      */
     private final TypeHierarchyResolver typeHierarchyResolver;
+    private Map<Path, Statement> code;
+    private ConcurrentIterator<Map.Entry<Path, Statement>> it;
 
     public OverriddenMethodsResolver(QualifiedNameResolver qualifiedNameResolver,
             TypeHierarchyResolver typeHierarchyResolver) {
+        this(1, qualifiedNameResolver, typeHierarchyResolver);
+    }
+
+    public OverriddenMethodsResolver(int threadCount, QualifiedNameResolver qualifiedNameResolver,
+            TypeHierarchyResolver typeHierarchyResolver) {
+        super(threadCount, "omr");
         this.qualifiedNameResolver = qualifiedNameResolver;
         this.typeHierarchyResolver = typeHierarchyResolver;
+        setRunnable(new Task());
     }
 
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
+
+        // Execute and return results
+        this.code = code;
+        it = new ConcurrentIterator<>(code.entrySet().iterator());
         long startTime = System.currentTimeMillis();
-        MethodStatementVisitor visitor = new MethodStatementVisitor(this, code);
-
-        for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-            Path path = entry.getKey();
-            Statement statement = entry.getValue();
-
-            if (statement instanceof CompilationUnitStatement) {
-                CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement) statement;
-                visitor.setPath(path);
-                visitor.setTopLevelTypeStatement(compilationUnitStatement);
-                visitor.visitStatement(compilationUnitStatement);
-            }
-        }
+        run();
 
         // Log completion message
         LOGGER.debug("Found {} overridden methods from {} files in {}ms", map.size(), code.size(),
                 (System.currentTimeMillis() - startTime));
         LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
-    }
-
-    public boolean isOverridden(String methodSignature) {
-        return map.getOrDefault(methodSignature, false);
     }
 
     public boolean calculateOverridden(Map<Path, Statement> code, Path path, Optional<PackageStatement> pkg,
@@ -119,8 +118,12 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
 
         // Check all superclasses which are a class or an interface for a method this one might be overriding
         for (String superClass : superClasses) {
-            QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, topLevelParent,
-                    packageStatement, imports, superClass);
+            QualifiedType resolvedType;
+
+            synchronized (qualifiedNameResolver) {
+                resolvedType = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, packageStatement,
+                        imports, superClass);
+            }
             Statement resolvedStatement = resolvedType.getTopLevelStatement();
 
             // NOTE we ignore (fully) un-resolved statements here
@@ -160,7 +163,40 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
         return false;
     }
 
+    public boolean isOverridden(String methodSignature) {
+        return map.getOrDefault(methodSignature, false);
+    }
+
     public Map<String, Boolean> getMap() {
         return map;
+    }
+
+    private final class Task implements Runnable {
+
+        @Override
+        public void run() {
+            Map.Entry<Path, Statement> entry;
+            MethodStatementVisitor visitor = new MethodStatementVisitor(code, OverriddenMethodsResolver.this);
+
+            try {
+                while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
+                    // Get the next entry
+                    entry = it.next();
+                    Path path = entry.getKey();
+                    Statement statement = entry.getValue();
+
+                    if (statement instanceof CompilationUnitStatement) {
+                        CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement) statement;
+                        visitor.setPath(path);
+                        visitor.setCompilationUnitStatement(compilationUnitStatement);
+                        visitor.visitStatement(compilationUnitStatement);
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // TODO error listeners
+                terminate();
+            }
+        }
     }
 }

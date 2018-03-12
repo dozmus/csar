@@ -55,7 +55,7 @@ public class CsarJavaPlugin implements CsarPlugin {
     }
 
     @Override
-    public void postprocess() {
+    public void postprocess(int threadCount) {
         try {
             // Create components
             QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
@@ -63,7 +63,7 @@ public class CsarJavaPlugin implements CsarPlugin {
             MethodQualifiedTypeResolver methodQualifiedTypeResolver
                     = new MethodQualifiedTypeResolver(qualifiedNameResolver);
             OverriddenMethodsResolver overriddenMethodsResolver
-                    = new OverriddenMethodsResolver(qualifiedNameResolver, typeHierarchyResolver);
+                    = new OverriddenMethodsResolver(threadCount, qualifiedNameResolver, typeHierarchyResolver);
             MethodUseResolver methodUseResolver = new MethodUseResolver();
             MethodCallTypeInstanceResolver methodCallTypeInstanceResolver = new MethodCallTypeInstanceResolver();
 

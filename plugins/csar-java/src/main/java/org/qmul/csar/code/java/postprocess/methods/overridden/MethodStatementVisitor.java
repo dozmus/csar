@@ -11,15 +11,15 @@ import java.util.*;
 final class MethodStatementVisitor extends StatementVisitor {
 
     private final Map<Path, Statement> code;
+    private final OverriddenMethodsResolver omr;
     private final Deque<String> traversalHierarchy = new ArrayDeque<>();
     private final Deque<TypeStatement> traversedTypeStatements = new ArrayDeque<>();
-    private final OverriddenMethodsResolver overriddenMethodsResolver;
     private Path path;
     private Optional<PackageStatement> packageStatement;
     private List<ImportStatement> imports;
 
-    public MethodStatementVisitor(OverriddenMethodsResolver overriddenMethodsResolver, Map<Path, Statement> code) {
-        this.overriddenMethodsResolver = overriddenMethodsResolver;
+    public MethodStatementVisitor(Map<Path, Statement> code, OverriddenMethodsResolver omr) {
+        this.omr = omr;
         this.code = code;
     }
 
@@ -58,10 +58,10 @@ final class MethodStatementVisitor extends StatementVisitor {
     }
 
     private void mapOverridden(MethodStatement method) {
-        if (overriddenMethodsResolver.calculateOverridden(code, path, packageStatement, imports,
-                traversedTypeStatements.getLast(), traversedTypeStatements.getFirst(), method)) {
+        if (omr.calculateOverridden(code, path, packageStatement, imports, traversedTypeStatements.getLast(),
+                traversedTypeStatements.getFirst(), method)) {
             method.getDescriptor().setOverridden(Optional.of(true));
-            overriddenMethodsResolver.getMap().put(createSignature(), true);
+            omr.getMap().put(createSignature(), true);
         } else {
             method.getDescriptor().setOverridden(Optional.of(false));
         }
@@ -73,19 +73,26 @@ final class MethodStatementVisitor extends StatementVisitor {
         return (traversedTypeStatements.size() == 1) ? "." : "$";
     }
 
+    /**
+     * Returns the signature of the current statement in the traversal hierarchy.
+     */
     private String createSignature() {
         return String.join("", traversalHierarchy);
     }
 
-    public void setTopLevelTypeStatement(CompilationUnitStatement compilationUnitStatement) {
+    public void setPath(Path path) {
+        this.path = path;
+    }
+
+    public void setCompilationUnitStatement(CompilationUnitStatement topLevelParent) {
         traversedTypeStatements.clear();
         traversalHierarchy.clear();
-        traversedTypeStatements.addLast(compilationUnitStatement);
-        packageStatement = compilationUnitStatement.getPackageStatement();
-        imports = compilationUnitStatement.getImports();
+        traversedTypeStatements.addLast(topLevelParent);
+        packageStatement = topLevelParent.getPackageStatement();
+        imports = topLevelParent.getImports();
 
-        if (compilationUnitStatement.getPackageStatement().isPresent()) {
-            PackageStatement pkg = compilationUnitStatement.getPackageStatement().get();
+        if (topLevelParent.getPackageStatement().isPresent()) {
+            PackageStatement pkg = topLevelParent.getPackageStatement().get();
             String[] pkgParts = pkg.getPackageName().split("\\.");
 
             for (int i = 0; i < pkgParts.length; i++) {
@@ -96,9 +103,5 @@ final class MethodStatementVisitor extends StatementVisitor {
                 traversalHierarchy.addLast(s);
             }
         }
-    }
-
-    public void setPath(Path path) {
-        this.path = path;
     }
 }
