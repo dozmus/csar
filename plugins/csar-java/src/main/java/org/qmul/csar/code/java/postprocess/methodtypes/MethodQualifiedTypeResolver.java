@@ -23,6 +23,7 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodQualifiedTypeResolver.class);
     private final QualifiedNameResolver qualifiedNameResolver;
+    private int methodsProcessed;
 
     public MethodQualifiedTypeResolver(QualifiedNameResolver qualifiedNameResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
@@ -57,10 +58,11 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
             // Visit file
             MethodStatementVisitor visitor = new MethodStatementVisitor(qualifiedNameResolver, code, path, topStatement);
             visitor.visitStatement(statement);
+            methodsProcessed += visitor.methodsProcessed;
         }
 
         // Log completion message
-        LOGGER.debug("Time Taken: {}ms", (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Processed {} methods in: {}ms", methodsProcessed, (System.currentTimeMillis() - startTime));
         LOGGER.info("Finished");
     }
 
@@ -77,6 +79,7 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
         private List<ImportStatement> imports;
         private Optional<PackageStatement> currentPackage;
         private TypeStatement parent;
+        private int methodsProcessed;
 
         public MethodStatementVisitor(QualifiedNameResolver qualifiedNameResolver, Map<Path, Statement> code, Path path,
                 CompilationUnitStatement compilationUnitStatement) {
@@ -91,6 +94,8 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
         @Override
         public void visitMethodStatement(MethodStatement statement) {
+            methodsProcessed++;
+
             // Resolve return type
             resolveReturnType(statement);
 
