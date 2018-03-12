@@ -15,7 +15,7 @@ public final class TypeInstance {
     private final TypeStatement statement;
     private final Path path;
     private int dimensions;
-    private CompilationUnitStatement compilationUnitStatement;
+    private final CompilationUnitStatement compilationUnitStatement;
 
     public TypeInstance(String qualifiedName, TypeStatement statement,
             CompilationUnitStatement compilationUnitStatement, Path path, int dimensions) {

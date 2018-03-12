@@ -427,15 +427,15 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
     private MethodStatement parseMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> modifiers, JavaParser.FormalParameterListContext parameterCtx,
-            JavaParser.QualifiedNameListContext throwsCtx, boolean overridden, JavaParser.BlockContext blockCtx) {
-        return parseMethod(identifier, returnType, modifiers, parameterCtx, throwsCtx, overridden, blockCtx, null);
+            JavaParser.QualifiedNameListContext throwsCtx, JavaParser.BlockContext blockCtx) {
+        return parseMethod(identifier, returnType, modifiers, parameterCtx, throwsCtx, blockCtx, null);
     }
 
     private MethodStatement parseMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> modifiers, JavaParser.FormalParameterListContext parameterCtx,
-            JavaParser.QualifiedNameListContext throwsCtx, boolean overridden, JavaParser.BlockContext blockCtx,
+            JavaParser.QualifiedNameListContext throwsCtx, JavaParser.BlockContext blockCtx,
             JavaParser.TypeParametersContext typeParametersCtx) {
-        MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, overridden);
+        MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, false);
 
         // Modifiers
         modifiers.forEach(mod -> applyModifier(builder, mod, false));
@@ -473,9 +473,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
     private MethodStatement parseInterfaceMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> intBodyMods, List<JavaParser.InterfaceMethodModifierContext> modifiers,
             JavaParser.FormalParameterListContext parameterCtx, JavaParser.QualifiedNameListContext throwsCtx,
-            boolean overridden,
             JavaParser.BlockContext blockCtx) {
-        return parseInterfaceMethod(identifier, returnType, intBodyMods, modifiers, parameterCtx, throwsCtx, overridden,
+        return parseInterfaceMethod(identifier, returnType, intBodyMods, modifiers, parameterCtx, throwsCtx, false,
                 blockCtx, null);
     }
 
@@ -1274,7 +1273,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                     throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         classBody.modifier(), method.formalParameters().formalParameterList(),
-                        method.qualifiedNameList(), false, method.methodBody().block());
+                        method.qualifiedNameList(), method.methodBody().block());
                 statements.add(methodStatement);
             } else if (genericMethod != null) { // generic method
                 method = genericMethod.methodDeclaration();
@@ -1282,7 +1281,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                     throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         classBody.modifier(), method.formalParameters().formalParameterList(),
-                        method.qualifiedNameList(), false, method.methodBody().block(), genericMethod.typeParameters());
+                        method.qualifiedNameList(), method.methodBody().block(), genericMethod.typeParameters());
                 statements.add(methodStatement);
             } else if (field != null) { // field
                 final String identifierType = field.typeType().getText();
@@ -1382,7 +1381,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                     throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseInterfaceMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         intBody.modifier(), method.interfaceMethodModifier(),
-                        method.formalParameters().formalParameterList(), method.qualifiedNameList(), false,
+                        method.formalParameters().formalParameterList(), method.qualifiedNameList(),
                         method.methodBody().block());
                 statements.add(methodStatement);
             } else if (genericMethod != null) { // generic method

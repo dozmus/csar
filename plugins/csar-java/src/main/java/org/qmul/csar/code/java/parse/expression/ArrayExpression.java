@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class ArrayExpression implements Expression {
 
-    private List<Expression> expressions;
+    private final List<Expression> expressions;
 
     public ArrayExpression(List<Expression> expressions) {
         this.expressions = Collections.unmodifiableList(expressions);

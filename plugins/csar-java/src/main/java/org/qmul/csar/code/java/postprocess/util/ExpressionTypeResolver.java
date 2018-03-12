@@ -31,8 +31,8 @@ public class ExpressionTypeResolver {
      * QualifiedNameResolver, TraversalHierarchy, TypeHierarchyResolver, Expression)} will essentially return the type
      * the right-most value is acting upon.
      */
-    private boolean resolvingMethodIdentifierMode;
-    private Stack<MethodCallExpression> methodCallStack = new Stack<>();
+    private final boolean resolvingMethodIdentifierMode;
+    private final Stack<MethodCallExpression> methodCallStack = new Stack<>();
 
     public ExpressionTypeResolver(boolean resolvingMethodIdentifierMode) {
         this.resolvingMethodIdentifierMode = resolvingMethodIdentifierMode;
@@ -344,10 +344,9 @@ public class ExpressionTypeResolver {
             } else if (lhType.equals("long") && rhType.equals("int")) {
                 return lhs;
             }
-        } else if (op.isArithmeticAssignOperation()) {
-            TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
+        } else if (op.isArithmeticAssignOperation()) { // return the type of the LHS (the variable)
+            return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
                     r, th, thr, left);
-            return lhs;
         } else if (op.equals(BinaryOperation.DOT)) {
             System.out.println("BinaryOperation=DOT");
 

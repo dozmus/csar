@@ -26,7 +26,7 @@ public class MethodResolver {
     private final QualifiedNameResolver qualifiedNameResolver;
     private final TypeHierarchyResolver typeHierarchyResolver;
     private MethodCallExpression methodCall;
-    private List<TypeInstance> parameterTypeInstances;
+    private final List<TypeInstance> parameterTypeInstances;
     private TraversalHierarchy traversalHierarchy;
     private boolean onVariable;
 

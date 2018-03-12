@@ -77,12 +77,12 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
     public static class MethodStatementVisitor extends StatementVisitor {
 
         private final QualifiedNameResolver qualifiedNameResolver;
-        private Path path;
-        private Map<Path, Statement> code;
-        private TypeStatement topLevelParent;
-        private List<ImportStatement> imports;
-        private Optional<PackageStatement> currentPackage;
-        private TypeStatement parent;
+        private final Path path;
+        private final Map<Path, Statement> code;
+        private final TypeStatement topLevelParent;
+        private final List<ImportStatement> imports;
+        private final Optional<PackageStatement> currentPackage;
+        private final TypeStatement parent;
         private int methodsProcessed;
 
         public MethodStatementVisitor(QualifiedNameResolver qualifiedNameResolver, Map<Path, Statement> code, Path path,

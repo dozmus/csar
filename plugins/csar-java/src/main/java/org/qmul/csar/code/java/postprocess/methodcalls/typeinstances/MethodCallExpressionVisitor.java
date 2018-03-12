@@ -27,8 +27,8 @@ public class MethodCallExpressionVisitor extends StatementVisitor {
     private final TraversalHierarchy traversalHierarchy = new TraversalHierarchy();
     private final QualifiedNameResolver qualifiedNameResolver;
     private final TypeHierarchyResolver typeHierarchyResolver;
-    private Map<Path, Statement> code;
-    private Path path;
+    private final Map<Path, Statement> code;
+    private final Path path;
 
     public MethodCallExpressionVisitor(Map<Path, Statement> code, Path path, QualifiedNameResolver qualifiedNameResolver,
             TypeHierarchyResolver typeHierarchyResolver) {

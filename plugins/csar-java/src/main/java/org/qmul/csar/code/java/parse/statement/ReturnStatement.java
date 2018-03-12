@@ -49,9 +49,8 @@ public class ReturnStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
-        if (expression.isPresent()) {
-            return String.format("%sreturn %s;", StringUtils.indentation(indentation), expression.get().toPseudoCode());
-        }
-        return StringUtils.indentation(indentation) + "return;";
+        return expression.map(e -> String.format("%sreturn %s;", StringUtils.indentation(indentation),
+                e.toPseudoCode()))
+                .orElseGet(() -> StringUtils.indentation(indentation) + "return;");
     }
 }

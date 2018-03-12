@@ -33,7 +33,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
     private final int threadCount;
     private final ExecutorService executor;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
-    private List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private CsarQuery query;
     private boolean errorOccurred = false;
     private boolean running = false;

@@ -33,7 +33,7 @@ import java.util.Map;
 public class CsarJavaPlugin implements CsarPlugin {
 
     private Map<Path, Statement> code;
-    private List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
 
     @Override
     public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {

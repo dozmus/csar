@@ -17,7 +17,7 @@ import java.util.Map;
 public class MethodCallTypeInstanceResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodCallTypeInstanceResolver.class);
-    private QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
+    private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
     private TypeHierarchyResolver typeHierarchyResolver;
 
     public void postprocess(Map<Path, Statement> code) {

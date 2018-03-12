@@ -16,8 +16,8 @@ public class MethodUseStatementVisitor extends StatementVisitor {
     private final TraversalHierarchy traversalHierarchy = new TraversalHierarchy();
     private final TypeHierarchyResolver typeHierarchyResolver;
     private final QualifiedNameResolver qualifiedNameResolver;
-    private Map<Path, Statement> code;
-    private Path path;
+    private final Map<Path, Statement> code;
+    private final Path path;
 
     public MethodUseStatementVisitor(Map<Path, Statement> code, Path path,
             TypeHierarchyResolver typeHierarchyResolver, QualifiedNameResolver qualifiedNameResolver) {

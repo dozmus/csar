@@ -166,26 +166,18 @@ public class TraversalHierarchy extends ArrayDeque<Statement> {
     }
 
     public List<ImportStatement> getImports() {
-        Iterator<Statement> it = iterator();
-
-        while (it.hasNext()) {
-            Statement item = it.next();
-
+        for (Statement item : this) {
             if (item instanceof CompilationUnitStatement) {
-                return ((CompilationUnitStatement)item).getImports();
+                return ((CompilationUnitStatement) item).getImports();
             }
         }
         throw new NoSuchElementException();
     }
 
     public Optional<PackageStatement> getPackageStatement() {
-        Iterator<Statement> it = iterator();
-
-        while (it.hasNext()) {
-            Statement item = it.next();
-
+        for (Statement item : this) {
             if (item instanceof CompilationUnitStatement) {
-                return ((CompilationUnitStatement)item).getPackageStatement();
+                return ((CompilationUnitStatement) item).getPackageStatement();
             }
         }
         throw new NoSuchElementException();
