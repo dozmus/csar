@@ -159,7 +159,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
         mergePartialTrees(root, partialHierarchies);
 
         // Log completion message
-        LOGGER.debug("Processed {} files in {}ms)", code.size(), (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Processed {} files in {}ms", code.size(), (System.currentTimeMillis() - startTime));
         LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
     }
