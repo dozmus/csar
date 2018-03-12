@@ -103,7 +103,7 @@ public class ForStatement implements Statement {
         }
 
         String conditionStr = condition.map(SerializableCode::toPseudoCode).orElse("");
-        String forHeader = String.format("%s; %s; %s", initVars, conditionStr, updateStr);
+        String forHeader = String.format("%s %s; %s", initVars, conditionStr, updateStr);
 
         return new StringBuilder()
                 .append(StringUtils.indentation(indentation))
