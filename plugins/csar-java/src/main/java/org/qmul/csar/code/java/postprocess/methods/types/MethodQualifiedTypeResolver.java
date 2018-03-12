@@ -67,6 +67,7 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
         // Log completion message
         LOGGER.debug("Processed {} methods in: {}ms", methodsProcessed, (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
     }
 
