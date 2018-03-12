@@ -108,8 +108,6 @@ public class QualifiedNameResolver {
         if (leftAngleBracketIdx != -1)
             name = name.substring(0, leftAngleBracketIdx);
 
-        // TODO handle if name is a fully qualified name
-
         // Resolve against inner classes in current class
         statistics.prepare();
         QualifiedType t0 = resolveInCurrentClass(topLevelParent, parent, currentPackage, name, path);
