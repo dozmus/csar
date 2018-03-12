@@ -64,7 +64,7 @@ public class CsarJavaPlugin implements CsarPlugin {
                     = new MethodQualifiedTypeResolver(qualifiedNameResolver);
             OverriddenMethodsResolver overriddenMethodsResolver
                     = new OverriddenMethodsResolver(threadCount, qualifiedNameResolver, typeHierarchyResolver);
-            MethodUseResolver methodUseResolver = new MethodUseResolver();
+            MethodUseResolver methodUseResolver = new MethodUseResolver(qualifiedNameResolver);
             MethodCallTypeInstanceResolver methodCallTypeInstanceResolver = new MethodCallTypeInstanceResolver();
 
             // Create post-processor
