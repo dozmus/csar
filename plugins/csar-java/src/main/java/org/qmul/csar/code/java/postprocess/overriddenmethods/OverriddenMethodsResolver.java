@@ -113,6 +113,7 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
             TypeStatement topLevelParent, MethodStatement method) {
         MethodDescriptor desc = method.getDescriptor();
 
+        // Check all superclasses which are a class or an interface for a method this one might be overriding
         for (String superClass : superClasses) {
             QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, parent, topLevelParent,
                     packageStatement, imports, superClass);
@@ -122,17 +123,11 @@ public class OverriddenMethodsResolver implements CodePostProcessor {
             if (resolvedStatement != null) {
                 CompilationUnitStatement superTopLevel = (CompilationUnitStatement) resolvedStatement;
                 TypeStatement superType = superTopLevel.getTypeStatement();
-                boolean isClassOrEnum = (superType instanceof ClassStatement || superType instanceof EnumStatement);
+                boolean isClass = superType instanceof ClassStatement;
 
                 // Check current class
-                if (!superType.equals(parent) && isClassOrEnum) {
-                    BlockStatement blockStatement;
-
-                    if (superTopLevel.getTypeStatement() instanceof ClassStatement) {
-                        blockStatement = ((ClassStatement) superTopLevel.getTypeStatement()).getBlock();
-                    } else { // enum
-                        blockStatement = ((EnumStatement) superTopLevel.getTypeStatement()).getBlock();
-                    }
+                if (!superType.equals(parent) && isClass) {
+                    BlockStatement blockStatement = ((ClassStatement) superTopLevel.getTypeStatement()).getBlock();
 
                     for (Statement statement : blockStatement.getStatements()) {
                         if (!(statement instanceof MethodStatement))
