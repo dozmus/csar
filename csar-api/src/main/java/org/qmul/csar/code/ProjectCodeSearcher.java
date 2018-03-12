@@ -37,13 +37,6 @@ public interface ProjectCodeSearcher {
     void setIterator(Iterator<Map.Entry<Path, Statement>> iterator);
 
     /**
-     * Returns if an error occurred.
-     *
-     * @return if an error occurred
-     */
-    boolean errorOccurred();
-
-    /**
      * Adds an error listener.
      *
      * @param errorListener the error listener

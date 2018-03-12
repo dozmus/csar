@@ -11,41 +11,33 @@ import org.qmul.csar.query.SearchType;
 import org.qmul.csar.query.TargetDescriptor;
 import org.qmul.csar.result.Result;
 import org.qmul.csar.util.ConcurrentIterator;
-import org.qmul.csar.util.NamedThreadFactory;
+import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.qmul.csar.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
  * A multi-threaded project code searcher.
  */
-public class JavaCodeSearcher implements ProjectCodeSearcher {
+public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements ProjectCodeSearcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaCodeSearcher.class);
-    private final CountDownLatch finishedLatch;
-    private final int threadCount;
-    private final ExecutorService executor;
-    private ConcurrentIterator<Map.Entry<Path, Statement>> it;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final List<Result> results = Collections.synchronizedList(new ArrayList<>());
+    private ConcurrentIterator<Map.Entry<Path, Statement>> it;
     private CsarQuery query;
-    private boolean errorOccurred = false;
-    private boolean running = false;
 
     /**
      * Creates a new {@link JavaCodeSearcher} with the argument thread count.
      * @param threadCount the amount of threads to use
      */
     public JavaCodeSearcher(int threadCount) {
-        this.threadCount = threadCount;
-        this.executor = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory("csar-search-%d"));
-        this.finishedLatch = new CountDownLatch(threadCount);
+        super(threadCount, "csar-search");
+        setRunnable(new Task());
     }
 
     /**
@@ -70,88 +62,18 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
      * Returns a list containing the results from {@link #it} which matched the search query.
      * If {@link #it} contains no files then an empty list is returned.
      * @return returns the results.
-     * @throws IllegalStateException if it has already been called on this instance, or if it is currently running.
      */
     public List<Result> results() {
-        // Check if ready to run
-        if (runningCount() == 0) {
-            throw new IllegalStateException("already finished running");
-        } else if (running) {
-            throw new IllegalStateException("already running");
-        } else if (!it.hasNext()) {
-            return new ArrayList<>();
-        }
-        running = true;
-
-        // Submit tasks
-        final List<Result> results = Collections.synchronizedList(new ArrayList<>());
         LOGGER.info("Starting...");
         LOGGER.trace("Domain (FromQuery): {}", query.getFromTarget());
 
-        for (int i = 0; i < threadCount; i++) {
-            executor.submit(() -> {
-                Map.Entry<Path, Statement> entry;
-                Path file = null;
-                Statement statement;
+        // Execute and return results
+        long startTime = System.currentTimeMillis();
+        run();
 
-                try {
-                    while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
-                        // Get the next entry
-                        entry = it.next();
-                        file = entry.getKey();
-                        statement = entry.getValue();
-                        String fileName = file.getFileName().toString();
-                        LOGGER.trace("Searching {}", fileName);
-
-                        try {
-                            // Search file and store the results
-                            TargetDescriptor searchTarget = query.getSearchTarget();
-                            Descriptor targetDescriptor = searchTarget.getDescriptor();
-
-                            if (targetDescriptor instanceof MethodDescriptor) {
-                                if (query.getSearchTarget().getSearchType().get() == SearchType.DEF) {
-                                    results.addAll(methodDefinitionSearch(searchTarget, file, statement));
-                                } else {
-                                    results.addAll(methodUsageSearch(searchTarget, statement));
-                                }
-                            } else {
-                                throw new UnsupportedOperationException("unsupported search target: "
-                                        + targetDescriptor.getClass().getName());
-                            }
-                        } catch (RuntimeException ex) {
-                            Path finalFile = file;
-                            errorListeners.forEach(l -> l.errorSearching(finalFile, ex));
-                        }
-                        LOGGER.trace("Searched {}", fileName);
-                    }
-                } catch (Exception ex) {
-                    Path finalFile = file;
-                    errorListeners.forEach(l -> l.fatalErrorSearching(finalFile, ex));
-                    setErrorOccurred();
-                    executor.shutdownNow();
-                } finally {
-                    LOGGER.trace("Finished");
-                    countDown();
-                    updateRunning();
-                }
-            });
-        }
-
-        // Wait for termination
-        executor.shutdown();
-
-        try {
-            finishedLatch.await();
-        } catch (InterruptedException e) {
-            String msg = "Error waiting for termination because the current thread was interrupted - terminating tasks.";
-            LOGGER.error(msg);
-            executor.shutdownNow();
-        }
+        // Log completion message
+        LOGGER.debug("Time taken: {}ms", (System.currentTimeMillis() - startTime));
         LOGGER.info("Finished");
-
-        synchronized (this) {
-            running = false;
-        }
         return results;
     }
 
@@ -166,38 +88,8 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
     }
 
     /**
-     * Returns <tt>true</tt> if an error occurred within {@link #results()} which did not result in an exception being
-     * thrown.
-     * @return <tt>true</tt> if an error occurred within {@link #results()}
-     */
-    public boolean errorOccurred() {
-        return errorOccurred;
-    }
-
-    private synchronized void updateRunning() {
-        running = (runningCount() > 0);
-    }
-
-    private synchronized void setErrorOccurred() {
-        synchronized (this) {
-            errorOccurred = true;
-        }
-    }
-
-    private long runningCount() {
-        synchronized (finishedLatch) {
-            return finishedLatch.getCount();
-        }
-    }
-
-    private void countDown() {
-        synchronized (finishedLatch) {
-            finishedLatch.countDown();
-        }
-    }
-
-    /**
      * Returns search matches for method usages.
+     *
      * @param targetDescriptor the target descriptor to search for
      * @param statement the parsed contents of the file being searched
      * @return returns search matches for method definitions
@@ -238,6 +130,7 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
 
     /**
      * Returns search matches for method definitions.
+     *
      * @param targetDescriptor the target descriptor to search for
      * @param path the file being searched
      * @param statement the parsed contents of the file being searched
@@ -271,5 +164,51 @@ public class JavaCodeSearcher implements ProjectCodeSearcher {
         return visitor.getResults()
                 .stream().map(s -> new Result(path, ((MethodStatement)s).getLineNumber(), s.toPseudoCode()))
                 .collect(Collectors.toList());
+    }
+
+    private class Task implements Runnable {
+
+        @Override
+        public void run() {
+            Map.Entry<Path, Statement> entry;
+            Path file = null;
+            Statement statement;
+
+            try {
+                while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
+                    // Get the next entry
+                    entry = it.next();
+                    file = entry.getKey();
+                    statement = entry.getValue();
+                    String fileName = file.getFileName().toString();
+                    LOGGER.trace("Searching {}", fileName);
+
+                    try {
+                        // Search file and store the results
+                        TargetDescriptor searchTarget = query.getSearchTarget();
+                        Descriptor targetDescriptor = searchTarget.getDescriptor();
+
+                        if (targetDescriptor instanceof MethodDescriptor) {
+                            if (query.getSearchTarget().getSearchType().get() == SearchType.DEF) {
+                                results.addAll(methodDefinitionSearch(searchTarget, file, statement));
+                            } else {
+                                results.addAll(methodUsageSearch(searchTarget, statement));
+                            }
+                        } else {
+                            throw new UnsupportedOperationException("unsupported search target: "
+                                    + targetDescriptor.getClass().getName());
+                        }
+                    } catch (RuntimeException ex) {
+                        Path finalFile = file;
+                        errorListeners.forEach(l -> l.errorSearching(finalFile, ex));
+                    }
+                    LOGGER.trace("Searched {}", fileName);
+                }
+            } catch (Exception ex) {
+                Path finalFile = file;
+                errorListeners.forEach(l -> l.fatalErrorSearching(finalFile, ex));
+                terminate();
+            }
+        }
     }
 }
