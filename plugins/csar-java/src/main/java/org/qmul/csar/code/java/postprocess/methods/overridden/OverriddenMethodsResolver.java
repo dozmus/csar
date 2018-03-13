@@ -131,7 +131,7 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
                 TypeStatement superType = superTopLevel.getTypeStatement();
                 boolean isClass = superType instanceof ClassStatement;
 
-                // Check current class
+                // Check target class
                 if (!superType.equals(parent) && isClass) {
                     BlockStatement blockStatement = ((ClassStatement) superTopLevel.getTypeStatement()).getBlock();
 
@@ -142,18 +142,22 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
                         MethodDescriptor desc2 = m2.getDescriptor();
                         boolean signatureEquals = MethodSignatureComparator.signatureEquals(m2, method,
                                 typeHierarchyResolver);
+
+                        if (!signatureEquals)
+                            continue;
+
+                        if (desc2.getStaticModifier().orElse(false) || desc2.getFinalModifier().orElse(false))
+                            return false;
+
                         boolean accessible = PostProcessUtils.isAccessible(desc, desc2, packageStatement,
                                 superTopLevel.getPackageStatement(), superType, path, resolvedType.getPath());
-
-                        if (!desc2.getStaticModifier().get() && signatureEquals && accessible) {
-                            return !desc2.getFinalModifier().get();
-                        }
+                        return accessible;
                     }
                 }
 
                 // Check super classes of super class
                 if (calculateOverridden(code, superTopLevel.getPackageStatement(), superTopLevel.getImports(),
-                        PostProcessUtils.superClasses(superType), resolvedType.getPath(), superTopLevel,
+                        PostProcessUtils.superClasses(superType), resolvedType.getPath(), superType,
                         superTopLevel, method)) {
                     return true;
                 }
