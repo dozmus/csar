@@ -6,7 +6,6 @@ import org.qmul.csar.code.java.postprocess.methods.use.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
-import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class MethodResolver {
 
@@ -42,34 +40,25 @@ public class MethodResolver {
         this.parameterTypeInstances = new ArrayList<>();
     }
 
-    public MethodStatement resolve(MethodCallExpression e, TypeStatement baseTopLevelParent,
+    public MethodStatement resolve(MethodCallExpression methodCall, TypeStatement baseTopLevelParent,
             TypeStatement baseTypeStatement, List<ImportStatement> baseImports,
             Optional<PackageStatement> basePackageStatement, BlockStatement baseContext,
             TraversalHierarchy traversalHierarchy) {
         // Set context
         this.traversalHierarchy = traversalHierarchy;
-        methodCall = e;
+        this.methodCall = methodCall;
 
         // Set argument type instances
         parameterTypeInstances.clear();
-        LOGGER.trace("Resolving arguments");
-
-        for (Expression arg : methodCall.getArguments()) {
-            TypeInstance t = new ExpressionTypeResolver(false).resolve(path, code, baseTopLevelParent, baseTypeStatement,
-                    baseImports, basePackageStatement, baseContext, qualifiedNameResolver, traversalHierarchy,
-                    typeHierarchyResolver, arg);
-            parameterTypeInstances.add(t);
-        }
-        LOGGER.trace("Argument Types = {}", parameterTypeInstances.stream()
-                .map(t -> t == null ? "null" : t.getType()).collect(Collectors.toList()));
+        parameterTypeInstances.addAll(methodCall.getArgumentTypes());
 
         // Resolve the method
         MethodStatement m;
-        LOGGER.trace("Resolving method with source: {}", methodCall.getMethodSource());
+        TypeInstance source = methodCall.getMethodSource();
 
-        if (methodCall.getMethodSource() != null) { // Resolve it potentially in another class
+        if (source != null) { // Resolve it potentially in another class
             onVariable = true;
-            TypeInstance source = methodCall.getMethodSource();
+            LOGGER.trace("Resolving method with source: {} of dimension {}", source.getType(), source.getDimensions());
 
             if (source.getStatement() == null) // is an unresolved class, probably a part of the java api
                 return null;
