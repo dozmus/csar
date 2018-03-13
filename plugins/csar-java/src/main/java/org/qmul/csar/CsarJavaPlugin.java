@@ -69,8 +69,9 @@ public class CsarJavaPlugin implements CsarPlugin {
 
             // Create post-processor
             CodePostProcessor javaPostProcessor = new JavaPostProcessor(typeHierarchyResolver,
-                    methodQualifiedTypeResolver, overriddenMethodsResolver, methodUseResolver,
-                    methodCallTypeInstanceResolver);
+                    methodQualifiedTypeResolver, overriddenMethodsResolver, methodCallTypeInstanceResolver,
+                    methodUseResolver
+            );
             javaPostProcessor.postprocess(code);
         } catch (Exception ex) {
             errorListeners.forEach(l -> l.errorPostProcessing(ex));

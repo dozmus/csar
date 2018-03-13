@@ -72,9 +72,14 @@ public class MethodCallExpression implements Expression {
     }
 
     public String getMethodIdentifier() {
-        UnitExpression name = (methodName instanceof BinaryExpression)
-                ? (UnitExpression) ((BinaryExpression)methodName).getRight()
-                : (UnitExpression)methodName;
+        Expression expr = methodName;
+
+        while (expr instanceof ParenthesisExpression) { // unwind any parentheses it may be in
+            expr = ((ParenthesisExpression) expr).getExpression();
+        }
+        UnitExpression name = (expr instanceof BinaryExpression)
+                ? (UnitExpression) ((BinaryExpression)expr).getRight()
+                : (UnitExpression)expr;
         return name.getValue();
     }
 

@@ -187,6 +187,8 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
 
                     if (statement instanceof CompilationUnitStatement) {
                         CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement) statement;
+
+                        visitor.reset();
                         visitor.setPath(path);
                         visitor.setCompilationUnitStatement(compilationUnitStatement);
                         visitor.visitStatement(compilationUnitStatement);

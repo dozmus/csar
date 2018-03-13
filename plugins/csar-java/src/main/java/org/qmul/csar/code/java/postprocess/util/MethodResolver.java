@@ -11,6 +11,8 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 public class MethodResolver {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodResolver.class);
     private final Path path;
     private final Map<Path, Statement> code;
     private final QualifiedNameResolver qualifiedNameResolver;
@@ -49,7 +52,7 @@ public class MethodResolver {
 
         // Set argument type instances
         parameterTypeInstances.clear();
-        System.out.println("resolving args");
+        LOGGER.trace("Resolving arguments");
 
         for (Expression arg : methodCall.getArguments()) {
             TypeInstance t = new ExpressionTypeResolver(false).resolve(path, code, baseTopLevelParent, baseTypeStatement,
@@ -57,48 +60,49 @@ public class MethodResolver {
                     typeHierarchyResolver, arg);
             parameterTypeInstances.add(t);
         }
-        System.out.println("ArgumentTypes=" + parameterTypeInstances.stream()
+        LOGGER.trace("Argument Types = {}", parameterTypeInstances.stream()
                 .map(t -> t == null ? "null" : t.getType()).collect(Collectors.toList()));
 
         // Resolve the method
         MethodStatement m;
-
-        System.out.println("resolving method itself: " + methodCall.getMethodSource());
+        LOGGER.trace("Resolving method with source: {}", methodCall.getMethodSource());
 
         if (methodCall.getMethodSource() != null) { // Resolve it potentially in another class
-            System.out.println("method source != null");
             onVariable = true;
             TypeInstance source = methodCall.getMethodSource();
 
             if (source.getStatement() == null) // is an unresolved class, probably a part of the java api
                 return null;
 
-            System.out.println("method has source attached of name: " + source.getQualifiedName() + " type: " + source.getType());
-
-            if ((m = resolveInTypeStatement(source.getStatement())) != null)
+            if ((m = resolveInTypeStatement(source.getStatement())) != null) {
+                LOGGER.trace("Found in current type statement.");
                 return m;
-            System.out.println("not in type statement");
+            }
 
             if ((m = resolveInSuperClasses(source.getStatement(), source.getCompilationUnitStatement(),
                     source.getCompilationUnitStatement().getPackageStatement(),
-                    source.getCompilationUnitStatement().getImports())) != null)
+                    source.getCompilationUnitStatement().getImports())) != null) {
+                LOGGER.trace("Found in superclasses.");
                 return m;
-            System.out.println("not in super classes");
+            }
         } else { // Resolve in current context, then in current type statement, then in superclasses
-            if ((m = resolveInBlock(baseContext)) != null)
+            if ((m = resolveInBlock(baseContext)) != null) {
+                LOGGER.trace("Found in current context.");
                 return m;
-            System.out.println("not in block");
+            }
 
-            if ((m = resolveCurrentTypeStatement()) != null)
+            if ((m = resolveCurrentTypeStatement()) != null) {
+                LOGGER.trace("Found in current type statement.");
                 return m;
-            System.out.println("not in type statement");
+            }
 
             if ((m = resolveInSuperClasses(baseTypeStatement, baseTopLevelParent, basePackageStatement,
-                    baseImports)) != null)
+                    baseImports)) != null) {
+                LOGGER.trace("Found in superclasses.");
                 return m;
-            System.out.println("not in super classes");
+            }
         }
-        System.out.println("not found");
+        LOGGER.trace("Not found.");
         return null;
     }
 
@@ -140,7 +144,7 @@ public class MethodResolver {
         for (String superClass : PostProcessUtils.superClasses(targetType)) {
             QualifiedType resolvedType = qualifiedNameResolver.resolve(code, path, targetType, topLevelParent,
                     packageStatement, imports, superClass);
-            MethodStatement m = resolveInQualifiedType(resolvedType, topLevelParent);
+            MethodStatement m = resolveInQualifiedType(resolvedType);
 
             if (m != null)
                 return m;
@@ -148,13 +152,12 @@ public class MethodResolver {
         return null;
     }
 
-    private MethodStatement resolveInQualifiedType(QualifiedType resolvedType, TypeStatement topLevelParent) {
-        System.out.println("resolveInQualifiedType");
-
+    private MethodStatement resolveInQualifiedType(QualifiedType resolvedType) {
         if (resolvedType != null) {
             Statement resolvedStatement = resolvedType.getStatement();
 
             if (resolvedStatement != null) {
+                TypeStatement resolvedTopLevelParent = resolvedType.getTopLevelStatement();
                 TypeStatement typeStatement = resolvedType.getTopLevelStatement().getTypeStatement();
                 List<ImportStatement> imports = resolvedType.getTopLevelStatement().getImports();
                 Optional<PackageStatement> pkgStatement = resolvedType.getTopLevelStatement().getPackageStatement();
@@ -164,7 +167,7 @@ public class MethodResolver {
                     return m;
 
                 // Check super classes
-                return resolveInSuperClasses(typeStatement, topLevelParent, pkgStatement, imports);
+                return resolveInSuperClasses(typeStatement, resolvedTopLevelParent, pkgStatement, imports);
             }
         }
         return null;

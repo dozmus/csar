@@ -23,6 +23,11 @@ final class MethodStatementVisitor extends StatementVisitor {
         this.code = code;
     }
 
+    public void reset() {
+        traversalHierarchy.clear();
+        traversedTypeStatements.clear();
+    }
+
     @Override
     public void visitEnumStatement(EnumStatement statement) {
         traversalHierarchy.addLast(prefix() + statement.getDescriptor().getIdentifierName().toString());

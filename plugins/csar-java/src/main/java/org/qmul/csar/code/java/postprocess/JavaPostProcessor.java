@@ -16,19 +16,18 @@ public class JavaPostProcessor implements CodePostProcessor {
     private final TypeHierarchyResolver typeHierarchyResolver;
     private final MethodQualifiedTypeResolver methodQualifiedTypeResolver;
     private final OverriddenMethodsResolver overriddenMethodsResolver;
-    private final MethodUseResolver methodUseResolver;
     private final MethodCallTypeInstanceResolver methodCallTypeInstanceResolver;
+    private final MethodUseResolver methodUseResolver;
 
     public JavaPostProcessor(TypeHierarchyResolver typeHierarchyResolver,
             MethodQualifiedTypeResolver methodQualifiedTypeResolver,
             OverriddenMethodsResolver overriddenMethodsResolver,
-            MethodUseResolver methodUseResolver,
-            MethodCallTypeInstanceResolver methodCallTypeInstanceResolver) {
+            MethodCallTypeInstanceResolver methodCallTypeInstanceResolver, MethodUseResolver methodUseResolver) {
         this.typeHierarchyResolver = typeHierarchyResolver;
         this.methodQualifiedTypeResolver = methodQualifiedTypeResolver;
         this.overriddenMethodsResolver = overriddenMethodsResolver;
-        this.methodUseResolver = methodUseResolver;
         this.methodCallTypeInstanceResolver = methodCallTypeInstanceResolver;
+        this.methodUseResolver = methodUseResolver;
     }
 
     /**

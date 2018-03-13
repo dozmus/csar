@@ -11,6 +11,8 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.VisibilityModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -23,6 +25,7 @@ public class ExpressionTypeResolver {
     // TODO make sure path is always set as much as possible
     // TODO does this work with new Class(). ...
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionTypeResolver.class);
     private int nestedBinaryExpressionLevel = 0;
     /**
      * If this is true, the right-most value in a {@link BinaryExpression} with a type of {@link BinaryOperation#DOT}
@@ -42,25 +45,25 @@ public class ExpressionTypeResolver {
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             Expression expression) {
-        System.out.println("ETR: " + expression.toPseudoCode() + " [" + expression.getClass() + "]");
+        LOGGER.trace("Resolving: {} (class: {})", expression.toPseudoCode(), expression.getClass().getSimpleName());
 
         if (expression instanceof ArrayAccessExpression) {
             ArrayAccessExpression aaexp = (ArrayAccessExpression)expression;
             TypeInstance t = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext, r,
-                    th, thr, aaexp);
+                    th, thr, aaexp.getArray());
 
             if (t != null)
-                t.incrementDimension();
+                t.decrementDimension();
             return t;
         } else if (expression instanceof ArrayExpression) {
             ArrayExpression aexp = (ArrayExpression)expression;
 
-            for (Expression e : aexp.getExpressions()) {
+            for (Expression e : aexp.getExpressions()) { // TODO does this handle nulls in the array properly? it should skip them
                 TypeInstance t = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
                         r, th, thr, e);
 
                 if (t != null) {
-                    t.decrementDimension();
+                    t.incrementDimension();
                     return t;
                 }
             }
@@ -117,7 +120,7 @@ public class ExpressionTypeResolver {
         } else if (expression instanceof UnitExpression) {
             UnitExpression uexp = (UnitExpression)expression;
             QualifiedType qt;
-            System.out.println("UnitException.Type=" + uexp.getValueType());
+            LOGGER.trace("Resolving: UnitExpression.Type={}", uexp.getValueType());
 
             switch (uexp.getValueType()) {
                 case LITERAL:
@@ -158,6 +161,9 @@ public class ExpressionTypeResolver {
                         superClass = PostProcessUtils.extendedClass(currentType);
                     }
 
+                    if (superClass == null) { // XXX still not found, must be in the java api
+                        return null;
+                    }
                     qt = r.resolve(code, path, currentType, topLevelType, currentPackage, imports, superClass);
                     return new TypeInstance(qt, 0);
                 case TYPE:
@@ -181,7 +187,7 @@ public class ExpressionTypeResolver {
         String lIdentifierName = uexp.getValue();
         int dimensions = 0;
         String lType = null;
-        System.out.println("resolveIdentifier: " + lIdentifierName);
+        LOGGER.trace("Resolving: Identifier={}", lIdentifierName);
 
         // ... in local context
         for (ParameterVariableStatement parameter : th.currentContextParameters()) { // parameters
@@ -288,7 +294,7 @@ public class ExpressionTypeResolver {
     private TypeInstance resolveMethodCallExpression(Path path, Map<Path, Statement> code,
             QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             MethodCallExpression expression) {
-        System.out.println("resolveMethodCallExpression");
+        LOGGER.trace("Resolving: MethodCallExpression");
         MethodResolver resolver = new MethodResolver(path, code, r, thr);
         MethodStatement method = resolver.resolve(expression, th);
 
@@ -307,7 +313,7 @@ public class ExpressionTypeResolver {
             TypeStatement topLevelType, TypeStatement currentType, List<ImportStatement> imports,
             Optional<PackageStatement> currentPackage, BlockStatement currentContext, QualifiedNameResolver r,
             TraversalHierarchy th, TypeHierarchyResolver thr, Expression left, BinaryOperation op, Expression right) {
-        System.out.println("resolveBinaryExpression");
+        LOGGER.trace("Resolving: BinaryExpression (OP={})", op);
 
         if (op.isArithmeticOperation()) {
             TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
@@ -348,17 +354,15 @@ public class ExpressionTypeResolver {
             return resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
                     r, th, thr, left);
         } else if (op.equals(BinaryOperation.DOT)) {
-            System.out.println("BinaryOperation=DOT");
-
             TypeInstance lhs = resolve(path, code, topLevelType, currentType, imports, currentPackage, currentContext,
                     r, th, thr, left);
 
             if (lhs != null) {
-                System.out.println("[Attempt 1] lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
                 TypeInstance out = resolveBinaryExpressionDotRhs(lhs, path, code, r, right, thr, th, true);
 
                 if (out != null)
                     return out;
+                LOGGER.trace("LHS was found: {} {}", lhs.getType(), lhs.getQualifiedName());
             }
 
             // fall-back: current target was not found so it might be a fully qualified name
@@ -367,7 +371,7 @@ public class ExpressionTypeResolver {
             if (lhs == null)
                 return null;
 
-            System.out.println("[Attempt 2] lhs=" + lhs.getType() + " " + lhs.getQualifiedName());
+            LOGGER.trace("LHS included a fully qualified name: {} {}", lhs.getType(), lhs.getQualifiedName());
             return resolveBinaryExpressionDotRhs(lhs, path, code, r, right, thr, th, true);
         } else if (op.isBooleanOperation()) {
             return literalType("boolean");
@@ -383,10 +387,11 @@ public class ExpressionTypeResolver {
             return null;
         QualifiedType qt = r.resolveFullyQualifiedName(code, fullyQualifiedName);
 
-        if (qt != null)
-            System.out.println(">>>>>>>>>>>>>>>> " + fullyQualifiedName + " => " + qt.getQualifiedName()
-                    + "," + (qt.getTopLevelStatement() == null));
-        return qt == null ? null : new TypeInstance(qt, 0);
+        if (qt != null) {
+            LOGGER.trace("Resolve fully qualified name: " + fullyQualifiedName + " => " + qt.getQualifiedName());
+            return new TypeInstance(qt, 0);
+        }
+        return null;
     }
 
     private String binaryExpressionIdentifierDotSequenceToString(Expression e) {
@@ -405,7 +410,8 @@ public class ExpressionTypeResolver {
     private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
             QualifiedNameResolver r, Expression right, TypeHierarchyResolver thr, TraversalHierarchy th,
             boolean onVariable) {
-        System.out.println("resolveBinaryExpressionDotRhs [right=" + right.getClass().getSimpleName() + "]");
+        LOGGER.trace("resolveBinaryExpressionDotRhs [right.class={}]", right.getClass().getSimpleName());
+
         if (lhs == null)
             return null;
 
@@ -416,13 +422,13 @@ public class ExpressionTypeResolver {
             if (resolvingMethodIdentifierMode) {
                 return lhs; // XXX rhs is the identifier of a method call, we handle it elsewhere
             } else if (methodCallStack.empty()) { // is another identifier
-                System.out.println("METHOD CALL STACK EMPTY");
+                LOGGER.trace("resolveBinaryExpressionDotRhs: methodCallStack.empty()");
 
                 if (lCompilationUnitStatement == null) // may be external - we ignore it
                     return null;
                 String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
                         code, path, false, lCompilationUnitStatement.getPackageStatement());
-                System.out.println("[RBE-RHS] rType = " + rType);
+                LOGGER.trace("resolveBinaryExpressionDotRhs: rType={}", rType);
 
                 if (rType == null) // may be external - we ignore it
                     return null;
@@ -433,7 +439,8 @@ public class ExpressionTypeResolver {
                         lCompilationUnitStatement.getImports(), typeName);
                 return new TypeInstance(qt, dimensions);
             } else { // is a method
-                System.out.println("resolving method properly: " + methodCallStack.peek().toPseudoCode());
+                LOGGER.trace("resolveBinaryExpressionDotRhs: Resolving method properly: {}",
+                        methodCallStack.peek().toPseudoCode());
 
                 if (lCompilationUnitStatement == null) // may be external - we ignore it
                     return null;
@@ -459,9 +466,11 @@ public class ExpressionTypeResolver {
                 return null;
             }
         } else { // is another identifier
+            if (lCompilationUnitStatement == null) // may be external - we ignore it
+                return null;
             String rType = resolveBinaryExpressionDotRhsIdentifierType(lCompilationUnitStatement, rue.getValue(), r,
                     code, path, false, lCompilationUnitStatement.getPackageStatement());
-            System.out.println("[RBE-RHS] rType = " + rType);
+            LOGGER.trace("resolveBinaryExpressionDotRhs: rType={}", rType);
 
             if (rType == null) // may be external - we ignore it
                 return null;
@@ -486,7 +495,6 @@ public class ExpressionTypeResolver {
                 VisibilityModifier visibilityModifier = instance.getDescriptor().getVisibilityModifier().get();
                 boolean isAccessible = !checkingSuper || PostProcessUtils.isAccessible(visibilityModifier, true,
                         topLevelParent.getPackageStatement(), baseCallPkg);
-                System.out.println(instanceIdentifierName + "," + isAccessible);
 
                 if (isAccessible && instanceIdentifierName.equals(identifierName))
                     return instanceIdentifierType;

@@ -105,6 +105,7 @@ public class QualifiedNameResolver {
     public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name, boolean strict) {
+        // TODO handle fully qualified names here too?
         // If the name contains generic arguments, we omit it
         int leftAngleBracketIdx = name.indexOf('<');
 

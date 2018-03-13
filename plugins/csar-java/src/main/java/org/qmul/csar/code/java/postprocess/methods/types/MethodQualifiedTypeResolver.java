@@ -27,7 +27,6 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodQualifiedTypeResolver.class);
     private final QualifiedNameResolver qualifiedNameResolver;
-    private int methodsProcessed;
 
     public MethodQualifiedTypeResolver(QualifiedNameResolver qualifiedNameResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
@@ -45,6 +44,8 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
+        int methodsProcessed = 0;
+        MethodStatementVisitor visitor = new MethodStatementVisitor(qualifiedNameResolver, code);
 
         // Iterate all code files
         for (Map.Entry<Path, Statement> entry : code.entrySet()) {
@@ -53,14 +54,16 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
             if (!(statement instanceof CompilationUnitStatement))
                 continue;
-            CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
-            TypeStatement typeStatement = topStatement.getTypeStatement();
+            CompilationUnitStatement topLevelParent = (CompilationUnitStatement) statement;
+            TypeStatement typeStatement = topLevelParent.getTypeStatement();
 
             if (typeStatement instanceof AnnotationStatement)
                 continue;
 
             // Visit file
-            MethodStatementVisitor visitor = new MethodStatementVisitor(qualifiedNameResolver, code, path, topStatement);
+            visitor.reset();
+            visitor.setPath(path);
+            visitor.setCompilationUnitStatement(topLevelParent);
             visitor.visitStatement(statement);
             methodsProcessed += visitor.methodsProcessed;
         }
@@ -78,23 +81,32 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
     public static class MethodStatementVisitor extends StatementVisitor {
 
         private final QualifiedNameResolver qualifiedNameResolver;
-        private final Path path;
         private final Map<Path, Statement> code;
-        private final TypeStatement topLevelParent;
-        private final List<ImportStatement> imports;
-        private final Optional<PackageStatement> currentPackage;
-        private final TypeStatement parent;
+        private Path path;
+        private TypeStatement topLevelParent;
+        private List<ImportStatement> imports;
+        private Optional<PackageStatement> currentPackage;
+        private TypeStatement parent;
         private int methodsProcessed;
 
-        public MethodStatementVisitor(QualifiedNameResolver qualifiedNameResolver, Map<Path, Statement> code, Path path,
-                CompilationUnitStatement compilationUnitStatement) {
+        public MethodStatementVisitor(QualifiedNameResolver qualifiedNameResolver, Map<Path, Statement> code) {
             this.qualifiedNameResolver = qualifiedNameResolver;
             this.code = code;
+        }
+
+        public void reset() {
+            methodsProcessed = 0;
+        }
+
+        public void setPath(Path path) {
             this.path = path;
-            this.topLevelParent = compilationUnitStatement;
-            this.currentPackage = compilationUnitStatement.getPackageStatement();
-            this.imports = compilationUnitStatement.getImports();
-            this.parent = compilationUnitStatement;
+        }
+
+        public void setCompilationUnitStatement(CompilationUnitStatement topLevelParent) {
+            this.topLevelParent = topLevelParent;
+            this.currentPackage = topLevelParent.getPackageStatement();
+            this.imports = topLevelParent.getImports();
+            this.parent = topLevelParent;
         }
 
         @Override
