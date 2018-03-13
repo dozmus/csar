@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * A qualified name resolver.
+ * A qualified name resolver. This is not thread-safe.
  */
 public class QualifiedNameResolver {
 
