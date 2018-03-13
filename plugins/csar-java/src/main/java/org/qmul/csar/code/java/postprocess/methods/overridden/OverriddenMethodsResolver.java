@@ -70,8 +70,7 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
         run();
 
         // Log completion message
-        LOGGER.debug("Found {} overridden methods from {} files in {}ms", map.size(), code.size(),
-                (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Found {} overridden methods in {}ms", map.size(), (System.currentTimeMillis() - startTime));
         LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
     }
