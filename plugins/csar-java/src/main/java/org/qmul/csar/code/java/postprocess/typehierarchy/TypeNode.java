@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A node representing the type hierarchy of a single type.
@@ -71,18 +73,6 @@ class TypeNode {
         }
     }
 
-    public boolean isStrictlySubtype(String type1, String type2) {
-        if (qualifiedName.equals(type1)) {
-            return containsQualifiedName(type2);
-        } else {
-            for (TypeNode child : children) {
-                if (child.isStrictlySubtype(type1, type2))
-                    return true;
-            }
-        }
-        return false;
-    }
-
     public String getQualifiedName() {
         return qualifiedName;
     }
@@ -91,11 +81,28 @@ class TypeNode {
         return children;
     }
 
+    public void cache(Map<String, TypeNode> cache) {
+        cache.putIfAbsent(qualifiedName, this);
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("qualifiedName", qualifiedName)
                 .append("children", children)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypeNode typeNode = (TypeNode) o;
+        return Objects.equals(qualifiedName, typeNode.qualifiedName) && Objects.equals(children, typeNode.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(qualifiedName, children);
     }
 }

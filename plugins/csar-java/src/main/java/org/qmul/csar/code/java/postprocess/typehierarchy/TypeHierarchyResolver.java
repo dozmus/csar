@@ -14,10 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * A type hierarchy resolver for a code base, represented as a mapping of {@link Path} to {@link Statement}.
@@ -28,9 +25,16 @@ public class TypeHierarchyResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeHierarchyResolver.class);
     /**
-     * The node which all others are a child of, in java this is 'java.lang.Object'.
+     * A mapping of names to type nodes.
+     * Make sure {@link Map#putIfAbsent(Object, Object)} is used, this is such that if duplicate nodes are created
+     * elsewhere, once they are merged into {@link #root} the node they merge into remains in the cache.
+     * i.e. the first node entered into the cache.
      */
-    private final TypeNode root = new TypeNode("java.lang.Object");
+    private final Map<String, TypeNode> cache = new HashMap<>();
+    /**
+     * The node which all others are a child of, in java this is 'java.lang.Object' aka 'Object'.
+     */
+    private final TypeNode root = createPrimitiveTypeNode("java.lang.Object", "Object");
     /**
      * The qualified name resolver to use.
      */
@@ -47,22 +51,22 @@ public class TypeHierarchyResolver implements CodePostProcessor {
 
     private void initRoot() {
         // TODO update once java api is fully supported
-        TypeNode doublen = new PrimitiveTypeNode("java.lang.Double", "double");
-        TypeNode floatn = new PrimitiveTypeNode("java.lang.Float", "float");
+        TypeNode doublen = createPrimitiveTypeNode("java.lang.Double", "double");
+        TypeNode floatn = createPrimitiveTypeNode("java.lang.Float", "float");
         doublen.getChildren().add(floatn);
 
-        TypeNode longn = new PrimitiveTypeNode("java.lang.Long", "long");
+        TypeNode longn = createPrimitiveTypeNode("java.lang.Long", "long");
         floatn.getChildren().add(longn);
-        TypeNode intn = new PrimitiveTypeNode("java.lang.Integer", "int");
+        TypeNode intn = createPrimitiveTypeNode("java.lang.Integer", "int");
         longn.getChildren().add(intn);
-        TypeNode shortn = new PrimitiveTypeNode("java.lang.Short", "short");
+        TypeNode shortn = createPrimitiveTypeNode("java.lang.Short", "short");
         intn.getChildren().add(shortn);
-        TypeNode byten = new PrimitiveTypeNode("java.lang.Byte", "byte");
+        TypeNode byten = createPrimitiveTypeNode("java.lang.Byte", "byte");
         shortn.getChildren().add(byten);
 
-        TypeNode stringn = new PrimitiveTypeNode("java.lang.String", "String");
-        TypeNode charn = new PrimitiveTypeNode("java.lang.Character", "char");
-        TypeNode booleann = new PrimitiveTypeNode("java.lang.Boolean", "boolean");
+        TypeNode stringn = createPrimitiveTypeNode("java.lang.String", "String");
+        TypeNode charn = createPrimitiveTypeNode("java.lang.Character", "char");
+        TypeNode booleann = createPrimitiveTypeNode("java.lang.Boolean", "boolean");
 
         // Add to root
         addToRoot(doublen);
@@ -99,10 +103,10 @@ public class TypeHierarchyResolver implements CodePostProcessor {
      * @param child the qualified name of the child
      * @return <tt>true</tt> if the argument <tt>child</tt> was added to the argument <tt>parent</tt>
      */
-    private static boolean placeInList(List<TypeNode> list, String parent, String child) {
+    private boolean placeInList(List<TypeNode> list, String parent, String child) {
         for (TypeNode node : list) {
             if (node.getQualifiedName().equals(parent)) {
-                node.getChildren().add(new TypeNode(child));
+                node.getChildren().add(createTypeNode(child));
                 return true;
             }
 
@@ -110,18 +114,6 @@ public class TypeHierarchyResolver implements CodePostProcessor {
                 return true;
         }
         return false;
-    }
-
-    /**
-     * Returns <tt>true</tt> if the first type is a superclass of the second type.
-     *
-     * @param root the node hierarchy to check
-     * @param type1 a qualified name which may be a superclass
-     * @param type2 a qualified name which may be a subclass
-     * @return returns if the first type is a superclass of the second type
-     */
-    private static boolean isStrictlySubtype(TypeNode root, String type1, String type2) {
-        return root.isStrictlySubtype(type1, type2);
     }
 
     /**
@@ -188,9 +180,10 @@ public class TypeHierarchyResolver implements CodePostProcessor {
 
             // Add to tmp structure, if there is no place for it it then add it as a new child
             if (!placeInList(list, resolvedSuperClassName, child)) {
-                TypeNode node = new TypeNode(resolvedSuperClassName);
-                node.getChildren().add(new TypeNode(child));
-                list.add(node);
+                TypeNode superNode = createTypeNode(resolvedSuperClassName);
+                TypeNode childNode = createTypeNode(child);
+                superNode.getChildren().add(childNode);
+                list.add(superNode);
             }
         }
     }
@@ -207,10 +200,35 @@ public class TypeHierarchyResolver implements CodePostProcessor {
         // Normalize varargs
         type1 = TypeHelper.normalizeVarArgs(type1);
         type2 = TypeHelper.normalizeVarArgs(type2);
-        return type1.equals(type2) || isStrictlySubtype(root, type1, type2);
+        return type1.equals(type2) || isStrictlySubtype(type1, type2);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the first type is a superclass of the second type, it looks in {@link #cache} for the
+     * first type argument.
+     *
+     * @param type1 a qualified name which may be a superclass
+     * @param type2 a qualified name which may be a subclass
+     * @return returns if the first type is a superclass of the second type
+     */
+    private boolean isStrictlySubtype(String type1, String type2) {
+        TypeNode subRoot = cache.get(type1);
+        return subRoot != null && subRoot.containsQualifiedName(type2);
     }
 
     public void addToRoot(TypeNode node) {
         root.getChildren().add(node);
+    }
+
+    private TypeNode createTypeNode(String qualifiedName) {
+        TypeNode node = new TypeNode(qualifiedName);
+        node.cache(cache);
+        return node;
+    }
+
+    private TypeNode createPrimitiveTypeNode(String qualifiedName, String primitiveName) {
+        PrimitiveTypeNode node = new PrimitiveTypeNode(qualifiedName, primitiveName);
+        node.cache(cache);
+        return node;
     }
 }

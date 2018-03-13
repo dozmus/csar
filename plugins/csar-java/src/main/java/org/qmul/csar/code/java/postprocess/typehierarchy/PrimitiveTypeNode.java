@@ -3,6 +3,9 @@ package org.qmul.csar.code.java.postprocess.typehierarchy;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * A node representing the type hierarchy of a single primitive type.
  */
@@ -31,6 +34,10 @@ class PrimitiveTypeNode extends TypeNode {
         return false;
     }
 
+    public boolean containsQualifiedName(String qualifiedName) {
+        return containsQualifiedName(qualifiedName, true);
+    }
+
     /**
      * Returns <tt>true</tt> if the argument <tt>String</tt> is contained in any child of the argument
      * <tt>TypeNode</tt>. The argument <tt>TypeNode</tt>'s value is only checked if <tt>checkCurrent</tt> is
@@ -52,21 +59,16 @@ class PrimitiveTypeNode extends TypeNode {
         }
     }
 
-    public boolean isStrictlySubtype(String type1, String type2) {
-        if (qualifiedNameEquals(type1)) {
-            return containsQualifiedName(type2, true);
-        } else {
-            for (TypeNode child : getChildren()) {
-                if (child.isStrictlySubtype(type1, type2))
-                    return true;
-            }
-        }
-        return false;
-    }
-
     private boolean qualifiedNameEquals(String qualifiedName) {
         return getQualifiedName().equals(qualifiedName) || primitiveName.equals(qualifiedName)
                 || nonQualifiedName.equals(qualifiedName);
+    }
+
+    @Override
+    public void cache(Map<String, TypeNode> cache) {
+        cache.putIfAbsent(super.getQualifiedName(), this);
+        cache.putIfAbsent(nonQualifiedName, this);
+        cache.putIfAbsent(primitiveName, this);
     }
 
     @Override
@@ -77,5 +79,20 @@ class PrimitiveTypeNode extends TypeNode {
                 .append("nonQualifiedName", nonQualifiedName)
                 .append("children", getChildren())
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PrimitiveTypeNode that = (PrimitiveTypeNode) o;
+        return Objects.equals(primitiveName, that.primitiveName)
+                && Objects.equals(nonQualifiedName, that.nonQualifiedName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), primitiveName, nonQualifiedName);
     }
 }
