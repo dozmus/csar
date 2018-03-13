@@ -58,11 +58,14 @@ public class Csar {
         LOGGER.info("Loading plugins...");
 
         // Create the service provider
-        CsarPluginLoader pluginService = CsarPluginLoader.getInstance();
+        CsarPluginLoader pluginLoader = CsarPluginLoader.getInstance();
 
-        if (!pluginService.plugins().hasNext()) {
+        if (!pluginLoader.plugins().hasNext()) {
             errorListeners.forEach(CsarErrorListener::errorInitializing);
         }
+
+        // Add error handlers
+        errorListeners.forEach(el -> pluginLoader.forEachPlugin(p -> p.addErrorListener(el)));
     }
 
     /**
