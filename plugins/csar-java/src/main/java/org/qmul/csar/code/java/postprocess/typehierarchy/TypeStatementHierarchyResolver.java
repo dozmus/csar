@@ -70,7 +70,7 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
         currentIdentifierName = map.get(nesting) + (nesting > 0 ? "$" : "") + identifierName;
 
         if (superClasses.size() == 0) {
-            typeHierarchyResolver.getRoot().getChildren().add(getFromListOrDefault(tmp, currentIdentifierName));
+            typeHierarchyResolver.addToRoot(getFromListOrDefault(tmp, currentIdentifierName));
         } else {
             typeHierarchyResolver.placeInList(tmp, code, path, targetType, packageStatement, imports,
                     currentIdentifierName, superClasses, topStatement);

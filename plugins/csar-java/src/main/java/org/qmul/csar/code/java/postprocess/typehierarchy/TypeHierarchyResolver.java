@@ -65,10 +65,10 @@ public class TypeHierarchyResolver implements CodePostProcessor {
         TypeNode booleann = new PrimitiveTypeNode("java.lang.Boolean", "boolean");
 
         // Add to root
-        root.getChildren().add(doublen);
-        root.getChildren().add(stringn);
-        root.getChildren().add(charn);
-        root.getChildren().add(booleann);
+        addToRoot(doublen);
+        addToRoot(stringn);
+        addToRoot(charn);
+        addToRoot(booleann);
     }
 
     /**
@@ -210,7 +210,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
         return type1.equals(type2) || isStrictlySubtype(root, type1, type2);
     }
 
-    public TypeNode getRoot() {
-        return root;
+    public void addToRoot(TypeNode node) {
+        root.getChildren().add(node);
     }
 }
