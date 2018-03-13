@@ -629,6 +629,21 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
             return new BinaryExpression(left, op, right);
         }
 
+        // Binary operations continued due to grammar language syntax defect
+        if (ctx.LT().size() == 2) {
+            Expression left = parseExpression(ctx.expression(0));
+            Expression right = parseExpression(ctx.expression(1));
+            return new BinaryExpression(left, BinaryOperation.LSHIFT, right);
+        } else if (ctx.GT().size() == 2) {
+            Expression left = parseExpression(ctx.expression(0));
+            Expression right = parseExpression(ctx.expression(1));
+            return new BinaryExpression(left, BinaryOperation.RSHIFT, right);
+        } else if (ctx.GT().size() == 3) {
+            Expression left = parseExpression(ctx.expression(0));
+            Expression right = parseExpression(ctx.expression(1));
+            return new BinaryExpression(left, BinaryOperation.UNSIGNED_RSHIFT, right);
+        }
+
         // Lambda expression
         if (ctx.lambdaExpression() != null) {
             JavaParser.LambdaParametersContext params = ctx.lambdaExpression().lambdaParameters();
