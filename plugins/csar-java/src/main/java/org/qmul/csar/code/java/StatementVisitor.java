@@ -4,18 +4,12 @@ import org.qmul.csar.code.java.parse.expression.*;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public abstract class StatementVisitor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatementVisitor.class);
-
     public void visitStatement(Statement statement) {
-        LOGGER.trace("Visit: {}", statement.getClass().toString());
-
         if (statement instanceof Annotation) {
             visitAnnotation((Annotation)statement);
             exitAnnotation((Annotation)statement);
@@ -463,8 +457,6 @@ public abstract class StatementVisitor {
     }
 
     public void visitExpression(Expression expression) {
-        LOGGER.trace("Visit: {}", expression.getClass().toString());
-
         if (expression instanceof ArrayAccessExpression) {
             visitArrayAccessExpression((ArrayAccessExpression)expression);
             exitArrayAccessExpression((ArrayAccessExpression)expression);

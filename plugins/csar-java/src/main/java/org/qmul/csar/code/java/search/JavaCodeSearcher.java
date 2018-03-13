@@ -202,7 +202,6 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
                         Path finalFile = file;
                         errorListeners.forEach(l -> l.errorSearching(finalFile, ex));
                     }
-                    LOGGER.trace("Searched {}", fileName);
                 }
             } catch (Exception ex) {
                 Path finalFile = file;

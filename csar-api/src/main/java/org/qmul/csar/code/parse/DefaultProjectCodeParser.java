@@ -106,7 +106,7 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
                     // Get the next file
                     file = it.next();
                     String fileName = file.getFileName().toString();
-                    LOGGER.trace("Parsing {}", fileName);
+                    LOGGER.trace("Parsing: {}", fileName);
 
                     try {
                         // Parse file and put in the map
@@ -117,14 +117,10 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
                         synchronized (totalFileSizes) {
                             totalFileSizes.add(Files.size(file));
                         }
-
-                        // Print code tree
-                        LOGGER.trace("Tree for {}:\r\n{}", fileName, root.toPseudoCode());
                     } catch (IOException | RuntimeException ex) {
                         Path finalFile = file;
                         errorListeners.forEach(l -> l.errorParsing(finalFile, ex));
                     }
-                    LOGGER.trace("Parsed {}", fileName);
                 }
             } catch (Exception ex) {
                 Path finalFile = file;
