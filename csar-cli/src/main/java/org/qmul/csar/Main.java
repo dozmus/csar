@@ -2,9 +2,12 @@ package org.qmul.csar;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import org.qmul.csar.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
+
+import java.util.List;
 
 /**
  * Application entry-point, contains the main method. All calls to {@link System#exit(int)} in the project appear here.
@@ -90,8 +93,9 @@ public final class Main {
         csar.searchCode();
 
         try {
-            logger.info("Search results:");
-            logger.info(ctx.getResultFormatter().format(csar.getResults()));
+            List<Result> results = csar.getResults();
+            logger.info("Search results: {}", results.size());
+            System.out.println(ctx.getResultFormatter().format(csar.getResults()));
         } catch (Exception ex) {
             logger.error("Error formatting search results: " + ex.getMessage());
             System.exit(EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS);
