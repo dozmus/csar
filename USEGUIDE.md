@@ -7,6 +7,12 @@ csar currently only supports Java 8, `package-info.java` files introduced in Jav
 compatibility.
 Parsing source code with invalid syntax will lead to an error occurring and it being skipped.
 
+# Narrowing Domain in VCS Repositories
+csar will detect and narrow its domain in supported VCS repositories (git, svn, and hg), this can be disabled using
+the `--narrow-search`.  
+This requires their pure CLI frontends to be installed otherwise an error will be printed.  
+This is the following if a suitable git frontend is not installed: `Error running git ls-files: git is not recognized`.
+
 # Plugins
 See Report section 'High-level Structure'.
 
