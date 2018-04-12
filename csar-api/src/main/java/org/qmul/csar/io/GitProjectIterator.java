@@ -41,8 +41,8 @@ public class GitProjectIterator extends ProjectIterator {
     }
 
     /**
-     * Finds code files in a git repository, which are in the staging area or have been committed. This is done by
-     * creating an instance of the git program. Failure will result in throwing {@link RuntimeException}.
+     * Finds code files in a git repository, which are in the staging area (added or modified) or have been committed.
+     * This is done by creating an instance of the git program. Failure will result in throwing {@link RuntimeException}.
      *
      * @throws RuntimeException if an error occurs
      * @see <a href="https://git-scm.com/docs/git-ls-files">git ls-files</a>
@@ -62,6 +62,7 @@ public class GitProjectIterator extends ProjectIterator {
 
     /**
      * Runs <tt>git ls-files</tt> and returns its output as a <tt>List</tt>.
+     *
      * @return a list of the output paths
      * @throws Exception an error occurred while reading output
      */
@@ -84,9 +85,12 @@ public class GitProjectIterator extends ProjectIterator {
 
         String output1 = output.get(0);
 
-        if (output1.startsWith("fatal: Not a git repository")
-                || output1.startsWith("'git' is not recognized as an internal or external command")) {
-            throw new Exception("Error running git ls-files: no output");
+        if (output1.startsWith("fatal:")) {
+            throw new Exception("Error running git ls-files: " + output1);
+        }
+
+        if (output1.startsWith("'git' is not recognized as an internal or external command")) {
+            throw new Exception("Error running git ls-files: git is not recognized");
         }
 
         // Map into a Path list
