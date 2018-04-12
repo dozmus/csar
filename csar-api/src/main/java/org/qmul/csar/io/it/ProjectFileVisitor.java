@@ -1,4 +1,4 @@
-package org.qmul.csar.io;
+package org.qmul.csar.io.it;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * A specialized {@link java.nio.file.FileVisitor<Path>} which allows recursively iteration to be toggled, and
- * aggregates files according to a given {@link Predicate<Path>}. If a file visit is failed an error message is printed
- * to {@link System#err}.
+ * A specialized {@link java.nio.file.FileVisitor<Path>} which allows toggleable recursive ecursive visiting, and
+ * aggregates files according to a given {@link Predicate<Path>}.
+ * If a file visit is failed an error message is printed to {@link System#err}.
  *
  * @see SimpleFileVisitor
  */

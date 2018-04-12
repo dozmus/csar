@@ -2,14 +2,13 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
-import org.qmul.csar.io.ProjectIteratorFactory;
+import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;

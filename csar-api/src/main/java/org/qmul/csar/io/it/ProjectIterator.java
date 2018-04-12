@@ -1,4 +1,4 @@
-package org.qmul.csar.io;
+package org.qmul.csar.io.it;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
-import org.qmul.csar.io.ProjectIteratorFactory;
+import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;

@@ -12,7 +12,7 @@ import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeReso
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
-import org.qmul.csar.io.ProjectIteratorFactory;
+import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;

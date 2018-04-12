@@ -13,7 +13,7 @@ import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
-import org.qmul.csar.io.ProjectIteratorFactory;
+import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;

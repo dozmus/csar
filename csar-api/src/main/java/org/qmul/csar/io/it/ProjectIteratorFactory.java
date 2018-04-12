@@ -1,8 +1,11 @@
-package org.qmul.csar.io;
+package org.qmul.csar.io.it;
 
 import com.purecs.ignorefiles.IgnoreFiles;
 import com.purecs.ignorefiles.Rule;
 import org.qmul.csar.code.parse.CodeParserFactory;
+import org.qmul.csar.io.it.vcs.GitRepositoryIterator;
+import org.qmul.csar.io.it.vcs.MercurialRepositoryIterator;
+import org.qmul.csar.io.it.vcs.SubversionRepositoryIterator;
 import org.qmul.csar.util.FilterableIterator;
 
 import java.io.IOException;
@@ -37,13 +40,13 @@ public final class ProjectIteratorFactory {
         try {
             if (narrowSearch) {
                 if (gitRepository) {
-                    it = new GitProjectIterator(directory);
+                    it = new GitRepositoryIterator(directory);
                     it.init();
                 } else if (svnRepository) {
-                    it = new SubversionProjectIterator(directory);
+                    it = new SubversionRepositoryIterator(directory);
                     it.init();
                 } else if (hgRepository) {
-                    it = new MercurialProjectIterator(directory);
+                    it = new MercurialRepositoryIterator(directory);
                     it.init();
                 }
             }

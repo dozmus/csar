@@ -1,10 +1,8 @@
-package org.qmul.csar.io;
+package org.qmul.csar.io.it.vcs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.qmul.csar.io.ProcessHelper;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -12,52 +10,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * Iterates over files in the specified directory which is home to a subversion repository, aggregating them.
+ * Iterates over files in the specified directory which is home to a subversion repository, by aggregating them.
+ *
+ * @see VCSRepositoryIterator
  */
-public class SubversionProjectIterator extends ProjectIterator {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GitProjectIterator.class);
+public class SubversionRepositoryIterator extends VCSRepositoryIterator {
 
     /**
      * Creates a new instance with the argument directory.
      *
      * @param directory the directory to search for files in
      */
-    public SubversionProjectIterator(Path directory) {
-        super(directory);
-    }
-
-    /**
-     * Finds the code files in the working directory and stores them in {@link #files}.
-     */
-    public void init() {
-        LOGGER.info("Scanning project directory: {}", getDirectory().toString());
-        boolean subversionRepository = Files.isDirectory(Paths.get(getDirectory().toString(), ".svn"));
-
-        if (!subversionRepository)
-            throw new IllegalStateException("repository is missing a .svn folder");
-        scanGitDir();
-        initialized = true;
-    }
-
-    /**
-     * Finds code files in a svn repository, which are in the staging area (added or modified) or have been committed.
-     * This is done by creating an instance of the hg program. Failure will result in throwing {@link RuntimeException}.
-     *
-     * @throws RuntimeException if an error occurs
-     * @see <a href="http://svnbook.red-bean.com/en/1.7/svn.ref.svn.c.status.html">svn status</a>
-     * @see #lsFiles()
-     */
-    private void scanGitDir() {
-        LOGGER.trace("Scanning svn repository");
-
-        try {
-            List<Path> output = lsFiles();
-            output.forEach(this::addFile);
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            throw new RuntimeException("unable to scan svn directory: " + ex.getMessage());
-        }
+    public SubversionRepositoryIterator(Path directory) {
+        super(directory, "svn", ".svn");
     }
 
     /**
@@ -66,7 +31,7 @@ public class SubversionProjectIterator extends ProjectIterator {
      * @return a list of the output paths
      * @throws Exception an error occurred while reading output
      */
-    private static List<Path> lsFiles() throws Exception {
+    protected List<Path> lsFiles() throws Exception {
         List<String> output;
 
         try {
