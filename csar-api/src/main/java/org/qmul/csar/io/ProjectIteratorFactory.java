@@ -30,17 +30,28 @@ public final class ProjectIteratorFactory {
      */
     public static Iterator<Path> createProjectIterator(Path directory, boolean narrowSearch) {
         boolean gitRepository = Files.isDirectory(Paths.get(directory.toString(), ".git"));
-        ProjectIterator it;
+        boolean svnRepository = Files.isDirectory(Paths.get(directory.toString(), ".svn"));
+        boolean hgRepository = Files.isDirectory(Paths.get(directory.toString(), ".hg"));
+        ProjectIterator it = null;
 
         try {
-            if (gitRepository && narrowSearch) {
-                it = new GitProjectIterator(directory);
-                it.init();
-            } else {
-                it = new ProjectIterator(directory);
-                it.init();
+            if (narrowSearch) {
+                if (gitRepository) {
+                    it = new GitProjectIterator(directory);
+                    it.init();
+                } else if (svnRepository) {
+                    it = new SubversionProjectIterator(directory);
+                    it.init();
+                } else if (hgRepository) {
+                    it = new MercurialProjectIterator(directory);
+                    it.init();
+                }
             }
-        } catch (RuntimeException ex) { // fall-back to regular iterator
+        } catch (RuntimeException ex) {
+        }
+
+        // if it is invalid then fall-back to regular iterator
+        if (it == null || !it.initialized) {
             it = new ProjectIterator(directory);
             it.init();
         }
