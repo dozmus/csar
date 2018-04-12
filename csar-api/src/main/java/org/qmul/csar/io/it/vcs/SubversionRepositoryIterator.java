@@ -54,7 +54,9 @@ public class SubversionRepositoryIterator extends VCSRepositoryIterator {
             throw new Exception("Error running svn status: " + output1);
         }
 
-        if (output1.startsWith("'svn' is not recognized as an internal or external command")) {
+        if (output1.startsWith("'svn' is not recognized as an internal or external command")  // win error msg
+                || output1.endsWith("command not found") // linux error msg
+                || output1.startsWith("The program 'svn' is currently not installed.")) { // linux error msg
             throw new Exception("Error running svn status: svn is not recognized");
         }
 

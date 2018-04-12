@@ -54,7 +54,9 @@ public class MercurialRepositoryIterator extends VCSRepositoryIterator {
             throw new Exception("Error running hg status --all: " + output1);
         }
 
-        if (output1.startsWith("'hg' is not recognized as an internal or external command")) {
+        if (output1.startsWith("'hg' is not recognized as an internal or external command")  // win error msg
+                || output1.endsWith("command not found") // linux error msg
+                || output1.startsWith("The program 'hg' is currently not installed.")) { // linux error msg
             throw new Exception("Error running hg status --all: hg is not recognized");
         }
 
