@@ -177,9 +177,13 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
             Statement statement;
 
             try {
-                while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
+                while (!Thread.currentThread().isInterrupted() && it.hasNext()) {
                     // Get the next entry
-                    entry = it.next();
+                    try {
+                        entry = it.next();
+                    } catch (NoSuchElementException ex) {
+                        break;
+                    }
                     file = entry.getKey();
                     statement = entry.getValue();
                     String fileName = file.getFileName().toString();

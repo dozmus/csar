@@ -102,9 +102,13 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
             Statement root;
 
             try {
-                while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
+                while (!Thread.currentThread().isInterrupted() && it.hasNext()) {
                     // Get the next file
-                    file = it.next();
+                    try {
+                        file = it.next();
+                    } catch (NoSuchElementException ex) {
+                        break;
+                    }
                     String fileName = file.getFileName().toString();
                     LOGGER.trace("Parsing: {}", fileName);
 
