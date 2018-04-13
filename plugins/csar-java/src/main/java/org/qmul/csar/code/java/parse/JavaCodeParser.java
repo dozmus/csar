@@ -20,6 +20,7 @@ import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -159,7 +160,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
      */
     private static List<JavaParser.ClassOrInterfaceModifierContext> parseNonTypeModifiers(
             List<JavaParser.ModifierContext> mods) {
-        return mods.stream().filter(mod -> mod.classOrInterfaceModifier() != null)
+        return mods.stream()
+                .filter(mod -> mod.classOrInterfaceModifier() != null)
                 .map(JavaParser.ModifierContext::classOrInterfaceModifier)
                 .collect(Collectors.toList());
     }
@@ -231,20 +233,12 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
     }
 
     private static MethodDescriptor.Builder methodBuilder(TerminalNode identifier,
-            JavaParser.TypeTypeOrVoidContext returnType,
-            boolean overridden) {
+            JavaParser.TypeTypeOrVoidContext returnType, boolean overridden) {
         String identifierName = identifier.getText();
         return MethodDescriptor.Builder.allFalse(identifierName)
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .overridden(overridden)
                 .returnType(returnType.getText());
-    }
-
-    private static MethodDescriptor.Builder methodBuilder(TerminalNode identifier,
-            JavaParser.TypeTypeOrVoidContext returnType,
-            JavaParser.QualifiedNameListContext throwsCtx, boolean overridden) {
-        return methodBuilder(identifier, returnType, overridden)
-                .thrownExceptions(parseThrows(throwsCtx));
     }
 
     private static Optional<String> getTextOrEmpty(TerminalNode node) {
@@ -255,10 +249,6 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
         final StringBuilder builder = new StringBuilder(identifierType);
         bracketsToAppend.forEach(b -> builder.append("[]"));
         return builder.toString();
-    }
-
-    private static boolean validateMethodContext(JavaParser.GenericMethodDeclarationContext ctx) {
-        return validateMethodContext(ctx.methodDeclaration());
     }
 
     private static boolean validateMethodContext(JavaParser.GenericInterfaceMethodDeclarationContext ctx) {
@@ -449,6 +439,10 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
         // Parameters
         List<ParameterVariableStatement> params = parseParameters(parameterCtx);
+        List<Integer> paramsStartIndexes = parameterCtx == null ? Collections.emptyList()
+                : parameterCtx.COMMA().stream()
+                        .map(c -> c.getSymbol().getCharPositionInLine())
+                        .collect(Collectors.toList());
 
         // Body
         BlockStatement block = parseBlockStatements(blockCtx);
@@ -467,23 +461,23 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasTypeArguments(typeParameters.size() > 0)
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
-        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine());
+        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
+                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes);
     }
 
     private MethodStatement parseInterfaceMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> intBodyMods, List<JavaParser.InterfaceMethodModifierContext> modifiers,
             JavaParser.FormalParameterListContext parameterCtx, JavaParser.QualifiedNameListContext throwsCtx,
             JavaParser.BlockContext blockCtx) {
-        return parseInterfaceMethod(identifier, returnType, intBodyMods, modifiers, parameterCtx, throwsCtx, false,
-                blockCtx, null);
+        return parseInterfaceMethod(identifier, returnType, intBodyMods, modifiers, parameterCtx,
+                throwsCtx, blockCtx, null);
     }
 
     private MethodStatement parseInterfaceMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> intBodyMods, List<JavaParser.InterfaceMethodModifierContext> modifiers,
             JavaParser.FormalParameterListContext parameterCtx, JavaParser.QualifiedNameListContext throwsCtx,
-            boolean overridden,
             JavaParser.BlockContext blockCtx, JavaParser.TypeParametersContext typeParametersCtx) {
-        MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, overridden);
+        MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, false);
 
         // Modifiers
         intBodyMods.forEach(mod -> applyModifier(builder, mod, true));
@@ -498,6 +492,10 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
         // Parameters
         List<ParameterVariableStatement> params = parseParameters(parameterCtx);
+        List<Integer> paramsStartIndexes = parameterCtx == null ? Collections.emptyList()
+                : parameterCtx.COMMA().stream()
+                        .map(c -> c.getSymbol().getCharPositionInLine())
+                        .collect(Collectors.toList());
 
         // Body
         BlockStatement block = parseBlockStatements(blockCtx);
@@ -516,7 +514,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasTypeArguments(typeParameters.size() > 0)
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
-        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine());
+        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
+                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes);
     }
 
     private ConstructorStatement parseConstructor(TerminalNode identifier, List<JavaParser.ModifierContext> modifiers,
@@ -765,19 +764,24 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
         // Fall-back: expression LPAREN expressionList? RPAREN
         if (ctx.expression().size() > 0) {
             Expression method = parseExpression(ctx.expression(0));
-            // TODO why is the following requiring a null check
-            int lineNo =
-                    ctx.LPAREN() != null ? ctx.LPAREN().getSymbol().getLine() : -1; // TODO improve, to be in expression
+            int lParenStartIdx = ctx.LPAREN().getSymbol().getCharPositionInLine();
+            int rParenStartIdx = ctx.RPAREN().getSymbol().getCharPositionInLine();
+            int lineNo = ctx.LPAREN().getSymbol().getLine();
+
+            // Parameters
             List<Expression> parameters = new ArrayList<>();
+            List<Integer> commaStartIndexes = Collections.emptyList();
 
             if (ctx.expressionList() != null) {
-                for (JavaParser.ExpressionContext ectx : ctx.expressionList().expression()) {
-                    parameters.add(parseExpression(ectx));
-                }
+                ctx.expressionList().expression().forEach(e -> parameters.add(parseExpression(e)));
+                commaStartIndexes = ctx.expressionList().COMMA().stream()
+                        .map(c -> c.getSymbol().getCharPositionInLine())
+                        .collect(Collectors.toList());
             }
-            return new MethodCallExpression(method, parameters, path, lineNo);
+            return new MethodCallExpression(method, parameters, path, lineNo, lParenStartIdx, rParenStartIdx,
+                    commaStartIndexes);
         }
-        throw new IllegalArgumentException("invalid context");
+        throw new IllegalArgumentException("invalid context: " + ctx.getText());
     }
 
     private BlockStatement parseBlockStatements(JavaParser.BlockContext ctx) {
@@ -1403,9 +1407,10 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 if (!validateMethodContext(genericMethod))
                     throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseInterfaceMethod(genericMethod.IDENTIFIER(),
-                        genericMethod.typeTypeOrVoid(), intBody.modifier(), genericMethod.interfaceMethodModifier(),
-                        genericMethod.formalParameters().formalParameterList(), genericMethod.qualifiedNameList(),
-                        false, genericMethod.methodBody().block(), genericMethod.typeParameters());
+                        genericMethod.typeTypeOrVoid(), intBody.modifier(),
+                        genericMethod.interfaceMethodModifier(), genericMethod.formalParameters().formalParameterList(),
+                        genericMethod.qualifiedNameList(), genericMethod.methodBody().block(),
+                        genericMethod.typeParameters());
                 statements.add(methodStatement);
             } else if (constDecl != null) { // constant
                 final String identifierType = constDecl.typeType().getText();
@@ -1484,5 +1489,4 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
     public void setPath(Path path) {
         this.path = path;
     }
-
 }

@@ -35,14 +35,18 @@ public class MethodStatement implements Statement {
      */
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
     private final int lineNumber;
+    private final int identifierStartIdx;
+    private final List<Integer> commaStartIndexes;
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations, int lineNumber) {
+            List<Annotation> annotations, int lineNumber, int identifierStartIdx, List<Integer> commaStartIndexes) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;
         this.annotations = Collections.unmodifiableList(annotations);
         this.lineNumber = lineNumber;
+        this.identifierStartIdx = identifierStartIdx;
+        this.commaStartIndexes = commaStartIndexes;
     }
 
     public MethodDescriptor getDescriptor() {
@@ -77,6 +81,14 @@ public class MethodStatement implements Statement {
         return lineNumber;
     }
 
+    public int getIdentifierStartIdx() {
+        return identifierStartIdx;
+    }
+
+    public List<Integer> getCommaStartIndexes() {
+        return commaStartIndexes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -88,12 +100,15 @@ public class MethodStatement implements Statement {
                 && Objects.equals(annotations, that.annotations)
                 && Objects.equals(returnQualifiedType, that.returnQualifiedType)
                 && Objects.equals(methodUsages, that.methodUsages)
-                && Objects.equals(lineNumber, that.lineNumber);
+                && Objects.equals(lineNumber, that.lineNumber)
+                && Objects.equals(identifierStartIdx, that.identifierStartIdx)
+                && Objects.equals(commaStartIndexes, that.commaStartIndexes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor, params, block, annotations, methodUsages);
+        return Objects.hash(descriptor, params, block, annotations, methodUsages, identifierStartIdx,
+                commaStartIndexes);
     }
 
     @Override
@@ -106,6 +121,8 @@ public class MethodStatement implements Statement {
                 .append("returnQualifiedType", returnQualifiedType)
                 .append("methodUsages", methodUsages)
                 .append("lineNumber", lineNumber)
+                .append("identifierStartIdx", identifierStartIdx)
+                .append("commaStartIndexes", commaStartIndexes)
                 .toString();
     }
 

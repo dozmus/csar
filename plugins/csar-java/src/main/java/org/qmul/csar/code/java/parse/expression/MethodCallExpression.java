@@ -7,7 +7,6 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -27,16 +26,19 @@ public class MethodCallExpression implements Expression {
      * Set during post-processing by {@link MethodCallTypeInstanceResolver}.
      */
     private List<TypeInstance> argumentTypes;
+    private int lParenStartIdx;
+    private int rParenStartIdx;
+    private List<Integer> commaStartIndexes;
 
-    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber) {
+    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber,
+            int lParenStartIdx, int rParenStartIdx, List<Integer> commaStartIndexes) {
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);
         this.path = path;
         this.lineNumber = lineNumber;
-    }
-
-    public MethodCallExpression(Expression methodName, Path path, int lineNumber) {
-        this(methodName, new ArrayList<>(), path, lineNumber);
+        this.lParenStartIdx = lParenStartIdx;
+        this.rParenStartIdx = rParenStartIdx;
+        this.commaStartIndexes = commaStartIndexes;
     }
 
     public Expression getMethodName() {
@@ -83,6 +85,18 @@ public class MethodCallExpression implements Expression {
         return name.getValue();
     }
 
+    public int getlParenStartIdx() {
+        return lParenStartIdx;
+    }
+
+    public int getrParenStartIdx() {
+        return rParenStartIdx;
+    }
+
+    public List<Integer> getCommaStartIndexes() {
+        return commaStartIndexes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -91,12 +105,15 @@ public class MethodCallExpression implements Expression {
         return Objects.equals(methodName, that.methodName)
                 && Objects.equals(arguments, that.arguments)
                 && Objects.equals(path, that.path)
-                && Objects.equals(lineNumber, that.lineNumber);
+                && Objects.equals(lineNumber, that.lineNumber)
+                && Objects.equals(lParenStartIdx, that.lParenStartIdx)
+                && Objects.equals(rParenStartIdx, that.rParenStartIdx)
+                && Objects.equals(commaStartIndexes, that.commaStartIndexes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, arguments, path, lineNumber);
+        return Objects.hash(methodName, arguments, path, lineNumber, lParenStartIdx, rParenStartIdx, commaStartIndexes);
     }
 
     @Override
@@ -106,6 +123,9 @@ public class MethodCallExpression implements Expression {
                 .append("arguments", arguments)
                 .append("path", path)
                 .append("lineNo", lineNumber)
+                .append("lParenStartIdx", lParenStartIdx)
+                .append("rParenStartIdx", rParenStartIdx)
+                .append("commaStartIndexes", commaStartIndexes)
                 .toString();
     }
 

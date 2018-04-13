@@ -5,7 +5,7 @@ import java.nio.file.Path;
 /**
  * A match from the searching performed by {@link org.qmul.csar.Csar}.
  */
-public final class Result {
+public class Result {
 
     private final Path path;
     private final int lineNumber;
@@ -16,7 +16,7 @@ public final class Result {
      *
      * @param path the path which contained this result
      * @param lineNumber the line at which the result was found
-     * @param codeFragment the code corresponding to the match
+     * @param codeFragment the result's code fragment
      */
     public Result(Path path, int lineNumber, String codeFragment) {
         this.path = path;

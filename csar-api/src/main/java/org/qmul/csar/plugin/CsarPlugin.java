@@ -39,6 +39,15 @@ public interface CsarPlugin {
     List<Result> search(CsarQuery csarQuery, int threadCount);
 
     /**
+     * Returns the results of refactoring the project code.
+     *
+     * @param csarQuery the csar query to search for
+     * @param searchResults the search results
+     * @return search results
+     */
+    List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults);
+
+    /**
      * Adds an error listener.
      *
      * @param errorListener the error listener

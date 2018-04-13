@@ -69,7 +69,8 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, path, 10);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, path, 10, 11, 16,
+                Arrays.asList(13));
 
         // Assert
         assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
@@ -80,7 +81,8 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                identifier("testSameClassRecursiveInstanceMethodCall"), new ArrayList<>(), path, 16);
+                identifier("testSameClassRecursiveInstanceMethodCall"), new ArrayList<>(), path, 16, 48, 49,
+                Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("A.java", "void testSameClassRecursiveInstanceMethodCall()", expectedMethodCall);
@@ -91,7 +93,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>(),
-                path, 20);
+                path, 20, 17, 18, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("A.java", "void staticAdd()", expectedMethodCall);
@@ -102,7 +104,8 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "T.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, path, 6);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("add"), args, path, 6, 11, 16,
+                Arrays.asList(13));
 
         // Assert
         assertContainsMethodCall("U.java", "int add(int,int)", expectedMethodCall);
@@ -113,7 +116,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "T.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("staticAdd"), new ArrayList<>(),
-                path, 10);
+                path, 10, 17, 18, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("U.java", "void staticAdd()", expectedMethodCall);
@@ -125,7 +128,7 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "V.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add2"), args,
-                path, 7);
+                path, 7, 14, 19, Arrays.asList(16));
 
         // Assert
         assertContainsMethodCall("U.java", "int add2(int,int)", expectedMethodCall);
@@ -137,7 +140,7 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "V.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add3"), args,
-                path, 11);
+                path, 11, 14, 19, Arrays.asList(16));
 
         // Assert
         assertContainsMethodCall("U.java", "int add3(int,int)", expectedMethodCall);
@@ -149,7 +152,7 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "W.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add4"), args,
-                path, 8);
+                path, 8, 14, 19, Arrays.asList(16));
 
         // Assert
         assertContainsMethodCall("U.java", "int add4(int,int)", expectedMethodCall);
@@ -161,7 +164,8 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         BinaryExpression call = new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("add5"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path, 6);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path, 6, 18, 23,
+                Arrays.asList(20));
 
         // Assert
         assertContainsMethodCall("U.java", "int add5(int,int)", expectedMethodCall);
@@ -173,33 +177,11 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         BinaryExpression call = new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("add6"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path, 10);
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path, 10, 17, 22,
+                Arrays.asList(19));
 
         // Assert
         assertContainsMethodCall("U.java", "int add6(int,int)", expectedMethodCall);
-    }
-
-    @Test
-    public void testMethodCallOnMethodCall() {
-        // Prepare
-        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
-        MethodCallExpression lhMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>(), path,
-                10);
-        List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        BinaryExpression call = new BinaryExpression(lhMethodCall, BinaryOperation.DOT, identifier("add7"));
-
-        // Prepare for the prior method call
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>(),
-                path, 10);
-
-        // Assert
-        assertContainsMethodCall("Z.java", "U otherAdd1()", expectedMethodCall);
-
-        // Prepare for the latter method call
-        expectedMethodCall = new MethodCallExpression(call, args, path, 10);
-
-        // Assert
-        assertContainsMethodCall("U.java", "int add7(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -208,7 +190,8 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("z")),
-                        BinaryOperation.DOT, identifier("test1")), new ArrayList<>(), path, 14);
+                        BinaryOperation.DOT, identifier("test1")), new ArrayList<>(), path, 14, 21, 22,
+                Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Z.java", "void test1()", expectedMethodCall);
@@ -220,10 +203,34 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("z")),
-                        BinaryOperation.DOT, identifier("test2")), new ArrayList<>(), path, 18);
+                        BinaryOperation.DOT, identifier("test2")), new ArrayList<>(), path, 18, 20, 21,
+                Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Z.java", "void test2()", expectedMethodCall);
+    }
+
+    @Test
+    public void testMethodCallOnMethodCall() {
+        // Prepare
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
+        MethodCallExpression lhMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>(), path,
+                10, 17, 18, Collections.emptyList());
+        List<Expression> args = Arrays.asList(literal("1"), literal("2"));
+        BinaryExpression call = new BinaryExpression(lhMethodCall, BinaryOperation.DOT, identifier("add7"));
+
+        // Prepare for the prior method call
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("otherAdd1"), new ArrayList<>(),
+                path, 10, 17, 18, Collections.emptyList());
+
+        // Assert
+        assertContainsMethodCall("Z.java", "U otherAdd1()", expectedMethodCall);
+
+        // Prepare for the latter method call
+        expectedMethodCall = new MethodCallExpression(call, args, path, 10, 24, 29, Arrays.asList(26));
+
+        // Assert
+        assertContainsMethodCall("U.java", "int add7(int,int)", expectedMethodCall);
     }
 
     @Test
@@ -233,7 +240,7 @@ public class MethodUseResolverTest {
         List<Expression> args = Arrays.asList(identifier("b"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")),
-                args, path, 8);
+                args, path, 8, 17, 19, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Class1.java", "void method2(A)", expectedMethodCall);
@@ -243,10 +250,11 @@ public class MethodUseResolverTest {
     public void testMethodCallWithSubtypeArgumentValue2() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A0.java");
-        List<Expression> args = Arrays.asList(new MethodCallExpression(identifier("getB"), path, 13));
+        List<Expression> args = Arrays.asList(new MethodCallExpression(identifier("getB"), new ArrayList<>(), path, 13,
+                22, 23, Collections.emptyList()));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")),
-                args, path, 13);
+                args, path, 13, 17, 24, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Class1.java", "void method2(A)", expectedMethodCall);
@@ -258,11 +266,11 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "A0.java");
         List<Expression> args = Arrays.asList(
                 new MethodCallExpression(new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("getB")),
-                        path, 18)
+                        new ArrayList<>(), path, 18, 27, 28, Collections.emptyList())
         );
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")),
-                args, path, 18);
+                args, path, 18, 17, 29, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Class1.java", "void method2(A)", expectedMethodCall);
@@ -274,7 +282,20 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
                 new BinaryExpression(identifier("V"), BinaryOperation.DOT, identifier("testLocalVariableMethodCall")),
-                new ArrayList<>(), path, 6);
+                new ArrayList<>(), path, 6, 37, 38, Collections.emptyList());
+
+        // Assert
+        assertContainsMethodCall("V.java", "void testLocalVariableMethodCall()", expectedMethodCall);
+    }
+
+    @Test
+    public void testStaticMethodCallOnFullyQualifiedName() {
+        // Expected method call
+        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
+        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+                new BinaryExpression(new BinaryExpression(identifier("base"), BinaryOperation.DOT, identifier("V")),
+                        BinaryOperation.DOT, identifier("testLocalVariableMethodCall")),
+                new ArrayList<>(), path, 10, 42, 43, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("V.java", "void testLocalVariableMethodCall()", expectedMethodCall);
@@ -286,7 +307,8 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         List<Expression> args = Arrays.asList(identifier("a"), identifier("b"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 18);
+                new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 18, 32,
+                37, Arrays.asList(34));
 
         // Assert
         assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
@@ -302,7 +324,8 @@ public class MethodUseResolverTest {
                 .build(),
                 Optional.empty(), new ArrayList<>(), new ArrayList<>(), false);
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                new BinaryExpression(classDef, BinaryOperation.DOT, identifier("add")), args, path, 24);
+                new BinaryExpression(classDef, BinaryOperation.DOT, identifier("add")), args, path, 24, 19, 24,
+                Arrays.asList(21));
 
         // Assert
         assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
@@ -314,7 +337,8 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         List<Expression> args = Arrays.asList(identifier("a"), identifier("d"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 33);
+                new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 33, 32,
+                37, Arrays.asList(34));
 
         // Assert
         assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
@@ -326,23 +350,11 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         List<Expression> args = Arrays.asList(identifier("i"), literal("5"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 42);
+                new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path, 42,
+                21, 26, Arrays.asList(23));
 
         // Assert
         assertContainsMethodCall("A.java", "int add(int,int)", expectedMethodCall);
-    }
-
-    @Test
-    public void testStaticMethodCallOnFullyQualifiedName() {
-        // Expected method call
-        Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                new BinaryExpression(new BinaryExpression(identifier("base"), BinaryOperation.DOT, identifier("V")),
-                        BinaryOperation.DOT, identifier("testLocalVariableMethodCall")),
-                new ArrayList<>(), path, 10);
-
-        // Assert
-        assertContainsMethodCall("V.java", "void testLocalVariableMethodCall()", expectedMethodCall);
     }
 
     @Test
@@ -350,7 +362,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test3"), new ArrayList<>(),
-                path, 34);
+                path, 34, 17, 18, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Z.java", "void test3()", expectedMethodCall);
@@ -362,7 +374,7 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
         List<Expression> args = Arrays.asList(identifier("number"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test4"), args,
-                path, 38);
+                path, 38, 17, 24, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Z.java", "void test4(int)", expectedMethodCall);
@@ -375,7 +387,7 @@ public class MethodUseResolverTest {
         List<Expression> args = Arrays.asList(new BinaryExpression(superKeyword(), BinaryOperation.DOT,
                 identifier("number")));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(identifier("test4"), args,
-                path, 42);
+                path, 42, 17, 30, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Z.java", "void test4(int)", expectedMethodCall);
@@ -387,27 +399,25 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
         List<Expression> args = Arrays.asList(literal("100"));
         MethodCallExpression expectedMethodCall = new MethodCallExpression(
-                new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("test4")), args, path, 46);
+                new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("test4")), args, path, 46,
+                23, 27, Collections.emptyList());
 
         // Assert
         assertContainsMethodCall("Z.java", "void test4(int)", expectedMethodCall);
     }
 
-    // TODO impl and test: interactions with super of super
-
     private static MethodStatement findMethod(String path, String methodSignature) {
         Statement code = MethodUseResolverTest.code.get(Paths.get(SAMPLES_DIRECTORY + path));
-        CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement)code;
-        ClassStatement clazz = (ClassStatement) compilationUnitStatement.getTypeStatement();
+        CompilationUnitStatement cus = (CompilationUnitStatement)code;
 
-        for (Statement statement : clazz.getBlock().getStatements()) {
-            if (statement instanceof MethodStatement) {
-                MethodStatement method = (MethodStatement)statement;
+        if (cus.getTypeStatement() instanceof ClassStatement) {
+            ClassStatement clazz = (ClassStatement) cus.getTypeStatement();
 
-                if (method.getDescriptor().signature().equals(methodSignature)) {
-                    return method;
-                }
-            }
+            return clazz.getBlock().getStatements().stream()
+                    .filter(s -> s instanceof MethodStatement)
+                    .map(s -> (MethodStatement)s)
+                    .filter(m -> m.getDescriptor().signature().equals(methodSignature))
+                    .findFirst().orElse(null);
         }
         return null;
     }

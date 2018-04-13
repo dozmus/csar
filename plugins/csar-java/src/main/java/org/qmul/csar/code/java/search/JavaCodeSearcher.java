@@ -9,7 +9,9 @@ import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.SearchType;
 import org.qmul.csar.query.TargetDescriptor;
+import org.qmul.csar.result.ExpressionResult;
 import org.qmul.csar.result.Result;
+import org.qmul.csar.result.StatementResult;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.qmul.csar.util.StringUtils;
@@ -121,7 +123,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
                         }
                         return false;
                     })
-                    .map(expr -> new Result(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode()))
+                    .map(expr -> new ExpressionResult(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode(), expr))
                     .collect(Collectors.toList());
             results.addAll(tmpResults);
         }
@@ -162,7 +164,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
 
         // Aggregate and return results
         return visitor.getResults()
-                .stream().map(s -> new Result(path, ((MethodStatement)s).getLineNumber(), s.toPseudoCode()))
+                .stream().map(s -> new StatementResult(path, ((MethodStatement)s).getLineNumber(), s.toPseudoCode(), s))
                 .collect(Collectors.toList());
     }
 

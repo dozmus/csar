@@ -88,6 +88,11 @@ public class CsarJavaPlugin implements CsarPlugin {
     }
 
     @Override
+    public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults) {
+        return null; // TODO impl
+    }
+
+    @Override
     public void addErrorListener(CsarErrorListener errorListener) {
         errorListeners.add(errorListener);
     }
@@ -103,11 +108,9 @@ public class CsarJavaPlugin implements CsarPlugin {
             try {
                 return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, ignoreFile,
                         factory);
-            } catch (IOException e) {
-                return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
+            } catch (IOException ignored) {
             }
-        } else {
-            return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
         }
+        return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
     }
 }
