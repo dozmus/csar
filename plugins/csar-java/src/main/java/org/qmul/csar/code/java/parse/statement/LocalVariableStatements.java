@@ -5,6 +5,7 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.LocalVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.*;
 
@@ -44,15 +45,13 @@ public class LocalVariableStatements implements Statement {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("locals", locals)
                 .toString();
     }
 
     /**
-     * Note: This assumes every element in {@link #locals} have the same annotations and final modifier (or lack of).
-     * @param indentation
-     * @return
+     * This assumes every element in {@link #locals} have the same annotations and final modifier (or lack of).
      */
     @Override
     public String toPseudoCode(int indentation) {

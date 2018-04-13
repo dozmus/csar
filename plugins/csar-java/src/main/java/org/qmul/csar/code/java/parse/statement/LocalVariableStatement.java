@@ -5,6 +5,7 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.LocalVariableDescriptor;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +57,7 @@ public class LocalVariableStatement implements Statement {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("descriptor", descriptor)
                 .append("valueExpression", valueExpression)
                 .append("annotations", annotations)

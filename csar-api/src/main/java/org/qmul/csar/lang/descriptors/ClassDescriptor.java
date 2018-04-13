@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Descriptor;
 import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.util.OptionalUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,7 +165,7 @@ public class ClassDescriptor implements Descriptor {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_MULTI_LINE_STYLE)
                 .append("identifierName", identifierName)
                 .append("visibilityModifier", visibilityModifier)
                 .append("staticModifier", staticModifier)

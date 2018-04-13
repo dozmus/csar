@@ -6,6 +6,7 @@ import org.qmul.csar.code.java.parse.statement.ExpressionStatement;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.Objects;
 
@@ -47,7 +48,7 @@ public class LambdaExpression implements Expression {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("parameter", parameter)
                 .append("value", value)
                 .toString();

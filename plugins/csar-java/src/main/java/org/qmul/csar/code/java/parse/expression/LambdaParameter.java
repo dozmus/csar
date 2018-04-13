@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +47,7 @@ public interface LambdaParameter extends Expression {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(this)
+            return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                     .append("identifier", identifier)
                     .toString();
         }
@@ -84,7 +85,7 @@ public interface LambdaParameter extends Expression {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(this)
+            return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                     .append("identifiers", identifiers)
                     .toString();
         }
@@ -132,7 +133,7 @@ public interface LambdaParameter extends Expression {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(this)
+            return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                     .append("variables", variables)
                     .toString();
         }

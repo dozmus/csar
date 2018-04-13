@@ -3,6 +3,7 @@ package org.qmul.csar.code.java.parse.statement;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +55,7 @@ public class TryStatement implements Statement {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("block", block)
                 .append("catches", catches)
                 .append("finallyBlock", finallyBlock)

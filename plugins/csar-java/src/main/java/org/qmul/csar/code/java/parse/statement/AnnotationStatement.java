@@ -6,6 +6,7 @@ import org.qmul.csar.lang.descriptors.VisibilityModifier;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +57,7 @@ public class AnnotationStatement implements TypeStatement {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("descriptor", descriptor)
                 .append("block", block)
                 .append("annotations", annotations)
@@ -156,7 +157,7 @@ public class AnnotationStatement implements TypeStatement {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(this)
+            return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                     .append("visibilityModifier", visibilityModifier)
                     .append("abstractModifier", abstractModifier)
                     .append("identifierName", identifierName)

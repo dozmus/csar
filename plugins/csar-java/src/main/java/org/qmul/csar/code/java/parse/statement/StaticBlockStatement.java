@@ -1,9 +1,9 @@
 package org.qmul.csar.code.java.parse.statement;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ public class StaticBlockStatement implements Statement {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_MULTI_LINE_STYLE)
                 .append("block", block)
                 .toString();
     }

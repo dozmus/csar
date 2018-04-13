@@ -5,6 +5,7 @@ import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallT
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -26,9 +27,9 @@ public class MethodCallExpression implements Expression {
      * Set during post-processing by {@link MethodCallTypeInstanceResolver}.
      */
     private List<TypeInstance> argumentTypes;
-    private int lParenStartIdx;
-    private int rParenStartIdx;
-    private List<Integer> commaStartIndexes;
+    private final int lParenStartIdx;
+    private final int rParenStartIdx;
+    private final List<Integer> commaStartIndexes;
 
     public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber,
             int lParenStartIdx, int rParenStartIdx, List<Integer> commaStartIndexes) {
@@ -118,7 +119,7 @@ public class MethodCallExpression implements Expression {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("methodName", methodName)
                 .append("arguments", arguments)
                 .append("path", path)

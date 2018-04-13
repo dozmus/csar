@@ -6,6 +6,7 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
+import org.qmul.csar.util.ToStringStyles;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +69,7 @@ public class InstantiateClassExpression implements Expression {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("descriptor", descriptor)
                 .append("block", block)
                 .append("arguments", arguments)
