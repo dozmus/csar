@@ -57,4 +57,16 @@ public class LoggingCsarErrorListener implements CsarErrorListener {
         LOGGER.error("Searching terminated {} because {}", path.getFileName().toString(), ex.getMessage());
         LOGGER.debug("Searching Error (Unrecoverable)", ex);
     }
+
+    @Override
+    public void errorRefactoring(Path path, Exception ex) {
+        LOGGER.warn("Failed to refactor file {} because {}", path.getFileName().toString(), ex.getMessage());
+        LOGGER.debug("Refactoring Error (Recoverable)", ex);
+    }
+
+    @Override
+    public void fatalErrorRefactoring(Path path, Exception ex) {
+        LOGGER.error("Refactoring terminated {} because {}", path.getFileName().toString(), ex.getMessage());
+        LOGGER.debug("Refactoring Error (Unrecoverable)", ex);
+    }
 }

@@ -23,6 +23,13 @@ public interface ProjectCodeSearcher {
     List<Result> results();
 
     /**
+     * Returns the refactor targets corresponding to the results of searching the project code.
+     *
+     * @return refactor targets corresponding to search results
+     */
+    List<RefactorTarget> refactorTargets();
+
+    /**
      * Sets the csar query to search for.
      *
      * @param csarQuery the csar query to search for

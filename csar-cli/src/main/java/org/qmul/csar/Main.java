@@ -27,6 +27,7 @@ public final class Main {
     public static final int EXIT_CODE_INITIALIZING = 5;
     public static final int EXIT_CODE_ERROR_POSTPROCESSING_CODE = 6;
     public static final int EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS = 7;
+    public static final int EXIT_CODE_ERROR_FORMATTING_REFACTOR_RESULTS = 8;
 
     /**
      * Application main method.
@@ -51,7 +52,7 @@ public final class Main {
             com.parse(args);
 
             // Set logging level
-            System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, ctx.getLogLevel().toString()); // TODO is this working properly with the new plugins stuff?
+            System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, ctx.getLogLevel().toString());
 
             // Print project url
             if (ctx.isPrintProjectUrl()) {
@@ -91,17 +92,26 @@ public final class Main {
         csar.parseCode();
         csar.postprocess();
         csar.searchCode();
+        csar.refactorCode();
 
         try {
-            List<Result> results = csar.getResults();
+            List<Result> results = csar.getSearchResults();
             logger.info("Search results: {}", results.size());
-            System.out.println(ctx.getResultFormatter().format(csar.getResults()));
+            System.out.println(ctx.getResultFormatter().format(results));
         } catch (Exception ex) {
             logger.error("Error formatting search results: " + ex.getMessage());
             System.exit(EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS);
         }
 
-        // TODO refactor
+
+        try {
+            List<Result> results = csar.getRefactorResults();
+            logger.info("Refactor results: {}", results.size());
+            System.out.println(ctx.getResultFormatter().format(results));
+        } catch (Exception ex) {
+            logger.error("Error formatting search results: " + ex.getMessage());
+            System.exit(EXIT_CODE_ERROR_FORMATTING_REFACTOR_RESULTS);
+        }
 
         // Fall-back: successful
         System.exit(EXIT_CODE_SUCCESS);

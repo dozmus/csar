@@ -12,6 +12,7 @@ import org.qmul.csar.lang.descriptors.VisibilityModifier;
 import org.qmul.csar.util.StringUtils;
 import org.qmul.csar.util.ToStringStyles;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,12 +36,14 @@ public class MethodStatement implements Statement {
      * Updated by {@link MethodUseResolver} in post-processing.
      */
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
+    private final Path path;
     private final int lineNumber;
     private final int identifierStartIdx;
     private final List<Integer> commaStartIndexes;
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations, int lineNumber, int identifierStartIdx, List<Integer> commaStartIndexes) {
+            List<Annotation> annotations, int lineNumber, int identifierStartIdx, List<Integer> commaStartIndexes,
+            Path path) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;
@@ -48,6 +51,7 @@ public class MethodStatement implements Statement {
         this.lineNumber = lineNumber;
         this.identifierStartIdx = identifierStartIdx;
         this.commaStartIndexes = commaStartIndexes;
+        this.path = path;
     }
 
     public MethodDescriptor getDescriptor() {
@@ -90,6 +94,10 @@ public class MethodStatement implements Statement {
         return commaStartIndexes;
     }
 
+    public Path getPath() {
+        return path;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -103,13 +111,14 @@ public class MethodStatement implements Statement {
                 && Objects.equals(methodUsages, that.methodUsages)
                 && Objects.equals(lineNumber, that.lineNumber)
                 && Objects.equals(identifierStartIdx, that.identifierStartIdx)
-                && Objects.equals(commaStartIndexes, that.commaStartIndexes);
+                && Objects.equals(commaStartIndexes, that.commaStartIndexes)
+                && Objects.equals(path, that.path);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor, params, block, annotations, methodUsages, identifierStartIdx,
-                commaStartIndexes);
+        return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages,
+                identifierStartIdx, commaStartIndexes, path);
     }
 
     @Override
@@ -124,6 +133,7 @@ public class MethodStatement implements Statement {
                 .append("lineNumber", lineNumber)
                 .append("identifierStartIdx", identifierStartIdx)
                 .append("commaStartIndexes", commaStartIndexes)
+                .append("path", path)
                 .toString();
     }
 

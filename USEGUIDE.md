@@ -42,3 +42,4 @@ e.g. `SELECT method:def:add(int,int)` will find all method definitions with two 
 | 5 | Error initializing csar. |
 | 6 | Error post-processing code files. |
 | 7 | Error formatting search results. |
+| 8 | Error formatting refactor results. |

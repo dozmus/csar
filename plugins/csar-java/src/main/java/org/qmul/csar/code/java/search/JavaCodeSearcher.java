@@ -2,16 +2,14 @@ package org.qmul.csar.code.java.search;
 
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
+import org.qmul.csar.code.RefactorTarget;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
-import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.SearchType;
 import org.qmul.csar.query.TargetDescriptor;
-import org.qmul.csar.result.ExpressionResult;
 import org.qmul.csar.result.Result;
-import org.qmul.csar.result.StatementResult;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.qmul.csar.util.StringUtils;
@@ -30,11 +28,13 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaCodeSearcher.class);
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final List<Result> results = Collections.synchronizedList(new ArrayList<>());
-    private ConcurrentIterator<Map.Entry<Path, Statement>> it;
+    private final List<RefactorTarget> refactorTargets = Collections.synchronizedList(new ArrayList<>());
+    private ConcurrentIterator<Map.Entry<Path, org.qmul.csar.lang.Statement>> it;
     private CsarQuery query;
 
     /**
      * Creates a new {@link JavaCodeSearcher} with the argument thread count.
+     *
      * @param threadCount the amount of threads to use
      */
     public JavaCodeSearcher(int threadCount) {
@@ -56,7 +56,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
      *
      * @param it the iterator whose contents to search
      */
-    public void setIterator(Iterator<Map.Entry<Path, Statement>> it) {
+    public void setIterator(Iterator<Map.Entry<Path, org.qmul.csar.lang.Statement>> it) {
         this.it = new ConcurrentIterator<>(Objects.requireNonNull(it));
     }
 
@@ -80,6 +80,11 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
     }
 
     @Override
+    public List<RefactorTarget> refactorTargets() {
+        return refactorTargets;
+    }
+
+    @Override
     public void addErrorListener(CsarErrorListener errorListener) {
         errorListeners.add(errorListener);
     }
@@ -96,16 +101,19 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
      * @param statement the parsed contents of the file being searched
      * @return returns search matches for method definitions
      */
-    private List<Result> methodUsageSearch(TargetDescriptor targetDescriptor, Statement statement) {
+    private InternalResult searchMethodUsage(TargetDescriptor targetDescriptor, org.qmul.csar.lang.Statement statement) {
         // Search
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
         visitor.visitStatement(statement);
 
         // Aggregate and return results
         List<Result> results = new ArrayList<>();
+        List<RefactorTarget> refactorTargets = new ArrayList<>();
 
-        for (Statement st : visitor.getResults()) {
+        for (org.qmul.csar.lang.Statement st : visitor.getResults()) {
             MethodStatement method = (MethodStatement)st;
+
+            // Create Results
             List<Result> tmpResults = method.getMethodUsages()
                     .stream()
                     .filter(expr -> {
@@ -123,11 +131,18 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
                         }
                         return false;
                     })
-                    .map(expr -> new ExpressionResult(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode(), expr))
+                    .map(expr -> new Result(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode())) // create Result
                     .collect(Collectors.toList());
             results.addAll(tmpResults);
+
+            // Create RefactorTargets (these are not restricted by search domain, or the output would be incorrect)
+            List<RefactorTarget> tmpRefactorTargets = method.getMethodUsages().stream()
+                    .map(RefactorTarget.Expression::new)
+                    .collect(Collectors.toList());
+            refactorTargets.add(new RefactorTarget.Statement(method));
+            refactorTargets.addAll(tmpRefactorTargets);
         }
-        return results;
+        return new InternalResult(results, refactorTargets);
     }
 
     /**
@@ -138,7 +153,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
      * @param statement the parsed contents of the file being searched
      * @return returns search matches for method definitions
      */
-    private List<Result> methodDefinitionSearch(TargetDescriptor targetDescriptor, Path path, Statement statement) {
+    private InternalResult searchMethodDefinition(TargetDescriptor targetDescriptor, Path path, org.qmul.csar.lang.Statement statement) {
         // From Query
         if (query.getFromTarget().size() > 0) {
             String fileNameWithoutExt = StringUtils.getFileNameWithoutExtension(path);
@@ -154,7 +169,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
 
             if (!valid) {
                 LOGGER.trace("Skipped {}", path);
-                return new ArrayList<>();
+                return new InternalResult(new ArrayList<>(), new ArrayList<>());
             }
         }
 
@@ -163,18 +178,28 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
         visitor.visitStatement(statement);
 
         // Aggregate and return results
-        return visitor.getResults()
-                .stream().map(s -> new StatementResult(path, ((MethodStatement)s).getLineNumber(), s.toPseudoCode(), s))
+        List<Result> results = visitor.getResults().stream()
+                .map(s -> new Result(path, ((MethodStatement)s).getLineNumber(), s.toPseudoCode()))
                 .collect(Collectors.toList());
+
+        // Create RefactorTargets (these are not restricted by search domain, or the output would be incorrect)
+        List<RefactorTarget> refactorTargets = new ArrayList<>();
+        visitor.getResults().stream()
+                .map(s -> (MethodStatement)s)
+                .forEach(m -> {
+                    refactorTargets.add(new RefactorTarget.Statement(m));
+                    m.getMethodUsages().forEach(mce -> refactorTargets.add(new RefactorTarget.Expression(mce)));
+                });
+        return new InternalResult(results, refactorTargets);
     }
 
     private class Task implements Runnable {
 
         @Override
         public void run() {
-            Map.Entry<Path, Statement> entry;
+            Map.Entry<Path, org.qmul.csar.lang.Statement> entry;
             Path file = null;
-            Statement statement;
+            org.qmul.csar.lang.Statement statement;
 
             try {
                 while (!Thread.currentThread().isInterrupted() && it.hasNext()) {
@@ -195,11 +220,18 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
                         Descriptor targetDescriptor = searchTarget.getDescriptor();
 
                         if (targetDescriptor instanceof MethodDescriptor) {
+                            InternalResult internalResult;
+
+                            // Get results for file
                             if (query.getSearchTarget().getSearchType().get() == SearchType.DEF) {
-                                results.addAll(methodDefinitionSearch(searchTarget, file, statement));
+                                internalResult = searchMethodDefinition(searchTarget, file, statement);
                             } else {
-                                results.addAll(methodUsageSearch(searchTarget, statement));
+                                internalResult = searchMethodUsage(searchTarget, statement);
                             }
+
+                            // Add to overall results
+                            results.addAll(internalResult.results);
+                            refactorTargets.addAll(internalResult.refactorChanges);
                         } else {
                             throw new UnsupportedOperationException("unsupported search target: "
                                     + targetDescriptor.getClass().getName());
@@ -214,6 +246,17 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
                 errorListeners.forEach(l -> l.fatalErrorSearching(finalFile, ex));
                 terminate();
             }
+        }
+    }
+
+    private static final class InternalResult {
+
+        private List<Result> results;
+        private List<RefactorTarget> refactorChanges;
+
+        InternalResult(List<Result> results, List<RefactorTarget> refactorChanges) {
+            this.results = results;
+            this.refactorChanges = refactorChanges;
         }
     }
 }

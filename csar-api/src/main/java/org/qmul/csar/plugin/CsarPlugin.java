@@ -43,9 +43,10 @@ public interface CsarPlugin {
      *
      * @param csarQuery the csar query to search for
      * @param searchResults the search results
+     * @param threadCount
      * @return search results
      */
-    List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults);
+    List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount);
 
     /**
      * Adds an error listener.

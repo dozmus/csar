@@ -49,7 +49,7 @@ public interface CsarErrorListener {
     /**
      * Reports a recoverable searching error.
      *
-     * @param path the file which was being parsed when the error occurred
+     * @param path the file which was being searched when the error occurred
      * @param ex the exception thrown
      */
     void errorSearching(Path path, Exception ex);
@@ -57,8 +57,24 @@ public interface CsarErrorListener {
     /**
      * Reports a fatal searching error.
      *
-     * @param path the file which was being parsed when the error occurred
+     * @param path the file which was being searched when the error occurred
      * @param ex the exception thrown
      */
     void fatalErrorSearching(Path path, Exception ex);
+
+    /**
+     * Reports a recoverable refactoring error.
+     *
+     * @param path the file which was being refactored when the error occurred
+     * @param ex the exception thrown
+     */
+    void errorRefactoring(Path path, Exception ex);
+
+    /**
+     * Reports a fatal refactoring error.
+     *
+     * @param path the file which was being refactored when the error occurred
+     * @param ex the exception thrown
+     */
+    void fatalErrorRefactoring(Path path, Exception ex);
 }

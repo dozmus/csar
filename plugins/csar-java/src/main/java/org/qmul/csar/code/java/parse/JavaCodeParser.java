@@ -462,7 +462,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
         return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
-                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes);
+                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes, path);
     }
 
     private MethodStatement parseInterfaceMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
@@ -515,7 +515,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
         return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
-                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes);
+                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes, path);
     }
 
     private ConstructorStatement parseConstructor(TerminalNode identifier, List<JavaParser.ModifierContext> modifiers,

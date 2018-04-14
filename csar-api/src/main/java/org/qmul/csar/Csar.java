@@ -25,7 +25,8 @@ public class Csar {
     private final Path ignoreFile;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private CsarQuery csarQuery;
-    private List<Result> results;
+    private List<Result> searchResults;
+    private ArrayList<Result> refactorResults;
     private boolean errorOccurred = false;
 
     /**
@@ -102,16 +103,30 @@ public class Csar {
     }
 
     /**
-     * Searching the project code on each underlying language-specific plugin.
+     * Searches the project code on each underlying language-specific plugin.
      */
     public void searchCode() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        results = new ArrayList<>();
+        searchResults = new ArrayList<>();
 
         CsarPluginLoader.getInstance().forEachPlugin(p -> {
             List<Result> results = p.search(csarQuery, threadCount);
-            this.results.addAll(results);
+            this.searchResults.addAll(results);
+        });
+    }
+
+    /**
+     * Refactors the project code on each underlying language-specific plugin.
+     */
+    public void refactorCode() {
+        if (errorOccurred)
+            throw new IllegalStateException("an error has occurred, csar cannot continue");
+        refactorResults = new ArrayList<>();
+
+        CsarPluginLoader.getInstance().forEachPlugin(p -> {
+            List<Result> results = p.refactor(csarQuery, searchResults, threadCount);
+            this.refactorResults.addAll(results);
         });
     }
 
@@ -122,10 +137,19 @@ public class Csar {
      *
      * @return search results.
      */
-    public List<Result> getResults() {
-        if (errorOccurred)
-            throw new IllegalStateException("an error has occurred, csar cannot continue");
-        return results;
+    public List<Result> getSearchResults() {
+        return searchResults;
+    }
+
+    /**
+     * Returns the refactor results, aggregated from each underlying language-specific plugin.
+     * This will be a partial list if an unrecoverable error occurred while searching, and <tt>null</tt> if searching
+     * was never initiated.
+     *
+     * @return refactor results.
+     */
+    public List<Result> getRefactorResults() {
+        return refactorResults;
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.qmul.csar;
 
-import org.qmul.csar.code.CodePostProcessor;
-import org.qmul.csar.code.ProjectCodeSearcher;
+import org.qmul.csar.code.*;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
@@ -10,6 +9,7 @@ import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
 import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.java.refactor.JavaCodeRefactorer;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
@@ -32,8 +32,9 @@ import java.util.Map;
  */
 public class CsarJavaPlugin implements CsarPlugin {
 
-    private Map<Path, Statement> code;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private Map<Path, Statement> code;
+    private List<RefactorTarget> refactorTargets;
 
     @Override
     public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
@@ -84,12 +85,16 @@ public class CsarJavaPlugin implements CsarPlugin {
         searcher.setCsarQuery(csarQuery);
         searcher.setIterator(code.entrySet().iterator());
         errorListeners.forEach(searcher::addErrorListener);
+        refactorTargets = searcher.refactorTargets();
         return searcher.results();
     }
 
     @Override
-    public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults) {
-        return null; // TODO impl
+    public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount) {
+        ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount);
+        refactorer.setRefactorDescriptor(csarQuery.getRefactorDescriptor().orElseThrow(IllegalArgumentException::new));
+        refactorer.setSearchResults(refactorTargets);
+        return refactorer.results();
     }
 
     @Override

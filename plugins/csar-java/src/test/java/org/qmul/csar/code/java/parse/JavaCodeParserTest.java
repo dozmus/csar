@@ -44,6 +44,8 @@ public final class JavaCodeParserTest {
      * Returns a <tt>TypeStatement</tt> representing the contents of 'Sample1.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      */
     private static TypeStatement sample1() {
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Sample1.java");
+
         // Constructor #1
         ConstructorStatement constructor1 = new ConstructorStatement.Builder("Sample1")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
@@ -97,7 +99,7 @@ public final class JavaCodeParserTest {
                 .hasParameters(true)
                 .stub(true)
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>(), 16, 25,
-                Arrays.asList(42));
+                Arrays.asList(42), path);
 
         // Method #2
         ReturnStatement returnSt = new ReturnStatement(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "result"));
@@ -108,7 +110,7 @@ public final class JavaCodeParserTest {
                 .parameterCount(0)
                 .hasParameters(false)
                 .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(returnSt)), new ArrayList<>(), 18, 24,
-                Collections.emptyList());
+                Collections.emptyList(), path);
 
         // Method #3
         LocalVariableStatements local = createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("k")
@@ -133,7 +135,7 @@ public final class JavaCodeParserTest {
                 .hasTypeArguments(true)
                 .build(),
                 Arrays.asList(param31), new BlockStatement(Arrays.asList(local, assignmentExpr)), new ArrayList<>(),
-                22, 42, Collections.emptyList());
+                22, 42, Collections.emptyList(), path);
 
         // Top-level class
         ClassStatement clazz = new ClassStatement(ClassDescriptor.Builder.allFalse("Sample1")
@@ -179,7 +181,7 @@ public final class JavaCodeParserTest {
                 .parameterCount(1)
                 .hasParameters(true)
                 .build(), Arrays.asList(param1), new BlockStatement(Arrays.asList(methodCall1)), new ArrayList<>(), 7,
-                24, Collections.emptyList());
+                24, Collections.emptyList(), path);
 
         // Method #2
         ParameterVariableStatement param21 = createParameter("E", "level", false);
@@ -194,7 +196,7 @@ public final class JavaCodeParserTest {
                 .hasTypeArguments(true)
                 .stub(true)
                 .build(), Arrays.asList(param21, param22), BlockStatement.EMPTY, new ArrayList<>(), 11, 13,
-                Arrays.asList(26));
+                Arrays.asList(26), path);
 
         // Instance #1
         Expression methodName2 = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "generateName");
@@ -218,7 +220,7 @@ public final class JavaCodeParserTest {
                 .hasParameters(true)
                 .stub(true)
                 .build(), Arrays.asList(param31), BlockStatement.EMPTY, new ArrayList<>(), 15, 9,
-                Collections.emptyList());
+                Collections.emptyList(), path);
 
         // Top-level class
         BlockStatement block = new BlockStatement(Arrays.asList(var1, method1, method2, var2, method3));
@@ -255,7 +257,7 @@ public final class JavaCodeParserTest {
                 .returnType("void")
                 .stub(true)
                 .parameterCount(0)
-                .build(), 5, 17, Collections.emptyList());
+                .build(), 5, 17, Collections.emptyList(), path);
         ClassStatement localInterface = new ClassStatement(ClassDescriptor.Builder.allFalse("Runnable")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .local(true)
@@ -278,7 +280,7 @@ public final class JavaCodeParserTest {
                 .returnType("void")
                 .parameterCount(0)
                 .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(locals, methodCall1)), new ArrayList<>(),
-                9, 24, Collections.emptyList());
+                9, 24, Collections.emptyList(), path);
         ClassStatement localClass = new ClassStatement(ClassDescriptor.Builder.allFalse("A")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .local(true)
@@ -307,7 +309,7 @@ public final class JavaCodeParserTest {
                 .returnType("void")
                 .parameterCount(0)
                 .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(localInterface, localClass, locals2,
-                methodCall2)), new ArrayList<>(), 3, 9, Collections.emptyList());
+                methodCall2)), new ArrayList<>(), 3, 9, Collections.emptyList(), path);
 
         // Method #2
         MethodStatement parentClassMethod2 = new MethodStatement(MethodDescriptor.Builder.allFalse("work2")
@@ -317,7 +319,7 @@ public final class JavaCodeParserTest {
                 .thrownExceptions(Arrays.asList("IOException"))
                 .hasThrownExceptions(true)
                 .build(),
-                new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>(), 18, 9, Collections.emptyList());
+                new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>(), 18, 9, Collections.emptyList(), path);
 
         // Parent class
         return createTopLevelStatement(new ClassStatement(ClassDescriptor.Builder.allFalse("Sample4")
@@ -330,6 +332,8 @@ public final class JavaCodeParserTest {
      * Returns a <tt>TypeStatement</tt> representing the contents of 'Sample5.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      */
     private static TypeStatement sample5() {
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Sample5.java");
+
         // Inner interface
         ClassStatement innerInterface = createClass(ClassDescriptor.Builder.allFalse("A")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
@@ -346,7 +350,7 @@ public final class JavaCodeParserTest {
                 .parameters(params.stream().map(ParameterVariableStatement::getDescriptor).collect(Collectors.toList()))
                 .parameterCount(1)
                 .hasParameters(true)
-                .build(), params, BlockStatement.EMPTY, new ArrayList<>(), 9, 13, Collections.emptyList());
+                .build(), params, BlockStatement.EMPTY, new ArrayList<>(), 9, 13, Collections.emptyList(), path);
         ClassStatement innerClass = new ClassStatement(ClassDescriptor.Builder.allFalse("B")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .implementedInterfaces(Arrays.asList("A"))
@@ -398,6 +402,8 @@ public final class JavaCodeParserTest {
      * Returns a <tt>TypeStatement</tt> representing the contents of 'Sample8.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      */
     private static TypeStatement sample8() {
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Sample8.java");
+
         UnitExpression identifier1 = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "a");
         UnitExpression identifier2 = new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "b");
 
@@ -416,13 +422,13 @@ public final class JavaCodeParserTest {
         ReturnStatement return1 = new ReturnStatement(
                 new BinaryExpression(identifier1, BinaryOperation.ADD, identifier2));
         MethodStatement apply1 = new MethodStatement(interfaceMethodDesc, Arrays.asList(param1, param2),
-                new BlockStatement(Arrays.asList(return1)), new ArrayList<>(), 3, 16, Arrays.asList(31));
+                new BlockStatement(Arrays.asList(return1)), new ArrayList<>(), 3, 16, Arrays.asList(31), path);
         EnumConstantStatement const1 = createEnumConstant("PLUS", new BlockStatement(Arrays.asList(apply1)));
 
         ReturnStatement return2 = new ReturnStatement(
                 new BinaryExpression(identifier1, BinaryOperation.SUB, identifier2));
         MethodStatement apply2 = new MethodStatement(interfaceMethodDesc, Arrays.asList(param1, param2),
-                new BlockStatement(Arrays.asList(return2)), new ArrayList<>(), 8, 16, Arrays.asList(31));
+                new BlockStatement(Arrays.asList(return2)), new ArrayList<>(), 8, 16, Arrays.asList(31), path);
         EnumConstantStatement const2 = createEnumConstant("MINUS", new BlockStatement(Arrays.asList(apply2)));
 
         // Top-level enum
@@ -439,6 +445,8 @@ public final class JavaCodeParserTest {
      * Returns a <tt>TypeStatement</tt> representing the contents of 'Sample9.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      */
     private static TypeStatement sample9() {
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Sample9.java");
+
         // Constants
         EnumConstantStatement const1 = createEnumConstant("USD", Arrays.asList(literalUnit("1.10")));
         EnumConstantStatement const2 = createEnumConstant("GBP", Arrays.asList(literalUnit("1")));
@@ -470,7 +478,8 @@ public final class JavaCodeParserTest {
                 .returnType("double")
                 .parameterCount(0)
                 .build(), new ArrayList<>(), new BlockStatement(Arrays.asList(returnSt)), new ArrayList<>(), 11, 18,
-                Collections.emptyList());
+                Collections.emptyList(), path
+        );
 
         // Top-level enum
         BlockStatement block = new BlockStatement(Arrays.asList(const1, const2, variable, constructor, method));
@@ -571,7 +580,7 @@ public final class JavaCodeParserTest {
                 .parameterCount(1)
                 .hasParameters(true)
                 .build(), Arrays.asList(param), new BlockStatement(Arrays.asList(r1, r2, bo1, bo2, streamApiCall)),
-                new ArrayList<>(), 6, 23, Collections.emptyList());
+                new ArrayList<>(), 6, 23, Collections.emptyList(), path);
 
         // Top-level class
         List<ImportStatement> imports = Arrays.asList(new ImportStatement("p.a", false), new ImportStatement("p.b",
@@ -784,7 +793,8 @@ public final class JavaCodeParserTest {
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
                 .parameterCount(0)
-                .build(), new ArrayList<>(), new BlockStatement(b1), new ArrayList<>(), 11, 9, Collections.emptyList());
+                .build(), new ArrayList<>(), new BlockStatement(b1), new ArrayList<>(), 11, 9, Collections.emptyList(),
+                path);
 
         // Method #2
         List<Statement> b2 = new ArrayList<>();
@@ -862,7 +872,7 @@ public final class JavaCodeParserTest {
                 .returnType("void")
                 .parameterCount(0)
                 .build(), new ArrayList<>(), new BlockStatement(b2), new ArrayList<>(), 155, 9,
-                Collections.emptyList());
+                Collections.emptyList(), path);
 
         // Top-level class
         BlockStatement classBlock = new BlockStatement(Arrays.asList(
@@ -878,13 +888,15 @@ public final class JavaCodeParserTest {
      * Returns a <tt>TypeStatement</tt> representing the contents of 'Sample13.java' inside <tt>SAMPLES_DIRECTORY</tt>.
      */
     private static TypeStatement sample13() {
+        Path path = Paths.get(SAMPLES_DIRECTORY, "Sample13.java");
+
         // Inner class instantiation's method
         MethodStatement runMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("run")
                 .visibilityModifier(VisibilityModifier.PACKAGE_PRIVATE)
                 .returnType("void")
                 .parameterCount(0)
                 .build(),
-                new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>(), 5, 17, Collections.emptyList());
+                new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>(), 5, 17, Collections.emptyList(), path);
 
         // Inner class instantiation
         ExpressionStatement innerClassInstantiation = new ExpressionStatement(new InstantiateClassExpression(
@@ -899,7 +911,7 @@ public final class JavaCodeParserTest {
                 .parameterCount(0)
                 .build(),
                 new ArrayList<>(), new BlockStatement(Arrays.asList(innerClassInstantiation)), new ArrayList<>(), 3, 9,
-                Collections.emptyList());
+                Collections.emptyList(), path);
 
         // Class
         ClassStatement clazz = new ClassStatement(ClassDescriptor.Builder.allFalse("Sample13")
@@ -944,9 +956,9 @@ public final class JavaCodeParserTest {
     }
 
     private static MethodStatement createMethod(MethodDescriptor desc, int lineNumber, int identifierStartIdx,
-            List<Integer> commaStartIndexes) {
+            List<Integer> commaStartIndexes, Path path) {
         return new MethodStatement(desc, new ArrayList<>(), BlockStatement.EMPTY, new ArrayList<>(), lineNumber,
-                identifierStartIdx, commaStartIndexes);
+                identifierStartIdx, commaStartIndexes, path);
     }
 
     private static ClassStatement createClass(ClassDescriptor desc) {

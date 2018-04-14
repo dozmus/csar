@@ -9,12 +9,20 @@ import org.qmul.csar.query.TargetDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchStatementVisitor extends StatementVisitor {
+/**
+ * A {@link Statement} searcher, this currently only works on methods.
+ */
+class SearchStatementVisitor extends StatementVisitor {
 
     private final TargetDescriptor target;
     private final List<Statement> results = new ArrayList<>();
 
-    public SearchStatementVisitor(TargetDescriptor target) {
+    /**
+     * Creates a new SearchStatementVisitor.
+     *
+     * @param target the descriptor to search for
+     */
+    SearchStatementVisitor(TargetDescriptor target) {
         this.target = target;
     }
 
@@ -22,7 +30,7 @@ public class SearchStatementVisitor extends StatementVisitor {
     public void visitMethodStatement(MethodStatement statement) {
         super.visitMethodStatement(statement);
 
-        if (target.getDescriptor() instanceof MethodDescriptor && target.getDescriptor() instanceof MethodDescriptor) {
+        if (target.getDescriptor() instanceof MethodDescriptor) {
             MethodDescriptor desc = (MethodDescriptor)target.getDescriptor();
 
             if (statement.getDescriptor().lenientEquals(desc)) {

@@ -47,4 +47,14 @@ public class DefaultCsarErrorListener implements CsarErrorListener {
     public void fatalErrorSearching(Path path, Exception ex) {
         csar.setErrorOccurred();
     }
+
+    @Override
+    public void errorRefactoring(Path path, Exception ex) {
+
+    }
+
+    @Override
+    public void fatalErrorRefactoring(Path path, Exception ex) {
+        csar.setErrorOccurred();
+    }
 }
