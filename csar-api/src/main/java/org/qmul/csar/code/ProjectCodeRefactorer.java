@@ -26,11 +26,11 @@ public interface ProjectCodeRefactorer {
     void setRefactorDescriptor(RefactorDescriptor descriptor);
 
     /**
-     * Sets the search results to refactor upon.
+     * Sets the refactor targets to refactor upon.
      *
-     * @param searchResults the search results to refactor
+     * @param refactorTargets the refactor targets to refactor
      */
-    void setSearchResults(List<RefactorTarget> searchResults);
+    void setRefactorTargets(List<RefactorTarget> refactorTargets);
 
     /**
      * Adds an error listener.

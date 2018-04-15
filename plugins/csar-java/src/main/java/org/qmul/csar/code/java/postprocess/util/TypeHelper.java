@@ -5,6 +5,8 @@ import org.qmul.csar.util.StringUtils;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class TypeHelper {
 
@@ -199,5 +201,14 @@ public final class TypeHelper {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Returns the argument dimensions as dimensions-many pairs of square brackets.
+     */
+    public static String dimensionsToString(int dimensions) {
+        return IntStream.range(0, dimensions)
+                .mapToObj(i -> "[]")
+                .collect(Collectors.joining());
     }
 }

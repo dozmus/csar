@@ -9,6 +9,7 @@ import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.lang.descriptors.VisibilityModifier;
+import org.qmul.csar.util.FilePosition;
 import org.qmul.csar.util.StringUtils;
 import org.qmul.csar.util.ToStringStyles;
 
@@ -28,6 +29,12 @@ public class MethodStatement implements Statement {
     private final List<ParameterVariableStatement> params;
     private final BlockStatement block;
     private final List<Annotation> annotations;
+    private final int lineNumber;
+    private final int identifierStartIdx;
+    private final FilePosition lParenFilePosition;
+    private final FilePosition rParenFilePosition;
+    private final List<FilePosition> commaFilePositions;
+    private final Path path;
     /**
      * Updated by {@link MethodQualifiedTypeResolver} in post-processing.
      */
@@ -36,21 +43,19 @@ public class MethodStatement implements Statement {
      * Updated by {@link MethodUseResolver} in post-processing.
      */
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
-    private final Path path;
-    private final int lineNumber;
-    private final int identifierStartIdx;
-    private final List<Integer> commaStartIndexes;
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations, int lineNumber, int identifierStartIdx, List<Integer> commaStartIndexes,
-            Path path) {
+            List<Annotation> annotations, int lineNumber, int identifierStartIdx, FilePosition lParenFilePosition,
+            FilePosition rParenFilePosition, List<FilePosition> commaFilePositions, Path path) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;
         this.annotations = Collections.unmodifiableList(annotations);
         this.lineNumber = lineNumber;
         this.identifierStartIdx = identifierStartIdx;
-        this.commaStartIndexes = commaStartIndexes;
+        this.lParenFilePosition = lParenFilePosition;
+        this.rParenFilePosition = rParenFilePosition;
+        this.commaFilePositions = commaFilePositions;
         this.path = path;
     }
 
@@ -90,8 +95,16 @@ public class MethodStatement implements Statement {
         return identifierStartIdx;
     }
 
-    public List<Integer> getCommaStartIndexes() {
-        return commaStartIndexes;
+    public FilePosition getlParenFilePosition() {
+        return lParenFilePosition;
+    }
+
+    public FilePosition getrParenFilePosition() {
+        return rParenFilePosition;
+    }
+
+    public List<FilePosition> getCommaFilePositions() {
+        return commaFilePositions;
     }
 
     public Path getPath() {
@@ -111,14 +124,16 @@ public class MethodStatement implements Statement {
                 && Objects.equals(methodUsages, that.methodUsages)
                 && Objects.equals(lineNumber, that.lineNumber)
                 && Objects.equals(identifierStartIdx, that.identifierStartIdx)
-                && Objects.equals(commaStartIndexes, that.commaStartIndexes)
+                && Objects.equals(lParenFilePosition, that.lParenFilePosition)
+                && Objects.equals(rParenFilePosition, that.rParenFilePosition)
+                && Objects.equals(commaFilePositions, that.commaFilePositions)
                 && Objects.equals(path, that.path);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages,
-                identifierStartIdx, commaStartIndexes, path);
+                identifierStartIdx, lParenFilePosition, rParenFilePosition, commaFilePositions, path);
     }
 
     @Override
@@ -132,7 +147,9 @@ public class MethodStatement implements Statement {
                 .append("methodUsages", methodUsages)
                 .append("lineNumber", lineNumber)
                 .append("identifierStartIdx", identifierStartIdx)
-                .append("commaStartIndexes", commaStartIndexes)
+                .append("lParenFilePosition", lParenFilePosition)
+                .append("rParenFilePosition", rParenFilePosition)
+                .append("commaFilePositions", commaFilePositions)
                 .append("path", path)
                 .toString();
     }

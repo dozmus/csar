@@ -25,11 +25,11 @@ public class MethodCallExpressionIdentifierRefactorChange implements RefactorCha
 
     @Override
     public int startIndex() {
-        return e.getlParenStartIdx() - e.getMethodIdentifier().length();
+        return e.getLeftParenthesisPosition().getColumnNumber() - e.getMethodIdentifier().length();
     }
 
     @Override
     public int endIndex() {
-        return e.getlParenStartIdx();
+        return e.getLeftParenthesisPosition().getColumnNumber();
     }
 }

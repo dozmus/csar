@@ -15,6 +15,7 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.*;
+import org.qmul.csar.util.FilePosition;
 import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
 
 import java.io.IOException;
@@ -417,14 +418,16 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
     private MethodStatement parseMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> modifiers, JavaParser.FormalParameterListContext parameterCtx,
-            JavaParser.QualifiedNameListContext throwsCtx, JavaParser.BlockContext blockCtx) {
-        return parseMethod(identifier, returnType, modifiers, parameterCtx, throwsCtx, blockCtx, null);
+            JavaParser.QualifiedNameListContext throwsCtx, JavaParser.BlockContext blockCtx, TerminalNode lparen,
+            TerminalNode rparen) {
+        return parseMethod(identifier, returnType, modifiers, parameterCtx, throwsCtx, blockCtx, null,
+                lparen, rparen);
     }
 
     private MethodStatement parseMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> modifiers, JavaParser.FormalParameterListContext parameterCtx,
             JavaParser.QualifiedNameListContext throwsCtx, JavaParser.BlockContext blockCtx,
-            JavaParser.TypeParametersContext typeParametersCtx) {
+            JavaParser.TypeParametersContext typeParametersCtx, TerminalNode lparen, TerminalNode rparen) {
         MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, false);
 
         // Modifiers
@@ -439,9 +442,9 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
         // Parameters
         List<ParameterVariableStatement> params = parseParameters(parameterCtx);
-        List<Integer> paramsStartIndexes = parameterCtx == null ? Collections.emptyList()
+        List<FilePosition> paramsFilePositions = parameterCtx == null ? Collections.emptyList()
                 : parameterCtx.COMMA().stream()
-                        .map(c -> c.getSymbol().getCharPositionInLine())
+                        .map(c -> new FilePosition(c.getSymbol()))
                         .collect(Collectors.toList());
 
         // Body
@@ -462,21 +465,23 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
         return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
-                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes, path);
+                identifier.getSymbol().getCharPositionInLine(), new FilePosition(lparen.getSymbol()),
+                new FilePosition(rparen.getSymbol()), paramsFilePositions, path);
     }
 
     private MethodStatement parseInterfaceMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> intBodyMods, List<JavaParser.InterfaceMethodModifierContext> modifiers,
             JavaParser.FormalParameterListContext parameterCtx, JavaParser.QualifiedNameListContext throwsCtx,
-            JavaParser.BlockContext blockCtx) {
-        return parseInterfaceMethod(identifier, returnType, intBodyMods, modifiers, parameterCtx,
-                throwsCtx, blockCtx, null);
+            JavaParser.BlockContext blockCtx, TerminalNode lparen, TerminalNode rparen) {
+        return parseInterfaceMethod(identifier, returnType, intBodyMods, modifiers, parameterCtx, throwsCtx, blockCtx,
+                null, lparen, rparen);
     }
 
     private MethodStatement parseInterfaceMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
             List<JavaParser.ModifierContext> intBodyMods, List<JavaParser.InterfaceMethodModifierContext> modifiers,
             JavaParser.FormalParameterListContext parameterCtx, JavaParser.QualifiedNameListContext throwsCtx,
-            JavaParser.BlockContext blockCtx, JavaParser.TypeParametersContext typeParametersCtx) {
+            JavaParser.BlockContext blockCtx, JavaParser.TypeParametersContext typeParametersCtx, TerminalNode lparen,
+            TerminalNode rparen) {
         MethodDescriptor.Builder builder = methodBuilder(identifier, returnType, false);
 
         // Modifiers
@@ -492,9 +497,9 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
         // Parameters
         List<ParameterVariableStatement> params = parseParameters(parameterCtx);
-        List<Integer> paramsStartIndexes = parameterCtx == null ? Collections.emptyList()
+        List<FilePosition> paramsFilePositions = parameterCtx == null ? Collections.emptyList()
                 : parameterCtx.COMMA().stream()
-                        .map(c -> c.getSymbol().getCharPositionInLine())
+                        .map(c -> new FilePosition(c.getSymbol()))
                         .collect(Collectors.toList());
 
         // Body
@@ -515,7 +520,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
         return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
-                identifier.getSymbol().getCharPositionInLine(), paramsStartIndexes, path);
+                identifier.getSymbol().getCharPositionInLine(), new FilePosition(lparen.getSymbol()),
+                new FilePosition(rparen.getSymbol()), paramsFilePositions, path);
     }
 
     private ConstructorStatement parseConstructor(TerminalNode identifier, List<JavaParser.ModifierContext> modifiers,
@@ -764,22 +770,22 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
         // Fall-back: expression LPAREN expressionList? RPAREN
         if (ctx.expression().size() > 0) {
             Expression method = parseExpression(ctx.expression(0));
-            int lParenStartIdx = ctx.LPAREN().getSymbol().getCharPositionInLine();
-            int rParenStartIdx = ctx.RPAREN().getSymbol().getCharPositionInLine();
+            FilePosition lParenStartIdx = new FilePosition(ctx.LPAREN().getSymbol());
+            FilePosition rParenStartIdx = new FilePosition(ctx.RPAREN().getSymbol());
             int lineNo = ctx.LPAREN().getSymbol().getLine();
 
             // Parameters
             List<Expression> parameters = new ArrayList<>();
-            List<Integer> commaStartIndexes = Collections.emptyList();
+            List<FilePosition> commaFilePositions = Collections.emptyList();
 
             if (ctx.expressionList() != null) {
                 ctx.expressionList().expression().forEach(e -> parameters.add(parseExpression(e)));
-                commaStartIndexes = ctx.expressionList().COMMA().stream()
-                        .map(c -> c.getSymbol().getCharPositionInLine())
+                commaFilePositions = ctx.expressionList().COMMA().stream()
+                        .map(c -> new FilePosition(c.getSymbol().getLine(), c.getSymbol().getCharPositionInLine()))
                         .collect(Collectors.toList());
             }
             return new MethodCallExpression(method, parameters, path, lineNo, lParenStartIdx, rParenStartIdx,
-                    commaStartIndexes);
+                    commaFilePositions);
         }
         throw new IllegalArgumentException("invalid context: " + ctx.getText());
     }
@@ -1104,7 +1110,6 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
             } else if (anonDec != null) {
                 statements.add(parseAnnotationDefinition(parseNonTypeModifiers(ctx.modifier()), anonDec));
             } else { // multiDec
-                // TODO test this and make sure it works
                 JavaParser.AnnotationMethodRestContext methodRest = multiDec.annotationMethodRest();
                 List<Annotation> annotations = parseModifierAnnotations(ctx.modifier());
                 final String identifierType = typeDecl.typeType().getText();
@@ -1292,7 +1297,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                     throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         classBody.modifier(), method.formalParameters().formalParameterList(),
-                        method.qualifiedNameList(), method.methodBody().block());
+                        method.qualifiedNameList(), method.methodBody().block(), method.formalParameters().LPAREN(),
+                        method.formalParameters().RPAREN());
                 statements.add(methodStatement);
             } else if (genericMethod != null) { // generic method
                 method = genericMethod.methodDeclaration();
@@ -1300,7 +1306,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                     throw new RuntimeException("invalid method return type: null array");
                 MethodStatement methodStatement = parseMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         classBody.modifier(), method.formalParameters().formalParameterList(),
-                        method.qualifiedNameList(), method.methodBody().block(), genericMethod.typeParameters());
+                        method.qualifiedNameList(), method.methodBody().block(), genericMethod.typeParameters(),
+                        method.formalParameters().LPAREN(), method.formalParameters().RPAREN());
                 statements.add(methodStatement);
             } else if (field != null) { // field
                 final String identifierType = field.typeType().getText();
@@ -1401,7 +1408,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 MethodStatement methodStatement = parseInterfaceMethod(method.IDENTIFIER(), method.typeTypeOrVoid(),
                         intBody.modifier(), method.interfaceMethodModifier(),
                         method.formalParameters().formalParameterList(), method.qualifiedNameList(),
-                        method.methodBody().block());
+                        method.methodBody().block(), method.formalParameters().LPAREN(),
+                        method.formalParameters().RPAREN());
                 statements.add(methodStatement);
             } else if (genericMethod != null) { // generic method
                 if (!validateMethodContext(genericMethod))
@@ -1410,7 +1418,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                         genericMethod.typeTypeOrVoid(), intBody.modifier(),
                         genericMethod.interfaceMethodModifier(), genericMethod.formalParameters().formalParameterList(),
                         genericMethod.qualifiedNameList(), genericMethod.methodBody().block(),
-                        genericMethod.typeParameters());
+                        genericMethod.typeParameters(), genericMethod.formalParameters().LPAREN(),
+                        genericMethod.formalParameters().RPAREN());
                 statements.add(methodStatement);
             } else if (constDecl != null) { // constant
                 final String identifierType = constDecl.typeType().getText();

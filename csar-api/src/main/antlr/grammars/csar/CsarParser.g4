@@ -63,7 +63,7 @@ multiLineComment: MULTI_LINE_COMMENT (COLON JAVADOC)? (COLON S_QUOTE content S_Q
 
 // Refactor
 rename: RENAME COLON SPACE* identifierName;
-changeParameters: CHANGE_PARAMETERS COLON SPACE* (typeList | namedTypeList);
+changeParameters: CHANGE_PARAMETERS COLON SPACE* namedTypeList;
 
 // Helpers
 commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPACE)? (FINAL SPACE)?;

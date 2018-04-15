@@ -116,8 +116,10 @@ public final class CsarQueryFactoryTest {
 
         // Change parameters #2
         List<ParameterVariableDescriptor> parameters2 = new ArrayList<>();
-        parameters2.add(new ParameterVariableDescriptor(Optional.empty(), Optional.of("float"), Optional.empty()));
-        parameters2.add(new ParameterVariableDescriptor(Optional.empty(), Optional.of("String"), Optional.empty()));
+        parameters2.add(new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("f")),
+                Optional.of("float"), Optional.empty()));
+        parameters2.add(new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static("s")),
+                Optional.of("String"), Optional.empty()));
 
         MethodDescriptor method2 = new MethodDescriptor.Builder("add")
                 .staticModifier(true)
@@ -131,7 +133,7 @@ public final class CsarQueryFactoryTest {
         expected = new CsarQuery.Builder(new TargetDescriptor(Optional.of(SearchType.DEF), method2))
                 .refactor(new RefactorDescriptor.ChangeParameters(parameters2))
                 .build();
-        assertEquals("method:def:static int add(float, char) REFACTOR changeparam:float,String", expected);
+        assertEquals("method:def:static int add(float, char) REFACTOR changeparam:float f,String s", expected);
     }
 
     @Test

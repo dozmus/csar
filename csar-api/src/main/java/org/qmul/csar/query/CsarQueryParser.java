@@ -321,21 +321,15 @@ class CsarQueryParser extends CsarParserBaseListener {
             List<ParameterVariableDescriptor> parameters = new ArrayList<>();
             ChangeParametersContext cpc = ctx.changeParameters();
 
-            if (cpc.typeList() != null) {
-                for (TypeContext type : cpc.typeList().type()) {
-                    parameters.add(new ParameterVariableDescriptor(Optional.empty(), Optional.of(type.getText()),
-                            Optional.empty()));
-                }
-            } else { // namedTypeList
-                NamedTypeListContext params = cpc.namedTypeList();
+            // namedTypeList
+            NamedTypeListContext params = cpc.namedTypeList();
 
-                if (params.type().size() != params.identifierName().size()) {
-                    throw new RuntimeException("syntax error parsing csar query named type list");
-                }
+            if (params.type().size() != params.identifierName().size()) {
+                throw new RuntimeException("syntax error parsing csar query named type list");
+            }
 
-                for (int i = 0; i < params.type().size(); i++) {
-                    parameters.add(parseParameterVariableDescriptor(params.identifierName(i), params.type(i), null));
-                }
+            for (int i = 0; i < params.type().size(); i++) {
+                parameters.add(parseParameterVariableDescriptor(params.identifierName(i), params.type(i), null));
             }
             return new RefactorDescriptor.ChangeParameters(parameters);
         } else { // rename

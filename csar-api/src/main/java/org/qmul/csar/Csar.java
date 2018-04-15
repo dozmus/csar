@@ -89,8 +89,13 @@ public class Csar {
     public void parseCode() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        CsarPluginLoader.getInstance().forEachPlugin(p -> p.parse(projectDirectory, narrowSearch, ignoreFile,
-                threadCount));
+        CsarPluginLoader.getInstance().forEachPlugin(p -> {
+            try {
+                p.parse(projectDirectory, narrowSearch, ignoreFile, threadCount);
+            } catch (Exception e) {
+                // do nothing, this is handled in the error listeners
+            }
+        });
     }
 
     /**

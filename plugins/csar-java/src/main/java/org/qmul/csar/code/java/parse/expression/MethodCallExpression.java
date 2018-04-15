@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.lang.Expression;
+import org.qmul.csar.util.FilePosition;
 import org.qmul.csar.util.StringUtils;
 import org.qmul.csar.util.ToStringStyles;
 
@@ -27,19 +28,20 @@ public class MethodCallExpression implements Expression {
      * Set during post-processing by {@link MethodCallTypeInstanceResolver}.
      */
     private List<TypeInstance> argumentTypes;
-    private final int lParenStartIdx;
-    private final int rParenStartIdx;
-    private final List<Integer> commaStartIndexes;
+    private final FilePosition leftParenthesisPosition;
+    private final FilePosition rightParenthesisPosition;
+    private final List<FilePosition> commaFilePositions;
 
     public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber,
-            int lParenStartIdx, int rParenStartIdx, List<Integer> commaStartIndexes) {
+            FilePosition leftParenthesisPosition, FilePosition rightParenthesisPosition,
+            List<FilePosition> commaFilePositions) {
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);
         this.path = path;
         this.lineNumber = lineNumber;
-        this.lParenStartIdx = lParenStartIdx;
-        this.rParenStartIdx = rParenStartIdx;
-        this.commaStartIndexes = commaStartIndexes;
+        this.leftParenthesisPosition = leftParenthesisPosition;
+        this.rightParenthesisPosition = rightParenthesisPosition;
+        this.commaFilePositions = commaFilePositions;
     }
 
     public Expression getMethodName() {
@@ -74,6 +76,18 @@ public class MethodCallExpression implements Expression {
         return argumentTypes;
     }
 
+    public FilePosition getLeftParenthesisPosition() {
+        return leftParenthesisPosition;
+    }
+
+    public FilePosition getRightParenthesisPosition() {
+        return rightParenthesisPosition;
+    }
+
+    public List<FilePosition> getCommaFilePositions() {
+        return commaFilePositions;
+    }
+
     public String getMethodIdentifier() {
         Expression expr = methodName;
 
@@ -86,18 +100,6 @@ public class MethodCallExpression implements Expression {
         return name.getValue();
     }
 
-    public int getlParenStartIdx() {
-        return lParenStartIdx;
-    }
-
-    public int getrParenStartIdx() {
-        return rParenStartIdx;
-    }
-
-    public List<Integer> getCommaStartIndexes() {
-        return commaStartIndexes;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -107,14 +109,15 @@ public class MethodCallExpression implements Expression {
                 && Objects.equals(arguments, that.arguments)
                 && Objects.equals(path, that.path)
                 && Objects.equals(lineNumber, that.lineNumber)
-                && Objects.equals(lParenStartIdx, that.lParenStartIdx)
-                && Objects.equals(rParenStartIdx, that.rParenStartIdx)
-                && Objects.equals(commaStartIndexes, that.commaStartIndexes);
+                && Objects.equals(leftParenthesisPosition, that.leftParenthesisPosition)
+                && Objects.equals(rightParenthesisPosition, that.rightParenthesisPosition)
+                && Objects.equals(commaFilePositions, that.commaFilePositions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, arguments, path, lineNumber, lParenStartIdx, rParenStartIdx, commaStartIndexes);
+        return Objects.hash(methodName, arguments, path, lineNumber, leftParenthesisPosition, rightParenthesisPosition,
+                commaFilePositions);
     }
 
     @Override
@@ -123,10 +126,12 @@ public class MethodCallExpression implements Expression {
                 .append("methodName", methodName)
                 .append("arguments", arguments)
                 .append("path", path)
-                .append("lineNo", lineNumber)
-                .append("lParenStartIdx", lParenStartIdx)
-                .append("rParenStartIdx", rParenStartIdx)
-                .append("commaStartIndexes", commaStartIndexes)
+                .append("lineNumber", lineNumber)
+                .append("methodSource", methodSource)
+                .append("argumentTypes", argumentTypes)
+                .append("leftParenthesisPosition", leftParenthesisPosition)
+                .append("rightParenthesisPosition", rightParenthesisPosition)
+                .append("commaFilePositions", commaFilePositions)
                 .toString();
     }
 

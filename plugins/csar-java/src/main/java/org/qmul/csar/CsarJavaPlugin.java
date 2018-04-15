@@ -22,10 +22,7 @@ import org.qmul.csar.result.Result;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The java language csar plugin.
@@ -37,7 +34,8 @@ public class CsarJavaPlugin implements CsarPlugin {
     private List<RefactorTarget> refactorTargets;
 
     @Override
-    public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
+    public Map<Path, Statement> parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
+            throws Exception {
         // Create iterator
         CodeParserFactory factory;
 
@@ -45,7 +43,7 @@ public class CsarJavaPlugin implements CsarPlugin {
             factory = new CodeParserFactory(JavaCodeParser.class);
         } catch (InstantiationException | IllegalAccessException ex) {
             errorListeners.forEach(l -> l.fatalInitializingParsing(ex));
-            return;
+            throw ex;
         }
         Iterator<Path> it = iterator(projectDirectory, narrowSearch, ignoreFile, factory);
 
@@ -53,6 +51,7 @@ public class CsarJavaPlugin implements CsarPlugin {
         DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it, threadCount);
         errorListeners.forEach(parser::addErrorListener);
         code = parser.results();
+        return code;
     }
 
     @Override
@@ -91,9 +90,9 @@ public class CsarJavaPlugin implements CsarPlugin {
 
     @Override
     public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount) {
-        ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount);
+        ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount, true);
         refactorer.setRefactorDescriptor(csarQuery.getRefactorDescriptor().orElseThrow(IllegalArgumentException::new));
-        refactorer.setSearchResults(refactorTargets);
+        refactorer.setRefactorTargets(refactorTargets);
         return refactorer.results();
     }
 

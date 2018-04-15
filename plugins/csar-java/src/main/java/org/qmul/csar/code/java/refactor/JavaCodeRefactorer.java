@@ -6,7 +6,6 @@ import org.qmul.csar.code.RefactorChange;
 import org.qmul.csar.code.RefactorTarget;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
-import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 import org.qmul.csar.query.RefactorDescriptor;
 import org.qmul.csar.result.Result;
 import org.qmul.csar.util.ConcurrentIterator;
@@ -14,8 +13,6 @@ import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -27,17 +24,20 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaCodeRefactorer.class);
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final List<Result> results = Collections.synchronizedList(new ArrayList<>());
+    private final boolean writeToFiles;
     private RefactorDescriptor refactorDescriptor;
-    private List<RefactorTarget> searchResults;
+    private List<RefactorTarget> refactorTargets;
     private ConcurrentIterator<Map.Entry<Path, List<RefactorChange>>> it;
 
     /**
      * Constructs a new {@link JavaCodeRefactorer} with the given arguments.
      *
      * @param threadCount the amount of threads to use
+     * @param writeToFiles if the refactor changes should be written to the files
      */
-    public JavaCodeRefactorer(int threadCount) {
+    public JavaCodeRefactorer(int threadCount, boolean writeToFiles) {
         super(threadCount, "csar-refactor");
+        this.writeToFiles = writeToFiles;
         setRunnable(new Task());
     }
 
@@ -64,7 +64,7 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
     private Map<Path, List<RefactorChange>> groupedRefactorChanges() {
         Map<Path, List<RefactorChange>> results = new HashMap<>();
 
-        for (RefactorTarget target : searchResults) {
+        for (RefactorTarget target : refactorTargets) {
             Path path = pathFromRefactorTarget(target);
             RefactorChange change = changeFromRefactorTarget(target);
 
@@ -95,7 +95,7 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
             if (refactorDescriptor instanceof RefactorDescriptor.Rename) {
                 return new MethodCallExpressionIdentifierRefactorChange(e);
             } else if (refactorDescriptor instanceof RefactorDescriptor.ChangeParameters) {
-                // TODO impl
+                return new MethodCallExpressionChangeParametersRefactorChange(e);
             }
         } else if (target instanceof RefactorTarget.Statement) {
             MethodStatement m = ((MethodStatement)((RefactorTarget.Statement) target).getStatement());
@@ -103,7 +103,7 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
             if (refactorDescriptor instanceof RefactorDescriptor.Rename) {
                 return new MethodStatementIdentifierRefactorChange(m);
             } else if (refactorDescriptor instanceof RefactorDescriptor.ChangeParameters) {
-                // TODO impl
+                return new MethodStatementChangeParametersRefactorChange(m);
             }
         }
         throw new RuntimeException("invalid refactor target type: " + target.getClass());
@@ -115,8 +115,8 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
     }
 
     @Override
-    public void setSearchResults(List<RefactorTarget> searchResults) {
-        this.searchResults = Objects.requireNonNull(searchResults);
+    public void setRefactorTargets(List<RefactorTarget> refactorTargets) {
+        this.refactorTargets = Objects.requireNonNull(refactorTargets);
     }
 
     @Override
@@ -127,48 +127,6 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
     @Override
     public void removeErrorListener(CsarErrorListener errorListener) {
         errorListeners.remove(errorListener);
-    }
-
-    private List<Result> refactorMethodRename(Path file, List<RefactorChange> changes) throws IOException {
-        // Sort changes to prevent indexes from being out of sync
-        changes.sort(new RenameComparator());
-
-        // Prepare to make changes
-        String newName = ((RefactorDescriptor.Rename) refactorDescriptor).getIdentifierName();
-        List<String> lines = Files.readAllLines(file);
-        List<Result> results = new ArrayList<>();
-
-        // Modify file
-        changes.forEach(r -> {
-            String result = rename(lines, newName, r);
-            results.add(new Result(file, r.lineNumber(), result));
-        });
-
-        // Write file
-        Files.write(file, lines);
-        return results;
-    }
-
-    private String rename(List<String> lines, String newName, RefactorChange r) {
-        int lineNo = r.lineNumber() - 1;
-        int startIdx = r.startIndex();
-        int endIdx = r.endIndex();
-
-        String code = lines.get(lineNo);
-        String p1 = code.substring(0, startIdx);
-        String p2 = code.substring(endIdx);
-        String newCode = p1 + newName + p2;
-        lines.set(lineNo, newCode);
-        LOGGER.info("Rename: {},{},{}: {} => {}", lineNo, startIdx, endIdx, code, newCode);
-        return newCode;
-    }
-
-    private List<Result> refactorMethodChangeParameters(Path file, List<RefactorChange> changes) {
-        List<ParameterVariableDescriptor> descriptors = ((RefactorDescriptor.ChangeParameters)refactorDescriptor)
-                .getDescriptors();
-
-        // TODO impl
-        return null;
     }
 
     private class Task implements Runnable {
@@ -194,14 +152,10 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
 
                     try {
                         // Refactor file and store the results
-                        if (refactorDescriptor instanceof RefactorDescriptor.Rename) {
-                            results.addAll(refactorMethodRename(file, searchResults));
-                        } else if (refactorDescriptor instanceof RefactorDescriptor.ChangeParameters) {
-                            results.addAll(refactorMethodChangeParameters(file, searchResults));
-                        } else {
-                            throw new UnsupportedOperationException("unsupported refactor target: "
-                                    + refactorDescriptor.getClass().getName());
-                        }
+                        List<Result> tmpResults = RefactorerFactory.create(refactorDescriptor, writeToFiles)
+                                .refactor(file, searchResults);
+                        results.addAll(tmpResults);
+
                     } catch (RuntimeException ex) {
                         Path finalFile = file;
                         errorListeners.forEach(l -> l.errorRefactoring(finalFile, ex));
@@ -212,17 +166,6 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
                 errorListeners.forEach(l -> l.fatalErrorRefactoring(finalFile, ex));
                 terminate();
             }
-        }
-    }
-
-    /**
-     * A comparator for renaming refactoring. This sorts in descending order using the identifier name's start index.
-     */
-    private static final class RenameComparator implements Comparator<RefactorChange> {
-
-        @Override
-        public int compare(RefactorChange o1, RefactorChange o2) {
-            return o2.startIndex() - o1.startIndex();
         }
     }
 }

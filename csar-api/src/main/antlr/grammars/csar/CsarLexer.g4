@@ -57,7 +57,7 @@ THROWS: 'throws';
 
 // Refactor
 RENAME: 'rename';
-CHANGE_PARAMETERS: 'changeparam';
+CHANGE_PARAMETERS: 'changeparam' | 'changeparams';
 
 // Misc
 TRANSIENT: 'transient';

@@ -1,11 +1,13 @@
 package org.qmul.csar.plugin;
 
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.result.Result;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Csar implementation for a specific language.
@@ -13,14 +15,15 @@ import java.util.List;
 public interface CsarPlugin {
 
     /**
-     * Parses the project code.
+     * Returns the parsed project code.
      *
      * @param projectDirectory the project directory
      * @param narrowSearch if the search domain should be narrowed
      * @param ignoreFile the csar ignore file to use
      * @param threadCount the amount of threads to use
      */
-    void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount);
+    Map<Path, Statement> parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
+            throws Exception;
 
     /**
      * Post-processes the code.

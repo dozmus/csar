@@ -1,6 +1,5 @@
 package org.qmul.csar.code.parse;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -34,7 +33,7 @@ public class CodeParserFactory {
      * @throws InstantiationException if the parser class cannot be instantiated
      * @throws IllegalAccessException if the parser class cannot be accessed
      */
-    public CodeParser create(Path file) throws IOException, InstantiationException, IllegalAccessException {
+    public CodeParser create(Path file) throws InstantiationException, IllegalAccessException {
         if (Files.isDirectory(file)) {
             throw new IllegalArgumentException("path must not be a directory");
         }
