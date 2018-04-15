@@ -122,6 +122,12 @@ public class Csar {
     public void refactorCode() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
+
+        csarQuery.getRefactorDescriptor().ifPresent(r -> {
+            for (String warning : r.warnings()) {
+                LOGGER.info(warning);
+            }
+        });
         refactorResults = new ArrayList<>();
 
         CsarPluginLoader.getInstance().forEachPlugin(p -> {

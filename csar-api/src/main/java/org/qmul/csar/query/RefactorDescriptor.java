@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A description of a refactor.
+ */
 public interface RefactorDescriptor {
 
     /**
@@ -17,6 +20,11 @@ public interface RefactorDescriptor {
      * returns <tt>true</tt> if this descriptor is a valid target for this refactor.
      */
     boolean validate(TargetDescriptor desc);
+
+    /**
+     * Returns an array of warning messages, containing possible side-effects of this refactor.
+     */
+    String[] warnings();
 
     class Rename implements RefactorDescriptor {
 
@@ -37,6 +45,13 @@ public interface RefactorDescriptor {
             return descriptor instanceof ClassDescriptor || descriptor instanceof MethodDescriptor
                     || descriptor instanceof EnumDescriptor || descriptor instanceof AbstractVariableDescriptor
                     || descriptor instanceof AnnotationDescriptor;
+        }
+
+        @Override
+        public String[] warnings() {
+            return new String[] {
+                    "A method with the new name may exist in contexts where refactors occurred."
+            };
         }
 
         @Override
@@ -75,6 +90,13 @@ public interface RefactorDescriptor {
         @Override
         public boolean validate(TargetDescriptor desc) {
             return desc.getDescriptor() instanceof MethodDescriptor;
+        }
+
+        @Override
+        public String[] warnings() {
+            return new String[] {
+                    "A method with the new parameters may exist in contexts where refactors occurred."
+            };
         }
 
         @Override
