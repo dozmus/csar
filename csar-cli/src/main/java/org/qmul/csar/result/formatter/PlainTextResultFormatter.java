@@ -10,7 +10,7 @@ import java.util.List;
 public final class PlainTextResultFormatter implements ResultFormatter {
 
     @Override
-    public String format(List<Result> results) throws Exception {
+    public String format(List<Result> results) {
         if (results.size() > 0) {
             StringBuilder sb = new StringBuilder();
 

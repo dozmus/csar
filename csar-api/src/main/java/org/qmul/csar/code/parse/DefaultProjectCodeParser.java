@@ -22,8 +22,8 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
     private final ConcurrentIterator<Path> it;
     private final ConcurrentHashMap<Path, Statement> results = new ConcurrentHashMap<>();
     private final TotalFileSizes totalFileSizes = new TotalFileSizes();
-    private List<CsarErrorListener> errorListeners = new ArrayList<>();
-    private CodeParserFactory factory;
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final CodeParserFactory factory;
 
     /**
      * Creates a new {@link DefaultProjectCodeParser} with the argument factory, iterator and a <tt>threadCount</tt> of

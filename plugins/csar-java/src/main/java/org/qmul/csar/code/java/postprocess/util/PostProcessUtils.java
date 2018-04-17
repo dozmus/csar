@@ -104,9 +104,9 @@ public final class PostProcessUtils {
     }
 
     /**
-     *
+     * Returns if the variable can be accessed from the given context, described by if its a child class, and what
+     * packages they each are in.
      * @param isChildClass if the context it's being accessed in, is a child class to where the variable is.
-     * @return
      */
     public static boolean isAccessible(VisibilityModifier variableVisibilityModifier, boolean isChildClass,
             Optional<PackageStatement> superPkg, Optional<PackageStatement> callerPkg) {

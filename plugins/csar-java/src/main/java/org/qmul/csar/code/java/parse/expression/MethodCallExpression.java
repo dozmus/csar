@@ -44,6 +44,15 @@ public class MethodCallExpression implements Expression {
         this.commaFilePositions = commaFilePositions;
     }
 
+    /**
+     * Creates a new MethodCallExpression instance with an empty list for {@link #commaFilePositions}.
+     */
+    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber,
+            FilePosition leftParenthesisPosition, FilePosition rightParenthesisPosition) {
+        this(methodName, arguments, path, lineNumber, leftParenthesisPosition, rightParenthesisPosition,
+                Collections.emptyList());
+    }
+
     public Expression getMethodName() {
         return methodName;
     }

@@ -42,4 +42,10 @@ public class CliCsarErrorListener extends LoggingCsarErrorListener {
         super.errorPostProcessing(ex);
         System.exit(Main.EXIT_CODE_ERROR_POSTPROCESSING_CODE);
     }
+
+    @Override
+    public void fatalErrorRefactoring(Path path, Exception ex) {
+        super.fatalErrorRefactoring(path, ex);
+        System.exit(Main.EXIT_CODE_ERROR_REFACTORING_CODE);
+    }
 }

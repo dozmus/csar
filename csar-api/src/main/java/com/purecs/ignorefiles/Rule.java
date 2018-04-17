@@ -24,10 +24,7 @@ public class Rule {
     }
 
     /**
-     *
-     * @param baseDirectory
-     * @param input
-     * @return
+     * Parses the arguments into a {@link Rule} instance.
      */
     public static Rule parse(String baseDirectory, String input) {
         // Source: https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js

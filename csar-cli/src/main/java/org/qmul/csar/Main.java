@@ -28,6 +28,7 @@ public final class Main {
     public static final int EXIT_CODE_ERROR_POSTPROCESSING_CODE = 6;
     public static final int EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS = 7;
     public static final int EXIT_CODE_ERROR_FORMATTING_REFACTOR_RESULTS = 8;
+    public static final int EXIT_CODE_ERROR_REFACTORING_CODE = 9;
 
     /**
      * Application main method.

@@ -24,11 +24,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith(value = Parameterized.class)
 public final class JavaCodeParserTest {
 
-    private static final BinaryExpression SYSTEM_OUT = new BinaryExpression(identifierUnit("System"),
-            BinaryOperation.DOT, identifierUnit("out"));
-    private static final BinaryExpression SOUT_PRINTLN = new BinaryExpression(SYSTEM_OUT, BinaryOperation.DOT,
-            identifierUnit("println"));
-
     /**
      * Directory of the java code files.
      */
@@ -103,7 +98,8 @@ public final class JavaCodeParserTest {
                 new FilePosition(16, 28), new FilePosition(16, 49), Arrays.asList(new FilePosition(16, 42)), path);
 
         // Method #2
-        ReturnStatement returnSt = new ReturnStatement(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "result"));
+        ReturnStatement returnSt = new ReturnStatement(
+                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "result"));
         MethodStatement method2 = new MethodStatement(MethodDescriptor.Builder.allFalse("getResult")
                 .visibilityModifier(VisibilityModifier.PROTECTED)
                 .finalModifier(true)
@@ -168,10 +164,10 @@ public final class JavaCodeParserTest {
                 new ArrayList<>(), Optional.of(literalUnit("1000")));
 
         // Method #1
-        Expression methodName = SOUT_PRINTLN;
+        Expression methodName = systemOutPrintln();
         List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "s"));
         ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments, path,
-                8, new FilePosition(8, 26), new FilePosition(8, 28), Collections.emptyList()));
+                8, new FilePosition(8, 26), new FilePosition(8, 28)));
 
         ParameterVariableStatement param1 = createParameter("String", "s", false);
         MethodStatement method1 = new MethodStatement(MethodDescriptor.Builder.allFalse("print")
@@ -210,7 +206,7 @@ public final class JavaCodeParserTest {
                 .finalModifier(false)
                 .build(),
                 new ArrayList<>(), Optional.of(new MethodCallExpression(methodName2, methodArgs, path, 13,
-                new FilePosition(13, 32), new FilePosition(13, 46), Collections.emptyList())));
+                new FilePosition(13, 32), new FilePosition(13, 46))));
 
         // Method #3
         ParameterVariableStatement param31 = createParameter("String[]", "$", false);
@@ -274,8 +270,8 @@ public final class JavaCodeParserTest {
         LocalVariableStatements locals = createLocals(local);
 
         List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "x"));
-        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN, arguments,
-                path, 11, new FilePosition(11, 34), new FilePosition(11, 36), Collections.emptyList()));
+        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(systemOutPrintln(), arguments,
+                path, 11, new FilePosition(11, 34), new FilePosition(11, 36)));
 
         MethodStatement innerClassMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("run")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
@@ -393,11 +389,11 @@ public final class JavaCodeParserTest {
      */
     private static TypeStatement sample7() {
         // Constants
-        EnumConstantStatement const1 = createEnumConstant("WINTER");
-        EnumConstantStatement const2 = createEnumConstant("SUMMER");
+        EnumConstantStatement winter = createEnumConstant("WINTER");
+        EnumConstantStatement summer = createEnumConstant("SUMMER");
 
         // Top-level enum
-        BlockStatement block = new BlockStatement(Arrays.asList(const1, const2));
+        BlockStatement block = new BlockStatement(Arrays.asList(winter, summer));
         EnumDescriptor desc = EnumDescriptor.Builder.allFalse("Season")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
                 .build();
@@ -596,8 +592,8 @@ public final class JavaCodeParserTest {
                 false));
         return new CompilationUnitStatement(Optional.empty(), imports,
                 new ClassStatement(ClassDescriptor.Builder.allFalse("Sample11")
-                .visibilityModifier(VisibilityModifier.PUBLIC)
-                .build(), new BlockStatement(Arrays.asList(mainMethod)), new ArrayList<>()));
+                        .visibilityModifier(VisibilityModifier.PUBLIC)
+                        .build(), new BlockStatement(Arrays.asList(mainMethod)), new ArrayList<>()));
     }
 
     /**
@@ -654,8 +650,8 @@ public final class JavaCodeParserTest {
         // Synchronized
         b1.add(new SynchronizedStatement(createParenExpr(thisUnit()),
                 createBlock(createMethodCallStatement("a", path, 55, 13, 14))));
-        b1.add(new SynchronizedStatement(createParenExpr(createMethodCall("getLock", path, 58, 29, 30,
-                Collections.emptyList())), createBlock(soutprintlnHelloWorld(path, 59, 30, 44))));
+        b1.add(new SynchronizedStatement(createParenExpr(createMethodCall("getLock", path, 58, 29, 30)),
+                createBlock(soutprintlnHelloWorld(path, 59, 30, 44))));
 
         // For-loop
         LocalVariableStatement localVarI = new LocalVariableStatement(new LocalVariableDescriptor.Builder("i")
@@ -683,9 +679,9 @@ public final class JavaCodeParserTest {
                 .identifierType("String")
                 .finalModifier(false)
                 .build(), Optional.empty(), new ArrayList<>()), identifierUnit("list"),
-                createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+                createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
                         Arrays.asList(identifierUnit("s")), path, 79, new FilePosition(79, 30),
-                        new FilePosition(79, 32), Collections.emptyList())))));
+                        new FilePosition(79, 32))))));
 
         b1.add(new ForEachStatement(new LocalVariableStatement(new LocalVariableDescriptor.Builder("t")
                 .identifierType("Type<K>")
@@ -699,10 +695,10 @@ public final class JavaCodeParserTest {
                 Optional.of(createBlock(createMethodCallStatement("b", path, 90, 13, 14)))));
 
         List<CatchStatement> catches1 = Arrays.asList(new CatchStatement(createLocals(
-                        new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
-                                .identifierType("Exception")
-                                .finalModifier(false)
-                                .build(), Optional.empty(), new ArrayList<>())), createBlock(
+                new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
+                        .identifierType("Exception")
+                        .finalModifier(false)
+                        .build(), Optional.empty(), new ArrayList<>())), createBlock(
                 createMethodCallStatement("error", path, 96, 17, 18))));
         b1.add(new TryStatement(createBlock(createMethodCallStatement("a", path, 94, 13, 14)), catches1,
                 Optional.of(createBlock(createMethodCallStatement("b", path, 98, 13, 14)))));
@@ -721,15 +717,14 @@ public final class JavaCodeParserTest {
                 Optional.empty()));
 
         // Try-with-resources
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
                 Arrays.asList(identifierUnit("s")), path, 109, new FilePosition(109, 30), new FilePosition(109, 32),
                 Collections.emptyList()))), new ArrayList<>(), Optional.empty(),
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
                         .identifierType("StringSupplier")
                         .finalModifier(false)
-                        .build(), Optional.of(createMethodCall("supplier", path, 108, 40, 41, Collections.emptyList())),
-                new ArrayList<>()))));
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+                        .build(), Optional.of(createMethodCall("supplier", path, 108, 40, 41)), new ArrayList<>()))));
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
                 Arrays.asList(identifierUnit("s")), path, 113, new FilePosition(113, 30), new FilePosition(113, 32),
                 Collections.emptyList()))),
                 Arrays.asList(new CatchStatement(createLocals(new LocalVariableStatement(
@@ -737,15 +732,14 @@ public final class JavaCodeParserTest {
                                 .identifierType("Exception")
                                 .finalModifier(false)
                                 .build(), Optional.empty(), new ArrayList<>())),
-                        createBlock(createMethodCallStatement("error", path, 115, 17, 18, Collections.emptyList())))),
+                        createBlock(createMethodCallStatement("error", path, 115, 17, 18)))),
                 Optional.empty(), createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
-                        .identifierType("StringSupplier")
-                        .finalModifier(false)
-                        .build(), Optional.of(createMethodCall("supplier", path, 112, 40, 41, Collections.emptyList())),
-                        new ArrayList<>()))));
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+                .identifierType("StringSupplier")
+                .finalModifier(false)
+                .build(), Optional.of(createMethodCall("supplier", path, 112, 40, 41)), new ArrayList<>()))));
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
                 Arrays.asList(identifierUnit("s")), path, 119, new FilePosition(119, 30),
-                new FilePosition(119, 32), Collections.emptyList()))),
+                new FilePosition(119, 32)))),
                 Arrays.asList(new CatchStatement(createLocals(
                         new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                                 .identifierType("Exception")
@@ -759,9 +753,8 @@ public final class JavaCodeParserTest {
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
                         .identifierType("StringSupplier")
                         .finalModifier(false)
-                        .build(), Optional.of(createMethodCall("supplier", path, 118, 40, 41, Collections.emptyList())),
-                        new ArrayList<>()))));
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+                        .build(), Optional.of(createMethodCall("supplier", path, 118, 40, 41)), new ArrayList<>()))));
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
                 Arrays.asList(identifierUnit("s")), path, 125, new FilePosition(125, 30), new FilePosition(125, 32),
                 Collections.emptyList()))),
                 Arrays.asList(new CatchStatement(createLocals(
@@ -773,13 +766,12 @@ public final class JavaCodeParserTest {
                                 .identifierType("RuntimeException")
                                 .finalModifier(false)
                                 .build(), Optional.empty(), new ArrayList<>())), createBlock(
-                                        createMethodCallStatement("error", path, 127, 17, 18)))), Optional.of(createBlock(
-                                                createMethodCallStatement("b", path, 129, 13, 14))),
+                        createMethodCallStatement("error", path, 127, 17, 18)))), Optional.of(createBlock(
+                createMethodCallStatement("b", path, 129, 13, 14))),
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
                         .identifierType("StringSupplier")
                         .finalModifier(false)
-                        .build(), Optional.of(createMethodCall("supplier", path, 124, 40, 41, Collections.emptyList())),
-                        new ArrayList<>()))));
+                        .build(), Optional.of(createMethodCall("supplier", path, 124, 40, 41)), new ArrayList<>()))));
 
         // Switch
         BlockStatement switchBlock1 = createBlock(
@@ -826,8 +818,8 @@ public final class JavaCodeParserTest {
         // Return
         b2.add(new ReturnStatement(Optional.empty()));
         b2.add(new ReturnStatement(Optional.of(new TernaryExpression(identifierUnit("a"),
-                        new BinaryExpression(createParenExpr(literalUnit("1_000")), BinaryOperation.MUL,
-                                literalUnit("1d")), literalUnit("300"))
+                new BinaryExpression(createParenExpr(literalUnit("1_000")), BinaryOperation.MUL,
+                        literalUnit("1d")), literalUnit("300"))
         )));
 
         // Throw
@@ -853,7 +845,7 @@ public final class JavaCodeParserTest {
                 .finalModifier(true)
                 .build(),
                 Optional.of(new ArrayExpression(Arrays.asList(literalUnit("1"), literalUnit("\"a\""),
-                        createMethodCall("supplier", path, 185, 32, 33, Collections.emptyList())))),
+                        createMethodCall("supplier", path, 185, 32, 33)))),
                 new ArrayList<>());
         b2.add(createLocals(localArrayVar1));
 
@@ -933,25 +925,6 @@ public final class JavaCodeParserTest {
         return new CompilationUnitStatement(Optional.empty(), new ArrayList<>(), clazz);
     }
 
-    @Parameterized.Parameters(name = "{index}: \"{1}\"")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {sample1(), "Sample1.java"},
-                {sample2(), "Sample2.java"},
-                {sample3(), "Sample3.java"},
-                {sample4(), "Sample4.java"},
-                {sample5(), "Sample5.java"},
-                {sample6(), "Sample6.java"},
-                {sample7(), "Sample7.java"},
-                {sample8(), "Sample8.java"},
-                {sample9(), "Sample9.java"},
-                {sample10(), "Sample10.java"},
-                {sample11(), "Sample11.java"},
-                {sample12(), "Sample12.java"},
-                {sample13(), "Sample13.java"}
-        });
-    }
-
     private static BlockStatement createBlock(Statement... block) {
         return new BlockStatement(Arrays.asList(block));
     }
@@ -1006,7 +979,7 @@ public final class JavaCodeParserTest {
 
     private static ExpressionStatement soutprintlnHelloWorld(Path path, int lineNumber, int lParenStartIdx,
             int rParenStartIdx) {
-        return new ExpressionStatement(new MethodCallExpression(SOUT_PRINTLN,
+        return new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
                 Arrays.asList(literalUnit("\"Hello World\"")), path, lineNumber,
                 new FilePosition(lineNumber, lParenStartIdx), new FilePosition(lineNumber, rParenStartIdx),
                 Collections.emptyList()));
@@ -1016,23 +989,16 @@ public final class JavaCodeParserTest {
             int lParenStartIdx, int rParenStartIdx) {
         return new ExpressionStatement(new MethodCallExpression(identifierUnit(identifier), Collections.emptyList(),
                 path, lineNumber, new FilePosition(lineNumber, lParenStartIdx),
-                new FilePosition(lineNumber, rParenStartIdx), Collections.emptyList()));
+                new FilePosition(lineNumber, rParenStartIdx)));
     }
 
-    private static ExpressionStatement createMethodCallStatement(String identifier, Path path, int lineNumber,
-            int lParenStartIdx, int rParenStartIdx, List<FilePosition> commaFilePositions) {
-        return new ExpressionStatement(new MethodCallExpression(identifierUnit(identifier), Collections.emptyList(),
-                path, lineNumber, new FilePosition(lineNumber, lParenStartIdx),
-                new FilePosition(lineNumber, rParenStartIdx), commaFilePositions));
-    }
-
-    private static Expression createMethodCall(String identifier, Path path, int lineNumber,
-            int lParenStartIdx, int rParenStartIdx, List<FilePosition> commaFilePositions) {
+    private static Expression createMethodCall(String identifier, Path path, int lineNumber, int lParenStartIdx,
+            int rParenStartIdx) {
         return new MethodCallExpression(identifierUnit(identifier), Collections.emptyList(), path, lineNumber,
                 new FilePosition(lineNumber, lParenStartIdx), new FilePosition(lineNumber, rParenStartIdx),
-                commaFilePositions);
+                Collections.emptyList());
     }
-    
+
     private static ParenthesisExpression createParenExpr(Expression e) {
         return new ParenthesisExpression(e);
     }
@@ -1049,6 +1015,34 @@ public final class JavaCodeParserTest {
         return new ExpressionStatement(new PostfixedExpression(identifierUnit(identifierName), postfix));
     }
 
+    private static BinaryExpression systemOutPrintln() {
+        BinaryExpression systemOut = new BinaryExpression(identifierUnit("System"),
+                BinaryOperation.DOT, identifierUnit("out"));
+        return new BinaryExpression(systemOut, BinaryOperation.DOT, identifierUnit("println"));
+    }
+
+    @Parameterized.Parameters(name = "{index}: \"{1}\"")
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {sample1(), "Sample1.java"},
+                {sample2(), "Sample2.java"},
+                {sample3(), "Sample3.java"},
+                {sample4(), "Sample4.java"},
+                {sample5(), "Sample5.java"},
+                {sample6(), "Sample6.java"},
+                {sample7(), "Sample7.java"},
+                {sample8(), "Sample8.java"},
+                {sample9(), "Sample9.java"},
+                {sample10(), "Sample10.java"},
+                {sample11(), "Sample11.java"},
+                {sample12(), "Sample12.java"},
+                {sample13(), "Sample13.java"}
+        });
+    }
+
+    /**
+     * Tests the current sample file parameter, this is set by {@link #data()}.
+     */
     @Test
     public void testValidJavaCode() throws IOException, IllegalAccessException, InstantiationException {
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);

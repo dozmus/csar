@@ -10,5 +10,8 @@ import java.util.Map;
  */
 public interface CodePostProcessor {
 
+    /**
+     * Post-processes the argument code base.
+     */
     void postprocess(Map<Path, Statement> code);
 }

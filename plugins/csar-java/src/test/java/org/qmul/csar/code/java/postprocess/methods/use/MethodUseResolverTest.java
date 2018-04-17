@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class MethodUseResolverTest {
@@ -60,7 +61,7 @@ public class MethodUseResolverTest {
      */
     private static void assertContainsMethodCall(String path, String methodSignature, MethodCallExpression expected) {
         MethodStatement methodStatement = findMethod(path, methodSignature);
-        assertTrue(methodStatement != null);
+        assertNotNull(methodStatement);
         List<MethodCallExpression> calls = methodStatement.getMethodUsages();
         assertTrue(calls.contains(expected));
     }

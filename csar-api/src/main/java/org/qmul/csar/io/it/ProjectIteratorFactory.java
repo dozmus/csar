@@ -50,7 +50,7 @@ public final class ProjectIteratorFactory {
                     it.init();
                 }
             }
-        } catch (RuntimeException ex) {
+        } catch (RuntimeException ignored) {
         }
 
         // if it is invalid then fall-back to regular iterator

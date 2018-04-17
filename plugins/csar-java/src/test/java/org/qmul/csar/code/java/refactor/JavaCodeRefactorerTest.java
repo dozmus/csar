@@ -1,7 +1,6 @@
 package org.qmul.csar.code.java.refactor;
 
 import org.junit.Test;
-import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.CsarJavaPlugin;
 import org.qmul.csar.code.ProjectCodeRefactorer;
 import org.qmul.csar.code.ProjectCodeSearcher;
@@ -138,16 +137,6 @@ public class JavaCodeRefactorerTest {
                     orElseThrow(IllegalArgumentException::new));
             refactorer.setRefactorTargets(refactorTargets);
             return refactorer.results();
-        }
-
-        @Override
-        public void addErrorListener(CsarErrorListener errorListener) {
-            super.addErrorListener(errorListener);
-        }
-
-        @Override
-        public void removeErrorListener(CsarErrorListener errorListener) {
-            super.removeErrorListener(errorListener);
         }
     }
 }

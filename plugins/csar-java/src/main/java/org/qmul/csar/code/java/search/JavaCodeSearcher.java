@@ -5,6 +5,7 @@ import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.RefactorTarget;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.lang.Descriptor;
+import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.SearchType;
@@ -29,7 +30,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final List<Result> results = Collections.synchronizedList(new ArrayList<>());
     private final List<RefactorTarget> refactorTargets = Collections.synchronizedList(new ArrayList<>());
-    private ConcurrentIterator<Map.Entry<Path, org.qmul.csar.lang.Statement>> it;
+    private ConcurrentIterator<Map.Entry<Path, Statement>> it;
     private CsarQuery query;
 
     /**
@@ -56,7 +57,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
      *
      * @param it the iterator whose contents to search
      */
-    public void setIterator(Iterator<Map.Entry<Path, org.qmul.csar.lang.Statement>> it) {
+    public void setIterator(Iterator<Map.Entry<Path, Statement>> it) {
         this.it = new ConcurrentIterator<>(Objects.requireNonNull(it));
     }
 
@@ -101,7 +102,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
      * @param statement the parsed contents of the file being searched
      * @return returns search matches for method definitions
      */
-    private InternalResult searchMethodUsage(TargetDescriptor targetDescriptor, org.qmul.csar.lang.Statement statement) {
+    private InternalResult searchMethodUsage(TargetDescriptor targetDescriptor, Statement statement) {
         // Search
         SearchStatementVisitor visitor = new SearchStatementVisitor(targetDescriptor);
         visitor.visitStatement(statement);
@@ -110,7 +111,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
         List<Result> results = new ArrayList<>();
         List<RefactorTarget> refactorTargets = new ArrayList<>();
 
-        for (org.qmul.csar.lang.Statement st : visitor.getResults()) {
+        for (Statement st : visitor.getResults()) {
             MethodStatement method = (MethodStatement)st;
 
             // Create Results
@@ -153,7 +154,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
      * @param statement the parsed contents of the file being searched
      * @return returns search matches for method definitions
      */
-    private InternalResult searchMethodDefinition(TargetDescriptor targetDescriptor, Path path, org.qmul.csar.lang.Statement statement) {
+    private InternalResult searchMethodDefinition(TargetDescriptor targetDescriptor, Path path, Statement statement) {
         // From Query
         if (query.getFromTarget().size() > 0) {
             String fileNameWithoutExt = StringUtils.getFileNameWithoutExtension(path);
@@ -197,9 +198,9 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
 
         @Override
         public void run() {
-            Map.Entry<Path, org.qmul.csar.lang.Statement> entry;
+            Map.Entry<Path, Statement> entry;
             Path file = null;
-            org.qmul.csar.lang.Statement statement;
+            Statement statement;
 
             try {
                 while (!Thread.currentThread().isInterrupted() && it.hasNext()) {
@@ -251,8 +252,8 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
 
     private static final class InternalResult {
 
-        private List<Result> results;
-        private List<RefactorTarget> refactorChanges;
+        private final List<Result> results;
+        private final List<RefactorTarget> refactorChanges;
 
         InternalResult(List<Result> results, List<RefactorTarget> refactorChanges) {
             this.results = results;

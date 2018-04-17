@@ -9,13 +9,13 @@ import static org.junit.Assert.assertEquals;
 public class StringUtilsTest {
 
     @Test
-    public void indentation() throws Exception {
+    public void indentation() {
         assertEquals("", StringUtils.indentation(0));
         assertEquals(StringUtils.INDENTATION_UNIT + StringUtils.INDENTATION_UNIT, StringUtils.indentation(2));
     }
 
     @Test
-    public void getFileNameWithoutExtension() throws Exception {
+    public void getFileNameWithoutExtension() {
         assertEquals("file", StringUtils.getFileNameWithoutExtension(Paths.get("file.txt")));
         assertEquals("file", StringUtils.getFileNameWithoutExtension(Paths.get("file")));
     }

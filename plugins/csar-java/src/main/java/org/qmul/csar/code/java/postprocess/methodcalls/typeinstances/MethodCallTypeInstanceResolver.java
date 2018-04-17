@@ -26,8 +26,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * A post-processor which attaches to each {@link org.qmul.csar.code.java.parse.expression.MethodCallExpression}
- * a {@link org.qmul.csar.code.java.postprocess.util.TypeInstance} for its source and all of its parameters.
+ * A post-processor which attaches to each {@link MethodCallExpression} a {@link TypeInstance} for its source and all
+ * of its parameters.
  */
 public class MethodCallTypeInstanceResolver implements CodePostProcessor {
 
@@ -95,7 +95,8 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
         }
 
         private void resolveMethodCall(MethodCallExpression expression) {
-            LOGGER.trace("Resolving method type instances: {} (line={})", expression.toPseudoCode(), expression.getLineNumber());
+            LOGGER.trace("Resolving method type instances: {} (line={})", expression.toPseudoCode(),
+                    expression.getLineNumber());
             resolve(expression);
         }
 

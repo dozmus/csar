@@ -17,7 +17,7 @@ public final class FilterableIteratorTest {
     private FilterableIterator<Path> it;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         List<Path> paths = new ArrayList<>();
         paths.add(Paths.get("./Main.java"));
         paths.add(Paths.get("./Super.java"));

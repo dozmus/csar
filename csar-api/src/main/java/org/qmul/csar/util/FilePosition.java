@@ -13,11 +13,11 @@ public class FilePosition {
     /**
      * Indexed from 1 to N.
      */
-    private int lineNumber;
+    private final int lineNumber;
     /**
      * Indexed from 0 to N.
      */
-    private int columnNumber;
+    private final int columnNumber;
 
     public FilePosition(int lineNumber, int columnNumber) {
         this.lineNumber = lineNumber;

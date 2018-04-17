@@ -13,14 +13,12 @@ import java.util.List;
 public final class MethodSignatureComparator {
 
     /**
-     * Returns <tt>true</tt> if the two lists have the same signature. This handles checking generic types, varargs
+     * Returns if the two lists have the same signature. This handles checking generic types, varargs
      * and subtypes in arguments as well.
      *
      * @param list1 parameters from a potential super class
-     * @param typeParameters1
      * @param list2 parameters from a potential child class
-     * @param typeParameters2
-     * @return <tt>true</tt> if the two lists have the same signature
+     * @return if the two lists have the same signature
      */
     public static boolean parametersSignatureEquals(List<ParameterVariableStatement> list1,
             List<String> typeParameters1, List<ParameterVariableStatement> list2, List<String> typeParameters2,
@@ -75,8 +73,6 @@ public final class MethodSignatureComparator {
      * Returns if this method's signature equals the argument one, the current method is treated as one from a
      * potential superclass. So the argument descriptor is accepted if its return type or parameter types are
      * subtypes of the super's.
-     * @param oMethod
-     * @return
      */
     public static boolean signatureEquals(MethodStatement method, MethodStatement oMethod,
             TypeHierarchyResolver typeHierarchyResolver) {

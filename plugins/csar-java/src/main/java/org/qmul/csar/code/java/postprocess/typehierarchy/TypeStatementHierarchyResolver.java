@@ -27,7 +27,7 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
     private final Path path;
     private final TypeStatement targetType;
     private final TypeStatement topStatement;
-    private TypeHierarchyResolver typeHierarchyResolver;
+    private final TypeHierarchyResolver typeHierarchyResolver;
     private String currentIdentifierName;
     private int nesting = 0;
 

@@ -57,7 +57,7 @@ public class ChangeParametersRefactorer implements Refactorer {
 
     private static String changeParameters(List<String> lines, List<ParameterVariableDescriptor> descriptors,
             RefactorChange r) {
-        LOGGER.info("changeParameters(lines, decriptors, {})", r.getClass().getSimpleName());
+        LOGGER.trace("changeParameters(lines, decriptors, {})", r.getClass().getSimpleName());
         List<String> newArgs = new ArrayList<>();
         List<TypeInstance> args;
         FilePosition lParen;
@@ -77,7 +77,7 @@ public class ChangeParametersRefactorer implements Refactorer {
                 ParameterVariableDescriptor newDescriptor = descriptors.get(i);
                 String type = arg.getType() + TypeHelper.dimensionsToString(arg.getDimensions());
                 String newType = newDescriptor.getIdentifierType().get();
-                LOGGER.info("modify existing args ({}): '{}' vs '{}'", i, type, newType);
+                LOGGER.trace("modify existing args ({}): '{}' vs '{}'", i, type, newType);
 
                 if (!type.equals(newType)) { // replace
                     newArgs.add(newDescriptor.getIdentifierName().get().toString());
@@ -91,7 +91,7 @@ public class ChangeParametersRefactorer implements Refactorer {
                 for (int i = args.size(); i < descriptors.size(); i++) {
                     ParameterVariableDescriptor newDescriptor = descriptors.get(i);
                     newArgs.add(newDescriptor.getIdentifierName().get().toString());
-                    LOGGER.info("add more ({}): '{}'", i, newDescriptor.getIdentifierName().get().toString());
+                    LOGGER.trace("add more ({}): '{}'", i, newDescriptor.getIdentifierName().get().toString());
                 }
             }
         } else if (r instanceof MethodStatementChangeParametersRefactorChange) {
@@ -111,7 +111,7 @@ public class ChangeParametersRefactorer implements Refactorer {
                 String identifier = mce.getParameters().get(i).getDescriptor().getIdentifierName().toString();
                 String newType = newDescriptor.getIdentifierType().get();
                 String newIdentifier = newDescriptor.getIdentifierName().get().toString();
-                LOGGER.info("modify existing args ({}): '{}' vs '{}'", i, type, newType);
+                LOGGER.trace("modify existing args ({}): '{}' vs '{}'", i, type, newType);
 
                 if (!type.equals(newType) || !identifier.equals(newIdentifier)) { // replace
                     newArgs.add(newType + " " + newIdentifier);
@@ -126,14 +126,14 @@ public class ChangeParametersRefactorer implements Refactorer {
                     ParameterVariableDescriptor newDescriptor = descriptors.get(i);
                     newArgs.add(newDescriptor.getIdentifierType().get() + " "
                             + newDescriptor.getIdentifierName().get().toString());
-                    LOGGER.info("add more ({}): '{}'", i, newDescriptor.getIdentifierType().get() + " "
+                    LOGGER.trace("add more ({}): '{}'", i, newDescriptor.getIdentifierType().get() + " "
                             + newDescriptor.getIdentifierName().get().toString());
                 }
             }
         } else {
             throw new IllegalArgumentException("invalid RefactorChange type: " + r.getClass().toString());
         }
-        LOGGER.info("newArgs.size() = {}", newArgs.size());
+        LOGGER.trace("newArgs.size() = {}", newArgs.size());
 
         // Apply changes
         // Remove all
@@ -193,7 +193,7 @@ public class ChangeParametersRefactorer implements Refactorer {
         // TODO check if change was made
         String newCode = substring(lines, lParen.getLineNumber() - 1, rParen.getLineNumber() - 1);
         newCode = StringUtils.stripEnd(newCode, "\r\n ");
-        LOGGER.info("ChangeParameters: ... => {}", newCode);
+        LOGGER.trace("ChangeParameters: ... => {}", newCode);
         return newCode;
     }
 

@@ -31,7 +31,7 @@ public class ProjectFileVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         return recursive ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
     }
 

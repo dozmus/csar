@@ -23,8 +23,7 @@ public class OverriddenMethodsResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
-    private static final TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver
-    );
+    private static final TypeHierarchyResolver typeHierarchyResolver = new TypeHierarchyResolver(qualifiedNameResolver);
     private static final MethodQualifiedTypeResolver methodQualifiedTypeResolver
             = new MethodQualifiedTypeResolver(qualifiedNameResolver);
     private static final OverriddenMethodsResolver resolver = new OverriddenMethodsResolver(qualifiedNameResolver,

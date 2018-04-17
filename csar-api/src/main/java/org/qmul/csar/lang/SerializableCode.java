@@ -7,6 +7,7 @@ public interface SerializableCode {
 
     /**
      * Returns {@link #toPseudoCode(int)} with indentation 0.
+     *
      * @return returns pseudocode with indentation 0.
      */
     default String toPseudoCode() {
@@ -14,7 +15,8 @@ public interface SerializableCode {
     }
 
     /**
-     * Returns {@link #toPseudoCode(int)} with the argument indentation.
+     * Returns pseudo-code of this object with the argument indentation count.
+     *
      * @param indentation the amount of indentation before each line
      * @return returns pseudocode with the argument indentation.
      */

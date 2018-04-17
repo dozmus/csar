@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public class DefaultCsarErrorListener implements CsarErrorListener {
 
-    private Csar csar;
+    private final Csar csar;
 
     public DefaultCsarErrorListener(Csar csar) {
         this.csar = csar;

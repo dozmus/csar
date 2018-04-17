@@ -60,9 +60,6 @@ public final class TypeHelper {
      * Returns the type with its generic types resolved.
      * e.g. If type is "Class<E, V>" and typeParameters are "E extends String" and "V super E" then it returns
      * "Class<String, String>".
-     * @param type
-     * @param typeParameters
-     * @return
      */
     public static String resolveGenericTypes(String type, List<String> typeParameters) {
         // Erase bounds on generics

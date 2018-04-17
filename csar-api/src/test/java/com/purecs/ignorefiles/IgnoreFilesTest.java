@@ -32,7 +32,7 @@ public class IgnoreFilesTest {
     }
 
     @Test
-    public void testFileInput() throws Exception {
+    public void testFileInput() {
         assertIgnored(Paths.get("code.java"), "*.java");
         assertIgnored(Paths.get("code"), "*");
         assertIgnored(Paths.get("code"), "code");
@@ -110,7 +110,7 @@ public class IgnoreFilesTest {
     }
 
     @Test
-    public void testDirectoryInput() throws Exception {
+    public void testDirectoryInput() {
         assertIgnored(Paths.get("code", "a.java"), "code/**");
         assertIgnored(Paths.get("code", "a.java"), "code/");
         assertIgnored(Paths.get("code", "a", "z", "a.java"), "code/");
