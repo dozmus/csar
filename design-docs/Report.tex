@@ -63,7 +63,7 @@
   Semantics-based code searching is a context sensitive variant of code searching.
   There is currently a lack of semantics-based code search tools and furthermore no semantics-based, integrated code search and refactor tool.
   This paper will detail the creation of the csar (code search and refactor) tool, which aims to be versatile, query-driven, semantics-based and language-agnostic.
-  It will cover the pre-requisite knowledge to understand this paper, requirements (primary, secondary, and non-functional), design (with a running example), implementation and background material.
+  It will cover its aims, the pre-requisite knowledge to understand this paper, scope (primary, secondary, non-functional and selected), context, design (with a running example), implementation, testing, and analysis.
 \end{abstract}
 \newpage
 
@@ -73,65 +73,28 @@
 
 % Introduction
 \section{Introduction}
-The problem this paper will detail the creation of the csar (code search and refactor) tool, which aims to be versatile, query-driven, semantics-based and language-agnostic.
-This introduction will explain the general functionality of csar, and the pre-requisite knowledge required to understand this paper.
+The problem this paper will detail the creation of the csar tool.
+This introduction will explain the aims, scope and the pre-requisite knowledge required to understand this paper.
 
-\subsection{What is csar?}
+\subsection{Aims}
 csar aims to be a unified framework for code searching and refactoring whose users are developers.
 It will take as input descriptions of searches and corresponding refactors in a newly devised query language called the csar query language.
 This results in a versatile and descriptive framework, which can target any programming language without the users needing to know the specifics.
 
-Furthermore, csar aims to be flexible code-wise.
-Most of its API will be publicly exposed and documented.
-Users of csar which will be developers will be able to use this to extend csar, or embed csar into complicated build processes and other applications.
+Furthermore, csar aims to be flexible code-wise, hence most of its API will be publicly exposed and documented.
+Users of csar will be able to extend csar, or embed csar into complex build processes and other applications.
 
 For example, suppose a user wants to be able to move methods matching a certain signature.
 They should be able to subclass an interface describing how to perform a refactor, and implement such functionality.
 Then they will recompile and rebuild csar, and then use it.
 
-\subsection{Pre-requisite Knowledge}
-``Refactoring is the process of changing the structure of software without changing its behavior." \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
+For example, suppose a user wants to run csar from within a build script.
+The output they retrieve should be in a format which suits their needs.
+Furthermore, csar's exit codes and related behaviours should be well documented.
 
-``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \autocite{wikipediasemanticsearch} Henceforth, this is what is meant by `code search' or `search'.
-
-Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity \autocite{reiss2009semantics,stolee2014solving}.
-
-There have been attempts to solve searching which have failed including:
-\begin{itemize}
-  \item CodeGenie which used user-defined test cases to build search queries;
-  \item Various works using keywords from comments and variable names;
-  \item Assieme, Sorcerer, and Codifier which incorporate program code semantics \autocite{reiss2009semantics};
-  \item AutoQuery (see \nameref{sec:AutoQuery}).
-\end{itemize}
-
-The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
-
-Automated refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity \autocite{mens2004survey,murphy2012we}.
-
-There have been attempts to solve automated refactoring which have failed including:
-\begin{itemize}
-  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring.
-  \item Netbeans - this is an IDE with integrated automated refactoring.
-  \item Eclipse - this is an IDE with integrated automated refactoring.
-\end{itemize}
-
-The reasons for their failures includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused \autocite{murphy2012we}.
-
-Searching and refactoring are both hard to implement because optimally they should be language-agnostic \autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
-
-csar parses source code to operate on it, ``parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
-
-csar frequently uses the visitor design pattern to iterate over the elements of a source file.
-``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \autocite{wikipediavisitorpattern}
-
-csar uses ANTLR, which is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
-
-``A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
-
-% Requirements
-\section{Requirements}
+\subsection{Scope}
 We will define csar in terms of its requirements, these are categorised as primary requirements (necessary functionality), secondary requirements (unnecessary but useful functionality), and non-functional requirements.
-These are elaborated on in the Scope subsection.
+The final requirements it will have are described in the Scope subsection.
 
 \subsection{Primary Requirements}
 \begin{itemize}
@@ -239,6 +202,45 @@ If alternatives are required, a third-party developer will be able to easily add
 
 Efficiency will mainly be addressed by introducing multi-threading and caching where possible.
 Specific algorithms to be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
+
+\subsection{Pre-requisite Knowledge}
+``Refactoring is the process of changing the structure of software without changing its behavior." \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
+
+``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \autocite{wikipediasemanticsearch} Henceforth, this is what is meant by `code search' or `search'.
+
+Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity \autocite{reiss2009semantics,stolee2014solving}.
+
+There have been attempts to solve searching which have failed including:
+\begin{itemize}
+  \item CodeGenie which used user-defined test cases to build search queries;
+  \item Various works using keywords from comments and variable names;
+  \item Assieme, Sorcerer, and Codifier which incorporate program code semantics \autocite{reiss2009semantics};
+  \item AutoQuery (see \nameref{sec:AutoQuery}).
+\end{itemize}
+
+The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
+
+Automated refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity \autocite{mens2004survey,murphy2012we}.
+
+There have been attempts to solve automated refactoring which have failed including:
+\begin{itemize}
+  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring.
+  \item Netbeans - this is an IDE with integrated automated refactoring.
+  \item Eclipse - this is an IDE with integrated automated refactoring.
+\end{itemize}
+
+The reasons for their failures includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused \autocite{murphy2012we}.
+
+Searching and refactoring are both hard to implement because optimally they should be language-agnostic \autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
+
+csar parses source code to operate on it, ``parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
+
+csar frequently uses the visitor design pattern to iterate over the elements of a source file.
+``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \autocite{wikipediavisitorpattern}
+
+csar uses ANTLR, which is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
+
+``A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
 
 % Design
 \section{Design}
