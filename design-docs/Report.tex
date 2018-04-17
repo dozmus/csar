@@ -261,6 +261,27 @@ The following programs may be related in some way to the aims of csar.
 The aforementioned searching software are all popular, RegEx based plain-text searching tools.
 They are all language-agnostic and the latter two efficient, but are they are not semantics-based and do not provide refactoring capabilities.
 
+\subsection{Failures in searching}
+There have been attempts to solve searching which have failed including:
+\begin{itemize}
+  \item CodeGenie which used user-defined test cases to build search queries;
+  \item Various works using keywords from comments and variable names;
+  \item Assieme, Sorcerer, and Codifier which incorporate program code semantics \autocite{reiss2009semantics};
+  \item AutoQuery (see \nameref{sec:AutoQuery}).
+\end{itemize}
+
+The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
+
+\subsection{Failures in refactoring}
+There have been attempts to solve automated refactoring which have failed including:
+\begin{itemize}
+  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring.
+  \item Netbeans - this is an IDE with integrated automated refactoring.
+  \item Eclipse - this is an IDE with integrated automated refactoring.
+\end{itemize}
+
+The reasons for their failures includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused \autocite{murphy2012we}.
+
 \subsection{Query languages}
 The following query languages do not necessarily address what my query language has to, but they are worth examining own query language.
 
