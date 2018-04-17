@@ -210,26 +210,7 @@ Specific algorithms to be used are currently unknown, but may become available a
 
 Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity \autocite{reiss2009semantics,stolee2014solving}.
 
-There have been attempts to solve searching which have failed including:
-\begin{itemize}
-  \item CodeGenie which used user-defined test cases to build search queries;
-  \item Various works using keywords from comments and variable names;
-  \item Assieme, Sorcerer, and Codifier which incorporate program code semantics \autocite{reiss2009semantics};
-  \item AutoQuery (see \nameref{sec:AutoQuery}).
-\end{itemize}
-
-The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
-
 Automated refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity \autocite{mens2004survey,murphy2012we}.
-
-There have been attempts to solve automated refactoring which have failed including:
-\begin{itemize}
-  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring.
-  \item Netbeans - this is an IDE with integrated automated refactoring.
-  \item Eclipse - this is an IDE with integrated automated refactoring.
-\end{itemize}
-
-The reasons for their failures includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused \autocite{murphy2012we}.
 
 Searching and refactoring are both hard to implement because optimally they should be language-agnostic \autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
 
@@ -241,6 +222,8 @@ csar frequently uses the visitor design pattern to iterate over the elements of 
 csar uses ANTLR, which is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
 
 ``A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
+
+A regular expression (also known as regex) is ``a sequence of characters that define a search pattern. Usually this pattern is then used by string searching algorithms for `find' or `find and replace' operations on strings." \autocite{wikipediaregex}
 
 % Context
 \section{Context}
