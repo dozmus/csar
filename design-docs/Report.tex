@@ -342,21 +342,25 @@ However, declarations and response messages can be useful for creating complex t
 
 % Design
 \section{Design}
+This section will detail the design of csar in terms of its execution environment, an overview of its design, a running example, its high-level design, and its low-level design.
 
-The design of csar will be described in terms of the execution environment, an overview of what it does, a running example corresponding to this overview, and a high-level (component-wise) structure.
+\subsection{Execution environment}
+csar will work on any mainstream variant of Windows, Mac, or Linux, which has Java 8 (or above) installed and sufficient memory.
+The memory requires of csar are hard to estimate, because it is heavily correlated with the input project size.
+A modern machine with 2-4GB of RAM should be plenty for most applications.
 
-\subsection{Execution Environment}
-csar will work on any recent, mainstream variant of Windows, Mac, or Linux, which has Java 8 (or above) installed and has sufficient memory.
-The csar binaries should be placed in the same folder that you wish to conduct your search in, alongside your `.csarignore' file if you have one.
+The csar binaries (including plugins) and a `.csarignore' file (if applicable) should all be placed in the same folder together.
+This folder is the one that csar will operate on.
 
 \subsection{Overview}
-Firstly, a chosen csar frontend containing a main method is invoked by the JVM.
-This frontend should query the user for some input defining what the user wants csar to do.
-The provided `csar-cli' takes the input as command-line arguments which includes a non-optional csar query.
+Firstly, a chosen csar frontend containing a main method is invoked by the Java (in particular the Java Virtual Machine).
 
+The frontend is responsible for interacting with the `csar-api', which will carry out the tasks it is provided by the frontend in the form of a suitable csar query.
+The provided `csar-cli' is a frontend for humans, so it takes its inputs as command-line arguments which includes a non-optional csar query.
+`csar-cli' then parses these arguments into a `CsarQuery' object, as defined in `csar-api'.
 A csar query is a query-based description of what csar should do, this must include a searching action but not necessarily a refactoring action.
 
-Then, the frontend parses these arguments and then calls upon the `csar-api' to carry out the work it has determined the user wants.
+Then, the frontend calls upon the `csar-api' to carry out the work specified in the `CsarQuery' instance.
 The `csar-api' carries out the following tasks in order:
 \begin{itemize}
   \item Load plugins.
@@ -372,246 +376,32 @@ By default, in `csar-cli' csar will terminate with an appropriate error code.
 Then, the frontend reads the appropriate results (refactoring results if available, otherwise the search results), and displays them in a suitable manner for the user.
 Finally, `csar-cli' will terminate.
 
-\subsection{Running Example}
-Suppose we invoke `csar-cli' from the command-line with the following command: `java -jar csar.jar SELECT method:def:parse REFACTOR RENAME:parse2 -t 1'.
-Furthermore, suppose our project has the following code files in the directory `/project/' alongside the csar binaries:
+\subsection{Running example}
+% TODO write
 
-`Main.java':
-\begin{lstlisting}[language=Java]
-public class Main extends Parser {
+\subsection{High-level}
+This section describes csar's high-level design, that is, describing csar in terms of the modules which comprise it.
 
-  public static void main(String[] args) {
-    new Main().run();
-  }
-
-  public void run() {
-    parse();
-  }
-}
-\end{lstlisting}
-
-`Parser.java':
-\begin{lstlisting}[language=Java]
-public class Parser {
-
-  public void parse() {
-    // ...
-  }
-}
-\end{lstlisting}
-
-Firstly, `csar-cli' will parse these command-line arguments to instantiate a corresponding instance of `Csar', and the thread count will be set to 1.
-The directory is not home to a supported version control and does not have a `.csarignore' file so no filtering of its contents will be applied.
-
-Secondly, csar query language will be parsed.
-
-Thirdly, each loaded language plugin will perform the following:
-\begin{itemize}
-  \item The project code will be parsed (on a single thread).
-  \item The project code will be post-processed.
-  \item The search will be performed.
-  In this case method definitions which have the name `parse' will be stored in a search results list.
-  We will have the following search results:
-  \begin{lstlisting}
-  (path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse() {')
-  \end{lstlisting}
-
-  These results will be formatted and then printed as follows:
-  \begin{lstlisting}
-  Search Results:
-  /project/Parser.java:3 - '  public void parse() {'
-  \end{lstlisting}
-  \item The refactor will be performed.
-  In this case all definitions and corresponding usages (these are graphed in the code post-processing) in the search results list will have their identifier names changed to `parse2'.
-  These changes will then be written to the relevant source code files.
-  
-  We will end up with the following code files:
-
-  `Main.java':
-  \begin{lstlisting}[language=Java]
-  public class Main extends Parser {
-  
-    public static void main(String[] args) {
-      new Main().run();
-    }
-  
-    public void run() {
-      parse2();
-    }
-  }
-  \end{lstlisting}
-  
-  `Parser.java':
-  \begin{lstlisting}[language=Java]
-  public class Parser {
-  
-    public void parse2() {
-      // ...
-    }
-  }
-  \end{lstlisting}
-  
-  Furthermore, we will have the following refactor results:
-  \begin{lstlisting}
-  (path='/project/Main.java', lineNumber=8, codeFragment='    parse2();')
-  (path='/project/Parser.java', lineNumber=3, codeFragment='  public void parse2() {')
-  \end{lstlisting}
-\end{itemize}
-
-These results will be formatted in `csar-cli' and then printed as follows:
-\begin{lstlisting}
-Refactor Results:
-/project/Main.java:8 - '    parse2();'
-/project/Parser.java:3 - '  public void parse2() {'
-\end{lstlisting}
-
-Finally, `csar-cli' will terminate.
-
-\subsection{High-level Structure}
-This is a component-wise description of the structure of Csar.
-
-\subsubsection{Component Overview}
-\begin{figure}[!hb]
-  \centering
-  \caption{High-level Structure}
-  \includegraphics{figure-1}
-\end{figure}
-
-A command-line interface `csar-frontend' for csar is provided called `csar-cli', however a user can write their own.
-
-The `csar-api' defines the csar query, csar plugins (using PF4J), and various utilities.
-It does not specify language-specific implementation details.
-
-The language-specific details are specified in plugins (see: `plugins').
-These behaviours are: code parsing, post-processing, searching, and refactoring.
-
-Plugins exhibit a few behaviours of note:
-\begin{itemize}
-  \item Plugins are not executed concurrently but interleaving during the same step of csar process may occur, i.e. all plugins may be told to parse one by one, then to post-process one by one, etc.
-  \item Plugins have unrestricted access to the host machine.
-  \item All plugins have access to all project files, thus it is possible for two plugins to modify the same file.
-\end{itemize}
-
-To create a plugin for csar the following must be done:
-\begin{itemize}
-  \item Create a new JVM project which has as dependency: `csar-api'.
-  \item Create a class which implements CsarPlugin from `csar-api'.
-  This should have a public 0-arguments constructor, and should implement the behaviour defined by the interface: parsing, processing, searching, and refactoring.
-  You should make sure to delegate any errors to the attached error listeners.
-  This is where the language-specific work occurs.
-  Example:
-  \begin{lstlisting}[language=Java]
-  package org.qmul.csar;
-
-  import org.qmul.csar.plugin.CsarPlugin;
-  import org.qmul.csar.query.CsarQuery;
-  import org.qmul.csar.result.Result;
-
-  import java.nio.file.Path;
-  import java.util.List;
-
-  /**
-    * The java language csar plugin.
-    */
-  public class CsarJavaPlugin implements CsarPlugin {
-
-    @Override
-    public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
-      // parsing code...
-    }
-
-    @Override
-    public void postprocess() {
-      // post-processing code...
-    }
-
-    @Override
-    public List<Result> search(CsarQuery csarQuery, int threadCount) {
-      // searching code...
-    }
-
-    @Override
-    public void addErrorListener(CsarErrorListener errorListener) {
-      // add the error listener...
-    }
-
-    @Override
-    public void removeErrorListener(CsarErrorListener errorListener) {
-      // remove the error listener...
-    }
-  }
-  \end{lstlisting}
-\end{itemize}
-
-To use the plugin with csar the following must be done:
-\begin{itemize}
-  \item Compile the project into JAR format place it in the current working directory.
-  \item Define a resource for the JAR, which should go into the `META-INF/services' folder.
-  The file's name should be `org.qmul.csar.plugin.CsarPlugin' and its content the name of your plugin.
-  In our case this was `org.qmul.csar.CsarJavaPlugin'.
-  \item Run the csar front-end jar, it should automatically detect and delegate tasks to your plugin.
-\end{itemize}
+\subsubsection{Component overview}
+% TODO write
 
 \subsubsection{csar-cli}
-csar-cli's command-line usage format has a non-optional search query, and is as follows:
-\begin{lstlisting}
-Usage: java -jar csar.jar [options] Search query
-  Options:
-    --threads, -t
-      Thread count (default: 1)
-    --log-level
-      Log level (default: INFO)
-      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
-    --format, -f
-      Output format (default: PlainText)
-      Possible Values: PlainText, JSON
-    --narrow-search
-      Narrow search domain (default: true)
-    --ignore-file
-      Ignore file (default: .csarignore)
-    --project-url, --url
-      Print project URL
-    --help, -h
-      Print help information
-\end{lstlisting}
-
-These command-line arguments are stored in an instance of `CsarContext' using the JCommander library.
-JCommander uses reflection to try to match the command-line arguments with fields in `CsarContext' using their configuration in their `@Parameter' annotations.
-JCommander will also use the classes `Slf4jLevelConverter' and `ResultFormatterConverter' to convert the textual representations of log levels and result formatters respectively to instances.
-
-Then, `CsarFactory' will use this instance of `CsarContext' to create a corresponding instance of `Csar'.
-Furthermore, this `Csar' instance will have a default error listener attached to it which terminates the program with certain return codes depending on which fatal error occurs.
-These return codes are follows:
-
-\begin{tabular}{ l l }
-  Exit Code & Description \\
-  0 & Successful execution. \\
-  1 & Error parsing CLI arguments. \\
-  2 & Error parsing csar query. \\
-  3 & Error parsing code files. \\
-  4 & Error searching code files. \\
-  5 & Error initializing csar. \\
-  6 & Error post-processing code files. \\
-  7 & Error formatting search results. \\
-\end{tabular}
-
-Then it will operate on the Csar instance performing the following tasks in order: initialize, parse query, parse code, post-process, search code and then refactor.
-Once `Csar' has finished running, `csar-cli' will use the specified `ResultFormatter' to format these results, and then will print them.
-
-It is important to note that, you could build your own frontend on top of `csar-cli' to create `Csar' instances using `CsarContext'.
-This is useful because `CsarContext' is simple, has more configurable fields than exposed through the command-line interface, and also allows sub-classing.
+% TODO write
 
 \subsubsection{csar-api}
-...
-% TODO write about: Csar, error listener, plugin, lang, io, code, query, result, util
+% TODO write
 
 \subsubsection{csar-java}
-...
-% TODO write about: parsing, post-processing, search
+% TODO write
+
+\subsection{Low-level}
+This section describes csar's low-level design, that is, describing csar in terms of the classes which comprise it.
+
+% TODO write
 
 % Implementation
 \section{Implementation}
-% TODO write about _how_ some classes from each component _exactly_ work
+% TODO write
 
 % Testing
 \section{Testing}
