@@ -242,6 +242,10 @@ csar uses ANTLR, which is a parser-generator, which in conjunction with appropri
 
 ``A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
 
+% Context
+\section{Context}
+% TODO write
+
 % Design
 \section{Design}
 
@@ -515,100 +519,13 @@ This is useful because `CsarContext' is simple, has more configurable fields tha
 \section{Implementation}
 % TODO write about _how_ some classes from each component _exactly_ work
 
-% Background Material
-\section{Background Material}
-\subsection{Related Academic Works}
-\begin{itemize}
-  \item \href{http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y}{Ge X, Shepherd D, Damevski K \& Murphy-Hill E. (2016). Design and evaluation of a multi-recommendation system for local code search. \textit{International Journal of Computer Applications}. 138 (6). 9-13.}\newline
-  This work is regarding plain-text code search in local projects and includes various ideas for optimisations.
-  \item \href{https://link-springer-com.ezproxy.library.qmul.ac.uk/article/10.1007%2Fs10515-014-0170-2}{Wang S, Lo D \& Jiang L. (2016). AutoQuery: Automatic Construction of Dependency Queries for Code Search. \textit{Automated Software Engineering}. 23 (3). 393-425.}\newline
-  This work is regarding dependence-based code searching.
-  They have also devised a query language to make producing Program Dependency Graphs easier.
-  \item \href{http://dl.acm.org.ezproxy.library.qmul.ac.uk/citation.cfm?id=2393612}{Shepherd D, Damevski K, Ropski B \& Fritz T. (2012). Sando: an extensible local code search framework. \textit{Proceedings of the ACM SIGSOFT 20th International Symposium on the foundations of software engineering}.}\newline
-  This work is regarding an extensible plain-text code search in local projects.
-\end{itemize}
+% Testing
+\section{Testing}
+% TODO write
 
-There is also a lot of work on code search engines, ranking code samples and text matching, but these are mostly irrelevant to the development of csar.
-
-\subsection{Related Programs}
-\begin{itemize}
-  \item \href{https://en.wikipedia.org/wiki/Grep}{grep}\newline
-  A command-line utility for searching plain-text data against a regular expression.
-  \item \href{https://beyondgrep.com/}{ack}\newline
-  A command-line utility for searching plain-text data against a regular expression - essentially a better grep.
-  \item \href{https://github.com/ggreer/the_silver_searcher}{ag (aka the silver searcher)}\newline
-  A command-line utility for searching plain-text data against a regular expression - essentially a better ack.
-\end{itemize}
-
-\subsection{Query Language Analysis}
-The following languages do not necessarily address my problem but they may influence the development of my own query language.
-
-\subsubsection{AutoQuery}
-\label{sec:AutoQuery}
-Its queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.
-Each group can have 0 or more pieces of information within it, so it is descriptive.
-
-Its language is unnatural (with respect to English) and is very rigid.
-You can specify file, line number, types, and various elementary language elements (classes, methods, control flow).
-It is not very expressive: it cannot represent try-catch blocks, anonymous methods/classes, and a long list of such constructs.
-
-\subsubsection{AspectJ}
-\href{https://eclipse.org/aspectj/doc/next/progguide/starting-aspectj.html}{AspectJ} has developed a language which it uses to address the problems presented by aspect-oriented programming.  
-
-Their queries have a syntax that closely resembles that of Java. Examples below:
-\begin{itemize}
-  \item `call(void Point.setX(int)) || call(void Point.setY(int))'`'
-  \item `call(void Figure.make*(..))'
-  \item `call(public * Figure.* (..))
-\end{itemize}
-
-You can restrict the domain of queries with logical operators (and, or and not).
-It has limited wildcards (`*', `..' which serves as `*' specially for method parameters, but it lacks `?').
-
-You can define a query with an alias, which helps address the Don't Repeat Yourself principle, and thus verbosity.
-I can also use this to provide coding standards verification (i.e. define queries and run them against the project, with matches corresponding errors in standards).
-You can define method parameters as a type list or a named-type list which is flexible and expressive.
-
-One issue is csar aims to be language-agnostic, so adopting a Java-like syntax will be unintuitive for non-Java programmers.
-
-The syntax fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my\_method(int)' would be invalid (or require additional processing to make work).
-A solution to this is accepting variable name lists.
-
-\subsubsection{Infer}
-\href{https://github.com/facebook/infer}{Infer} has developed a language called \href{https://code.facebook.com/posts/277643589367408/}{AL} which it uses to define code templates corresponding to code stink. Example below:  
-
-\begin{lstlisting}
-DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
-    LET name_contains_delegate = declaration_has_name(REGEXP("[dD]elegate"));
-    LET name_does_not_contain_queue = NOT declaration_has_name(REGEXP("[qQ]ueue"));
-
-    SET report_when =
-        WHEN
-            name_contains_delegate
-            AND name_does_not_contain_queue
-            AND is_strong_property()
-        HOLDS-IN-NODE ObjCPropertyDecl;
-
-    SET message = "Property or ivar %decl_name% declared strong";
-    SET suggestion = "In general delegates should be declared weak or assign";
-};
-\end{lstlisting}
-
-It is very descriptive (allows compositions with `AND', `NOT', `WHEN' etc.) and intuitive (similar to SQL). You can define strings as regex patterns, this is a powerful feature.
-The language is verbose and thus does not resonate with csar's competitors, which use single line queries.
-However, declarations and response messages can be useful for creating complex tools with csar (i.e. code convention checks).
-
-\subsection{Code References}
-\begin{itemize}
-  \item Ignore files syntax - \url{https://git-scm.com/docs/gitignore} and \url{https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js}
-  \item Test cases for ignore files - \url{https://www.atlassian.com/git/tutorials/gitignore}
-  \item Git repository integration - \url{https://git-scm.com/docs/git-ls-files}
-  \item Java 8 ANTLR Grammar - \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaLexer.g4}{Java 8 Lexer}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/JavaParser.g4}{Java 8 Parser}, \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/_grammar-test/src/test/java/TestJava8pt.java}{Java 8 Test} and \href{https://github.com/antlr/grammars-v4/blob/02711067f82bed8e0c8dfd25e80f4f8ae2472abd/java8-pt/examples/AllInOne8.java}{Java 8 Test Input}
-  \item `JAVA\_LETTER' rule in `CsarLexer' - \url{https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4}
-  \item Using JCommander parameters in `CsarContext' - \url{http://jcommander.org/}
-  \item ANTLR settings in `build.gradle' - \url{https://docs.gradle.org/4.0.1/userguide/antlr\_plugin.html\#sec:controlling\_the\_antlr\_generator\_process}
-  \item JaCoCo in `build.gradle' - \url{http://www.jworks.nl/2013/06/03/jacoco-code-coverage-with-gradle/}
-\end{itemize}
+% Analysis
+\section{Analysis}
+% TODO write
 
 % Bibliography
 \section{Bibliography}
