@@ -190,6 +190,7 @@ public class MethodDescriptor implements Descriptor {
                 && OptionalUtils.lenientEquals(defaultModifier, that.defaultModifier)
                 && OptionalUtils.lenientEquals(overridden, that.overridden)
                 && OptionalUtils.lenientEquals(stub, that.stub)
+                && OptionalUtils.lenientEquals(parameterCount, that.parameterCount)
                 && lenientEqualsParametersList(hasParameters, parameters, that.hasParameters, that.parameters)
                 && OptionalUtils.lenientEquals(hasThrownExceptions, thrownExceptions, that.hasThrownExceptions,
                         that.thrownExceptions)
