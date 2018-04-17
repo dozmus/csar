@@ -88,11 +88,10 @@ public class JavaCodeRefactorerTest {
     }
 
     /**
-     * Returns the results of applying the argument query onto the argument code directory.
+     * Returns the refactor results of applying the argument query onto the argument code directory.
      */
     private static List<Result> refactor(String csarQuery, String directory) throws Exception {
         CsarQuery query = CsarQueryFactory.parse(csarQuery);
-
         CsarPlugin csarPlugin = new DummyJavaPlugin();
         csarPlugin.parse(Paths.get(directory), false, Paths.get("."), 1);
         csarPlugin.postprocess(1);
