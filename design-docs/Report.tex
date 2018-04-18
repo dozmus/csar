@@ -102,8 +102,8 @@ Furthermore, csar's exit codes and related behaviours should be well documented.
 We will define csar in terms of its requirements, these are categorised as primary requirements (necessary functionality), secondary requirements (unnecessary but useful functionality), and non-functional requirements.
 The final requirements it will have are described in the Scope subsection.
 
-\subsection{Primary Requirements}
-\begin{itemize}
+\subsection{Primary requirements}
+\begin{enumerate}
   \item Use guide - a small document describing how to use the implemented functionality of csar.
   \item Query-driven - csar should operate on inputs in query form.
   \item Source code parsing - csar should be able to parse source code, otherwise it cannot search or refactor them with the necessary amount of flexibility.
@@ -111,7 +111,8 @@ The final requirements it will have are described in the Scope subsection.
   \item Custom search domains - the user should be able to specify what files to search within the input query.
   \item Refactoring - csar should be able to refactor the source base being operated on.
   \item Language-agnosticism - csar should be designed to be language-agnostic, such that it can operate on any language if it is implemented in a simple way.
-\end{itemize}
+  \item Support git repositories - csar should be able to detect if the current project is a git repository, and accordingly only search files which are tracked by the repository.
+\end{enumerate}
 
 \subsection{Secondary Requirements}
 These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift.
