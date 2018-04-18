@@ -17,24 +17,33 @@ public final class JsonResultFormatterTest {
     }
 
     @Test
-    public void testValidOutputFormat() throws Exception {
-        // Test #1
-        Path path1 = Paths.get("test.java");
-        int lineNumber1 = 36;
-        String codeFragment1 = "new Object();";
-        String expected1 = "[ {" + System.lineSeparator()
-                + "  \"path\" : \"" + path1.toUri().toString() + "\"," + System.lineSeparator()
+    public void testValidSingleResultFormat() throws Exception {
+        // Expected
+        Path path = Paths.get("test.java");
+        int lineNumber = 36;
+        String codeFragment = "new Object();";
+        String expected = "[ {" + System.lineSeparator()
+                + "  \"path\" : \"" + path.toUri().toString() + "\"," + System.lineSeparator()
                 + "  \"lineNumber\" : 36," + System.lineSeparator()
                 + "  \"codeFragment\" : \"new Object();\"" + System.lineSeparator()
                 + "} ]";
-        Result result1 = new Result(path1, lineNumber1, codeFragment1);
-        assertEquals(expected1, result1);
 
-        // Test #2
+        // Assert
+        Result result = new Result(path, lineNumber, codeFragment);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testValidTwoResultsFormat() throws Exception {
+        // Expected
+        Path path1 = Paths.get("test.java");
+        int lineNumber1 = 36;
+        String codeFragment1 = "new Object();";
+
         Path path2 = Paths.get("org/qmul/Tests.java");
         int lineNumber2 = 1;
         String codeFragment2 = "    for (int i = 0; i < 100; i++)  {";
-        String expected2 = "[ {" + System.lineSeparator()
+        String expected = "[ {" + System.lineSeparator()
                 + "  \"path\" : \"" + path1.toUri().toString() + "\"," + System.lineSeparator()
                 + "  \"lineNumber\" : 36," + System.lineSeparator()
                 + "  \"codeFragment\" : \"new Object();\"" + System.lineSeparator()
@@ -43,8 +52,11 @@ public final class JsonResultFormatterTest {
                 + "  \"lineNumber\" : 1," + System.lineSeparator()
                 + "  \"codeFragment\" : \"    for (int i = 0; i < 100; i++)  {\"" + System.lineSeparator()
                 + "} ]";
+
+        // Assert
+        Result result1 = new Result(path1, lineNumber1, codeFragment1);
         Result result2 = new Result(path2, lineNumber2, codeFragment2);
-        assertEquals(expected2, result1, result2);
+        assertEquals(expected, result1, result2);
     }
 
     @Test
