@@ -181,6 +181,9 @@ csar can be integrated into it in one of two ways:
 This project has strict deadlines, so not every feature will be fully implemented.
 The selected requirements (scope) of this project will be detailed in this section.
 
+csar will be using the Gradle build tool because it is flexible, fast, has good dependency management, and has many plugins which I intend to use \autocite{mavenvsgradle}.
+Gradle is also very good when handling projects with submodules in them, which I intend to use in my design \autocite{drdobbswhyusegradle}.
+
 The query language will have two versions: 1.x.x (implemented) and $ \geq $ 2.x.x (potential improvements).
 The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
 My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence $ \geq $ 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
