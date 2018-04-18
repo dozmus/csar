@@ -22,10 +22,10 @@ public final class JsonResultFormatterTest {
         Path path1 = Paths.get("test.java");
         int lineNumber1 = 36;
         String codeFragment1 = "new Object();";
-        String expected1 = "[ {\r\n"
-                + "  \"path\" : \"" + path1.toUri().toString() + "\",\r\n"
-                + "  \"lineNumber\" : 36,\r\n"
-                + "  \"codeFragment\" : \"new Object();\"\r\n"
+        String expected1 = "[ {" + System.lineSeparator()
+                + "  \"path\" : \"" + path1.toUri().toString() + "\"," + System.lineSeparator()
+                + "  \"lineNumber\" : 36," + System.lineSeparator()
+                + "  \"codeFragment\" : \"new Object();\"" + System.lineSeparator()
                 + "} ]";
         Result result1 = new Result(path1, lineNumber1, codeFragment1);
         assertEquals(expected1, result1);
@@ -34,14 +34,14 @@ public final class JsonResultFormatterTest {
         Path path2 = Paths.get("org/qmul/Tests.java");
         int lineNumber2 = 1;
         String codeFragment2 = "    for (int i = 0; i < 100; i++)  {";
-        String expected2 = "[ {\r\n"
-                + "  \"path\" : \"" + path1.toUri().toString() + "\",\r\n"
-                + "  \"lineNumber\" : 36,\r\n"
-                + "  \"codeFragment\" : \"new Object();\"\r\n"
-                + "}, {\r\n"
-                + "  \"path\" : \"" + path2.toUri().toString() + "\",\r\n"
-                + "  \"lineNumber\" : 1,\r\n"
-                + "  \"codeFragment\" : \"    for (int i = 0; i < 100; i++)  {\"\r\n"
+        String expected2 = "[ {" + System.lineSeparator()
+                + "  \"path\" : \"" + path1.toUri().toString() + "\"," + System.lineSeparator()
+                + "  \"lineNumber\" : 36," + System.lineSeparator()
+                + "  \"codeFragment\" : \"new Object();\"" + System.lineSeparator()
+                + "}, {" + System.lineSeparator()
+                + "  \"path\" : \"" + path2.toUri().toString() + "\"," + System.lineSeparator()
+                + "  \"lineNumber\" : 1," + System.lineSeparator()
+                + "  \"codeFragment\" : \"    for (int i = 0; i < 100; i++)  {\"" + System.lineSeparator()
                 + "} ]";
         Result result2 = new Result(path2, lineNumber2, codeFragment2);
         assertEquals(expected2, result1, result2);
