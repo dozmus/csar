@@ -122,7 +122,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
                             return true;
 
                         // From Query
-                        String fileNameWithoutExt = StringUtils.getFileNameWithoutExtension(expr.getPath());
+                        String fileNameWithoutExt = StringUtils.fileNameWithoutExtension(expr.getPath());
 
                         for (String fromDomain : query.getFromTarget()) {
                             if (fromDomain.equals(fileNameWithoutExt)) {
@@ -157,7 +157,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
     private InternalResult searchMethodDefinition(TargetDescriptor targetDescriptor, Path path, Statement statement) {
         // From Query
         if (query.getFromTarget().size() > 0) {
-            String fileNameWithoutExt = StringUtils.getFileNameWithoutExtension(path);
+            String fileNameWithoutExt = StringUtils.fileNameWithoutExtension(path);
             boolean valid = false;
 
             for (String fromDomain : query.getFromTarget()) {

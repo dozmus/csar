@@ -8,88 +8,96 @@ import java.util.Arrays;
 
 public final class ContainsQueryTest {
 
+    /**
+     * Returns a {@link ContainsQuery} containing the argument elements.
+     */
     private static ContainsQuery create(ContainsQueryElement... elements) {
         return new ContainsQuery(Arrays.asList(elements));
     }
 
+    /**
+     * Returns an arbitrary valid descriptor.
+     */
     private static ContainsQueryElement.TargetDescriptor dummyDescriptor() {
         TargetDescriptor desc = new TargetDescriptor(new ClassDescriptor.Builder("Clazz").build());
         return new ContainsQueryElement.TargetDescriptor(desc);
     }
 
-    private static ContainsQueryElement.LogicalOperator operator(LogicalOperator operator) {
-        return new ContainsQueryElement.LogicalOperator(operator);
+    private static ContainsQueryElement.LogicalOperator andOperator() {
+        return new ContainsQueryElement.LogicalOperator(LogicalOperator.AND);
+    }
+
+    private static ContainsQueryElement.LogicalOperator orOperator() {
+        return new ContainsQueryElement.LogicalOperator(LogicalOperator.OR);
+    }
+
+    private static ContainsQueryElement.LogicalOperator notOperator() {
+        return new ContainsQueryElement.LogicalOperator(LogicalOperator.NOT);
     }
 
     @Test
-    public void testValidateSingleDescriptor() {
+    public void testValidateDescriptor() {
         ContainsQuery query = create(dummyDescriptor());
         Assert.assertTrue(ContainsQuery.validate(query));
     }
 
     @Test
     public void testValidateInvertedDescriptor() {
-        ContainsQuery query = create(operator(LogicalOperator.NOT), dummyDescriptor());
+        ContainsQuery query = create(notOperator(), dummyDescriptor());
         Assert.assertTrue(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testValidateAndInvertedDescriptor() {
-        ContainsQuery query = create(dummyDescriptor(), operator(LogicalOperator.AND), operator(LogicalOperator.NOT),
-                dummyDescriptor());
+    public void testValidateCombinedDescriptors1() {
+        ContainsQuery query = create(dummyDescriptor(), andOperator(), notOperator(), dummyDescriptor());
         Assert.assertTrue(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testValidateAndInvertedDescriptor2() {
-        ContainsQuery query = create(operator(LogicalOperator.NOT), dummyDescriptor(), operator(LogicalOperator.OR),
-                operator(LogicalOperator.NOT), dummyDescriptor());
+    public void testValidateCombinedDescriptors2() {
+        ContainsQuery query = create(notOperator(), dummyDescriptor(), orOperator(), notOperator(), dummyDescriptor());
         Assert.assertTrue(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testInvalidValidateConsecutiveOperator1() {
-        ContainsQuery query = create(dummyDescriptor(), operator(LogicalOperator.AND), operator(LogicalOperator.AND),
-                dummyDescriptor());
+    public void testValidateInvalidConsecutiveOperators1() {
+        ContainsQuery query = create(dummyDescriptor(), andOperator(), andOperator(), dummyDescriptor());
         Assert.assertFalse(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testInvalidValidateConsecutiveOperator2() {
-        ContainsQuery query = create(dummyDescriptor(), operator(LogicalOperator.AND), operator(LogicalOperator.OR),
-                dummyDescriptor());
+    public void testValidateInvalidConsecutiveOperators2() {
+        ContainsQuery query = create(dummyDescriptor(), andOperator(), orOperator(), dummyDescriptor());
         Assert.assertFalse(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testInvalidValidateConsecutiveDescriptor1() {
-        ContainsQuery query = create(dummyDescriptor(), operator(LogicalOperator.AND), operator(LogicalOperator.OR),
-                dummyDescriptor());
+    public void testValidateInvalidConsecutiveDescriptors1() {
+        ContainsQuery query = create(dummyDescriptor(), andOperator(), orOperator(), dummyDescriptor());
         Assert.assertFalse(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testInvalidValidateConsecutiveDescriptor2() {
-        ContainsQuery query = create(dummyDescriptor(), operator(LogicalOperator.AND), dummyDescriptor(),
-                dummyDescriptor());
+    public void testValidateInvalidConsecutiveDescriptors2() {
+        ContainsQuery query = create(dummyDescriptor(), andOperator(), dummyDescriptor(), dummyDescriptor());
         Assert.assertFalse(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testInvalidValidateSingleOperator1() {
-        ContainsQuery query = create(operator(LogicalOperator.AND));
+    public void testValidateInvalidSingleOperator1() {
+        ContainsQuery query = create(andOperator());
         Assert.assertFalse(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testInvalidValidateSingleOperator2() {
-        ContainsQuery query = create(operator(LogicalOperator.NOT));
+    public void testValidateInvalidSingleOperator2() {
+        ContainsQuery query = create(notOperator());
         Assert.assertFalse(ContainsQuery.validate(query));
     }
 
     @Test
-    public void testInvalidLeadingOperator() {
-        ContainsQuery query = create(operator(LogicalOperator.AND), dummyDescriptor());
+    public void testValidateInvalidLeadingOperator() {
+        ContainsQuery query = create(andOperator(), dummyDescriptor());
         Assert.assertFalse(ContainsQuery.validate(query));
     }
 }
