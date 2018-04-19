@@ -42,8 +42,6 @@ public class ChangeParametersRefactorer implements Refactorer {
         // Prepare to make changes
         List<String> lines = Files.readAllLines(file);
         List<Result> results = new ArrayList<>();
-        LOGGER.info("==============================================================");
-        LOGGER.info("File: {}", file);
 
         // Modify file
         changes.forEach(r -> {
@@ -63,7 +61,7 @@ public class ChangeParametersRefactorer implements Refactorer {
      */
     private static String changeParameters(List<String> lines, List<ParameterVariableDescriptor> descriptors,
             RefactorChange r) {
-        LOGGER.info("changeParameters(lines, decriptors, {})", r.getClass().getSimpleName());
+        LOGGER.trace("changeParameters(lines, decriptors, {})", r.getClass().getSimpleName());
         List<String> newArgs = new ArrayList<>();
         List<TypeInstance> args;
         FilePosition lParen;
@@ -83,7 +81,7 @@ public class ChangeParametersRefactorer implements Refactorer {
                 ParameterVariableDescriptor newDescriptor = descriptors.get(i);
                 String type = arg.getType() + TypeHelper.dimensionsToString(arg.getDimensions());
                 String newType = newDescriptor.getIdentifierType().get();
-                LOGGER.info("modify existing args ({}): '{}' vs '{}'", i, type, newType);
+                LOGGER.trace("modify existing args ({}): '{}' vs '{}'", i, type, newType);
 
                 if (!type.equals(newType)) { // replace
                     newArgs.add(newDescriptor.getIdentifierName().get().toString());
@@ -97,7 +95,7 @@ public class ChangeParametersRefactorer implements Refactorer {
                 for (int i = args.size(); i < descriptors.size(); i++) {
                     ParameterVariableDescriptor newDescriptor = descriptors.get(i);
                     newArgs.add(newDescriptor.getIdentifierName().get().toString());
-                    LOGGER.info("add more ({}): '{}'", i, newDescriptor.getIdentifierName().get().toString());
+                    LOGGER.trace("add args ({}): '{}'", i, newDescriptor.getIdentifierName().get().toString());
                 }
             }
         } else if (r instanceof MethodStatementChangeParametersRefactorChange) {
@@ -117,7 +115,7 @@ public class ChangeParametersRefactorer implements Refactorer {
                 String identifier = ms.getParameters().get(i).getDescriptor().getIdentifierName().toString();
                 String newType = newDescriptor.getIdentifierType().get();
                 String newIdentifier = newDescriptor.getIdentifierName().get().toString();
-                LOGGER.info("modify existing args ({}): '{}' vs '{}'", i, type, newType);
+                LOGGER.trace("modify existing args ({}): '{}' vs '{}'", i, type, newType);
 
                 if (!type.equals(newType) || !identifier.equals(newIdentifier)) { // replace
                     newArgs.add(newType + " " + newIdentifier);
@@ -132,14 +130,14 @@ public class ChangeParametersRefactorer implements Refactorer {
                     ParameterVariableDescriptor newDescriptor = descriptors.get(i);
                     newArgs.add(newDescriptor.getIdentifierType().get() + " "
                             + newDescriptor.getIdentifierName().get().toString());
-                    LOGGER.info("add more ({}): '{}'", i, newDescriptor.getIdentifierType().get() + " "
+                    LOGGER.trace("add args ({}): '{}'", i, newDescriptor.getIdentifierType().get() + " "
                             + newDescriptor.getIdentifierName().get().toString());
                 }
             }
         } else {
             throw new IllegalArgumentException("invalid RefactorChange type: " + r.getClass().toString());
         }
-        LOGGER.info("newArgs.size() = {}", newArgs.size());
+        LOGGER.trace("newArgs.size() = {}", newArgs.size());
 
         // Apply changes
         // Remove all
@@ -181,6 +179,8 @@ public class ChangeParametersRefactorer implements Refactorer {
                     rParen = new FilePosition(lastComma.getLineNumber(), rParenIdx); // update rParen
                 } else if (i == 0) { // first param
                     setLines(lines, lParen.add(0, 1), firstComma, currentArg);
+                    int firstCommaIdx = lParen.getColumnNumber() + currentArg.length() + 1;
+                    firstComma = new FilePosition(lastComma.getLineNumber(), firstCommaIdx); // update firstComma
                 } else { // middle param
                     FilePosition prevComma = commas.get(i);
                     FilePosition nextComma = commas.get(i + 1);
@@ -198,27 +198,20 @@ public class ChangeParametersRefactorer implements Refactorer {
             }
         }
 
-        String newCode = "";
-        LOGGER.info("lines: {}", lines.toString());
-
-        try {
-            // Add any extra wanted args
-            if (newArgs.size() > args.size()) {
-                for (int i = args.size(); i < newArgs.size(); i++) {
-                    String currentArg = ", " + newArgs.get(i);
-                    LOGGER.info("Insert({}): {}", i, currentArg);
-                    insertLine(lines, rParen, currentArg);
-                    rParen = rParen.add(0, currentArg.length());
-                }
+        // Add any extra wanted args
+        if (newArgs.size() > args.size()) {
+            for (int i = args.size(); i < newArgs.size(); i++) {
+                String currentArg = ", " + newArgs.get(i);
+                LOGGER.trace("Insert({}): {}", i, currentArg);
+                insertLine(lines, rParen, currentArg);
+                rParen = rParen.add(0, currentArg.length());
             }
-        } catch (Exception e) {
-            LOGGER.info("Ex:", e);
         }
 
         // TODO check if change was made
-        newCode = substring(lines, lParen.getLineNumber() - 1, rParen.getLineNumber() - 1);
+        String newCode = substring(lines, lParen.getLineNumber() - 1, rParen.getLineNumber() - 1);
         newCode = StringUtils.stripEnd(newCode, "\r\n ");
-        LOGGER.info("ChangeParameters: ... => {}", newCode);
+        LOGGER.trace("ChangeParameters: ... => {}", newCode);
         return newCode;
     }
 
@@ -358,7 +351,7 @@ public class ChangeParametersRefactorer implements Refactorer {
         int maxColumn = Math.min(line.length(), startPosition.getColumnNumber());
         String start = line.substring(0, maxColumn);
         String end = start.equals(line) ? "" : line.substring(maxColumn);
-        LOGGER.info("({},{}) => {}|{}|{}", lineIdx + 1, startPosition.getColumnNumber(), start, content, end);
+        LOGGER.trace("({},{}) => {}|{}|{}", lineIdx + 1, startPosition.getColumnNumber(), start, content, end);
         lines.set(lineIdx, start + content + end);
     }
 
