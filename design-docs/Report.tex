@@ -5,7 +5,7 @@
 % Margins
 \usepackage[margin=1in]{geometry}
 
-% bibliography
+% Bibliography
 \usepackage[style=authoryear,sorting=none,backend=biber]{biblatex}
 \addbibresource{Report Bibliography.bib}
 
@@ -26,10 +26,8 @@
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
 }
 
-% Font
+% Font and line spacing
 \renewcommand{\familydefault}{\sfdefault}
-
-% Line spacing
 \renewcommand{\baselinestretch}{1.5}
 
 % Document metadata
@@ -159,7 +157,7 @@ csar can be integrated into it in one of two ways:
 \end{itemize}
 
 \subsection{Non-functional requirements}
-\begin{itemize}
+\begin{enumerate}
   \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component-level details), readme (how to run csar), and the user guide (how to use csar).
   \item Efficiency - the implementation will maximize the usage of algorithms which run in polynomial time.
   It will also be benchmarked against a large input, to highlight deficiencies.
@@ -175,7 +173,7 @@ csar can be integrated into it in one of two ways:
   Caching will also be used where appropriate so that larger input projects run in reasonable time.
   \item Testability - csar will be designed to make testing easy (e.g. heavy use of dependency injection).
   Test-Driven Development will also be used where appropriate, to ensure each component of csar works as intended.
-\end{itemize}
+\end{enumerate}
 
 \subsection{Scope}
 This project has strict deadlines, so not every feature will be fully implemented.
@@ -277,7 +275,7 @@ There have been attempts to solve searching which have failed including:
   \item CodeGenie which used user-defined test cases to build search queries;
   \item Various works using keywords from comments and variable names;
   \item Assieme, Sorcerer, and Codifier which incorporate program code semantics \autocite{reiss2009semantics};
-  \item AutoQuery (More on this in the AutoQuery subsection later).
+  \item AutoQuery (see \ref{sec:AutoQuery}).
 \end{itemize}
 
 The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
@@ -285,8 +283,8 @@ The reasons for their failures include: trying to do too much or too little, req
 \subsection{Failures in refactoring}
 There have been attempts to solve automated refactoring which have failed including:
 \begin{itemize}
-  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring.
-  \item Netbeans - this is an IDE with integrated automated refactoring.
+  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring;
+  \item Netbeans - this is an IDE with integrated automated refactoring;
   \item Eclipse - this is an IDE with integrated automated refactoring.
 \end{itemize}
 
@@ -464,7 +462,7 @@ This results in six tests which are all successful, achieving 94\% coverage on t
 csar-api consists mostly of interfaces, hence it is not tested with high coverage.
 
 Firstly, ignore files (`com.purecs.ignorefiles') are tested for file and directory rule parsing, and then for applying these rules on files.
-The specific test cases were largely taken from the internet (see \autocite{CodeReferences}).
+The specific test cases were largely taken from the internet (see \ref{sec:CodeReferences}).
 
 Secondly, the `DefaultProjectCodeParser' is tested for invalid constructor arguments.
 Its test cases are: providing an invalid number of threads - a negative number or zero, providing a `null' iterator, and providing a `null' CodeParserFactory.
@@ -493,7 +491,7 @@ This code is very long and not thoroughly tested because not all of its function
 
 \subsection{csar-java}
 Firstly, the ANTLR generated Java 8 parser-generator is tested.
-Its test cases are taken from ANTLR's repository \autoref{CodeReferences} and span 36 input classes.
+Its test cases are taken from ANTLR's repository \ref{sec:CodeReferences} and span 36 input classes.
 
 Secondly, the `JavaCodeParser' is tested.
 Its test cases span thirteen input classes.
@@ -543,7 +541,19 @@ This section will evaluate the achievements of the project, the author, and futu
 % TODO write
 
 \subsection{Author's achievements}
-% TODO write
+This was a one of the biggest, most ambitious, and longest lasting projects I have worked on.
+It thoroughly tested my resolve, discipline, time management, and programming ability due to its immense complexity.
+
+This was the first time I used Gradle, and deployed a build tool in a multi-module project.
+It was also the first time I used the ANTLR, JCommander, and Mockito libraries.
+It was also the first time I wrote a language grammar from scratch (csar query).
+
+It contributed greatly to my understanding of multi-threading, Subversion/Mercurial, Java 8 lambdas, Java 8 syntax intricacies, and the Java ServiceLoader (for the plugin system).
+
+It also led to me making my first open-source contribution on a big project.
+It was the first time I had to discuss my ideas and seek approval from developers I had no prior relationship with in order to get my changes accepted.
+I also had the pleasure of working with highly esteemed developers, including Cedric Beust on JCommander, who created the Android Gmail application.
+This was followed up with numerous commits on the ANTLR grammars-v4, and JCommander repositories (see \ref{apx:OpenSourceContributions}).
 
 \subsection{Future work}
 % TODO write
@@ -551,5 +561,28 @@ This section will evaluate the achievements of the project, the author, and futu
 % Bibliography
 \section{Bibliography}
 \printbibliography[heading=none]
+
+% Appendices
+\section{Appendices}
+
+% Appendix 1: Open-source contributions
+\subsection{Open-source contributions}
+\label{apx:OpenSourceContributions}
+Repository: \href{https://github.com/antlr/grammars-v4}{antlr/grammars-v4}
+\begin{itemize}
+  \item ``Disallow local enums/annotations in Java8PT grammar'' (\href{https://github.com/antlr/grammars-v4/pull/886}{Pull Request \#886} and \href{https://github.com/antlr/grammars-v4/pull/887}{Pull Request \#887})
+  \item ``Allow method reference leading with `this` in Java8PT grammar + minor reformatting'' (\href{https://github.com/antlr/grammars-v4/pull/898}{Pull Request \#898})
+  \item ``Improve Java8PT methodReference rule'' (\href{https://github.com/antlr/grammars-v4/pull/901}{Pull Request \#901})
+\end{itemize}
+
+Repository: \href{https://github.com/cbeust/jcommander}{cbeust/JCommander}
+\begin{itemize}
+  \item ``Fix misc.xml'' (\href{https://github.com/cbeust/jcommander/pull/407}{Pull Request \#407})
+  \item ``Flexible usage formatting'' (\href{https://github.com/cbeust/jcommander/pull/408}{Pull Request \#408})
+  \item ``Java 7 compliance'' (\href{https://github.com/cbeust/jcommander/pull/409}{Pull Request \#409})
+  \item ``Fix locale-related issues in usage formatter tests'' (\href{https://github.com/cbeust/jcommander/pull/410}{Pull Request \#410})
+  \item ``Add documentation for usage formatter'' (\href{https://github.com/cbeust/jcommander/pull/411}{Pull Request \#411})
+  \item ``Update changelog'' (\href{https://github.com/cbeust/jcommander/pull/419}{Pull Request \#419})
+\end{itemize}
 
 \end{document}
