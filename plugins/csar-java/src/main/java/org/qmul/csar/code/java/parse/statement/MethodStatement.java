@@ -31,8 +31,8 @@ public class MethodStatement implements Statement {
     private final List<Annotation> annotations;
     private final int lineNumber;
     private final int identifierStartIdx;
-    private final FilePosition lParenFilePosition;
-    private final FilePosition rParenFilePosition;
+    private final FilePosition leftParenFilePosition;
+    private final FilePosition rightParenFilePosition;
     private final List<FilePosition> commaFilePositions;
     private final Path path;
     /**
@@ -45,16 +45,16 @@ public class MethodStatement implements Statement {
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations, int lineNumber, int identifierStartIdx, FilePosition lParenFilePosition,
-            FilePosition rParenFilePosition, List<FilePosition> commaFilePositions, Path path) {
+            List<Annotation> annotations, int lineNumber, int identifierStartIdx, FilePosition leftParenFilePosition,
+            FilePosition rightParenFilePosition, List<FilePosition> commaFilePositions, Path path) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;
         this.annotations = Collections.unmodifiableList(annotations);
         this.lineNumber = lineNumber;
         this.identifierStartIdx = identifierStartIdx;
-        this.lParenFilePosition = lParenFilePosition;
-        this.rParenFilePosition = rParenFilePosition;
+        this.leftParenFilePosition = leftParenFilePosition;
+        this.rightParenFilePosition = rightParenFilePosition;
         this.commaFilePositions = commaFilePositions;
         this.path = path;
     }
@@ -95,12 +95,12 @@ public class MethodStatement implements Statement {
         return identifierStartIdx;
     }
 
-    public FilePosition getlParenFilePosition() {
-        return lParenFilePosition;
+    public FilePosition getLeftParenFilePosition() {
+        return leftParenFilePosition;
     }
 
-    public FilePosition getrParenFilePosition() {
-        return rParenFilePosition;
+    public FilePosition getRightParenFilePosition() {
+        return rightParenFilePosition;
     }
 
     public List<FilePosition> getCommaFilePositions() {
@@ -124,16 +124,16 @@ public class MethodStatement implements Statement {
                 && Objects.equals(methodUsages, that.methodUsages)
                 && Objects.equals(lineNumber, that.lineNumber)
                 && Objects.equals(identifierStartIdx, that.identifierStartIdx)
-                && Objects.equals(lParenFilePosition, that.lParenFilePosition)
-                && Objects.equals(rParenFilePosition, that.rParenFilePosition)
+                && Objects.equals(leftParenFilePosition, that.leftParenFilePosition)
+                && Objects.equals(rightParenFilePosition, that.rightParenFilePosition)
                 && Objects.equals(commaFilePositions, that.commaFilePositions)
                 && Objects.equals(path, that.path);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages,
-                identifierStartIdx, lParenFilePosition, rParenFilePosition, commaFilePositions, path);
+        return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages, lineNumber,
+                identifierStartIdx, leftParenFilePosition, rightParenFilePosition, commaFilePositions, path);
     }
 
     @Override
@@ -147,8 +147,8 @@ public class MethodStatement implements Statement {
                 .append("methodUsages", methodUsages)
                 .append("lineNumber", lineNumber)
                 .append("identifierStartIdx", identifierStartIdx)
-                .append("lParenFilePosition", lParenFilePosition)
-                .append("rParenFilePosition", rParenFilePosition)
+                .append("leftParenFilePosition", leftParenFilePosition)
+                .append("rightParenFilePosition", rightParenFilePosition)
                 .append("commaFilePositions", commaFilePositions)
                 .append("path", path)
                 .toString();

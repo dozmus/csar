@@ -88,6 +88,30 @@ public class JavaCodeRefactorerTest {
     }
 
     /**
+     * Tests refactoring change parameters of methods, for when the current arguments are entirely changed.
+     * i.e. <tt>(int a, int b) -> (int a, int b, int c)</tt>.
+     */
+    @Test
+    public void testChangeParametersOfMethods3() throws Exception {
+        // Expected
+        String directory = "src/test/resources/org/qmul/csar/refactor/changeparams3/";
+        List<Result> expectedResults = new ArrayList<>();
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 3,
+                "    public void print(int a, int b, int c) {"));
+        expectedResults.add(new Result(Paths.get(directory, "B.java"), 3,
+                "    public void print(int a, int b, int c) {"));
+        expectedResults.add(new Result(Paths.get(directory, "C.java"), 5, "        a.print(1, 2, c);"));
+        expectedResults.add(new Result(Paths.get(directory, "C.java"), 10, "        b.print(500                , 100, c);"));
+
+        // Actual
+        List<Result> actualResults = refactor("SELECT method:def:print REFACTOR changeparam:int a, int b, int c",
+                directory);
+
+        // Compare
+        TestUtils.assertEquals(expectedResults, actualResults);
+    }
+
+    /**
      * Returns the refactor results of applying the argument query onto the argument code directory.
      */
     private static List<Result> refactor(String csarQuery, String directory) throws Exception {
