@@ -181,14 +181,14 @@ csar can be integrated into it in one of two ways:
 This project has strict deadlines, so not every feature will be fully implemented.
 The selected requirements (scope) of this project will be detailed in this section.
 
-csar will be using the Gradle build tool because it is flexible, fast, has good dependency management, and has many plugins which I intend to use \autocite{mavenvsgradle}.
-Gradle is also very good when handling projects with submodules in them, which I intend to use in my design \autocite{drdobbswhyusegradle}.
+csar will be using the Gradle build tool because it is flexible, fast, has good dependency management, and has many plugins which I intend to use \autocite{gradlevsmaven}.
+Gradle is also very good when handling projects with sub-modules in them, which I intend to use in my design \autocite{drdobbswhyusegradle}.
 
 The query language will have two versions: 1.x.x (implemented) and $ \geq $ 2.x.x (potential improvements).
 The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
 My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence $ \geq $ 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
 
-csar will use ANTLR as its parser-generator because it has a pre-written grammar for Java 8 \autocite{CodeReferences}, which csar will aim to support.
+csar will use ANTLR as its parser-generator because it has a pre-written grammar for Java 8 (see the Code references section), which csar will aim to support.
 csar will be designed such that other programming languages can easily be integrated into it in the future.
 A developer will need to write a plugin for each programming language they wish to use, analogously to how the java plugin will be written.
 This will include the implementation of a language parser, post-processors, searcher, and refactorer.
@@ -277,7 +277,7 @@ There have been attempts to solve searching which have failed including:
   \item CodeGenie which used user-defined test cases to build search queries;
   \item Various works using keywords from comments and variable names;
   \item Assieme, Sorcerer, and Codifier which incorporate program code semantics \autocite{reiss2009semantics};
-  \item AutoQuery (see \nameref{sec:AutoQuery}).
+  \item AutoQuery (More on this in the AutoQuery subsection later).
 \end{itemize}
 
 The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
