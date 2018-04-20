@@ -357,7 +357,7 @@ However, declarations and response messages can be useful for creating complex t
 
 % Design
 \section{Design}
-This section will detail the design of csar in terms of its execution environment, an overview of its design, a running example, its high-level design, and its low-level design.
+This section will detail the design of csar in terms of its execution environment, an overview of its design, a running example, and its high-level design.
 
 \subsection{Execution environment}
 csar will work on any mainstream variant of Windows, Mac, or Linux, which has Java 8 (or above) installed and sufficient memory.
@@ -366,6 +366,11 @@ A modern machine with 2-4GB of RAM should be plenty for most applications.
 
 The csar binaries (including plugins) and a `.csarignore' file (if applicable) should all be placed in the same folder together.
 This folder is the one that csar will operate on.
+
+\subsection{Csar query}
+\label{sec:DesignCsarQuery}
+
+% TODO write
 
 \subsection{Overview}
 Firstly, a chosen csar frontend containing a main method is invoked by the Java (in particular the Java Virtual Machine).
@@ -409,13 +414,50 @@ This section describes csar's high-level design, that is, describing csar in ter
 \subsubsection{csar-java}
 % TODO write
 
-\subsection{Low-level}
-This section describes csar's low-level design, that is, describing csar in terms of the classes which comprise it.
-
-% TODO write
-
 % Implementation
 \section{Implementation}
+This section describes csar's implementation details, that is, the exact algorithms and ideas of interest used.
+
+\subsection{Csar query}
+% TODO write
+
+\subsection{Ignore files}
+% TODO write
+
+\subsection{Parsing}
+% TODO write
+
+\subsubsection{Parsing Java Code}
+% TODO write
+
+\subsection{Post-processing}
+% TODO write
+
+\subsubsection{Overridden methods resolver}
+% TODO write
+
+\subsubsection{Method use resolver}
+% TODO write
+
+\subsubsection{Qualified name resolver}
+% TODO write
+
+\subsubsection{Type hierarchy resolver}
+% TODO write
+
+\subsubsection{Expression type resolver}
+% TODO write
+
+\subsection{Searching}
+% TODO write
+
+\subsubsection{Java implementation}
+% TODO write
+
+\subsection{Refactoring}
+% TODO write
+
+\subsubsection{Java implementation}
 % TODO write
 
 \subsection{Code references}
