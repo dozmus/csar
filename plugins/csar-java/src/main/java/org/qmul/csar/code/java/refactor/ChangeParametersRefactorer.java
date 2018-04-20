@@ -208,7 +208,6 @@ public class ChangeParametersRefactorer implements Refactorer {
             }
         }
 
-        // TODO check if change was made
         String newCode = substring(lines, lParen.getLineNumber() - 1, rParen.getLineNumber() - 1);
         newCode = StringUtils.stripEnd(newCode, "\r\n ");
         LOGGER.trace("ChangeParameters: ... => {}", newCode);
