@@ -4,7 +4,7 @@ import grammars.csar.CsarLexer;
 import grammars.csar.CsarParser;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
+import org.qmul.csar.util.DefaultAntlrErrorListener;
 
 /**
  * A factory for creating instances of {@link CsarQuery}, by parsing a <tt>String</tt> query.
@@ -29,12 +29,12 @@ public final class CsarQueryFactory {
         // Create and configure parser
         CsarLexer lexer = new CsarLexer(CharStreams.fromString(query));
         lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        lexer.addErrorListener(new ThrowRuntimeExceptionErrorListener("csar query"));
+        lexer.addErrorListener(new DefaultAntlrErrorListener("csar query"));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         CsarParser parser = new CsarParser(tokens);
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        parser.addErrorListener(new ThrowRuntimeExceptionErrorListener("csar query"));
+        parser.addErrorListener(new DefaultAntlrErrorListener("csar query"));
         parser.setErrorHandler(new BailErrorStrategy()); // terminate parsing early if a parsing error occurs
 
         // Generate and return csar query

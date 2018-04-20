@@ -16,7 +16,7 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.*;
 import org.qmul.csar.util.FilePosition;
-import org.qmul.csar.util.ThrowRuntimeExceptionErrorListener;
+import org.qmul.csar.util.DefaultAntlrErrorListener;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -279,11 +279,11 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
     public Statement parse(Path file) throws IOException {
         JavaLexer lexer = new JavaLexer(CharStreams.fromPath(file));
         lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        lexer.addErrorListener(new ThrowRuntimeExceptionErrorListener("java"));
+        lexer.addErrorListener(new DefaultAntlrErrorListener("java"));
 
         JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        parser.addErrorListener(new ThrowRuntimeExceptionErrorListener("java"));
+        parser.addErrorListener(new DefaultAntlrErrorListener("java"));
 
         // Generate the code tree for it
         ParseTreeWalker walker = new ParseTreeWalker();

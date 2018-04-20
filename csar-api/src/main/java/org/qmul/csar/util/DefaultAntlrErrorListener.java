@@ -8,11 +8,11 @@ import org.antlr.v4.runtime.Recognizer;
  * An error listener which throws a {@link RuntimeException} when
  * {@link BaseErrorListener#syntaxError(Recognizer, Object, int, int, String, RecognitionException)} is invoked.
  */
-public class ThrowRuntimeExceptionErrorListener extends BaseErrorListener {
+public class DefaultAntlrErrorListener extends BaseErrorListener {
 
     private final String name;
 
-    public ThrowRuntimeExceptionErrorListener(String name) {
+    public DefaultAntlrErrorListener(String name) {
         this.name = name;
     }
 
