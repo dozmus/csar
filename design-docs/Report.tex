@@ -549,8 +549,7 @@ Firstly, I will examine csar's primary requirements (see \ref{sec:PrimaryRequire
 
 Primary requirement 1 was implemented. 
 
-Primary requirement 2 was partially implemented, I produced two versions of the query language and while they both work as intended they are not very flexible.
-Some parts of their design such as how to parse arbitrary expressions were not addressed in great detail.
+Primary requirement 2 was implemented, however it does have some issues (see \ref{sec:DesignCsarQuery}).
 
 Primary requirement 3 was partially implemented.
 I used a pre-written ANTLR grammar which I modified. 
@@ -631,7 +630,16 @@ I also had the pleasure of working with highly esteemed developers, including Ce
 This was followed up with numerous commits on the ANTLR grammars-v4, and JCommander repositories (see \ref{apx:OpenSourceContributions}).
 
 \subsection{Future work}
-% TODO write
+A wider range of searching and refactoring tools should be evaluated, to help guide the future development of csar and focus efforts on the most important features.
+
+It would be useful to rewrite Csar Query as part of an elaborate research project.
+Then, csar could be reimplemented in full, with changes focused on csar-java, in an attempt to ensure it is bug-free, and theoretically sound.
+
+This could be followed up with an implementation for a dynamically-typed programming language such as Python \autocite{learningpython5thed}, so that future developers can use it to develop support for similar languages.
+
+There are plenty of refactoring operations that could be supported, such as: move code, detect duplicate code, change signature (change parameters is a subset of this), convert anonymous to inner, encapsulate fields, inline, replace constructor with builder or factory method, etc. \autocite{intellijidearefactoring}.
+
+It would also be optimal for the refactoring to maintain the current conventions of the code file being edited.
 
 % Bibliography
 \section{Bibliography}
