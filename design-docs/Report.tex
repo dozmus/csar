@@ -101,6 +101,7 @@ We will define csar in terms of its requirements, these are categorised as prima
 The final requirements it will have are described in the Scope subsection.
 
 \subsection{Primary requirements}
+\label{sec:PrimaryRequirements}
 \begin{enumerate}
   \item Use guide - a small document describing how to use the implemented functionality of csar.
   \item Query-driven - csar should operate on inputs in query form.
@@ -110,15 +111,17 @@ The final requirements it will have are described in the Scope subsection.
   \item Refactoring - csar should be able to refactor the source base being operated on.
   \item Language-agnosticism - csar should be designed to be language-agnostic, such that it can operate on any language if it is implemented in a simple way.
   \item Support git repositories - csar should be able to detect if the current project is a git repository, and accordingly only search files which are tracked by the repository.
+  \item Support for Java 8.
 \end{enumerate}
 
 \subsection{Secondary requirements}
+\label{sec:SecondaryRequirements}
 These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift.
 The benefits and implementation details of each will be outlined.
 
 \subsubsection{Indexing parsed project source code}
 In many cases csar may act on the same project code, perhaps with some differences.
-We could make csar faster by taking this into account.
+We could make csar faster by accounting for this.
 We would index parsed project code and only re-parse them if they have changed.
 
 We have two storage approaches we can take:
@@ -138,7 +141,7 @@ It is important to note that using the last modified dates of files can be error
 \subsubsection{Supporting Mercurial (hg)/Subversion (svn) repositories}
 In rare cases csar may be used on a project using outdated version control systems, using them to narrow the search domain will be useful to the developer and make csar faster.
 This would be done analogously to the git implementation, but the program arguments we use when invoking their binaries will be different.
-Some possibilities are listed below:
+Some possibilities are listed below (see \ref{sec:CodeReferences}):
 \begin{itemize}
   \item Hg: 'hg status --all`
   \item Svn: `svn list -R' or `svn status'
@@ -157,20 +160,19 @@ csar can be integrated into it in one of two ways:
 \end{itemize}
 
 \subsection{Non-functional requirements}
+\label{sec:NonFunctionalRequirements}
 \begin{enumerate}
-  \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component-level details), readme (how to run csar), and the user guide (how to use csar).
-  \item Efficiency - the implementation will maximize the usage of algorithms which run in polynomial time.
+  \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component-level details), a `readme' file (describing how to run csar), and a user guide (how to use csar).
+  \item Efficiency - the implementation will maximize the usage of algorithms which run in polynomial time, and make use of caching where appropriate.
   It will also be benchmarked against a large input, to highlight deficiencies.
-  \item Extensibility - csar will be open source, will be language-agnostic so that users can easily implement support for their language of choice, will expose a public API with great usage of interfaces, and will thoroughly utilize dependency injection to allow third-party developers to customize its behaviour.
-  \item Interoperability - csar will have a user guide explaining how to invoke it from other applications and will support flexible output formats.
+  \item Extensibility - csar will be open source so that users can freely modify it, language-agnostic so that users can easily implement support for their language of choice, expose a public API with great usage of interfaces, and thoroughly utilize dependency injection to allow third-party developers to customize its behaviour.
+  \item Interoperability - csar will have a user guide explaining how to invoke it from other applications, and support flexible output formats.
   \item Open source
-  \item Portable - csar will be written in Java (version 8) which is a cross-platform framework.
-  Java 8 runs on platforms including recent versions of Windows, Mac OS X, and various Linux distributions \autocite{javasysreqs}.
+  \item Portable - csar will be written in a cross-platform language.
   \item Quality/Reliability - csar will be well designed and make appropriate use of configuration management and unit testing to detect bugs early in the software development life cycle.
   csar will also make use of well-tested and maintained libraries and platforms where possible (within reason).
   If necessary, contributions to third-party libraries will also be made to ensure high quality dependencies.
   \item Scalability - csar will be multi-threaded, hence in general the more cores a user has available the faster it will be.
-  Caching will also be used where appropriate so that larger input projects run in reasonable time.
   \item Testability - csar will be designed to make testing easy (e.g. heavy use of dependency injection).
   Test-Driven Development will also be used where appropriate, to ensure each component of csar works as intended.
 \end{enumerate}
@@ -178,6 +180,9 @@ csar can be integrated into it in one of two ways:
 \subsection{Scope}
 This project has strict deadlines, so not every feature will be fully implemented.
 The selected requirements (scope) of this project will be detailed in this section.
+
+csar will be written using Java 8 because I am well-versed in it and it is cross-platform.
+Java 8 runs on numerous platforms including recent versions of Windows, Mac OS X, and various Linux distributions \autocite{javasysreqs}.
 
 csar will be using the Gradle build tool because it is flexible, fast, has good dependency management, and has many plugins which I intend to use \autocite{gradlevsmaven}.
 Gradle is also very good when handling projects with sub-modules in them, which I intend to use in my design \autocite{drdobbswhyusegradle}.
@@ -210,6 +215,8 @@ If alternatives are required, a third-party developer will be able to easily add
 
 Efficiency will mainly be addressed by introducing multi-threading and caching where possible.
 Specific algorithms to be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
+
+csar will use the JUnit library for unit testing, the Mockito library for interface mocking in tests, and the JaCoCo gradle plugin for testing code coverage reporting.
 
 \subsection{Pre-requisite Knowledge}
 ``Refactoring is the process of changing the structure of software without changing its behavior." \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
@@ -437,7 +444,7 @@ Gradle is configured through scripts, the following references were used to help
 
 % Testing
 \section{Testing}
-This section describes the two main testing mechanisms I used,which are unit testing and manual testing.
+This section describes the two main testing mechanisms I used, which are unit testing and manual testing.
 Some of csar was developed in a test-driven manner, that is, I wrote the tests corresponding to features first and then wrote code to make them work.
 
 In the unit testing section there will be mentions of statistics, some are generated by my IDE (IntelliJ IDEA) and the rest by the JaCoCo (Java Code Coverage) Gradle plugin.
@@ -491,7 +498,7 @@ This code is very long and not thoroughly tested because not all of its function
 
 \subsection{csar-java}
 Firstly, the ANTLR generated Java 8 parser-generator is tested.
-Its test cases are taken from ANTLR's repository \ref{sec:CodeReferences} and span 36 input classes.
+Its test cases are taken from ANTLR's repository (see \ref{sec:CodeReferences}) and span 36 input classes.
 
 Secondly, the `JavaCodeParser' is tested.
 Its test cases span thirteen input classes.
@@ -538,7 +545,75 @@ This coverage figure is less than expected because it includes coverage for the 
 This section will evaluate the achievements of the project, the author, and future work which ties in with this project.
 
 \subsection{Project's achievements}
-% TODO write
+Firstly, I will examine csar's primary requirements (see \ref{sec:PrimaryRequirements}).
+
+Primary requirement 1 was implemented. 
+
+Primary requirement 2 was partially implemented, I produced two versions of the query language and while they both work as intended they are not very flexible.
+Some parts of their design such as how to parse arbitrary expressions were not addressed in great detail.
+
+Primary requirement 3 was partially implemented.
+I used a pre-written ANTLR grammar which I modified. 
+It contains a minor defect which is that it doesn't handle source files with more than one top-level class.
+The grammar is not very strict for efficiency purposes.
+
+Primary requirement 4 was partially implemented, support for the `CONTAINS' clause in the csar query is not implemented.
+Furthermore, the `toPseudoCode()' method is used to generate code fragments to display in the output results.
+This method is not tested for every implementation of it, which means some of the code fragments may be partially incorrect.
+
+Primary requirement 5 was implemented.
+
+Primary requirement 6 and 7 were implemented, however I think refactoring could benefit from more testing.
+The refactoring interfaces could also be improved, there are some unused methods, and messy code.
+
+Primary requirement 8 was implemented.
+
+Primary requirement 9 was partially implemented. The first issue is that method references are not handled.
+The second issue is that csar does not support external libraries (i.e. it does not recognize their types) - this also extends to the Java 8 standard library.
+This is because without efficient, and complete indexing (also known as caching) capabilities this would slow down csar too much.
+
+Secondly, I will examine csar's secondary requirements (see \ref{sec:SecondaryRequirements}).
+
+Secondary requirement `Indexing parsed project source code' was not implemented.
+This is because it would require clarification on where csar's supporting binaries and caches should reside, which would imply that an installer would need to be created.
+It would also require us to index post-processing, searching, and refactoring results to fully exploit indexing.
+Some of these are very complicated.
+Suppose we wanted to index the project's type hierarchy, we would need to figure out how the changed files change the type hierarchy without calculating it all from scratch.
+
+Secondary requirement `Supporting Mercurial (hg)/Subversion (svn) repositories' was implemented, however it was not thoroughly tested because I am not proficient enough in Subversion nor Mercurial.
+
+Secondary requirement `IntelliJ IDEA integration' was not implemented.
+I never intended to implement it because I do not consider it very important, and IntelliJ is updated too often for me to have enough time to keep it updated.
+It was included in the requirements so that I could outline how a potential implementation of it would work.
+
+Thirdly, I will examine csar's non-functional requirements (see \ref{sec:NonFunctionalRequirements}).
+
+Requirement 1 was implemented.
+For the most part I followed the formal Javadocs style, I strayed from it occasionally because I find it repetitive for certain kinds of documentation (e.g. getters, setters, and constructors).
+
+Non-functional requirement 2 was partially implemented.
+Some of the algorithms are not polynomial time, but the use of caching has helped alleviate such concerns where appropriate.
+The most time consuming tasks in csar are: code parsing, and post-processing.
+
+Non-functional requirement 3 was implemented, however there is room for improvement.
+Some of the design could benefit from being reworked, now that my knowledge of this area is greater.
+
+Non-functional requirement 4 was implemented.
+
+Non-functional requirement 5 will be implemented once my project is graded, to prevent self-plagiarism.
+
+Non-functional requirement 6 was implemented, csar was written using Java 8.
+
+Non-functional requirement 7 was partially implemented.
+The biggest issue of note is that interface mocking is not used enough, leading to multiple tests relying on each other working to work themselves.
+This might make detecting bugs harder than otherwise.
+JaCoCO has some defects which mean its reports are not very accurate.
+For example, it counts setters and getters in its coverage statistics.
+
+Non-functional requirement 8 was partially implemented.
+The only major operations which are not multi-threaded are the following post-processors: `QualifiedNameResolver', `TypeHierarchyResolver', `MethodQualifiedTypeResolver', `MethodUseResolver', and `MethodCallTypeInstanceResolver'.
+
+Non-functional requirement 9 was implemented.
 
 \subsection{Author's achievements}
 This was a one of the biggest, most ambitious, and longest lasting projects I have worked on.
