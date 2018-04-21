@@ -397,7 +397,7 @@ You can find the analysis on that in the `design-docs/query-language' folder wit
 It was an improvement over v1.2.0 but also suffered from some common issues.
 
 \subsection{Overview}
-Firstly, a chosen csar frontend containing a main method is invoked by the Java (in particular the Java Virtual Machine).
+Firstly, the user's chosen csar frontend containing a main method is invoked by Java (in particular the Java Virtual Machine).
 
 The frontend is responsible for interacting with the `csar-api', which will carry out the tasks it is provided by the frontend in the form of a suitable csar query.
 The provided `csar-cli' is a frontend for humans, so it takes its inputs as command-line arguments which includes a non-optional csar query.
@@ -414,14 +414,130 @@ The `csar-api' carries out the following tasks in order:
   \item Searches the project code.
   \item Refactors the project code (if applicable).
 \end{itemize}
-If an error occurs during any one of these tasks csar will respond appropriately, which may be modified through subclassing.
-By default, in `csar-cli' csar will terminate with an appropriate error code.
+If an error occurs during any one of these tasks csar will respond appropriately, which may be modified through adding error listeners and subclassing.
+If the error is fatal, then `csar-cli' will terminate with an appropriate error code.
 
 Then, the frontend reads the appropriate results (refactoring results if available, otherwise the search results), and displays them in a suitable manner for the user.
 Finally, `csar-cli' will terminate.
 
+Note that depending on the logging level chosen, and your shell of choice you may see more input than usual.
+This output is for debugging purposes and outputted to the standard error stream.
+
 \subsection{Running example}
-% TODO write
+Suppose we invoke `csar-cli' from the command-line with the following command: `java -jar csar.jar SELECT method:def:print REFACTOR changeparam:String s, String s1'.
+This will find all methods called `print', and change their parameters to be two `String' parameters.
+Furthermore, suppose we have a `/project/' directory containing only the following code files, and the csar binaries:
+
+`A.java':
+\begin{lstlisting}[language=Java]
+public class A {
+    public void print(int a, int b) {
+        System.out.println("print in A");
+    }
+}
+\end{lstlisting}
+
+`B.java':
+\begin{lstlisting}[language=Java]
+public class B extends A {
+    public void print(int k,
+            int v) {
+        System.out.println("print in B");
+    }
+}
+\end{lstlisting}
+
+`C.java':
+\begin{lstlisting}[language=Java]
+public class C {
+    static {
+        A a = new A();
+        a.print(1, 2);
+    }
+    
+    public C() {
+        B b = new B();
+        b.print(500
+                , 100);
+    }
+}
+\end{lstlisting}
+
+Firstly, `csar-cli' will parse these command-line arguments to instantiate a corresponding instance of `Csar', and the thread count will be set to 1 (because it was not set in the program arguments).
+This directory is not home to a supported version control and does not have a `.csarignore' file, hence no filtering of its contents will be applied.
+
+Secondly, the csar query will be parsed.
+
+Thirdly, each loaded language plugin will perform the following:
+\begin{itemize}
+  \item The project code will be parsed.
+  \item The project code will be post-processed.
+  \item The search will be performed.
+  Method definitions which have the name `print' will be stored in a search results list.
+  These results will be formatted and then printed as follows:
+  \begin{lstlisting}
+  Search results (2 found):
+  .\B.java:2 public (overridden) void print(int k, int v) {
+    System.out.println("print in B");
+  }
+  .\A.java:2 public void print(int a, int b) {
+    System.out.println("print in A");
+  }
+  \end{lstlisting}
+  \item The refactor will be performed.
+  In this case all definitions and corresponding usages (these are graphed in the code post-processing) in the search results list will have their parameters changed to two `String' types.
+  These changes will then be written to the relevant source code files.
+  
+  We will end up with the following code files:
+
+  `A.java':
+  \begin{lstlisting}[language=Java]
+  public class A {
+      public void print(String s, String s1) {
+          System.out.println("print in A");
+      }
+  }
+  \end{lstlisting}
+
+  `B.java':
+  \begin{lstlisting}[language=Java]
+  public class B extends A {
+      public void print(String s, String s1) {
+
+          System.out.println("print in B");
+      }
+  }
+  \end{lstlisting}
+
+  `C.java':
+  \begin{lstlisting}[language=Java]
+  public class C {
+      static {
+          A a = new A();
+          a.print(s, s1);
+      }
+      
+      public C() {
+          B b = new B();
+          b.print(s, s1);
+
+      }
+  }
+  \end{lstlisting}
+  
+  Furthermore, we will have the refactor results stored in a refactor results list.
+  These results will be formatted by `csar-cli' and then printed as follows:
+  \begin{lstlisting}
+  Refactor Results (4 found):
+  .\B.java:2     public void print(String s, String s1) {
+  .\A.java:2     public void print(String s, String s1) {
+  .\C.java:9         b.print(s, s1);
+  .\C.java:4         a.print(s, s1);
+  \end{lstlisting}
+\end{itemize}
+
+The user will need to go through each refactor result to provide valid parameters for each affected method call, otherwise unexpected results may occur.
+Finally, `csar-cli' will terminate.
 
 \subsection{High-level}
 This section describes csar's high-level design, that is, describing csar in terms of the modules which comprise it and how they interact with each other.
