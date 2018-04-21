@@ -606,7 +606,7 @@ This is useful because `CsarContext' is a simple interface, with lots of configu
 \subsubsection{csar-api}
 The `Csar' class uses the listener design pattern to allow custom handling of errors, using the `CsarErrorListener' interface.
 Two implementations of note are the `LoggingErrorListener' which logs errors to the standard error output stream, and the `DefaultCsarErrorListener' which does nothing.
-`csar-cli' contains an extension of the `LoggingErrorListener' called `CliCsarErrorListener', which logs and then calls `System#exit' with an appropriate exit code.
+`csar-cli' contains an extension of the `LoggingErrorListener' called `CliCsarErrorListener', which logs and then calls `System\#exit' with an appropriate exit code.
 
 It also defines the following interfaces, which are extended by plugins to represent language elements: `Descriptor' which describes a language element (and various default implementations of this), `Expression' which is a language expression, `Statement' which is a language statement, `SerializableCode' which represents classes which can be converted into code, and `TypeStatement' which is a language type statement.
 
