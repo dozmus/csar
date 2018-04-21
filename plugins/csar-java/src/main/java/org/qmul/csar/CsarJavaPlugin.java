@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * The java language csar plugin.
+ * The Java language csar plugin.
  */
 public class CsarJavaPlugin implements CsarPlugin {
 

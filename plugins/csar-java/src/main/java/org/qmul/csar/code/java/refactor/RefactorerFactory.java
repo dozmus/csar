@@ -13,6 +13,13 @@ public final class RefactorerFactory {
     private RefactorerFactory() {
     }
 
+    /**
+     * Returns a refactorer supporting the argument descriptor.
+     *
+     * @param writeToFiles if the changes of the refactor should be written to the files
+     *
+     * @throws IllegalArgumentException if the argument descriptor is not supported
+     */
     public static Refactorer create(RefactorDescriptor refactorDescriptor, boolean writeToFiles) {
         if (refactorDescriptor instanceof RefactorDescriptor.Rename) {
             String newName = ((RefactorDescriptor.Rename) refactorDescriptor).getIdentifierName();
@@ -21,9 +28,7 @@ public final class RefactorerFactory {
             List<ParameterVariableDescriptor> descriptors
                     = ((RefactorDescriptor.ChangeParameters)refactorDescriptor).getDescriptors();
             return new ChangeParametersRefactorer(descriptors, writeToFiles);
-        } else {
-            throw new IllegalArgumentException("unsupported refactor target: "
-                    + refactorDescriptor.getClass().getName());
         }
+        throw new IllegalArgumentException("unsupported refactor target: " + refactorDescriptor.getClass().getName());
     }
 }

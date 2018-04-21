@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * A refactorer, for a specific type of change.
+ * A specific refactorer.
  */
 public interface Refactorer {
 

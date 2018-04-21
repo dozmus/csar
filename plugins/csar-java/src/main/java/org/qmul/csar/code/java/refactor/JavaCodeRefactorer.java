@@ -155,7 +155,6 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
                         List<Result> tmpResults = RefactorerFactory.create(refactorDescriptor, writeToFiles)
                                 .refactor(file, searchResults);
                         results.addAll(tmpResults);
-
                     } catch (RuntimeException ex) {
                         Path finalFile = file;
                         errorListeners.forEach(l -> l.errorRefactoring(finalFile, ex));
