@@ -558,7 +558,50 @@ The language-specific details are specified in plugins.
 These behaviours are: code parsing, post-processing, searching, and refactoring.
 
 \subsubsection{csar-cli}
-% TODO write
+csar-cli's command-line usage format has a non-optional search query, and is as follows:
+\begin{lstlisting}
+Usage: java -jar csar.jar [options] Search query
+  Options:
+    --threads, -t
+      Thread count (default: 1)
+    --log-level
+      Log level (default: INFO)
+      Possible Values (most restrictive to least): ERROR, WARN, INFO, DEBUG, TRACE
+    --format, -f
+      Output format (default: PlainText)
+      Possible Values: PlainText, JSON
+    --narrow-search
+      Narrow search domain (default: true)
+    --ignore-file
+      Ignore file (default: .csarignore)
+    --project-url, --url
+      Print project URL
+    --help, -h
+      Print help information
+\end{lstlisting}
+
+The `Main' class uses the JCommander library to parse its command-line arguments into a `CsarContext' instance.
+This instance is then passed to `CsarFactory' to create a corresponding `Csar' instance.
+Once the `Csar' instance is done doing its work, a suitable `ResultFormatter' is chosen and used to format and print its results.
+The `ResultFormatter' to choose is defined in `CsarContext'.
+
+When csar-cli terminates, it will return one of the following exit codes:
+\begin{tabular}{ l l }
+  Exit Code & Description \\
+  0 & Successful execution. \\
+  1 & Error parsing CLI arguments. \\
+  2 & Error parsing csar query. \\
+  3 & Error parsing code files. \\
+  4 & Error searching code files. \\
+  5 & Error initializing csar. \\
+  6 & Error post-processing code files. \\
+  7 & Error formatting search results. \\
+  8 & Error formatting refactor results. \\
+  9 & Error refactoring code files. \\
+\end{tabular}
+
+It is important to note that you could build your own frontend on top of `csar-cli' to create `Csar' instances using `CsarContext'.
+This is useful because `CsarContext' is a simple interface, with lots of configurable fields, and also allows sub-classing.
 
 \subsubsection{csar-api}
 % TODO write
@@ -885,6 +928,8 @@ A wider range of searching and refactoring tools should be evaluated, to guide f
 The plugin system should be improved by potentially allowing language-specific query languages.
 Furthermore, it could be enhanced by setting strict permissions on plugins to prevent unexpected or malicious behaviour.
 For example, perhaps plugins cannot access or modify system files, or access the internet.
+
+It would be desirable for there to be an easier way to define new `ResultFormatter' implementations without modify `csar-cli' directly.
 
 It would be useful to rewrite Csar Query as part of an elaborate research project.
 Then, csar could be reimplemented in full, with changes focused on csar-java, in an attempt to ensure it is bug-free, and theoretically sound.
