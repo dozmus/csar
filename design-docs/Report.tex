@@ -604,19 +604,47 @@ It is important to note that you could build your own frontend on top of `csar-c
 This is useful because `CsarContext' is a simple interface, with lots of configurable fields, and also allows sub-classing.
 
 \subsubsection{csar-api}
-% TODO write
+The `Csar' class uses the listener design pattern to allow custom handling of errors, using the `CsarErrorListener' interface.
+Two implementations of note are the `LoggingErrorListener' which logs errors to the standard error output stream, and the `DefaultCsarErrorListener' which does nothing.
+`csar-cli' contains an extension of the `LoggingErrorListener' called `CliCsarErrorListener', which logs and then calls `System#exit' with an appropriate exit code.
+
+It also defines the following interfaces, which are extended by plugins to represent language elements: `Descriptor' which describes a language element (and various default implementations of this), `Expression' which is a language expression, `Statement' which is a language statement, `SerializableCode' which represents classes which can be converted into code, and `TypeStatement' which is a language type statement.
+
+It contains the `ProjectIteratorFactory' which creates instances of `ProjectIterator' whose job is to iterate files within a project.
+There are also various subclasses of `VCSRepositoryIterator' (which is a `ProjectIterator'), with each supporting another version control software repository: Git, Subversion, and Mercurial.
+
+It also defines the ignore files functionality, which is split into two parts: creating ignore rules, and applying them.
+Rules are split into two categories: a `FlexibleRule' (may be a file or directory), and a `Rule' (is either a file or a directory).
+Rules are specified in a git rules-like format.
+
+It also defines the `CsarQuery' class, which represents a csar query.
+Furthermore, it contains a `CsarQueryFactory' which converts a textual representation of a csar query into a `CsarQuery' instance using the `CsarQueryParser'.
+
+It also defines the `CsarPlugin' class, which plugins must extend.
+This defines how to parse, post-process, search, and refactor some files.
+This is complimented by `CsarPluginLoader' which handles the loading and use of plugins.
+
+`CodeParserFactory' is used to register a corresponding `CodeParser' implementation.
+This is then used by `DefaultProjectCodeParser' to parse the entire project.
+This way, a plugin may choose to use `DefaultProjectCodeParser' and thus not write its own multi-threading logic.
+
+It also defines the `CodePostProcessor' which should be extended by post-processors, and the `ProjectCodeSearcher' which should be extended by project-wide searchers.
+
+Furthermore, it defines `ProjectCodeRefactorer' which should be extended by project-wide code refactorers, and the interfaces `RefactorChange'  and `RefactorTarget' to keep track of pending refactor changes within the searcher.
+
+Finally, it defines the `Result' class which stores a searching or refactoring result.
 
 \subsubsection{Plugins}
 Plugins must adhere to the following rules:
 \begin{itemize}
-  \item They are not executed concurrently, but interleaving during the same step of csar process may occur, i.e. all plugins may be told to parse one by one, and then to post-process one by one, and so forth.
+  \item They will not be executed concurrently, but interleaving during the same step of csar process may occur, i.e. all plugins may be told to parse one by one, and then to post-process one by one, and so forth.
   \item They will have unrestricted access to the host machine.
   \item All plugins have access to all project files, thus it is possible for two plugins to modify the same file.
 \end{itemize}
 
 To use a plugin with csar the following must be done:
 \begin{itemize}
-  \item Place the project JAR in the the same directory as csar (which should be the current working directory).
+  \item Place the plugin JAR in the the same directory as csar (which should be the current working directory).
   If you place it in any other directory, including a sub-directory, csar is not obliged to detect it but it may at its own discretion.
   \item Run the csar front-end jar, then `csar-api' should automatically detect and delegate tasks to the plugin.
 \end{itemize}
@@ -663,10 +691,6 @@ Some example queries built using the language are specified below:
 \end{itemize}
 
 \subsection{Ignore files}
-Ignore files is split into two parts: creating ignore rules, and applying them.
-Rules are split into two categories: a flexible rule (may be a file or directory), and a rule (is either a file or a directory).
-Rules are specified in a git rules-like format.
-
 Firstly, creating ignore rules can be done by reading a file containing rules, or taking as argument a `String' containing rules.
 When these rules are read, they are converted into a specialized regular expression called a `PathMatcher', which is then used to check if a file is matched by a rule.
 This is typically done by iterating over a list of rules, and checking if any of them match an argument file.
