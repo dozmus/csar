@@ -159,6 +159,10 @@ csar can be integrated into it in one of two ways:
   This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
 \end{itemize}
 
+\subsubsection{Ignore files}
+We may want csar to have its own ignore file, akin to the git ignore file, to further filter input files \autocite{gitscmgitignore}.
+Its syntax should be the same for the familiarity of users.
+
 \subsection{Non-functional requirements}
 \label{sec:NonFunctionalRequirements}
 \begin{enumerate}
@@ -483,7 +487,15 @@ Some example queries built using the language are specified below:
 \end{itemize}
 
 \subsection{Ignore files}
-% TODO write
+Ignore files is split into two parts: creating ignore rules, and applying them.
+Rules are split into two categories: a flexible rule (may be a file or directory), and a rule (is either a file or a directory).
+Rules are specified in a git rules-like format.
+
+Firstly, creating ignore rules can be done by reading a file containing rules, or taking as argument a `String' containing rules.
+When these rules are read, they are converted into a specialized regular expression called a `PathMatcher', which is then used to check if a file is matched by a rule.
+This is typically done by iterating over a list of rules, and checking if any of them match an argument file.
+
+This may have an issue where it does not fully support ignore files.
 
 \subsubsection{Plugins}
 To create a plugin for csar the following must be done:
@@ -703,6 +715,9 @@ Secondary requirement `Supporting Mercurial (hg)/Subversion (svn) repositories' 
 Secondary requirement `IntelliJ IDEA integration' was not implemented.
 I never intended to implement it because I do not consider it very important, and IntelliJ is updated too often for me to have enough time to keep it updated.
 It was included in the requirements so that I could outline how a potential implementation of it would work.
+
+Secondary requirement `Ignore files' was implemented.
+It may however not fully support trailing spaces in file names.
 
 Thirdly, I will examine csar's non-functional requirements (see \ref{sec:NonFunctionalRequirements}).
 

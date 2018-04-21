@@ -3,6 +3,7 @@ package com.purecs.ignorefiles;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,8 +65,39 @@ public class IgnoreFiles {
 
             if (line.startsWith("\\#"))
                 line = line.substring(1);
-            rules.add(Rule.parse(baseDirectory, line));
+            rules.add(parse(baseDirectory, line));
         }
         return rules;
+    }
+
+    /**
+     * Parses the arguments into a {@link Rule} instance.
+     */
+    public static Rule parse(String baseDirectory, String input) {
+        // Source: https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
+        // Source: https://git-scm.com/docs/gitignore
+        Rule.Type type = input.startsWith("!") ? Rule.Type.UN_IGNORE : Rule.Type.IGNORE;
+
+        if (input.startsWith("!") || input.startsWith("\\!") || input.startsWith("\\#"))
+            input = input.substring(1);
+
+        // normalize
+        input = input.replace("\\", "/");
+
+        // parse
+        String prepend = input.startsWith("**/") ? "" : "**/";
+
+        if (input.startsWith("/")) {
+            input = Paths.get(baseDirectory, input).toAbsolutePath().toString().replace("\\", "/");
+            return new FlexibleRule(type, input);
+        } else if (input.endsWith("/")) {
+            return new Rule(type, prepend + input + "**");
+        } else if (input.endsWith("/**")) {
+            return new Rule(type, prepend + input);
+        } else if (input.matches("^.*/\\s+/$")) { // trailing spaces
+            return new Rule(type, prepend + input);
+        } else {
+            return new FlexibleRule(type, prepend + input);
+        }
     }
 }

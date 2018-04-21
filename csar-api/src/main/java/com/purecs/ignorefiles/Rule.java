@@ -3,7 +3,6 @@ package com.purecs.ignorefiles;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 
 public class Rule {
 
@@ -21,37 +20,6 @@ public class Rule {
         this.type = type;
         this.regText = regText;
         regMatcher = FileSystems.getDefault().getPathMatcher("glob:" + regText);
-    }
-
-    /**
-     * Parses the arguments into a {@link Rule} instance.
-     */
-    public static Rule parse(String baseDirectory, String input) {
-        // Source: https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
-        // Source: https://git-scm.com/docs/gitignore
-        Rule.Type type = input.startsWith("!") ? Type.UN_IGNORE : Type.IGNORE;
-
-        if (input.startsWith("!") || input.startsWith("\\!") || input.startsWith("\\#"))
-            input = input.substring(1);
-
-        // normalize
-        input = input.replace("\\", "/");
-
-        // parse
-        String prepend = input.startsWith("**/") ? "" : "**/";
-
-        if (input.startsWith("/")) {
-            input = Paths.get(baseDirectory, input).toAbsolutePath().toString().replace("\\", "/");
-            return new FlexibleRule(type, input);
-        } else if (input.endsWith("/")) {
-            return new Rule(type, prepend + input + "**");
-        } else if (input.endsWith("/**")) {
-            return new Rule(type, prepend + input);
-        } else if (input.matches("^.*/\\s+/$")) { // trailing spaces
-            return new Rule(type, prepend + input);
-        } else {
-            return new FlexibleRule(type, prepend + input);
-        }
     }
 
     public Type getType() {

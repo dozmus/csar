@@ -14,12 +14,12 @@ public class IgnoreFilesTest {
     private static final String IGNORE_FILE_DIR = "src/test/resources/com/purecs/ignorefiles/";
 
     private static void assertIgnored(Path path, String ruleText) {
-        Rule rule = Rule.parse(BASE_DIR, ruleText);
+        Rule rule = IgnoreFiles.parse(BASE_DIR, ruleText);
         Assert.assertTrue(IgnoreFiles.ignored(path, rule));
     }
 
     private static void assertNotIgnored(Path path, String ruleText) {
-        Rule rule = Rule.parse(BASE_DIR, ruleText);
+        Rule rule = IgnoreFiles.parse(BASE_DIR, ruleText);
         Assert.assertFalse(IgnoreFiles.ignored(path, rule));
     }
 
