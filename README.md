@@ -31,15 +31,5 @@ Example: `java -jar csar.jar SELECT method:def:add -t 4`
 ### Gradle cheat sheet
 * Build: `build`
 * Run: `:csar-cli:run`
-* Distribution jar: `:csar-cli:distJar`
+* Distribution jar: `:csar-cli:distJar` (these will be placed in `csar\csar-cli\build\distributions' alongside archive distributions)
 * Specify Java arguments to `:csar-cli:run` with `-Pjargs="SELECT method:def:add -t 1 --log-level TRACE"`
-
-### Roadmap
-1. Implement query parsing
-2. Implement searching
-3. Implement refactoring
-4. Implement language-agnosticism
-5. Refactor the project as necessary
-
-Note: Stages 2, 3 and 4 will act as major releases.  
-Note: Low priority tasks will be completed intermittently.
