@@ -622,7 +622,24 @@ To use a plugin with csar the following must be done:
 \end{itemize}
 
 \subsubsection{csar-java}
-% TODO write
+The `CsarJavaPlugin' class is the subclass of `CsarPlugin'.
+This delegates all of the operations it must support to the necessary classes.
+
+It defines all valid Java statements and expressions, and its `JavaCodeParser' class parses Java code into these objects.
+
+Then, its `CodePostProcessor' class post-processes all of the code.
+This includes type hierarchy resolving (`TypeHierarchyResolver'), overridden methods resolving (`OverriddenMethodsResolver'), and method use resolving (`MethodUseResolver').
+It also defines a classes which help these post-processors accomplish their goals, including qualified name resolving (`QualifiedNameResolver'), method qualified type resolving (`MethodQualifiedTypeResolver'), and method call type instance resolving(`MethodCallTypeInstanceResolver').
+
+Then, `JavaCodeSearcher' searches the project code.
+it creates and utilises sub-searchers using `SearcherFactory', which implement the `Searcher' interface are defined, each of which carries out a specific type of search.
+It generates a list of search results, as well as, a list of pending refactor changes (which extend `RefactorChange') depending on the kind of refactoring wanted by the user.
+
+Finally, `JavaCodeRefactorer' refactors the code using the aforementioned list of refactor changes.
+it creates and utilises sub-refactorers using `RefactorerFactory', which implement the `Refactorer' interface are defined, each of which carries out a specific type of refactor.
+
+Each of these sub-searchers and sub-refactorers operate on only one file.
+The results are aggregrated by the class calling them before being returned.
 
 % Implementation
 \section{Implementation}
