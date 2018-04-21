@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.*;
 
 /**
- * A description of the task {@link org.qmul.csar.Csar} should carry out.
+ * A description of the task {@link org.qmul.csar.Csar} should carry out, i.e. an instance of the Csar Query language.
  * This is comprised of four parts, but only the first is required:
  * <ul>
  *     <li>searchTarget - The element to select.</li>

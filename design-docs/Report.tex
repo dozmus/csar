@@ -367,10 +367,30 @@ A modern machine with 2-4GB of RAM should be plenty for most applications.
 The csar binaries (including plugins) and a `.csarignore' file (if applicable) should all be placed in the same folder together.
 This folder is the one that csar will operate on.
 
-\subsection{Csar query}
+\subsection{Csar query language}
 \label{sec:DesignCsarQuery}
 
-% TODO write
+Firstly, we will look at the Csar Query language v1.2.0 (see \ref{apx:CsarQueryLanguagev120}).
+
+It supports much more than the selected scope recommended, so it is quite future proof.
+Most of its issues are beyond the selected scope, but will be still be elaborated on.
+
+It has numerous syntactical problems including the fact that it cannot represent lots of different language elements including: constructors, identifiers with generic types (e.g. `List<String>'), enums, etc.
+It is not very flexible, e.g. you can search for `final' methods but not for `not final' methods.
+This could be resolved by allowing a `NOT' identifier in certain places, to invert the following search condition.
+It does not allow the usage of regular expressions everywhere.
+It cannot represent computation/arithmetic.
+It cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity).
+It does not allow fully qualified types.
+It does not allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
+
+It cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
+However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error. One solution is to print an error message and terminate.
+
+Secondly, there is a Csar Query language v2.0.0, but it will be omitted for brevity.
+You can find the analysis on that in the `design-docs/query-language' folder within the project.
+
+It was an improvement over v1.2.0 but also suffered from some common issues.
 
 \subsection{Overview}
 Firstly, a chosen csar frontend containing a main method is invoked by the Java (in particular the Java Virtual Machine).
@@ -446,7 +466,21 @@ To use a plugin with csar the following must be done:
 This section describes csar's implementation details, that is, the exact algorithms and ideas of interest used.
 
 \subsection{Csar query}
-% TODO write
+The implemented version of the Csar Query language is a superset of v1.2.0.
+Its `expr' rule is very lenient, this is because the definition of an expression depends on a target programming language. 
+This is intended to be parsed further at a language-specific level.
+The grammar should explicitly allow the escaping of single quote in the comment rules, but it works anyway.
+`REGEXP` rules can be swallowed by other rules, we must make sure its used strictly for regex characters and not string literals.
+
+Some example queries built using the language are specified below:
+\begin{itemize}
+  \item `SELECT method:use:print' - will find method calls with the identifier `print'.
+  \item `SELECT method:use:REGEXP(print*)' - will find method calls starting the identifier `print'.
+  \item `SELECT method:def:static final print(1)' - will find method definitions which are static and final, with the identifier `print' and one argument.
+  \item `SELECT method:def:print(String)' - will find method definitions with the identifier `print' and one `String' argument.
+  \item `SELECT method:def:print REFACTOR rename:anotherPrint' will find methods with the identifier `print', and then rename them and their corresponding method calls to `anotherPrint'.
+  \item `SELECT method:def:print REFACTOR changeparam:String s, String s1' - will find methods with the identifier `print', and then rename them and their corresponding method calls to `anotherPrint'.
+\end{itemize}
 
 \subsection{Ignore files}
 % TODO write
@@ -806,6 +840,129 @@ public class CsarJavaPlugin implements CsarPlugin {
     // remove the error listener...
   }
 }
+\end{lstlisting}
+
+% Appendix 3: Csar Query Language v1.2.0
+\subsection{Csar Query Language v1.2.0}
+\label{apx:CsarQueryLanguagev120}
+
+\begin{lstlisting}
+/**
+ * Lexer
+ */
+lexer grammar CsarLexer;
+
+/*
+ * The lexer rules have been omitted for brevity, because their names are very good indicators
+ * of exactly what they are. Each rule represents a literal or range of literals.
+ * You can find the full grammar in the `design-docs/query-language' folder within the project.
+ */
+
+// Language elements
+IDENTIFIER_NAME: JAVA_LETTER (JAVA_LETTER | DIGIT)*;
+NUMBER: DIGIT+;
+
+// Fall-back rule
+CATCH_ALL: (.)+?;
+
+// Fragments
+fragment TEXT: [a-zA-Z];
+fragment DIGIT: [0-9];
+
+// The following rule is taken from: https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
+fragment JAVA_LETTER
+    :   TEXT | [$_] // these are the "java letters" below 0x7F
+    |   // covers all characters above 0x7F which are not a surrogate
+        ~[\u0000-\u007F\uD800-\uDBFF]
+        {Character.isJavaIdentifierStart(_input.LA(-1))}?
+    |	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+        [\uD800-\uDBFF] [\uDC00-\uDFFF]
+        {Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
+    ;
+
+/**
+ * Parser
+ */
+parser grammar CsarParser;
+
+// Csar query (top-level)
+csarQuery: (SELECT SPACE)? statementDescriptor (SPACE containsQuery)? (SPACE fromQuery)? (SPACE refactorQuery)? EOF;
+containsQuery: CONTAINS SPACE (NOT SPACE)? statementDescriptor containsQueryRest*;
+containsQueryRest: SPACE (AND | OR) SPACE (NOT SPACE)? statementDescriptor;
+fromQuery: FROM SPACE typeList; // types to search within
+refactorQuery: REFACTOR SPACE refactorDescriptor;
+
+statementDescriptor: clazz | method | variable | conditional | comment;
+refactorDescriptor: rename | changeParameters;
+
+// Class
+clazz: (CLASS_NV | CLASS_V) commonModifiers classModifiers (identifierName | regexIdentifierName) superClassList?;
+classModifiers: ((ABSTRACT | INTERFACE) SPACE)? (STRICTFP SPACE)? (ANONYMOUS SPACE)? (INNER SPACE)?;
+superClassList: LPAREN SPACE* typeList SPACE* RPAREN;
+
+// Method
+method
+    : METHOD commonModifiers (OVERRIDDEN SPACE)? (type SPACE)? (identifierName | regexIdentifierName)
+     (SPACE? methodParameters)? (SPACE methodThrownExceptions)? (SPACE SUPER SPACE* superClassList)?
+    ;
+methodParameters: LPAREN SPACE* (NUMBER | paramTypeList | paramNamedTypeList) SPACE* RPAREN;
+methodThrownExceptions: THROWS SPACE* LPAREN SPACE* typeList SPACE* RPAREN;
+paramTypeList: (FINAL SPACE)? SPACE* type paramTypeListRest*;
+paramTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type;
+paramNamedTypeList: (FINAL SPACE)? type SPACE+ identifierName paramNamedTypeListRest*;
+paramNamedTypeListRest: SPACE* COMMA (FINAL SPACE)? SPACE* type SPACE+ identifierName;
+
+// Variable
+variable: instanceVariable | localVariable | paramVariable;
+instanceVariable: INSTANCE commonModifiers instanceVariableModifiers (type SPACE)? identifierName;
+instanceVariableModifiers: ((TRANSIENT | VOLATILE) SPACE)?;
+localVariable: LOCAL COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
+paramVariable: PARAM COLON (DEF | USE) COLON (FINAL SPACE)? (type SPACE)? identifierName;
+
+// Conditional
+conditional: if0 | switch0 | while0 | dowhile | for0 | foreach | ternary | synchronized0;
+if0: IF (LPAREN expr RPAREN)?;
+switch0: SWITCH (LPAREN expr RPAREN | COLON identifierName)?;
+while0: WHILE (LPAREN expr RPAREN)?;
+dowhile: DOWHILE (LPAREN expr RPAREN)?;
+for0: FOR;
+foreach: FOREACH (COLON identifierName)?;
+ternary: TERNARY;
+synchronized0: SYNCHRONIZED (LPAREN expr RPAREN | COLON identifierName)?;
+
+// Comment
+comment: singleLineComment | multiLineComment;
+singleLineComment: SINGLE_LINE_COMMENT (COLON S_QUOTE content S_QUOTE)?;
+multiLineComment: MULTI_LINE_COMMENT (COLON JAVADOC)? (COLON S_QUOTE content S_QUOTE)?;
+
+// Refactor
+rename: RENAME COLON SPACE* identifierName;
+changeParameters: CHANGE_PARAMETERS COLON SPACE* (typeList | namedTypeList);
+
+// Helpers
+commonModifiers: COLON (DEF | USE) COLON (visibilityModifier SPACE)? (STATIC SPACE)? (FINAL SPACE)?;
+visibilityModifier: PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE;
+
+type: identifierName (LBRACK RBRACK)*;
+typeList: type (SPACE* COMMA SPACE* type)*;
+namedTypeList: type SPACE+ identifierName (SPACE* COMMA SPACE* type SPACE+ identifierName)*;
+identifierName
+    : IDENTIFIER_NAME | SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | DOWHILE | TERNARY | RENAME
+    | CHANGE_PARAMETERS | OVERRIDDEN | ANONYMOUS | INNER | JAVADOC | SINGLE_LINE_COMMENT | MULTI_LINE_COMMENT
+    | PACKAGE_PRIVATE | INSTANCE | LOCAL | PARAM | METHOD | CLASS_NV | REGEXP
+    ;
+regexIdentifierName: REGEXP LPAREN (content | identifierName) RPAREN;
+
+content
+    : (SELECT | CONTAINS | FROM | REFACTOR | DEF | USE | AND | OR | NOT | CLASS_NV | CLASS_V | METHOD | INSTANCE
+        | LOCAL | PARAM | IF | SWITCH | WHILE | DOWHILE | FOR | FOREACH | TERNARY | SYNCHRONIZED | SINGLE_LINE_COMMENT
+        | MULTI_LINE_COMMENT | PUBLIC | PRIVATE | PROTECTED | PACKAGE_PRIVATE | STATIC | FINAL | ABSTRACT | CATCH_ALL
+        | INTERFACE | STRICTFP | ANONYMOUS | INNER | SUPER | OVERRIDDEN | THROWS | RENAME | CHANGE_PARAMETERS
+        | TRANSIENT | VOLATILE | JAVADOC | SPACE | COLON | COMMA | LPAREN | RPAREN | IDENTIFIER_NAME | NUMBER | S_QUOTE
+        | LBRACK | RBRACK | REGEXP
+      )*
+    ;
+expr: content;
 \end{lstlisting}
 
 \end{document}
