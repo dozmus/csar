@@ -48,8 +48,10 @@ public interface CsarPlugin {
      * @param searchResults the search results
      * @param threadCount the amount of threads to use
      * @return search results
+     * @throws IllegalArgumentException if csar query does not contain a refactor descriptor
      */
-    List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount);
+    List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount)
+            throws IllegalArgumentException;
 
     /**
      * Adds an error listener.

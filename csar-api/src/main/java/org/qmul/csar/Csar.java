@@ -77,7 +77,7 @@ public class Csar {
             throw new IllegalStateException("an error has occurred, csar cannot continue");
 
         try {
-            csarQuery = CsarQueryFactory.parse(query);
+            csarQuery = CsarQueryFactory.parse(query.trim());
         } catch (Exception ex) {
             errorListeners.forEach(l -> l.errorParsingCsarQuery(ex));
         }
@@ -128,17 +128,21 @@ public class Csar {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
 
-        csarQuery.getRefactorDescriptor().ifPresent(r -> {
-            for (String warning : r.warnings()) {
+        csarQuery.getRefactorDescriptor().ifPresent(refactorDescriptor -> {
+            // Print warnings
+            for (String warning : refactorDescriptor.warnings()) {
                 LOGGER.info(warning);
             }
-        });
-        refactorResults = new ArrayList<>();
 
-        CsarPluginLoader.getInstance().forEachPlugin(p -> {
-            List<Result> results = p.refactor(csarQuery, searchResults, threadCount);
-            this.refactorResults.addAll(results);
+            // Apply refactor
+            refactorResults = new ArrayList<>();
+
+            CsarPluginLoader.getInstance().forEachPlugin(p -> {
+                List<Result> results = p.refactor(csarQuery, searchResults, threadCount);
+                this.refactorResults.addAll(results);
+            });
         });
+
     }
 
     /**

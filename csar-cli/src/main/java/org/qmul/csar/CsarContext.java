@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Command-line arguments.
+ * A representation of the tasks Csar should carry out. This is also used to represent command-line arguments.
  *
  * @see Main#main(String[])
  * @see Main#printUsage()

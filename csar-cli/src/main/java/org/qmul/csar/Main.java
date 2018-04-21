@@ -97,20 +97,24 @@ public final class Main {
 
         try {
             List<Result> results = csar.getSearchResults();
-            logger.info("Search results: {}", results.size());
+            System.out.println("Search results (" + results.size() + " found):");
             System.out.println(ctx.getResultFormatter().format(results));
         } catch (Exception ex) {
-            logger.error("Error formatting search results: " + ex.getMessage());
+            logger.error("Error formatting search results: {}", ex.getMessage());
+            logger.debug("Error formatting search results.", ex);
             System.exit(EXIT_CODE_ERROR_FORMATTING_SEARCH_RESULTS);
         }
 
-
         try {
             List<Result> results = csar.getRefactorResults();
-            logger.info("Refactor results: {}", results.size());
-            System.out.println(ctx.getResultFormatter().format(results));
+
+            if (results != null) { // only print if a refactor happened
+                System.out.println("Refactor results (" + results.size() + " found):");
+                System.out.println(ctx.getResultFormatter().format(results));
+            }
         } catch (Exception ex) {
-            logger.error("Error formatting search results: " + ex.getMessage());
+            logger.error("Error formatting refactor results: {}", ex.getMessage());
+            logger.debug("Error formatting refactor results.", ex);
             System.exit(EXIT_CODE_ERROR_FORMATTING_REFACTOR_RESULTS);
         }
 

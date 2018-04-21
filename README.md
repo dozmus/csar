@@ -26,7 +26,7 @@ Usage: java -jar csar.jar [options] Search query
       Print help information
 ```
 
-Example: `java -jar csar.jar SELECT method:def:add -t 4`
+Example (more in the project report): `java -jar csar.jar SELECT method:def:add -t 4`.
 
 ### Gradle cheat sheet
 * Build: `build`

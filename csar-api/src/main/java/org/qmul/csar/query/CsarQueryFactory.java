@@ -13,9 +13,10 @@ import org.qmul.csar.util.DefaultAntlrErrorListener;
 public final class CsarQueryFactory {
 
     /**
-     * Parses the <tt>String</tt> argument as a {@link CsarQuery}.
-     * The parsing is reliant on the ANTLR generated classes {@link CsarLexer} and {@link CsarParser}, and uses the
-     * {@link BailErrorStrategy}.
+     * Returns the <tt>String</tt> argument as a {@link CsarQuery}.
+     * The parsing is reliant on the ANTLR auto-generated classes {@link CsarLexer} and {@link CsarParser}, and uses
+     * the {@link BailErrorStrategy}.
+     *
      * @param query the csar query
      * @throws IllegalArgumentException thrown if the query is the empty string
      * @throws RuntimeException thrown if the query has invalid syntax

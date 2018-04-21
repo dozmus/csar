@@ -218,8 +218,8 @@ class CsarQueryParser extends CsarParserBaseListener {
     private static ParameterVariableDescriptor parseParameterVariableDescriptor(IdentifierNameContext identifierNameCtx,
             TypeContext typeCtx, TerminalNode finalNode) {
         Optional<Boolean> isFinal = finalNode != null ? Optional.of(true) : Optional.empty();
-        return new ParameterVariableDescriptor(Optional.of(new IdentifierName.Static(identifierNameCtx.getText())),
-                Optional.of(typeCtx.getText()), isFinal);
+        IdentifierName identifierName = new IdentifierName.Static(identifierNameCtx.getText());
+        return new ParameterVariableDescriptor(Optional.of(identifierName), Optional.of(typeCtx.getText()), isFinal);
     }
 
     private static TargetDescriptor parseVariable(VariableContext ctx) {
@@ -325,7 +325,7 @@ class CsarQueryParser extends CsarParserBaseListener {
             NamedTypeListContext params = cpc.namedTypeList();
 
             if (params.type().size() != params.identifierName().size()) {
-                throw new RuntimeException("syntax error parsing csar query named type list");
+                throw new RuntimeException("syntax error in named type list");
             }
 
             for (int i = 0; i < params.type().size(); i++) {
@@ -391,12 +391,12 @@ class CsarQueryParser extends CsarParserBaseListener {
 
     @Override
     public void enterRefactorQuery(RefactorQueryContext ctx) {
-        RefactorDescriptor re = parseRefactorDescriptor(ctx.refactorDescriptor());
-        refactorDescriptor = Optional.of(re);
+        RefactorDescriptor refactorDescriptor = parseRefactorDescriptor(ctx.refactorDescriptor());
 
-        if (!re.validate(searchTarget)) {
+        if (!refactorDescriptor.validate(searchTarget)) {
             throw new RuntimeException("invalid refactor element");
         }
+        this.refactorDescriptor = Optional.of(refactorDescriptor);
     }
 
     public CsarQuery csarQuery() {

@@ -14,7 +14,7 @@ This requires their pure CLI frontends to be installed otherwise an error will b
 This is the following if a suitable git frontend is not installed: `Error running git ls-files: git is not recognized`.
 
 # Plugins
-See Report section 'High-level Structure'.
+See project report.
 
 # Csar Query Language
 Each csar query is comprised of four parts, but only the first is required:
@@ -30,6 +30,10 @@ Run csar with an appropriate csar query to find the language element(s) you want
 If no error occurs a list of search results will be displayed.
 
 e.g. `SELECT method:def:add(int,int)` will find all method definitions with two integer parameters.
+
+# Running csar from within another process
+You can run csar from another process as you would with any other piece of software.
+Csar's results output to the standard output stream, and its logging outputs to the standard error output stream.
 
 ## CLI Return Codes
 | Return Code | Description |
