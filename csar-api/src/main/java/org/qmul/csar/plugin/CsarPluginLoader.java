@@ -7,6 +7,10 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.Consumer;
 
+/**
+ * A singleton plugin loader for classes which extend {@link CsarPlugin} residing in JARs.
+ * This will examine the current working directory non-recursively.
+ */
 public final class CsarPluginLoader {
 
     private static CsarPluginLoader instance;
@@ -24,10 +28,16 @@ public final class CsarPluginLoader {
         loader.iterator().forEachRemaining(action);
     }
 
+    /**
+     * Returns an iterator over the currently loaded plugins.
+     */
     public Iterator<CsarPlugin> plugins() {
         return loader.iterator();
     }
 
+    /**
+     * Returns the singleton instance.
+     */
     public static synchronized CsarPluginLoader getInstance() {
         if (instance == null) {
             instance = new CsarPluginLoader();
@@ -38,7 +48,7 @@ public final class CsarPluginLoader {
     /**
      * Returns a {@link URLClassLoader} which inspects JARs in the current working directory non-recursively.
      */
-    private ClassLoader classLoader() {
+    private static ClassLoader classLoader() {
         File[] files = new File(".").listFiles(f -> f.getPath().toLowerCase().endsWith(".jar"));
         URL[] urls = new URL[files.length];
 

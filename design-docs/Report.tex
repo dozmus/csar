@@ -400,16 +400,43 @@ Finally, `csar-cli' will terminate.
 % TODO write
 
 \subsection{High-level}
-This section describes csar's high-level design, that is, describing csar in terms of the modules which comprise it.
+This section describes csar's high-level design, that is, describing csar in terms of the modules which comprise it and how they interact with each other.
 
 \subsubsection{Component overview}
-% TODO write
+\begin{figure}[!hb]
+  \centering
+  \caption{High-level Structure}
+  \includegraphics{figure-1}
+\end{figure}
+
+The frontend receives user input and directs them to the `csar-api', which in turn interacts with its plugins to complete the user's task.
+
+The `csar-api' defines the csar query, csar plugins (using Java's ServiceLoader class), various interfaces (for parsing, searching, and refactoring), and various utilities (for plugins and otherwise).
+It does not specify language-specific implementation details.
+
+The language-specific details are specified in plugins.
+These behaviours are: code parsing, post-processing, searching, and refactoring.
 
 \subsubsection{csar-cli}
 % TODO write
 
 \subsubsection{csar-api}
 % TODO write
+
+\subsubsection{Plugins}
+Plugins must adhere to the following rules:
+\begin{itemize}
+  \item They are not executed concurrently, but interleaving during the same step of csar process may occur, i.e. all plugins may be told to parse one by one, and then to post-process one by one, and so forth.
+  \item They will have unrestricted access to the host machine.
+  \item All plugins have access to all project files, thus it is possible for two plugins to modify the same file.
+\end{itemize}
+
+To use a plugin with csar the following must be done:
+\begin{itemize}
+  \item Place the project JAR in the the same directory as csar (which should be the current working directory).
+  If you place it in any other directory, including a sub-directory, csar is not obliged to detect it but it may at its own discretion.
+  \item Run the csar front-end jar, then `csar-api' should automatically detect and delegate tasks to the plugin.
+\end{itemize}
 
 \subsubsection{csar-java}
 % TODO write
@@ -423,6 +450,22 @@ This section describes csar's implementation details, that is, the exact algorit
 
 \subsection{Ignore files}
 % TODO write
+
+\subsubsection{Plugins}
+To create a plugin for csar the following must be done:
+\begin{itemize}
+  \item Create a new project targetting the JVM which depends on: `csar-api'.
+  \item Create a class which implements `CsarPlugin' from `csar-api'.
+  This must have a public 0-arguments constructor, and must implement the behaviour defined by the interface: parsing, post-processing, searching, and refactoring.
+  Your implementation should support adding and removing error listeners as specified by the interface, and delegating the appropriate errors to them.
+  The skeleton of this class can be seen in the appendices (see \ref{apx:SkeletonCsarPluginImplementation}).
+  \item Define a resource for the JAR, which should be in the `META-INF/services' folder.
+  The file's name should be `org.qmul.csar.plugin.CsarPlugin' and its content the fully qualified name of your plugin.
+  In the case of the appendix implementation this would be `org.qmul.csar.CsarJavaPlugin'.
+  \item Compile the project into a JAR.
+\end{itemize}
+
+Plugins are loaded at runtime using the `CsarPluginLoader' singleton class, which utilises a `ClassLoader' to find the JARs and `ServiceLoader' to load the plugin classes.
 
 \subsection{Parsing}
 % TODO write
@@ -713,5 +756,56 @@ Repository: \href{https://github.com/cbeust/jcommander}{cbeust/JCommander}
   \item ``Add documentation for usage formatter'' (\href{https://github.com/cbeust/jcommander/pull/411}{Pull Request \#411})
   \item ``Update changelog'' (\href{https://github.com/cbeust/jcommander/pull/419}{Pull Request \#419})
 \end{itemize}
+
+% Appendix 2: Skeleton of a CsarPlugin Implementation
+\subsection{Skeleton of a CsarPlugin Implementation}
+\label{apx:SkeletonCsarPluginImplementation}
+
+\begin{lstlisting}[language=Java]
+package org.qmul.csar.CsarJavaPlugin;
+
+// imports...
+
+/**
+  * The Java language csar plugin.
+  */
+public class CsarJavaPlugin implements CsarPlugin {
+
+  @Override
+  public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
+    // parse code...
+  }
+
+  @Override
+  public void postprocess(int threadCount) {
+    // post-process code...
+  }
+
+  @Override
+  public List<Result> search(CsarQuery csarQuery, int threadCount) {
+    // search code...
+  }
+
+  @override
+  public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount) {
+    // refactor code
+  }
+
+  @Override
+  public void addErrorListener(CsarErrorListener errorListener) {
+    // add the error listener...
+  }
+
+  @Override
+  public void addErrorListener(CsarErrorListener errorListener) {
+    // add the error listener...
+  }
+
+  @Override
+  public void removeErrorListener(CsarErrorListener errorListener) {
+    // remove the error listener...
+  }
+}
+\end{lstlisting}
 
 \end{document}
