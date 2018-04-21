@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.refactor;
 
-import org.qmul.csar.code.RefactorChange;
+import org.qmul.csar.code.refactor.RefactorChange;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 
 import java.nio.file.Path;

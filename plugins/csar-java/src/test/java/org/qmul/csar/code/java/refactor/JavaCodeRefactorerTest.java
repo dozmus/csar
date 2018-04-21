@@ -2,9 +2,9 @@ package org.qmul.csar.code.java.refactor;
 
 import org.junit.Test;
 import org.qmul.csar.CsarJavaPlugin;
-import org.qmul.csar.code.ProjectCodeRefactorer;
+import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
 import org.qmul.csar.code.ProjectCodeSearcher;
-import org.qmul.csar.code.RefactorTarget;
+import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.code.java.TestUtils;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.lang.Statement;

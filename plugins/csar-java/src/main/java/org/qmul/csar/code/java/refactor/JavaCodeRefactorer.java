@@ -1,9 +1,9 @@
 package org.qmul.csar.code.java.refactor;
 
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.ProjectCodeRefactorer;
-import org.qmul.csar.code.RefactorChange;
-import org.qmul.csar.code.RefactorTarget;
+import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
+import org.qmul.csar.code.refactor.RefactorChange;
+import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.query.RefactorDescriptor;

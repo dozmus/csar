@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.search;
 
-import org.qmul.csar.code.RefactorTarget;
+import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 

@@ -1,6 +1,7 @@
 package org.qmul.csar.code;
 
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.result.Result;
