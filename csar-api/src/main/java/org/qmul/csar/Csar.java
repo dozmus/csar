@@ -62,7 +62,7 @@ public class Csar {
         CsarPluginLoader pluginLoader = CsarPluginLoader.getInstance();
 
         if (!pluginLoader.plugins().hasNext()) {
-            errorListeners.forEach(CsarErrorListener::errorInitializing);
+            errorListeners.forEach(CsarErrorListener::fatalErrorInitializing);
         }
 
         // Add error handlers
@@ -79,7 +79,7 @@ public class Csar {
         try {
             csarQuery = CsarQueryFactory.parse(query.trim());
         } catch (Exception ex) {
-            errorListeners.forEach(l -> l.errorParsingCsarQuery(ex));
+            errorListeners.forEach(l -> l.fatalErrorParsingCsarQuery(ex));
         }
     }
 

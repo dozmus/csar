@@ -19,9 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class MethodResolver {
+/**
+ * Resolves a method call's corresponding method definition.
+ */
+public class MethodCallResolver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodCallResolver.class);
     private final Path path;
     private final Map<Path, Statement> code;
     private final QualifiedNameResolver qualifiedNameResolver;
@@ -31,7 +34,7 @@ public class MethodResolver {
     private TraversalHierarchy traversalHierarchy;
     private boolean onVariable;
 
-    public MethodResolver(Path path, Map<Path, Statement> code, QualifiedNameResolver qualifiedNameResolver,
+    public MethodCallResolver(Path path, Map<Path, Statement> code, QualifiedNameResolver qualifiedNameResolver,
             TypeHierarchyResolver typeHierarchyResolver) {
         this.path = path;
         this.code = code;
@@ -40,6 +43,9 @@ public class MethodResolver {
         this.parameterTypeInstances = new ArrayList<>();
     }
 
+    /**
+     * Returns the method statement the argument method call corresponds to, or <tt>null</tt> if not found.
+     */
     public MethodStatement resolve(MethodCallExpression methodCall, TypeStatement baseTopLevelParent,
             TypeStatement baseTypeStatement, List<ImportStatement> baseImports,
             Optional<PackageStatement> basePackageStatement, BlockStatement baseContext,
@@ -80,7 +86,7 @@ public class MethodResolver {
                 return m;
             }
 
-            if ((m = resolveCurrentTypeStatement()) != null) {
+            if ((m = resolveInCurrentTypeStatement()) != null) {
                 LOGGER.trace("Found in current type statement.");
                 return m;
             }
@@ -95,6 +101,10 @@ public class MethodResolver {
         return null;
     }
 
+    /**
+     * Returns the method statement the argument method call corresponds to, or <tt>null</tt> if not found.
+     * This assumes that the method call was on a variable, e.g. `instance.methodCall()`.
+     */
     public MethodStatement resolveOnVariable(MethodCallExpression e, TypeStatement baseTopLevelParent,
             TypeStatement baseTypeStatement, List<ImportStatement> baseImports,
             Optional<PackageStatement> basePackageStatement, BlockStatement baseContext,
@@ -109,12 +119,16 @@ public class MethodResolver {
                 th.getPackageStatement(), th.currentContext(), th);
     }
 
-    private MethodStatement resolveCurrentTypeStatement() {
+    /**
+     * Returns the method definition if it is found from within the current type statement, or <tt>null</tt> if not
+     * found.
+     */
+    private MethodStatement resolveInCurrentTypeStatement() {
         boolean firstOne = true;
 
         for (TypeStatement ts : traversalHierarchy.typeStatements()) {
             if (firstOne || !PostProcessUtils.isStaticTypeStatement(ts)) {
-                MethodStatement method = resolveInBlock(PostProcessUtils.getBlock(ts));
+                MethodStatement method = resolveInTypeStatement(ts);
                 firstOne = false;
 
                 if (method != null)
@@ -124,10 +138,16 @@ public class MethodResolver {
         return null;
     }
 
+    /**
+     * Returns the method definition if it is found from within the argument, or <tt>null</tt> if not found.
+     */
     private MethodStatement resolveInTypeStatement(TypeStatement typeStatement) {
         return resolveInBlock(PostProcessUtils.getBlock(typeStatement));
     }
 
+    /**
+     * Returns the method definition if it is found from within the superclasses of the argument.
+     */
     private MethodStatement resolveInSuperClasses(TypeStatement targetType, TypeStatement topLevelParent,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports) {
         for (String superClass : PostProcessUtils.superClasses(targetType)) {
@@ -141,6 +161,10 @@ public class MethodResolver {
         return null;
     }
 
+    /**
+     * Returns the method definition if it is found from within the argument, or <tt>null</tt> if not found.
+     * This also recursively checks its super-classes.
+     */
     private MethodStatement resolveInQualifiedType(QualifiedType resolvedType) {
         if (resolvedType != null) {
             Statement resolvedStatement = resolvedType.getStatement();
@@ -162,14 +186,16 @@ public class MethodResolver {
         return null;
     }
 
+    /**
+     * Returns the method definition if it is found from within the argument, or <tt>null</tt> if not found.
+     */
     private MethodStatement resolveInBlock(BlockStatement block) {
         List<Statement> statements = block.getStatements();
 
         if (statements.size() == 0)
             return null;
         String methodName = methodCall.getMethodIdentifier();
-        boolean currentContextIsStatic = traversalHierarchy.isCurrentLocalContextStatic();
-
+        boolean isCurrentCtxStatic = traversalHierarchy.isCurrentLocalContextStatic();
         return statements.stream()
                 .filter(s -> s instanceof MethodStatement)
                 .map(s -> (MethodStatement)s)
@@ -179,12 +205,13 @@ public class MethodResolver {
                     boolean methodNameEquals = methodName.equals(desc.getIdentifierName().toString());
                     boolean argsEquals = parametersSignatureEquals(method.getParameters(), desc.getTypeParameters());
                     boolean accessibilityIsValid = onVariable
-                            || !(currentContextIsStatic && !desc.getStaticModifier().get());
+                            || !(isCurrentCtxStatic && !desc.getStaticModifier().get());
                     // TODO check visibility modifier and make sure accessibility is correct
 
                     return methodNameEquals && argsEquals && accessibilityIsValid;
                 })
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean parametersSignatureEquals(List<ParameterVariableStatement> parameters,

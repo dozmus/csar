@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess;
 
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
@@ -11,6 +12,18 @@ import org.qmul.csar.lang.Statement;
 import java.nio.file.Path;
 import java.util.Map;
 
+/**
+ * A Java project code post-processor. It is comprised of the following parts, which are executed in order:
+ * <ul>
+ *     <li>TypeHierarchyResolver - resolves the type hierarchy of the project.</li>
+ *     <li>MethodQualifiedTypeResolver - attaches QualifiedType instances for the return type and parameters of each
+ *     method statement.</li>
+ *     <li>OverriddenMethodsResolver - sets the overridden flag of each method statement.</li>
+ *     <li>MethodCallTypeInstanceResolver - attaches TypeInstance instances for the name and parameters of each method
+ *     call expression.</li>
+ *     <li>MethodUseResolver - resolves and sets method calls which correspond to each method statement.</li>
+ * </ul>
+ */
 public class JavaPostProcessor implements CodePostProcessor {
 
     private final TypeHierarchyResolver typeHierarchyResolver;
@@ -37,9 +50,35 @@ public class JavaPostProcessor implements CodePostProcessor {
         typeHierarchyResolver.postprocess(code);
         methodQualifiedTypeResolver.postprocess(code);
         overriddenMethodsResolver.postprocess(code);
-        methodCallTypeInstanceResolver.setTypeHierarchyResolver(typeHierarchyResolver);
         methodCallTypeInstanceResolver.postprocess(code);
-        methodUseResolver.setTypeHierarchyResolver(typeHierarchyResolver);
         methodUseResolver.postprocess(code);
+    }
+
+    /**
+     * Adds error listeners to all of its component post-processors.
+     *
+     * @param errorListener the error listener
+     */
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        typeHierarchyResolver.addErrorListener(errorListener);
+        methodQualifiedTypeResolver.addErrorListener(errorListener);
+        overriddenMethodsResolver.addErrorListener(errorListener);
+        methodCallTypeInstanceResolver.addErrorListener(errorListener);
+        methodUseResolver.addErrorListener(errorListener);
+    }
+
+    /**
+     * Adds error listeners to all of its component post-processors.
+     *
+     * @param errorListener the error listener
+     */
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        typeHierarchyResolver.removeErrorListener(errorListener);
+        methodQualifiedTypeResolver.removeErrorListener(errorListener);
+        overriddenMethodsResolver.removeErrorListener(errorListener);
+        methodCallTypeInstanceResolver.removeErrorListener(errorListener);
+        methodUseResolver.removeErrorListener(errorListener);
     }
 }

@@ -11,62 +11,63 @@ public class LoggingCsarErrorListener implements CsarErrorListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingCsarErrorListener.class);
 
     @Override
-    public void errorInitializing() {
-        LOGGER.error("Found no suitable plugins.");
+    public void fatalErrorInitializing() {
+        LOGGER.error("Failed to start csar because found no suitable plugins.");
+        LOGGER.error("Initializing Csar error (Unrecoverable)");
     }
 
     @Override
-    public void errorParsingCsarQuery(Exception ex) {
+    public void fatalErrorParsingCsarQuery(Exception ex) {
         LOGGER.error("Failed to parse csar query because {}", ex.getMessage());
-        LOGGER.debug("Parsing Csar Query Error", ex);
+        LOGGER.debug("Parsing Csar Query error (Unrecoverable)", ex);
     }
 
     @Override
-    public void fatalInitializingParsing(Exception ex) {
+    public void fatalErrorInitializingParsing(Exception ex) {
         LOGGER.error("Failed to initialize the parser because {}", ex.getMessage());
-        LOGGER.debug("Initializing Parsing Error", ex);
+        LOGGER.debug("Initializing Parsing error (Unrecoverable)", ex);
     }
 
     @Override
     public void errorParsing(Path path, Exception ex) {
         String phrase = (ex instanceof IOException) ? "read" : "parse";
         LOGGER.warn("Failed to {} file {} because {}", phrase, path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("Parsing Error (Recoverable)", ex);
+        LOGGER.debug("Parsing error (Recoverable)", ex);
     }
 
     @Override
     public void fatalErrorParsing(Path path, Exception ex) {
         LOGGER.error("Parsing terminated {} because {}", path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("Parsing Error (Unrecoverable)", ex);
+        LOGGER.debug("Parsing error (Unrecoverable)", ex);
     }
 
     @Override
-    public void errorPostProcessing(Exception ex) {
+    public void fatalErrorPostProcessing(Exception ex) {
         LOGGER.error("Post-processing terminated because {}", ex.getMessage());
-        LOGGER.debug("Post-processing Error", ex);
+        LOGGER.debug("Post-processing error (Unrecoverable)", ex);
     }
 
     @Override
     public void errorSearching(Path path, Exception ex) {
         LOGGER.warn("Failed to search file {} because {}", path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("Searching Error (Recoverable)", ex);
+        LOGGER.debug("Searching error (Recoverable)", ex);
     }
 
     @Override
     public void fatalErrorSearching(Path path, Exception ex) {
         LOGGER.error("Searching terminated {} because {}", path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("Searching Error (Unrecoverable)", ex);
+        LOGGER.debug("Searching error (Unrecoverable)", ex);
     }
 
     @Override
     public void errorRefactoring(Path path, Exception ex) {
         LOGGER.warn("Failed to refactor file {} because {}", path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("Refactoring Error (Recoverable)", ex);
+        LOGGER.debug("Refactoring error (Recoverable)", ex);
     }
 
     @Override
     public void fatalErrorRefactoring(Path path, Exception ex) {
         LOGGER.error("Refactoring terminated {} because {}", path.getFileName().toString(), ex.getMessage());
-        LOGGER.debug("Refactoring Error (Unrecoverable)", ex);
+        LOGGER.debug("Refactoring error (Unrecoverable)", ex);
     }
 }

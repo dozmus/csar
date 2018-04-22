@@ -1,13 +1,14 @@
 package org.qmul.csar.code.java.postprocess.typehierarchy;
 
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
+import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
-import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
-import org.qmul.csar.code.java.postprocess.util.TypeHelper;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.postprocess.util.TypeHelper;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ public class TypeHierarchyResolver implements CodePostProcessor {
      * The qualified name resolver to use.
      */
     private final QualifiedNameResolver qualifiedNameResolver;
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
 
     public TypeHierarchyResolver() {
         this(new QualifiedNameResolver());
@@ -46,10 +48,13 @@ public class TypeHierarchyResolver implements CodePostProcessor {
 
     public TypeHierarchyResolver(QualifiedNameResolver qualifiedNameResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
-        initRoot();
+        initPrimitives();
     }
 
-    private void initRoot() {
+    /**
+     * Adds in-built Java primitive types to the {@link #root} element.
+     */
+    private void initPrimitives() {
         // TODO update once java api is fully supported
         TypeNode doublen = createPrimitiveTypeNode("java.lang.Double", "double");
         TypeNode floatn = createPrimitiveTypeNode("java.lang.Float", "float");
@@ -77,8 +82,8 @@ public class TypeHierarchyResolver implements CodePostProcessor {
 
     /**
      * Places all nodes in the argument list into their correct position in the argument {@link TypeNode}. If a correct
-     * position is not found for an element in the list, then they are placed as a child of the <tt>root</tt> element to
-     * form a partial hierarchy.
+     * position is not found for an element in the list, then they are placed as a child of the <tt>root</tt> element
+     * to form a partial hierarchy.
      * <p>
      * If the argument is already contained, it will be added again.
      *
@@ -125,35 +130,50 @@ public class TypeHierarchyResolver implements CodePostProcessor {
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
-        List<TypeNode> partialHierarchies = new ArrayList<>();
 
-        // Iterate all code files
-        for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-            Path path = entry.getKey();
-            Statement statement = entry.getValue();
+        try {
+            List<TypeNode> partialHierarchies = new ArrayList<>();
 
-            if (!(statement instanceof CompilationUnitStatement))
-                continue;
-            CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
-            TypeStatement typeStatement = topStatement.getTypeStatement();
+            // Iterate all code files
+            for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+                Path path = entry.getKey();
+                Statement statement = entry.getValue();
 
-            if (typeStatement instanceof AnnotationStatement)
-                continue;
-            String currentPkg = topStatement.getPackageStatement().map(p -> p.getPackageName() + ".").orElse("");
+                if (!(statement instanceof CompilationUnitStatement))
+                    continue;
+                CompilationUnitStatement topStatement = (CompilationUnitStatement) statement;
+                TypeStatement typeStatement = topStatement.getTypeStatement();
 
-            TypeStatementHierarchyResolver resolver = new TypeStatementHierarchyResolver(this, code, partialHierarchies,
-                    path, currentPkg, topStatement.getImports(), topStatement.getPackageStatement(), typeStatement,
-                    topStatement);
-            resolver.visitStatement(typeStatement);
+                if (typeStatement instanceof AnnotationStatement)
+                    continue;
+                String currentPkg = topStatement.getPackageStatement().map(p -> p.getPackageName() + ".").orElse("");
+
+                TypeStatementHierarchyResolver resolver = new TypeStatementHierarchyResolver(this, code,
+                        partialHierarchies, path, currentPkg, topStatement.getImports(),
+                        topStatement.getPackageStatement(), typeStatement, topStatement);
+                resolver.visitStatement(typeStatement);
+            }
+
+            // Merge in any left over (unresolved fully) partial hierarchy trees in tmp
+            mergePartialTrees(root, partialHierarchies);
+        } catch (Exception ex) {
+            errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
         }
-
-        // Merge in any left over partial trees in tmp
-        mergePartialTrees(root, partialHierarchies);
 
         // Log completion message
         LOGGER.debug("Processed {} files in {}ms", code.size(), (System.currentTimeMillis() - startTime));
         LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
+    }
+
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
+    }
+
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
     }
 
     /**

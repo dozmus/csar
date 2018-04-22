@@ -11,17 +11,17 @@ public class DefaultCsarErrorListener implements CsarErrorListener {
     }
 
     @Override
-    public void errorInitializing() {
+    public void fatalErrorInitializing() {
         csar.setErrorOccurred();
     }
 
     @Override
-    public void errorParsingCsarQuery(Exception ex) {
+    public void fatalErrorParsingCsarQuery(Exception ex) {
         csar.setErrorOccurred();
     }
 
     @Override
-    public void fatalInitializingParsing(Exception ex) {
+    public void fatalErrorInitializingParsing(Exception ex) {
         csar.setErrorOccurred();
     }
 
@@ -35,7 +35,7 @@ public class DefaultCsarErrorListener implements CsarErrorListener {
     }
 
     @Override
-    public void errorPostProcessing(Exception ex) {
+    public void fatalErrorPostProcessing(Exception ex) {
         csar.setErrorOccurred();
     }
 

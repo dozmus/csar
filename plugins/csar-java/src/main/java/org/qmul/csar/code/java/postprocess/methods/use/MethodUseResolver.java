@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methods.use;
 
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
@@ -7,12 +8,14 @@ import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
-import org.qmul.csar.code.java.postprocess.util.MethodResolver;
+import org.qmul.csar.code.java.postprocess.util.MethodCallResolver;
 import org.qmul.csar.lang.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,29 +25,36 @@ import java.util.Map;
 public class MethodUseResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodUseResolver.class);
-    private final QualifiedNameResolver qualifiedNameResolver;
-    private TypeHierarchyResolver typeHierarchyResolver;
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final QualifiedNameResolver qnr;
+    private final TypeHierarchyResolver thr;
 
-    public MethodUseResolver(QualifiedNameResolver qualifiedNameResolver) {
-        this.qualifiedNameResolver = qualifiedNameResolver;
+    public MethodUseResolver(QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
+        this.qnr = qnr;
+        this.thr = thr;
     }
 
-    public MethodUseResolver() {
-        this(new QualifiedNameResolver());
+    public MethodUseResolver(TypeHierarchyResolver thr) {
+        this(new QualifiedNameResolver(), thr);
     }
 
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
-        MethodCallStatementVisitor visitor = new MethodCallStatementVisitor(code);
 
-        for (Map.Entry<Path, Statement> file : code.entrySet()) {
-            Path path = file.getKey();
-            Statement statement = file.getValue();
+        try {
+            MethodCallStatementVisitor visitor = new MethodCallStatementVisitor(code);
 
-            visitor.reset();
-            visitor.setPath(path);
-            visitor.visitStatement(statement);
+            for (Map.Entry<Path, Statement> file : code.entrySet()) {
+                Path path = file.getKey();
+                Statement statement = file.getValue();
+
+                visitor.reset();
+                visitor.setPath(path);
+                visitor.visitStatement(statement);
+            }
+        } catch (Exception ex) {
+            errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
         }
 
         // Log completion message
@@ -52,10 +62,19 @@ public class MethodUseResolver implements CodePostProcessor {
         LOGGER.info("Finished");
     }
 
-    public void setTypeHierarchyResolver(TypeHierarchyResolver typeHierarchyResolver) {
-        this.typeHierarchyResolver = typeHierarchyResolver;
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
     }
 
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
+    }
+
+    /**
+     * Visits {@link Statement} and resolves each method call.
+     */
     private final class MethodCallStatementVisitor extends StatementVisitor {
 
         private final TraversalHierarchy traversalHierarchy = new TraversalHierarchy();
@@ -91,7 +110,7 @@ public class MethodUseResolver implements CodePostProcessor {
             LOGGER.trace("Resolving method call: {}", expression.toPseudoCode());
 
             // Resolve method
-            MethodResolver resolver = new MethodResolver(path, code, qualifiedNameResolver, typeHierarchyResolver);
+            MethodCallResolver resolver = new MethodCallResolver(path, code, qnr, thr);
             MethodStatement method = resolver.resolve(expression, traversalHierarchy);
 
             // Add to method usages, if method was found

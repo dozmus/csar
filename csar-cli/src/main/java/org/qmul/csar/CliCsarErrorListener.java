@@ -8,20 +8,20 @@ import java.nio.file.Path;
 public class CliCsarErrorListener extends LoggingCsarErrorListener {
 
     @Override
-    public void errorInitializing() {
-        super.errorInitializing();
+    public void fatalErrorInitializing() {
+        super.fatalErrorInitializing();
         System.exit(Main.EXIT_CODE_INITIALIZING);
     }
 
     @Override
-    public void errorParsingCsarQuery(Exception ex) {
-        super.errorParsingCsarQuery(ex);
+    public void fatalErrorParsingCsarQuery(Exception ex) {
+        super.fatalErrorParsingCsarQuery(ex);
         System.exit(Main.EXIT_CODE_ERROR_PARSING_CSAR_QUERY);
     }
 
     @Override
-    public void fatalInitializingParsing(Exception ex) {
-        super.fatalInitializingParsing(ex);
+    public void fatalErrorInitializingParsing(Exception ex) {
+        super.fatalErrorInitializingParsing(ex);
         System.exit(Main.EXIT_CODE_ERROR_PARSING_CODE);
     }
 
@@ -38,8 +38,8 @@ public class CliCsarErrorListener extends LoggingCsarErrorListener {
     }
 
     @Override
-    public void errorPostProcessing(Exception ex) {
-        super.errorPostProcessing(ex);
+    public void fatalErrorPostProcessing(Exception ex) {
+        super.fatalErrorPostProcessing(ex);
         System.exit(Main.EXIT_CODE_ERROR_POSTPROCESSING_CODE);
     }
 

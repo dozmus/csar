@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methods.overridden;
 
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,24 +41,23 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
     /**
      * The qualified name resolver to use.
      */
-    private final QualifiedNameResolver qualifiedNameResolver;
+    private final QualifiedNameResolver qnr;
     /**
      * The type hierarchy resolver to use.
      */
-    private final TypeHierarchyResolver typeHierarchyResolver;
+    private final TypeHierarchyResolver thr;
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private Map<Path, Statement> code;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
 
-    public OverriddenMethodsResolver(QualifiedNameResolver qualifiedNameResolver,
-            TypeHierarchyResolver typeHierarchyResolver) {
-        this(1, qualifiedNameResolver, typeHierarchyResolver);
+    public OverriddenMethodsResolver(QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
+        this(1, qnr, thr);
     }
 
-    public OverriddenMethodsResolver(int threadCount, QualifiedNameResolver qualifiedNameResolver,
-            TypeHierarchyResolver typeHierarchyResolver) {
+    public OverriddenMethodsResolver(int threadCount, QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
         super(threadCount, "omr");
-        this.qualifiedNameResolver = qualifiedNameResolver;
-        this.typeHierarchyResolver = typeHierarchyResolver;
+        this.qnr = qnr;
+        this.thr = thr;
         setRunnable(new Task());
     }
 
@@ -71,8 +72,18 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
 
         // Log completion message
         LOGGER.debug("Found {} overridden methods in {}ms", map.size(), (System.currentTimeMillis() - startTime));
-        LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
+        LOGGER.debug("Statistics: " + qnr.getStatistics().toString());
         LOGGER.info("Finished");
+    }
+
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
+    }
+
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
     }
 
     public boolean calculateOverridden(Map<Path, Statement> code, Path path, Optional<PackageStatement> pkg,
@@ -119,9 +130,8 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
         for (String superClass : superClasses) {
             QualifiedType resolvedType;
 
-            synchronized (qualifiedNameResolver) {
-                resolvedType = qualifiedNameResolver.resolve(code, path, parent, topLevelParent, packageStatement,
-                        imports, superClass);
+            synchronized (qnr) {
+                resolvedType = qnr.resolve(code, path, parent, topLevelParent, packageStatement, imports, superClass);
             }
             Statement resolvedStatement = resolvedType.getTopLevelStatement();
 
@@ -140,8 +150,7 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
                             continue;
                         MethodStatement m2 = (MethodStatement) statement;
                         MethodDescriptor desc2 = m2.getDescriptor();
-                        boolean signatureEquals = MethodSignatureComparator.signatureEquals(m2, method,
-                                typeHierarchyResolver);
+                        boolean signatureEquals = MethodSignatureComparator.signatureEquals(m2, method, thr);
 
                         if (!signatureEquals)
                             continue;
@@ -198,8 +207,7 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
                     }
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
-                // TODO error listeners
+                errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
                 terminate();
             }
         }

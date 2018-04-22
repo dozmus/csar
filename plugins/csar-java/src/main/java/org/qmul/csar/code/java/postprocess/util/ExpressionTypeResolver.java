@@ -20,10 +20,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
+/**
+ * Resolves the type of an expression.
+ */
 public class ExpressionTypeResolver {
 
     // TODO make sure path is always set as much as possible
-    // TODO does this work with new Class(). ...
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionTypeResolver.class);
     private int nestedBinaryExpressionLevel = 0;
@@ -41,6 +43,9 @@ public class ExpressionTypeResolver {
         this.resolvingMethodIdentifierMode = resolvingMethodIdentifierMode;
     }
 
+    /**
+     * Returns the {@link TypeInstance} of the argument expression.
+     */
     public TypeInstance resolve(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
@@ -127,7 +132,7 @@ public class ExpressionTypeResolver {
                     return resolveLiteral(uexp.getValue());
                 case IDENTIFIER:
                     return resolveIdentifier(path, code, topLevelType, currentType, imports, currentPackage,
-                            currentContext, r, th, uexp);
+                            r, th, uexp);
                 case CLASS_REFERENCE:
                     break;
                 case METHOD_REFERENCE:
@@ -181,9 +186,13 @@ public class ExpressionTypeResolver {
         return null; // fall-back: failed to resolve
     }
 
+    /**
+     * Returns the {@link TypeInstance} of the argument expression, which is a {@link UnitExpression} of type
+     * <tt>IDENTIFIER</tt>, or <tt>null</tt> if not able to be resolved.
+     */
     private TypeInstance resolveIdentifier(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
-            BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, UnitExpression uexp) {
+            QualifiedNameResolver r, TraversalHierarchy th, UnitExpression uexp) {
         String lIdentifierName = uexp.getValue();
         int dimensions = 0;
         String lType = null;
@@ -291,11 +300,15 @@ public class ExpressionTypeResolver {
         return new TypeInstance(lQualifiedType, dimensions);
     }
 
+    /**
+     * Returns the {@link TypeInstance} of the argument method call expression, or <tt>null</tt> if not able to be
+     * resolved.
+     */
     private TypeInstance resolveMethodCallExpression(Path path, Map<Path, Statement> code,
             QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             MethodCallExpression expression) {
         LOGGER.trace("Resolving: MethodCallExpression");
-        MethodResolver resolver = new MethodResolver(path, code, r, thr);
+        MethodCallResolver resolver = new MethodCallResolver(path, code, r, thr);
         MethodStatement method = resolver.resolve(expression, th);
 
         if (method != null) {
@@ -305,10 +318,16 @@ public class ExpressionTypeResolver {
         return null;
     }
 
-    private static int arrayInitializerDimensions(List<Expression> expressions) { // TODO is this ok?
+    /**
+     * Returns the dimensions of the argument array initializers.
+     */
+    private static int arrayInitializerDimensions(List<Expression> expressions) {
         return (int) expressions.stream().filter(e -> e instanceof SquareBracketsExpression).count();
     }
 
+    /**
+     * Returns the {@link TypeInstance} of the argument binary expression, or <tt>null</tt> if not able to be resolved.
+     */
     private TypeInstance resolveBinaryExpression(Path path, Map<Path, Statement> code,
             TypeStatement topLevelType, TypeStatement currentType, List<ImportStatement> imports,
             Optional<PackageStatement> currentPackage, BlockStatement currentContext, QualifiedNameResolver r,
@@ -381,7 +400,7 @@ public class ExpressionTypeResolver {
 
     private TypeInstance resolveFullyQualifiedName(Map<Path, Statement> code, QualifiedNameResolver r,
             Expression left) {
-        String fullyQualifiedName = binaryExpressionIdentifierDotSequenceToString(left);
+        String fullyQualifiedName = qualifiedNameOfBinaryExpressionIdentifier(left);
 
         if (fullyQualifiedName == null || !fullyQualifiedName.contains("."))
             return null;
@@ -394,19 +413,28 @@ public class ExpressionTypeResolver {
         return null;
     }
 
-    private String binaryExpressionIdentifierDotSequenceToString(Expression e) {
+    /**
+     * Returns the fully qualified name of a binary expression's identifier as a comma-separated String.
+     * e.g. 'a.b.c'.
+     */
+    private String qualifiedNameOfBinaryExpressionIdentifier(Expression e) {
         if (e instanceof UnitExpression) {
             UnitExpression ue = (UnitExpression)e;
             return ue.getValueType() == UnitExpression.ValueType.IDENTIFIER ? ue.getValue() : null;
         } else if (e instanceof BinaryExpression) {
             BinaryExpression bexp = (BinaryExpression)e;
-            return binaryExpressionIdentifierDotSequenceToString(bexp.getLeft())
-                    + "." + binaryExpressionIdentifierDotSequenceToString(bexp.getRight());
+            return qualifiedNameOfBinaryExpressionIdentifier(bexp.getLeft())
+                    + "." + qualifiedNameOfBinaryExpressionIdentifier(bexp.getRight());
         } else {
             return null;
         }
     }
 
+
+    /**
+     * Returns the {@link TypeInstance} of the argument right-hand side of a binary expression, or <tt>null</tt> if not
+     * able to be resolved.
+     */
     private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
             QualifiedNameResolver r, Expression right, TypeHierarchyResolver thr, TraversalHierarchy th,
             boolean onVariable) {
@@ -444,16 +472,16 @@ public class ExpressionTypeResolver {
 
                 if (lCompilationUnitStatement == null) // may be external - we ignore it
                     return null;
-                MethodResolver methodResolver = new MethodResolver(lhs.getPath(), code, r, thr);
+                MethodCallResolver methodCallResolver = new MethodCallResolver(lhs.getPath(), code, r, thr);
                 MethodStatement method;
 
                 if (onVariable) {
-                    method = methodResolver.resolveOnVariable(methodCallStack.peek(),
+                    method = methodCallResolver.resolveOnVariable(methodCallStack.peek(),
                             lCompilationUnitStatement, lCompilationUnitStatement.getTypeStatement(),
                             lCompilationUnitStatement.getImports(), lCompilationUnitStatement.getPackageStatement(),
                             th.currentContext(), th);
                 } else {
-                    method = methodResolver.resolve(methodCallStack.peek(),
+                    method = methodCallResolver.resolve(methodCallStack.peek(),
                             lCompilationUnitStatement, lCompilationUnitStatement.getTypeStatement(),
                             lCompilationUnitStatement.getImports(), lCompilationUnitStatement.getPackageStatement(),
                             th.currentContext(), th);
@@ -483,6 +511,10 @@ public class ExpressionTypeResolver {
         }
     }
 
+    /**
+     * Returns the {@link TypeInstance} of the argument right-hand side of a binary expression, or <tt>null</tt> if not
+     * able to be resolved.
+     */
     private String resolveBinaryExpressionDotRhsIdentifierType(CompilationUnitStatement topLevelParent,
             String identifierName, QualifiedNameResolver r, Map<Path, Statement> code, Path path,
             boolean checkingSuper, Optional<PackageStatement> baseCallPkg) {
@@ -517,6 +549,9 @@ public class ExpressionTypeResolver {
         return null;
     }
 
+    /**
+     * Returns the {@link TypeInstance} of the ternary expression, or <tt>null</tt> if not able to be resolved.
+     */
     private TypeInstance resolveTernaryExpression(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
@@ -550,6 +585,10 @@ public class ExpressionTypeResolver {
         return null; // invalid t1 or t2
     }
 
+
+    /**
+     * Returns the {@link TypeInstance} of the argument literal.
+     */
     private static TypeInstance resolveLiteral(String value) {
         if (value.equals("null"))
             return literalType("java.lang.Object");

@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Resolves the type hierarchy of a given type statement.
+ * Resolves the type hierarchy of a given type statement, in conjunction with {@link TypeHierarchyResolver}.
  */
 final class TypeStatementHierarchyResolver extends StatementVisitor {
 

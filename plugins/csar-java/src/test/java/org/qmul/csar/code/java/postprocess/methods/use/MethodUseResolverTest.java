@@ -45,13 +45,11 @@ public class MethodUseResolverTest {
         MethodQualifiedTypeResolver methodQualifiedTypeResolver = new MethodQualifiedTypeResolver();
         methodQualifiedTypeResolver.postprocess(code);
 
-        MethodCallTypeInstanceResolver processor = new MethodCallTypeInstanceResolver();
-        processor.setTypeHierarchyResolver(typeHierarchyResolver);
+        MethodCallTypeInstanceResolver processor = new MethodCallTypeInstanceResolver(typeHierarchyResolver);
         processor.postprocess(code);
 
         // Resolve method usages
-        MethodUseResolver resolver = new MethodUseResolver();
-        resolver.setTypeHierarchyResolver(typeHierarchyResolver);
+        MethodUseResolver resolver = new MethodUseResolver(typeHierarchyResolver);
         resolver.postprocess(code);
     }
 

@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methods.types;
 
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +29,7 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodQualifiedTypeResolver.class);
     private final QualifiedNameResolver qualifiedNameResolver;
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
 
     public MethodQualifiedTypeResolver(QualifiedNameResolver qualifiedNameResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
@@ -45,33 +48,48 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
         int methodsProcessed = 0;
-        MethodStatementVisitor visitor = new MethodStatementVisitor(qualifiedNameResolver, code);
 
-        // Iterate all code files
-        for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-            Path path = entry.getKey();
-            Statement statement = entry.getValue();
+        try {
+            MethodStatementVisitor visitor = new MethodStatementVisitor(qualifiedNameResolver, code);
 
-            if (!(statement instanceof CompilationUnitStatement))
-                continue;
-            CompilationUnitStatement topLevelParent = (CompilationUnitStatement) statement;
-            TypeStatement typeStatement = topLevelParent.getTypeStatement();
+            // Iterate all code files
+            for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+                Path path = entry.getKey();
+                Statement statement = entry.getValue();
 
-            if (typeStatement instanceof AnnotationStatement)
-                continue;
+                if (!(statement instanceof CompilationUnitStatement))
+                    continue;
+                CompilationUnitStatement topLevelParent = (CompilationUnitStatement) statement;
+                TypeStatement typeStatement = topLevelParent.getTypeStatement();
 
-            // Visit file
-            visitor.reset();
-            visitor.setPath(path);
-            visitor.setCompilationUnitStatement(topLevelParent);
-            visitor.visitStatement(statement);
-            methodsProcessed += visitor.methodsProcessed;
+                if (typeStatement instanceof AnnotationStatement)
+                    continue;
+
+                // Visit file
+                visitor.reset();
+                visitor.setPath(path);
+                visitor.setCompilationUnitStatement(topLevelParent);
+                visitor.visitStatement(statement);
+                methodsProcessed += visitor.methodsProcessed;
+            }
+        } catch (Exception ex) {
+            errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
         }
 
         // Log completion message
         LOGGER.debug("Processed {} methods in: {}ms", methodsProcessed, (System.currentTimeMillis() - startTime));
         LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
+    }
+
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
+    }
+
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
     }
 
     /**

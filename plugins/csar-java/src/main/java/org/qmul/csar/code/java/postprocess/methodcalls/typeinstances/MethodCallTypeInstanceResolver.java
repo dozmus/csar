@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methodcalls.typeinstances;
 
+import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.expression.BinaryExpression;
@@ -19,10 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,23 +30,38 @@ import java.util.stream.Collectors;
 public class MethodCallTypeInstanceResolver implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodCallTypeInstanceResolver.class);
-    private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
-    private TypeHierarchyResolver typeHierarchyResolver;
+    private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final QualifiedNameResolver qnr;
+    private TypeHierarchyResolver thr;
+
+    public MethodCallTypeInstanceResolver(QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
+        this.qnr = qnr;
+        this.thr = thr;
+    }
+
+    public MethodCallTypeInstanceResolver(TypeHierarchyResolver thr) {
+        this(new QualifiedNameResolver(), thr);
+    }
 
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
         long startTime = System.currentTimeMillis();
         int methodCallsProcessed = 0;
-        MethodCallExpressionVisitor visitor = new MethodCallExpressionVisitor(code);
 
-        for (Map.Entry<Path, Statement> file : code.entrySet()) {
-            Path path = file.getKey();
-            Statement statement = file.getValue();
+        try {
+            MethodCallExpressionVisitor visitor = new MethodCallExpressionVisitor(code);
 
-            visitor.reset();
-            visitor.setPath(path);
-            visitor.visitStatement(statement);
-            methodCallsProcessed += visitor.methodCallsProcessed;
+            for (Map.Entry<Path, Statement> file : code.entrySet()) {
+                Path path = file.getKey();
+                Statement statement = file.getValue();
+
+                visitor.reset();
+                visitor.setPath(path);
+                visitor.visitStatement(statement);
+                methodCallsProcessed += visitor.methodCallsProcessed;
+            }
+        } catch (Exception ex) {
+            errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
         }
 
         // Log completion message
@@ -57,10 +70,19 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
         LOGGER.info("Finished");
     }
 
-    public void setTypeHierarchyResolver(TypeHierarchyResolver typeHierarchyResolver) {
-        this.typeHierarchyResolver = typeHierarchyResolver;
+    @Override
+    public void addErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
     }
 
+    @Override
+    public void removeErrorListener(CsarErrorListener errorListener) {
+        errorListeners.remove(errorListener);
+    }
+
+    /**
+     * Visits {@link Statement} and set the type instances of each method.
+     */
     private final class MethodCallExpressionVisitor extends StatementVisitor {
 
         private final TraversalHierarchy traversalHierarchy = new TraversalHierarchy();
@@ -129,8 +151,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
             Optional<PackageStatement> currentPackage = traversalHierarchy.getPackageStatement();
             BlockStatement currentContext = traversalHierarchy.currentContext();
             return new ExpressionTypeResolver(resolvingMethodIdentifierMode).resolve(path, code, topLevelType,
-                    currentType, imports, currentPackage, currentContext, qualifiedNameResolver, traversalHierarchy,
-                    typeHierarchyResolver, expr);
+                    currentType, imports, currentPackage, currentContext, qnr, traversalHierarchy, thr, expr);
         }
     }
 }

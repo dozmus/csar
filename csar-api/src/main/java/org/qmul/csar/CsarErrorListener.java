@@ -2,26 +2,30 @@ package org.qmul.csar;
 
 import java.nio.file.Path;
 
+/**
+ * A {@link Csar} error listener, this defines the possible errors which may occur throughout the function of Csar.
+ * Fatal errors are those from which Csar cannot recover and must terminate.
+ */
 public interface CsarErrorListener {
 
     /**
      * Reports a fatal error initializing Csar.
      */
-    void errorInitializing();
+    void fatalErrorInitializing();
 
     /**
      * Reports a fatal error parsing the csar query.
      *
      * @param ex the exception thrown
      */
-    void errorParsingCsarQuery(Exception ex);
+    void fatalErrorParsingCsarQuery(Exception ex);
 
     /**
      * Reports a fatal initializing parsing error.
      *
      * @param ex the exception thrown
      */
-    void fatalInitializingParsing(Exception ex);
+    void fatalErrorInitializingParsing(Exception ex);
 
     /**
      * Reports a recoverable parsing error.
@@ -44,7 +48,7 @@ public interface CsarErrorListener {
      *
      * @param ex the exception thrown
      */
-    void errorPostProcessing(Exception ex);
+    void fatalErrorPostProcessing(Exception ex);
 
     /**
      * Reports a recoverable searching error.
