@@ -713,14 +713,26 @@ To create a plugin for csar the following must be done:
 
 Plugins are loaded at runtime using the `CsarPluginLoader' singleton class, which utilises a `ClassLoader' to find the JARs and `ServiceLoader' to load the plugin classes.
 
-\subsection{Parsing}
-% TODO write
+The Java plugin implementation is called `CsarJavaPlugin' and the classes it uses to carry out tasks are detailed throughout this section.
+`CsarJavaPlugin' is responsible for adding `ErrorListener' instances added to itself, to the classes which it uses before use.
 
-\subsubsection{Parsing Java Code}
-% TODO write
+\subsection{Parsing Java Code}
+When `CsarJavaPlugin' is invoked to parse code, it creates a new instance of `CodeParserFactory' which creates instances of `JavaCodeParser'.
+It then creates an iterator for the project files using `ProjectIteratorFactory'.
+Finally, it uses both of these pieces of information to invoke `DefaultProjectCodeParser', which carries out the parsing of the entire project.
+
+`JavaCodeParser' uses a pre-written ANTLR 4 grammar to parse Java source code into instances of `CompilationUnitStatement', which represents the top-most type in a source code file.
 
 \subsection{Post-processing}
-% TODO write
+When `CsarJavaPlugin' is invoked to post-process code, it creates a new instance of `JavaPostProcessor'.
+This is comprised of the following post-processors, which are executed in order:
+\begin{itemize}
+  \item `TypeHierarchyResolver' - resolves the type hierarchy of the project.
+  \item `MethodQualifiedTypeResolver' - attaches `QualifiedType' instances for the return type and parameters of each method statement.
+  \item `OverriddenMethodsResolver' - sets the overridden flag of each method statement.
+  \item `MethodCallTypeInstanceResolver' - attaches `TypeInstance' instances for the name and parameters of each method call expression.
+  \item `MethodUseResolver' - resolves and sets method calls which correspond to each method statement.
+\end{itemize}
 
 \subsubsection{Overridden methods resolver}
 % TODO write
