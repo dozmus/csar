@@ -698,7 +698,7 @@ This class is comprised of four parts, but only the first is required:
 \begin{itemize}
   \item `TargetDescriptor' - The element to select.
   \item `ContainsQuery' - What searchTarget should contain within it.
-  \item `List<String>' - Where searchTarget should be found.
+  \item `List<String>' - Where searchTarget should be found (file names without extensions).
   \item `RefactorDescriptor' - The transformation to apply to searchTarget.
 \end{itemize}
 
@@ -734,6 +734,7 @@ The Java plugin implementation is called `CsarJavaPlugin' and the classes it use
 The Java plugin defines a set of implementations of `Statement' and `Expression' representing Java language elements.
 
 When `CsarJavaPlugin' is invoked to parse code, it creates a new instance of `CodeParserFactory' which creates instances of `JavaCodeParser'.
+This is a multi-threaded class.
 It then creates an iterator for the project files using `ProjectIteratorFactory'.
 Finally, it uses both of these pieces of information to invoke `DefaultProjectCodeParser', which carries out the parsing of the entire project.
 
@@ -841,10 +842,44 @@ The argument qualified name is searched for in the following contexts, in this o
 This makes extensive use of caching, which substantially speeds up the classes which use it.
 
 \subsection{Searching Java code}
-% TODO write
+When `CsarJavaPlugin' is invoked to search code, it creates a new instance of `JavaCodeSearcher'.
+This is a multi-threaded class.
+
+Firstly, `JavaCodeSearcher' iterates over the code base using a `SearcherFactory' to provide a suitable `Searcher' implementation to search the current file.
+The `Searcher' implementation depends on what kind of language element it can search for.
+The two provided implementations are `MethodDefinitionSearcher' for searching for method definitions and `MethodUseSearcher' for searching for method usages.
+
+Both of these classes apply the `FROM' clause, which consists of file names to search by excluding results which do not lie within that list.
+These search classes using a `SearchStatementVisitor' instance which compares the (search) target `Descriptor' against the current method's descriptor.
+If the `lenientEquals' method returns true, then the current method is a match and its results are added (this is the method itself for `MethodDefinitionSearcher', and the method's calls which `MethodStatement' stores in a list for `MethodUseSearcher').
+Furthermore, the results are also stored as a `RefactorTarget' instance for the refactorer, however this is not strictly enforced by `csar-api'.
+
+The `lenientEquals' method works by only comparing defined values in the target `Descriptor', because all of its values do not have to be set by `CsarQuery'.
 
 \subsection{Refactoring Java code}
-% TODO write
+When `CsarJavaPlugin' is invoked to refactor code, it creates a new instance of `JavaCodeRefactorer'.
+This is a multi-threaded class.
+
+Firstly, `JavaCodeSearcher' iterates over the code base using a `RefactorerFactory' to provide a suitable `Refactorer' implementation to search the current file.
+The create method in `RefactorerFactory' has a `writeToFile' flag argument, which is used for unit testing, such that the unit test resources are not overwritten, otherwise tests would only work once.
+The `Refactorer' implementation depends on what kind of refactor is requested.
+The two provided implementations are `RenameFactorer' for renaming methods and `ChangeParametersRefactorer' for changing the parameters of methods.
+
+For multi-threading to work without consistency issues, pending refactors are grouped by the file they are going to act upon.
+Then, each file is refactored on a single thread.
+Its changes each have an index which determines where the change begins, the changes are made in descending index order to prevent index values from becoming inconsistent due to other changes in the same file.
+
+`RenameRefactorer' finds the start index of each change, then calculates the end index using the method name's length which it is changing.
+Then, it simply replaces the text in this region with the new method name.
+
+`ChangeParametersRefactorer' is more complicated.
+It firstly checks the existing parameters of a method or method call, and creates a parallel list containing the new entries or null where no change is required.
+If the new parameter count is zero or one, then it replaces the region distinguished by the left parenthesis and right parenthesis indexes with the new argument.
+Otherwise, it uses the left parenthesis and first comma indexes to change the first parameter, the indexes of concurrent commas to change the `inner' parameters, and the last comma and right parenthesis to change the last parameter.
+
+Then, if the new parameters are less in size than the original then some of the existing parameters are removed analogously to how changes are made above, otherwise it adds the new parameters by using the index of the right parenthesis.
+
+Finally, the changes are written to the file (if specified by the `writeToFile') flag.
 
 \subsection{Code references}
 \label{sec:CodeReferences}
