@@ -586,6 +586,7 @@ Once the `Csar' instance is done doing its work, a suitable `ResultFormatter' is
 The `ResultFormatter' to choose is defined in `CsarContext'.
 
 When csar-cli terminates, it will return one of the following exit codes:
+
 \begin{tabular}{ l l }
   Exit Code & Description \\
   0 & Successful execution. \\
@@ -692,6 +693,17 @@ Some example queries built using the language are specified below:
   \item `SELECT method:def:print REFACTOR changeparam:String s, String s1' - will find methods with the identifier `print', and then rename them and their corresponding method calls to `anotherPrint'.
 \end{itemize}
 
+The `CsarQuery' class represents an instance of the Csar Query language and is contained within the `csar-api'.
+This class is comprised of four parts, but only the first is required:
+\begin{itemize}
+  \item `TargetDescriptor' - The element to select.
+  \item `ContainsQuery' - What searchTarget should contain within it.
+  \item `List<String>' - Where searchTarget should be found.
+  \item `RefactorDescriptor' - The transformation to apply to searchTarget.
+\end{itemize}
+
+All classes which comprise `CsarQuery' are immutable.
+
 \subsection{Ignore files}
 Firstly, creating ignore rules can be done by reading a file containing rules, or taking as argument a `String' containing rules.
 When these rules are read, they are converted into a specialized regular expression called a `PathMatcher', which is then used to check if a file is matched by a rule.
@@ -719,11 +731,14 @@ The Java plugin implementation is called `CsarJavaPlugin' and the classes it use
 `CsarJavaPlugin' is responsible for adding `ErrorListener' instances added to itself, to the classes which it uses before use.
 
 \subsection{Parsing Java Code}
+The Java plugin defines a set of implementations of `Statement' and `Expression' representing Java language elements.
+
 When `CsarJavaPlugin' is invoked to parse code, it creates a new instance of `CodeParserFactory' which creates instances of `JavaCodeParser'.
 It then creates an iterator for the project files using `ProjectIteratorFactory'.
 Finally, it uses both of these pieces of information to invoke `DefaultProjectCodeParser', which carries out the parsing of the entire project.
 
 `JavaCodeParser' uses a pre-written ANTLR 4 grammar to parse Java source code into instances of `CompilationUnitStatement', which represents the top-most type in a source code file.
+`CompilationUnitStatement' is comprised of various `Statement' and `Expression' implementations.
 
 \subsection{Post-processing}
 When `CsarJavaPlugin' is invoked to post-process code, it creates a new instance of `JavaPostProcessor'.
@@ -796,7 +811,7 @@ Unfortunately, this does not validate the accessibility in terms of visibility m
 \subsubsection{Expression type resolver}
 `ExpressionTypeResolver' is necessary for method use resolving.
 
-`ExpressionTypeResolver#resolve' takes an arbitrary expression and returns its `TypeInstance' (its type and dimensions).
+`ExpressionTypeResolver\#resolve' takes an arbitrary expression and returns its `TypeInstance' (its type and dimensions).
 It supports all Java 8 expression types except method references, and some of interest will be detailed in this section.
 
 Firstly, resolving the `super' keyword involves checking if the current type is an inner class, if so then this is its parent class.
@@ -981,7 +996,8 @@ The refactoring interfaces could also be improved, there are some unused methods
 Primary requirement 8 was implemented.
 
 Primary requirement 9 was partially implemented. The first issue is that method references are not handled.
-The second issue is that csar does not support external libraries (i.e. it does not recognize their types) - this also extends to the Java 8 standard library.
+The second issue is that method use resolving does not check for accessibility in terms of visibility modifiers.
+The third issue is that csar does not support external libraries (i.e. it does not recognize their types) - this also extends to the Java 8 standard library.
 This is because without efficient, and complete indexing (also known as caching) capabilities this would slow down csar too much.
 
 Secondly, I will examine csar's secondary requirements (see \ref{sec:SecondaryRequirements}).
