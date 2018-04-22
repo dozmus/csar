@@ -629,6 +629,8 @@ This is then used by `DefaultProjectCodeParser' to parse the entire project.
 This way, a plugin may choose to use `DefaultProjectCodeParser' and thus not write its own multi-threading logic.
 
 It also defines the `CodePostProcessor' which should be extended by post-processors, and the `ProjectCodeSearcher' which should be extended by project-wide searchers.
+`CodePostProcessor' contains the `postprocess' method which takes a mapping of file paths to statements, this map is hereby referred to as `code base'.
+It is intended for each post-processor to either destructively modify the contents of this map, or to store some result within the post-processor itself for later use.
 
 Furthermore, it defines `ProjectCodeRefactorer' which should be extended by project-wide code refactorers, and the interfaces `RefactorChange'  and `RefactorTarget' to keep track of pending refactor changes within the searcher.
 
@@ -734,31 +736,99 @@ This is comprised of the following post-processors, which are executed in order:
   \item `MethodUseResolver' - resolves and sets method calls which correspond to each method statement.
 \end{itemize}
 
-\subsubsection{Overridden methods resolver}
-% TODO write
-
-\subsubsection{Method use resolver}
-% TODO write
-
-\subsubsection{Qualified name resolver}
-% TODO write
+Post-processors also make use of the `QualifiedNameResolver' which resolves qualified names of types, and `ExpressionTypeResolver' which resolves the type of an arbitrary `Expression' instance.
 
 \subsubsection{Type hierarchy resolver}
-% TODO write
+Type hierarchy resolving is necessary for resolving overridden methods because an overridden method's signature is allowed to contain subtypes of the method signature it inherits from.
+It is also necessary for resolving method uses for the same reason, it is allowed to call a method with its arguments as subtypes.
+
+Firstly, `TypeHierarchyResolver' defines a root type called `Object' because all types in Java are sub-classes of `Object'.
+Secondly, it adds primitive Java types to this type hierarchy.
+
+Then, it iterates over the code base, ignoring annotation types because they cannot be part of a type hierarchy.
+Each time it encounters a source code file, it iterates over its contents for type (i.e. classes, interfaces, and enums) declarations using an instance of `TypeStatementHierarchyResolver'.
+If the current type has no super classes, it is added to the type hierarchy as a direct descendant of `Object'.
+Otherwise, its super-classes are recursively iterated over, resolved in the same way, and then added to the type hierarchy.
+
+During this process, types which are not fully resolved are stored in a list, at the end of the process any items still in the list are added as direct descendants of `Object'.
+This is because this `TypeHierarchyResolver' does not handle resolving types within the Java API nor external libraries.
+Hence, sometimes types are not fully resolved (because their super-classes are in a library) and so we settle for a partial type hierarchy.
+
+\subsubsection{Method qualified type resolver}
+Method qualified type resolving is necessary throughout the post-processors, particularly for resolving overridden methods as part of the solution to handling subtypes as return types or parameters types.
+
+Firstly, `MethodQualifiedTypeResolver' iterates over the code base.
+Each time it encounters a method, for its return type and parameters it generates their fully qualified name using `TypeHelper', and then uses the `QualifiedNameResolver' to resolve their corresponding `QualifiedType' instances.
+It then sets this in the corresponding instance.
+
+\subsubsection{Overridden methods resolver}
+Overridden methods resolving is necessary for searching for methods which are overridden.
+
+Firstly, `OverriddenMethodsResolver' iterates over the code base over multiple threads.
+Each time it encounters a method, if the method contains the `@Override' annotation it is set as overridden \autocite{overriddenannotation}.
+Otherwise, it generates a list of the super-classes of the current type and begins trying to resolve within them.
+
+Recursively, each superclass is resolved using `QualifiedNameResolver' and then its `Statement' is iterated over in search of methods.
+When a method is found, if its signature is equal to the method we are trying to resolve for we stop and set the initial method as overridden.
+If its signature is equal but the found method is not accessible (w.r.t. visibility modifiers), is final, or static then the initial method is set as not overridden.
+
+\subsubsection{Method call type instance resolver}
+Method call type instance resolving is necessary for method use resolving, because if we do not know the types of a method's `name' (in this section this definition includes expressions like `variable.methodName' or `method') and arguments then we cannot discern which method definition it corresponds to.
+
+Firstly, `MethodCallTypeInstanceResolver' iterates over the code base using a `MethodCallExpressionVisitor' instance to iterate over individual code files.
+Each time it encounters a method call, it resolves the type to where it belongs (e.g. `variable.method' belongs to the type of `variable') and the types of its arguments.
+These types are called type instances because unlike qualified types they also include a notion of dimension (i.e. arrays), this is because they are a run-time value.
+It then sets these values on the method call.
+
+\subsubsection{Method use resolver}
+Method use resolving is necessary for the rename and change parameters refactors, as well as searching for method uses.
+
+Firstly, `MethodUseResolver' iterates over the code base using a `MethodCallStatementVisitor' instance to iterate over individual code files.
+Each time it encounters a method call, it resolves the method definition it corresponds to using `MethodCallResolver', and then adds it to the list of usages for that method call.
+
+`MethodUseResolver' tries to find said method definition by searching for it in various contexts.
+If the method call was on a variable or another method, then it is looked for in the type which its `name' resolves to and then its super-classes.
+Otherwise, it is looked for in in the current context, then the current type, and then in its super-classes.
+
+When resolving in these contexts method definitions looked for with the same name and arguments as the method call, as well as being accessible (w.r.t. the static modifier) by the method call in the initial context.
+Unfortunately, this does not validate the accessibility in terms of visibility modifiers.
 
 \subsubsection{Expression type resolver}
+`ExpressionTypeResolver' is necessary for method use resolving.
+
+`ExpressionTypeResolver#resolve' takes an arbitrary expression and returns its `TypeInstance' (its type and dimensions).
+It supports all Java 8 expression types except method references, and some of interest will be detailed in this section.
+
+Firstly, resolving the `super' keyword involves checking if the current type is an inner class, if so then this is its parent class.
+Otherwise, it is the current type's extended/implemented class/interface.
+
+Secondly, resolving an identifier involves searching the following, in this order: parameters (constructor and method parameters), local variables (including variables defined within for-loops), instance variables, contents of its super class (recursively), and if none of this is true it is assumed that it may be a fully qualified name and is attempted to be resolved that way.
+
+Resolving a fully qualified name just involves checking if it is existant and accessible in the current context.
+
+Thirdly, resolving a binary expression is split into resolving its left-hand side (lhs), and then its right-hand side (rhs).
+Then, depending on the binary operator used the two types (for the lhs and the rhs) are `combined'.
+This is quite a cumbersome procedure, but an example is that if the lhs is a `String', then the expression must be of type `String'.
+Similarly, if the lhs is an `int' and the rhs a `long', then the expression must be of type `long'.
+
+Finally, resolving ternary expressions involves resolving its conditional values.
+If both values are null, then it is deemed of type `Object', otherwise it is of the type of either which is non-null.
+
+Resolving literals works as follows: null is of type `Object', values beginning with `"' and `'' are of type `String' and `char' respectively, true or false are of type `boolean', values ending with `d' or containing a decimal point are of type `float', values ending with `f' are of type `float', and otherwise it must be of type `int'.
+
+\subsubsection{Qualified name resolver}
+`QualifiedNameResolver' is necessary in all of the aforementioned post-processors, for resolving the qualified names of identifiers.
+
+This class is not thread-safe, so a lock on its instance must be acquired when being used in multiple-threads.
+
+The argument qualified name is searched for in the following contexts, in this order: current class, inner classes in top-level parent class, classes in the same package, classes in the imports, classes in the default package (if applicable), and finally it is assumed to exist due to a lack of the ability to resolve qualified names in external libraries.
+
+This makes extensive use of caching, which substantially speeds up the classes which use it.
+
+\subsection{Searching Java code}
 % TODO write
 
-\subsection{Searching}
-% TODO write
-
-\subsubsection{Java implementation}
-% TODO write
-
-\subsection{Refactoring}
-% TODO write
-
-\subsubsection{Java implementation}
+\subsection{Refactoring Java code}
 % TODO write
 
 \subsection{Code references}
