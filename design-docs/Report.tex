@@ -13,17 +13,28 @@
 \usepackage{graphicx}
 \graphicspath{{..}}
 
-% listing and its styles
-\usepackage{lmodern}
-\usepackage{amsmath}
-\usepackage{xcolor}
+% listing and its styles - source: https://stackoverflow.com/a/3175141
 \usepackage{listings}
-\lstset{
-  basicstyle=\ttfamily,
-  columns=fullflexible,
-  frame=single,
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
   breaklines=true,
-  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+  breakatwhitespace=true,
+  tabsize=3
 }
 
 % Font and line spacing
@@ -1223,7 +1234,7 @@ public class CsarJavaPlugin implements CsarPlugin {
 \subsection{Csar Query Language v1.2.0}
 \label{apx:CsarQueryLanguagev120}
 
-\begin{lstlisting}
+\begin{lstlisting}[language=Java]
 /**
  * Lexer
  */
