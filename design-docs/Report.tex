@@ -1001,7 +1001,34 @@ This results in 87 tests which are all successful, achieving 65\% coverage in th
 This coverage figure is less than expected because it includes coverage for the Java 8 parser-generator code.
 
 \subsection{Manual testing}
-% TODO write
+csar was tested manually throughout its development to ensure its reliability.
+This section will detail an instance of manual testing conducting on the \href{https://github.com/elastic/elasticsearch}{elasticsearch} Git repository.
+This repository was manually tested previously and contributed to the discovery of multiple Java 8 parser bugs.
+
+It is not expected for csar to work faultlessly, since it has some issues which were detailed in this report, but we will observe to what extent csar works on a big, complicated project like this one.
+
+csar will be invoked with the command-line argument `SELECT method:def:cluster REFACTOR rename:shards -t 8 --log-level DEBUG'.
+
+This means that the csar instance will operate with the csar query `SELECT method:def:cluster REFACTOR rename:shards', which will find all methods called `cluster' and rename them to `shards'.
+Furthermore, it will run on up to eight threads where supported, and will log all messages with a level equal to or above `DEBUG'.
+This logging will give us various debugging information alongside benchmarking statistics on this repository.
+
+This led to one parsing issue in two files regarding method references.
+It turns out the grammar does not support method references on expressions, e.g. `((CastType) variable)::methodName'
+
+Firstly, csar parsed 46,570 kB of code in 31.7 seconds (rounded to 1dp, hereby denoted by 1dp).
+This equates to an average throughput of 1.5MB (1dp) per second.
+
+Then, the type hierarchy resolver processed 5,609 files in 4.3 seconds (2dp), which was proceeded by the method qualified type resolver which processed 51,175 methods in 11.5s (1dp).
+Furthermore, overridden methods resolving found 19,495 overridden methods in 19.6s (1dp).
+Then, the method call type instance resolver processed 521,358 method call expressions in 141.2s (1dp), followed by the method use resolver which took 119.5s (1dp).
+
+Penultimately, the searcher took 59ms to find four results.
+Finally, the refactorer took 611ms to make 1,575 changes.
+
+I tried to build the project to see if our changes were non-functional as intended, however my attempts were thwarted by a complicated build process.
+The project wanted me to install Java 10 as well as Java 9, the latter of which is no longer distributed by Oracle, hence it refused to work.
+In lieu of that, we still have learned some valuable information about a parsing defect, benchmarking statistics, and some results.
 
 % Analysis
 \section{Analysis}
