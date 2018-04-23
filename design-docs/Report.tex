@@ -78,7 +78,7 @@
   Semantics-based code searching is a context sensitive variant of code searching.
   There is currently a lack of semantics-based code search tools and furthermore no semantics-based, integrated code search and refactor tool.
   This paper will detail the creation of the csar (code search and refactor) tool, which aims to be versatile, query-driven, semantics-based and language-agnostic.
-  It will cover its aims, the pre-requisite knowledge to understand this paper, scope (primary, secondary, non-functional and selected), context, design (with a running example), implementation, testing, and analysis.
+  It will cover its aims, scope (primary, secondary, non-functional and selected), the pre-requisite knowledge to understand this paper, context, design (with a running example), implementation, testing, and analysis.
 \end{abstract}
 \newpage
 
@@ -88,15 +88,16 @@
 
 % Introduction
 \section{Introduction}
-The problem this paper will detail the creation of the csar tool.
-This introduction will explain the aims, scope and the pre-requisite knowledge required to understand this paper.
+The problem this paper will tackle is the creation of the csar tool.
+This introduction will explain the aims, requirements, selected scope, and the pre-requisite knowledge required to understand this paper.
 
 \subsection{Aims}
 csar aims to be a unified framework for code searching and refactoring whose users are developers.
 It will take as input descriptions of searches and corresponding refactors in a newly devised query language called the csar query language.
+Instances of this query language will henceforth be called `csar query'.
 This results in a versatile and descriptive framework, which can target any programming language without the users needing to know the specifics.
 
-Furthermore, csar aims to be flexible code-wise, hence most of its API will be publicly exposed and documented.
+Furthermore, csar aims to be flexible code-wise, therefore most of its API will be publicly exposed and documented.
 Users of csar will be able to extend csar, or embed csar into complex build processes and other applications.
 
 For example, suppose a user wants to be able to move methods matching a certain signature.
@@ -104,36 +105,62 @@ They should be able to subclass an interface describing how to perform a refacto
 Then they will recompile and rebuild csar, and then use it.
 
 For example, suppose a user wants to run csar from within a build script.
-The output they retrieve should be in a format which suits their needs.
-Furthermore, csar's exit codes and related behaviours should be well documented.
+csar's output should be in a format which suits their needs.
+Furthermore, csar's exit codes and related external behaviours should be well documented.
 
-\subsection{Scope}
+\subsection{Pre-requisite Knowledge}
+``Refactoring is the process of changing the structure of software without changing its behavior" \autocite{murphy2012we}. The aim of this is to improve the maintainability and readability of the code.
+
+``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results" \autocite{wikipediasemanticsearch}.
+Henceforth, this is what is meant by `code search' or `search'.
+
+Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity \autocite{reiss2009semantics,stolee2014solving}.
+
+Automated refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity \autocite{mens2004survey,murphy2012we}.
+
+Searching and refactoring are both hard to implement because optimally they should be language-agnostic \autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
+
+csar parses source code to operate on it, ``parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
+
+csar frequently uses the visitor design pattern to iterate over the elements of a source file.
+``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \autocite{wikipediavisitorpattern}
+
+csar uses ANTLR v4, which is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
+
+``A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine.
+The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist" \autocite{wikipediacompilercompiler}.
+
+A regular expression (also known as regex) is ``a sequence of characters that define a search pattern. Usually this pattern is then used by string searching algorithms for `find' or `find and replace' operations on strings" \autocite{wikipediaregex}.
+
+% Requirements
+\section{Requirements}
 We will define csar in terms of its requirements, these are categorised as primary requirements (necessary functionality), secondary requirements (unnecessary but useful functionality), and non-functional requirements.
-The final requirements it will have are described in the Scope subsection.
+The final requirements it will have are described in the Selected scope section (\autoref{sec:SelectedScope}).
 
 \subsection{Primary requirements}
 \label{sec:PrimaryRequirements}
+This section will list essential requirements.
+
 \begin{enumerate}
-  \item Use guide - a small document describing how to use the implemented functionality of csar.
-  \item Query-driven - csar should operate on inputs in query form.
+  \item Use guide - a document describing how to get the most out of csar.
+  \item Query-driven - csar should operate on csar query inputs.
   \item Source code parsing - csar should be able to parse source code, otherwise it cannot search or refactor them with the necessary amount of flexibility.
   \item Searching - csar should be able to search source code.
-  \item Custom search domains - the user should be able to specify what files to search within the input query.
-  \item Refactoring - csar should be able to refactor the source base being operated on.
+  \item Custom search domains - csar should be able to narrow its search to specific files, if defined in the csar query.
+  \item Refactoring - csar should be able to refactor the code base being operated on.
   \item Language-agnosticism - csar should be designed to be language-agnostic, such that it can operate on any language if it is implemented in a simple way.
   \item Support git repositories - csar should be able to detect if the current project is a git repository, and accordingly only search files which are tracked by the repository.
-  \item Support for Java 8.
+  \item Support for Java 8 - csar should be able to do all of the aforementioned on the Java 8 programming language.
 \end{enumerate}
 
 \subsection{Secondary requirements}
 \label{sec:SecondaryRequirements}
-These requirements are non-essential, but may be addressed if there is sufficient time, or if priorities shift.
+This section will list non-essential requirements, but they may be addressed if there is sufficient time, or if priorities shift.
 The benefits and implementation details of each will be outlined.
 
 \subsubsection{Indexing parsed project source code}
-In many cases csar may act on the same project code, perhaps with some differences.
-We could make csar faster by accounting for this.
-We would index parsed project code and only re-parse them if they have changed.
+In many cases csar may act on the same code, possibly with some differences.
+We could make csar faster by indexing parsed project code and only re-parse them if they have changed.
 
 We have two storage approaches we can take:
 \begin{enumerate}
@@ -148,11 +175,12 @@ We have two storage approaches we can take:
 \end{enumerate}
 
 It is important to note that using the last modified dates of files can be error-prone, since they can be spoofed, but it would offer no advantage to an attacker.
+Furthermore, indexing could be extended to many other areas of csar, with some adaptations, such as: post-processing, searching, and refactoring.
 
 \subsubsection{Supporting Mercurial (hg)/Subversion (svn) repositories}
-In rare cases csar may be used on a project using outdated version control systems, using them to narrow the search domain will be useful to the developer and make csar faster.
-This would be done analogously to the git implementation, but the program arguments we use when invoking their binaries will be different.
-Some possibilities are listed below (see \ref{sec:CodeReferences}):
+In rare cases csar may be used on projects using outdated version control systems, supporting them alongside git will be useful to the developer and make csar more effective.
+This would be done analogously to the git implementation, which will be detailed later, but the program arguments we use when invoking their binaries will be different.
+Some possibilities are listed below (see \ref{sec:CodeReferences} for references):
 \begin{itemize}
   \item Hg: 'hg status --all`
   \item Svn: `svn list -R' or `svn status'
@@ -162,24 +190,27 @@ Some possibilities are listed below (see \ref{sec:CodeReferences}):
 We may want to integrate csar into the IntelliJ IDEA IDE such that if a user of csar uses this IDE, they can use csar from within it. 
 csar can be integrated into it in one of two ways:
 \begin{itemize}
-  \item Internally - csar can be implemented as an alternative to IDEA's structural search,
-  this would enable it to carry out the following tasks:
-  identifier usage finding, overridden method finding, type hierarchy resolving, refactoring, and semantics-based searching.
+  \item Internally - csar can be implemented as an alternative to IDEA's structural search.
+  This would enable it to carry out the following tasks: semantics-based searching, and refactoring.
   This requires placing our code in \href{https://github.com/JetBrains/intellij-community/tree/master/platform/structuralsearch/source/com/intellij/structuralsearch}{platform/structuralsearch/...} and creating adapters to enable our code to provide the same interface as the current IDEA ones, to ensure maximum compatibility.
-  \item As a Plugin - csar can be implemented as a third-party plugin which introduces a new query field.
-  This field would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
+  \item As a Plugin - csar can be implemented as a third-party plugin which introduces a new query text field.
+  This would allow users to type csar queries and then execute them, displaying the results in a standard IDEA result window.
 \end{itemize}
 
 \subsubsection{Ignore files}
 We may want csar to have its own ignore file, akin to the git ignore file, to further filter input files \autocite{gitscmgitignore}.
-Its syntax should be the same for the familiarity of users.
+Its syntax should be the same as the git one for the familiarity of users.
+We would also have to give this file a unique name, `.csarignore' seems reasonable, and should be placed in the project root.
 
 \subsection{Non-functional requirements}
 \label{sec:NonFunctionalRequirements}
+This section will list non-functional requirements.
+These are requirements which do not affect the functionality of csar, but nevertheless may be desirable.
+
 \begin{enumerate}
-  \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component-level details), a `readme' file (describing how to run csar), and a user guide (how to use csar).
+  \item Documentation - csar will be accompanied by four pieces of documentation: the report (design and implementation details), javadocs (component-level details), a `readme' file (describing how to run csar), and a user guide (how to get the most out of csar).
   \item Efficiency - the implementation will maximize the usage of algorithms which run in polynomial time, and make use of caching where appropriate.
-  It will also be benchmarked against a large input, to highlight deficiencies.
+  It will also be benchmarked against a large input, to illustrate its speed and any possible deficiencies.
   \item Extensibility - csar will be open source so that users can freely modify it, language-agnostic so that users can easily implement support for their language of choice, expose a public API with great usage of interfaces, and thoroughly utilize dependency injection to allow third-party developers to customize its behaviour.
   \item Interoperability - csar will have a user guide explaining how to invoke it from other applications, and support flexible output formats.
   \item Open source
@@ -192,9 +223,10 @@ Its syntax should be the same for the familiarity of users.
   Test-Driven Development will also be used where appropriate, to ensure each component of csar works as intended.
 \end{enumerate}
 
-\subsection{Scope}
-This project has strict deadlines, so not every feature will be fully implemented.
-The selected requirements (scope) of this project will be detailed in this section.
+\subsection{Selected scope}
+\label{sec:SelectedScope}
+This project has strict deadlines, so not every requirement will be fully implemented.
+The selected requirements (i.e. scope) of this project will be detailed in this section.
 
 csar will be written using Java 8 because I am well-versed in it and it is cross-platform.
 Java 8 runs on numerous platforms including recent versions of Windows, Mac OS X, and various Linux distributions \autocite{javasysreqs}.
@@ -202,65 +234,46 @@ Java 8 runs on numerous platforms including recent versions of Windows, Mac OS X
 csar will be using the Gradle build tool because it is flexible, fast, has good dependency management, and has many plugins which I intend to use \autocite{gradlevsmaven}.
 Gradle is also very good when handling projects with sub-modules in them, which I intend to use in my design \autocite{drdobbswhyusegradle}.
 
-The query language will have two versions: 1.x.x (implemented) and $ \geq $ 2.x.x (potential improvements).
-The implemented version will formally define the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema.
-My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long (it would constitute an entire project itself), hence $ \geq $ 2.x.x will be more exhaustive than 1.x.x but not the ultimate query language.
+The query language will have two versions: 1.x.x (implemented) and 2.x.x (potential improvements).
+My goal is not to develop an exhaustive query language which can express any language element in any language since it would take very long.
+In fact I believe it would constitute an entire project itself, hence 2.x.x will be more exhaustive than 1.x.x but still not the ultimate query language.
+The implemented version will aid the formal definition of the scope of the query language in the implementation, and the potential improvements version will define a more exhaustive schema for future work.
+At a minimum it will support the selected scope detailed within this section.
 
-csar will use ANTLR as its parser-generator because it has a pre-written grammar for Java 8 (see the Code references section), which csar will aim to support.
+csar will use ANTLR as its parser-generator because it has a pre-written grammar for Java 8 (see \autoref{sec:CodeReferences}), which csar aims to support.
 csar will be designed such that other programming languages can easily be integrated into it in the future.
-A developer will need to write a plugin for each programming language they wish to use, analogously to how the java plugin will be written.
-This will include the implementation of a language parser, post-processors, searcher, and refactorer.
+A developer will need to write a plugin for each programming language they wish to use, analogously to how the Java plugin will be written.
+This will include the implementation of a language parser, post-processor(s) (if applicable), searcher(s), and refactorer(s).
 
-Searching will be implemented to only work on methods (finding their definitions and usages) for now.
-To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching and changing the types and getters involved.
-However, this would be a greatly time consuming and tedious task.
-It is also possible that further complications may arise which may need to be addressed in the form of post-processors for the programming languages, this is especially true for dynamic programming languages.
+Searching will be implemented to only work on finding methods definitions and usages (i.e. calls).
+To implement it for the other language elements described in the query language would be as simple as copy-pasting the code for method searching, and changing the types and getters involved.
+However, this would be a greatly time consuming and tedious task to carry out.
+It is also possible that further complications may arise which may need to be addressed in the form of post-processors for the programming languages.
 
-It will also support narrowing the search domain by a `.gitignore' file for directories which are git repositories, and by a custom `.csarignore' file.
-Support for other version control systems are a backlog task and may not be fulfilled, but will follow trivially from the git implementation.
-The git implementation will require calling the git binary with a specific argument and reading the output, which will reveal which files it is currently tracking.
+It will also support narrowing the search domain by a `.gitignore' ignore file for directories which are git repositories, and by a custom `.csarignore' ignore file.
+Support for other version control systems are a secondary requirement and may not be fulfilled, but will follow trivially from the git implementation.
+The git implementation will require calling the git executable with a specific argument and reading its output, which will reveal which files it is currently tracking.
 
-Refactoring is very complicated and time consuming, so we will only consider two operations.
-The first is changing method parameters, this involves resolving all usages of the method in question (in various contexts), modifying the method calls and its definition and ensuring no naming collisions occur.
-The second is renaming methods, this should follow from changing method parameters, since if we resolve all method usages we should be able to simply rename them all and ensure no naming collisions occur.
+Refactoring can be very complicated and thus time consuming to implement, so csar will only support two operations.
+The first is changing method parameters, this involves resolving all usages of the method in question (in various contexts), modifying the method calls and its definition and ensuring no method signature collisions occur.
+The second is renaming methods, this should follow from changing method parameters, since if we resolve all method usages we should be able to simply rename them all and ensuring no method signature collisions occur.
 Renaming is a very common activity for our users (programmers) and hence very valuable to include \autocite{murphy2012we}.
 
 The program output could technically support thousands of formats, but for simplicity it will only support two: plain text and JSON.
-If alternatives are required, a third-party developer will be able to easily add their own result formatter.
+If alternatives are required, a third-party developer will be able to easily add their own result formatter by sub-classing.
 
-Efficiency will mainly be addressed by introducing multi-threading and caching where possible.
-Specific algorithms to be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
+Efficiency and scalability will mainly be addressed by introducing caching and multi-threading where possible.
+Specific algorithms which will be used are currently unknown, but may become available as the details of the implementation are gradually addressed.
 
-csar will use the JUnit library for unit testing, the Mockito library for interface mocking in tests, and the JaCoCo gradle plugin for testing code coverage reporting.
-
-\subsection{Pre-requisite Knowledge}
-``Refactoring is the process of changing the structure of software without changing its behavior." \autocite{murphy2012we} The aim of this is to improve the maintainability and readability of the code.
-
-``Semantics-based search seeks to improve search accuracy by understanding the searcher's intent and the contextual meaning of terms as they appear in the searchable dataspace, whether on the Web or within a closed system, to generate more relevant results." \autocite{wikipediasemanticsearch} Henceforth, this is what is meant by `code search' or `search'.
-
-Searching is important because it increases developer productivity by enabling reuse and this accounts for a significant portion of a developer's activity \autocite{reiss2009semantics,stolee2014solving}.
-
-Automated refactoring increases developer productivity by attempting to automate common tasks, and this accounts for a significant portion of a developer's activity \autocite{mens2004survey,murphy2012we}.
-
-Searching and refactoring are both hard to implement because optimally they should be language-agnostic \autocite{mens2004survey,reiss2009semantics}, which results in a trade-off between expressiveness and how language-agnostic you want the implementation to be.
-
-csar parses source code to operate on it, ``parsing, syntax analysis or syntactic analysis is the process of analysing a string of symbols, either in natural language or in computer languages, conforming to the rules of a formal grammar." \autocite{wikipediaparsing}
-
-csar frequently uses the visitor design pattern to iterate over the elements of a source file.
-``The visitor design pattern is a way of separating an algorithm from an object structure on which it operates." \autocite{wikipediavisitorpattern}
-
-csar uses ANTLR, which is a parser-generator, which in conjunction with appropriate grammars, will recognize and parse languages.
-
-``A compiler-compiler (also known as a parser-generator) is a programming tool that creates a parser, interpreter, or compiler from some form of formal description of a language and machine. The input may be a text file containing the grammar written in BNF or EBNF that defines the syntax of a programming language, and whose generated output is some source code of the parser for the programming language, although other definitions exist." \autocite{wikipediacompilercompiler}
-
-A regular expression (also known as regex) is ``a sequence of characters that define a search pattern. Usually this pattern is then used by string searching algorithms for `find' or `find and replace' operations on strings." \autocite{wikipediaregex}
+Finally, csar will address its reliability through unit testing.
+It will use the JUnit library for unit testing, the Mockito library for interface mocking in tests, and the JaCoCo gradle plugin for testing code coverage reporting.
 
 % Context
 \section{Context}
 This section examines the background material related to csar, to help better understand the ecosystem in which csar will exist.
 
 \subsection{Academic works}
-The following works are related to code searching:
+The following works are the most relevant in the domain of code searching:
 
 \begin{itemize}
   \item \href{http://www.sciencedirect.com.ezproxy.library.qmul.ac.uk/science/article/pii/S1045926X16300970?_rdoc=1&_fmt=high&_origin=gateway&_docanchor=&md5=b8429449ccfc9c30159a5f9aeaa92ffb&ccp=y}{Ge X, Shepherd D, Damevski K \& Murphy-Hill E. (2016). Design and evaluation of a multi-recommendation system for local code search. \textit{International Journal of Computer Applications}. 138 (6). 9-13.}\newline
@@ -275,10 +288,10 @@ The following works are related to code searching:
 There is also a lot of work on code search engines, ranking code samples and text matching, but these are mostly irrelevant to csar.
 This is because they are not semantics-based, and do not offer refactoring capabilities.
 
-\subsection{Related programs}
-The following programs may be related in some way to the aims of csar.
+\subsection{Related programs: RegEx searching software}
+The following searching software are all popular, RegEx based plain-text searching tools.
+They are all language-agnostic and the latter two efficient, but are they are not semantics-based and do not provide refactoring capabilities.
 
-\subsection{RegEx searching software}
 \begin{itemize}
   \item \href{https://en.wikipedia.org/wiki/Grep}{grep}\newline
   A command-line utility for searching plain-text data against a regular expression.
@@ -287,9 +300,6 @@ The following programs may be related in some way to the aims of csar.
   \item \href{https://github.com/ggreer/the_silver_searcher}{ag (aka the silver searcher)}\newline
   A command-line utility for searching plain-text data against a regular expression - essentially a better ack.
 \end{itemize}
-
-The aforementioned searching software are all popular, RegEx based plain-text searching tools.
-They are all language-agnostic and the latter two efficient, but are they are not semantics-based and do not provide refactoring capabilities.
 
 \subsection{Failures in searching}
 There have been attempts to solve searching which have failed including:
@@ -303,26 +313,21 @@ There have been attempts to solve searching which have failed including:
 The reasons for their failures include: trying to do too much or too little, requiring too much user input, and yielding irrelevant search results \autocite{reiss2009semantics,stolee2014solving}.
 
 \subsection{Failures in refactoring}
-There have been attempts to solve automated refactoring which have failed including:
-\begin{itemize}
-  \item IntelliJ IDEA - this is an IDE with integrated automated refactoring;
-  \item Netbeans - this is an IDE with integrated automated refactoring;
-  \item Eclipse - this is an IDE with integrated automated refactoring.
-\end{itemize}
+There have been attempts to solve automated refactoring which have failed including the following IDEs with integrated automated refactoring capabilities: IntelliJ IDEA, Netbeans, and Eclipse.
 
 The reasons for their failures includes: the degree of automation, reliability, configurability and openness, coverage, scalability, and language independence. \autocite{mens2004survey} Furthermore, we can conclude that existing tools have failed because they are underused \autocite{murphy2012we}.
 
 \subsection{Query languages}
-The following query languages do not necessarily address what my query language has to, but they are worth examining own query language.
+The following query languages do not quite address what the csar query language will, but they are worth examining to help influence its creation.
 
 \subsubsection{AutoQuery}
 \label{sec:AutoQuery}
 Its queries are broken up into the following groups: program element types (variable, function, etc.) and identifier (if applicable), program element descriptions (contains, ofType, atLine, etc.), relation descriptions (depends on, etc.) and finally targets.
-Each group can have 0 or more pieces of information within it, so it is descriptive.
+Each group can have zero or more pieces of information within it, so it is descriptive.
 
 Its language is unnatural (with respect to English) and is very rigid.
-You can specify file, line number, types, and various elementary language elements (classes, methods, control flow).
-It is not very expressive: it cannot represent try-catch blocks, anonymous methods/classes, and a long list of such constructs.
+You can express file, line number, types, and various elementary language elements (classes, methods, control flow).
+However it lacks expressiveness because it cannot represent try-catch blocks, anonymous methods/classes, and lots of more similar constructs.
 
 \subsubsection{AspectJ}
 \href{https://eclipse.org/aspectj/doc/next/progguide/starting-aspectj.html}{AspectJ} has developed a language which it uses to address the problems presented by aspect-oriented programming.  
@@ -334,21 +339,22 @@ Their queries have a syntax that closely resembles that of Java. Examples below:
   \item `call(public * Figure.* (..))
 \end{itemize}
 
-You can restrict the domain of queries with logical operators (and, or and not).
-It has limited wildcards (`*', `..' which serves as `*' specially for method parameters, but it lacks `?').
+You can restrict the domain of queries with logical operators (and, or, and not).
+It has limited wildcards: `*', `..' which serves as `*' specially for method parameters, however it lacks `?' (any single character match).
 
-You can define a query with an alias, which helps address the Don't Repeat Yourself principle, and thus verbosity.
-I can also use this to provide coding standards verification (i.e. define queries and run them against the project, with matches corresponding errors in standards).
+You can define a query with an alias, which helps address the Don't Repeat Yourself principle, and hence reduces verbosity.
+I can also use this idea to provide coding standards verification (i.e. define queries and run them against the project, with matches corresponding to errors in standards).
 You can define method parameters as a type list or a named-type list which is flexible and expressive.
 
 One issue is csar aims to be language-agnostic, so adopting a Java-like syntax will be unintuitive for non-Java programmers.
 
-The syntax fails for dynamically-typed languages where types are not explicitly defined, so a method with signature: `my\_method(int)' would be invalid (or require additional processing to make work).
-A solution to this is accepting variable name lists.
+The syntax fails for dynamically-typed languages where types are not explicitly defined, such as a method with signature: `my\_method(int)' which would be invalid (or require additional processing to work).
+A solution to this is accepting variable name lists as well.
 
 \subsubsection{Infer}
-\href{https://github.com/facebook/infer}{Infer} has developed a language called \href{https://code.facebook.com/posts/277643589367408/}{AL} which it uses to define code templates corresponding to code stink. Example below:  
+\href{https://github.com/facebook/infer}{Infer} has developed a language called \href{https://code.facebook.com/posts/277643589367408/}{AL} which it uses to define code templates corresponding to code stink.
 
+Example below:
 \begin{lstlisting}
 DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
     LET name_contains_delegate = declaration_has_name(REGEXP("[dD]elegate"));
@@ -366,77 +372,82 @@ DEFINE-CHECKER STRONG_DELEGATE_WARNING = {
 };
 \end{lstlisting}
 
-It is very descriptive (allows compositions with `AND', `NOT', `WHEN' etc.) and intuitive (similar to SQL). You can define strings as regex patterns, this is a powerful feature.
+It is very descriptive (allows compositions with `AND', `NOT', `WHEN' etc.) and intuitive (similar to SQL).
+You can define strings as RegEx patterns, this is a powerful feature which I want to borrow.
 The language is verbose and thus does not resonate with csar's competitors, which use single line queries.
 However, declarations and response messages can be useful for creating complex tools with csar (i.e. code convention checks).
 
 % Design
 \section{Design}
-This section will detail the design of csar in terms of its execution environment, an overview of its design, a running example, and its high-level design.
+This section will detail the design of csar in terms of its execution environment, csar query, design overview, a running example, and its high-level design.
 
 \subsection{Execution environment}
-csar will work on any mainstream variant of Windows, Mac, or Linux, which has Java 8 (or above) installed and sufficient memory.
-The memory requires of csar are hard to estimate, because it is heavily correlated with the input project size.
+csar will work on any mainstream variant of Windows, Mac, or Linux, which has Java 8 (or above) installed.
+The memory requirements of csar are hard to estimate, because it is heavily correlated with the input project.
 A modern machine with 2-4GB of RAM should be plenty for most applications.
 
 The csar binaries (including plugins) and a `.csarignore' file (if applicable) should all be placed in the same folder together.
-This folder is the one that csar will operate on.
+This folder is the one that csar will operate on, and in most cases will be the project root.
 
 \subsection{Csar query language}
 \label{sec:DesignCsarQuery}
-
 Firstly, we will look at the Csar Query language v1.2.0 (see \ref{apx:CsarQueryLanguagev120}).
+A csar query is a query-based description of what csar should do, this must include a searching action but not necessarily a refactoring action.
+
+Search results are not filtered by any details which are not specified in the query.
+For example, if you search for methods without specifying a visibility modifier, you will get search results containing both any and none of them.
 
 It supports much more than the selected scope recommended, so it is quite future proof.
 Most of its issues are beyond the selected scope, but will be still be elaborated on.
 
-It has numerous syntactical problems including the fact that it cannot represent lots of different language elements including: constructors, identifiers with generic types (e.g. `List<String>'), enums, etc.
-It is not very flexible, e.g. you can search for `final' methods but not for `not final' methods.
-This could be resolved by allowing a `NOT' identifier in certain places, to invert the following search condition.
+It has numerous syntactical problems including that it cannot represent various language elements including: constructors, identifiers with generic types (e.g. `List<String>'), enums, etc.
+It is not very flexible, you can search for `final' methods but not for `not final' methods, this extends to other modifiers such as `static' and visibility modifiers.
+This could be resolved by allowing a `NOT' identifier before such modifiers, to allow searching for their inverse.
 It does not allow the usage of regular expressions everywhere.
 It cannot represent computation/arithmetic.
 It cannot distinguish extended classes from implemented interfaces (they are treated the same, for simplicity).
-It does not allow fully qualified types.
+It does not allow the use of fully qualified types.
 It does not allow parenthesis for precedence in the `containsQuery` rule for increased expressiveness.
 
 It cannot search for multiple elements at once, a top-level 'OR' operator would address this.  
-However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error. One solution is to print an error message and terminate.
+However, this conflicts with refactoring because: how do you rename two distinct elements to the same name, and such an action would be indicative of user error.
+One solution would be to print an error message and terminate.
 
 Secondly, there is a Csar Query language v2.0.0, but it will be omitted for brevity.
 You can find the analysis on that in the `design-docs/query-language' folder within the project.
-
 It was an improvement over v1.2.0 but also suffered from some common issues.
 
 \subsection{Overview}
 Firstly, the user's chosen csar frontend containing a main method is invoked by Java (in particular the Java Virtual Machine).
 
 The frontend is responsible for interacting with the `csar-api', which will carry out the tasks it is provided by the frontend in the form of a suitable csar query.
-The provided `csar-cli' is a frontend for humans, so it takes its inputs as command-line arguments which includes a non-optional csar query.
-`csar-cli' then parses these arguments into a `CsarQuery' object, as defined in `csar-api'.
-A csar query is a query-based description of what csar should do, this must include a searching action but not necessarily a refactoring action.
+The provided `csar-cli' is a command-line frontend for humans, so it takes its inputs as command-line arguments including a non-optional csar query.
+`csar-cli' then parses these arguments into a `CsarQuery' instance, as defined in `csar-api'.
 
 Then, the frontend calls upon the `csar-api' to carry out the work specified in the `CsarQuery' instance.
 The `csar-api' carries out the following tasks in order:
 \begin{itemize}
-  \item Load plugins.
-  \item Parse the csar query.
-  \item Parses the project code.
-  \item Post-processes the project code.
-  \item Searches the project code.
+  \item Load plugins;
+  \item Parse the csar query;
+  \item Parses the project code;
+  \item Post-processes the project code;
+  \item Searches the project code;
   \item Refactors the project code (if applicable).
 \end{itemize}
-If an error occurs during any one of these tasks csar will respond appropriately, which may be modified through adding error listeners and subclassing.
-If the error is fatal, then `csar-cli' will terminate with an appropriate error code.
+If an error occurs during any one of these tasks csar will respond appropriately, which may be modified through error listeners and sub-classing.
+If a fatal error occurs, then `csar-cli' will terminate with an appropriate error code (see \ref{sec:DesignCsarCli}).
 
-Then, the frontend reads the appropriate results (refactoring results if available, otherwise the search results), and displays them in a suitable manner for the user.
+Then, the frontend receives the appropriate results (search results and refactor results if applicable), and displays them in a suitable manner for the user.
+The format of the results can be changed through the command-line arguments (see \ref{sec:DesignCsarCli}).
 Finally, `csar-cli' will terminate.
 
-Note that depending on the logging level chosen, and your shell of choice you may see more input than usual.
+Note that depending on the logging level chosen and your shell of choice, you may see more output than usual.
 This output is for debugging purposes and outputted to the standard error stream.
 
 \subsection{Running example}
-Suppose we invoke `csar-cli' from the command-line with the following command: `java -jar csar.jar SELECT method:def:print REFACTOR changeparam:String s, String s1'.
-This will find all methods called `print', and change their parameters to be two `String' parameters.
+Suppose we invoke `csar-cli' from the command-line with the following command-line arguments: `java -jar csar.jar SELECT method:def:print REFACTOR changeparam:String s, String s1'.
+This should find all methods definitions with the identifier `print', and change their parameters to be two `String' parameters.
+This change should also be applied to the method calls corresponding to these definitions, to maintain consistency in the code.
 Furthermore, suppose we have a `/project/' directory containing only the following code files, and the csar binaries:
 
 `A.java':
@@ -475,17 +486,19 @@ public class C {
 \end{lstlisting}
 
 Firstly, `csar-cli' will parse these command-line arguments to instantiate a corresponding instance of `Csar', and the thread count will be set to 1 (because it was not set in the program arguments).
-This directory is not home to a supported version control and does not have a `.csarignore' file, hence no filtering of its contents will be applied.
+This directory is not home to a supported version control, it does not have a `.csarignore' file, and there is no `FROM' clause in the csar query, hence no filtering of its contents will be applied.
 
-Secondly, the csar query will be parsed.
+Secondly, `csar-cpi' will load its plugins.
 
-Thirdly, each loaded language plugin will perform the following:
+Thirdly, the csar query will be parsed.
+
+Fourthly, each loaded language plugin will perform the following:
 \begin{itemize}
-  \item The project code will be parsed.
-  \item The project code will be post-processed.
-  \item The search will be performed.
-  Method definitions which have the name `print' will be stored in a search results list.
-  These results will be formatted and then printed as follows:
+  \item Parse the project code.
+  \item Post-process the project code.
+  \item Search the project code.
+  Method definitions which have the identifier `print' will be stored in a search results list.
+  These results will be formatted  by `csar-cli' and then printed as follows:
   \begin{lstlisting}
   Search results (2 found):
   .\B.java:2 public (overridden) void print(int k, int v) {
@@ -495,11 +508,11 @@ Thirdly, each loaded language plugin will perform the following:
     System.out.println("print in A");
   }
   \end{lstlisting}
-  \item The refactor will be performed.
-  In this case all definitions and corresponding usages (these are graphed in the code post-processing) in the search results list will have their parameters changed to two `String' types.
+  \item Refactor the project code.
+  All method definitions (these are graphed in the code post-processing) in the search results list alongside their corresponding method calls will have their parameters changed to two consecutive `String' types.
   These changes will then be written to the relevant source code files.
   
-  We will end up with the following code files:
+  We end up with the following code files:
 
   `A.java':
   \begin{lstlisting}[language=Java]
@@ -536,8 +549,8 @@ Thirdly, each loaded language plugin will perform the following:
   }
   \end{lstlisting}
   
-  Furthermore, we will have the refactor results stored in a refactor results list.
-  These results will be formatted by `csar-cli' and then printed as follows:
+  Furthermore, we will have these refactor results stored in a refactor results list.
+  They will be formatted by `csar-cli' and then printed as follows:
   \begin{lstlisting}
   Refactor Results (4 found):
   .\B.java:2     public void print(String s, String s1) {
@@ -547,29 +560,32 @@ Thirdly, each loaded language plugin will perform the following:
   \end{lstlisting}
 \end{itemize}
 
-The user will need to go through each refactor result to provide valid parameters for each affected method call, otherwise unexpected results may occur.
+Then, the user will need to go through each refactor result to provide valid parameters for each affected method call, otherwise unexpected results may occur.
+This is because the initial arguments were all of type `int', but now they must be substituted for instances of type `String'.
+
 Finally, `csar-cli' will terminate.
 
-\subsection{High-level}
+\subsection{High-level design}
 This section describes csar's high-level design, that is, describing csar in terms of the modules which comprise it and how they interact with each other.
 
 \subsubsection{Component overview}
 \begin{figure}[!hb]
   \centering
-  \caption{High-level Structure}
+  \caption{High-level design, this figure is intended to supplement the contents of this section.}
   \includegraphics{figure-1}
 \end{figure}
 
 The frontend receives user input and directs them to the `csar-api', which in turn interacts with its plugins to complete the user's task.
 
-The `csar-api' defines the csar query, csar plugins (using Java's ServiceLoader class), various interfaces (for parsing, searching, and refactoring), and various utilities (for plugins and otherwise).
+The `csar-api' defines the csar query, csar plugins (using Java's ServiceLoader class), various interfaces (for parsing, post-processing, searching, and refactoring), and various utilities (for plugins and otherwise).
 It does not specify language-specific implementation details.
 
-The language-specific details are specified in plugins.
+The language-specific implementation details are specified in plugins.
 These behaviours are: code parsing, post-processing, searching, and refactoring.
 
 \subsubsection{csar-cli}
-csar-cli's command-line usage format has a non-optional search query, and is as follows:
+\label{sec:DesignCsarCli}
+`csar-cli' has command-line arguments which require a non-optional search query, and is formatted as follows:
 \begin{lstlisting}
 Usage: java -jar csar.jar [options] Search query
   Options:
@@ -613,34 +629,34 @@ When csar-cli terminates, it will return one of the following exit codes:
 \end{tabular}
 
 It is important to note that you could build your own frontend on top of `csar-cli' to create `Csar' instances using `CsarContext'.
-This is useful because `CsarContext' is a simple interface, with lots of configurable fields, and also allows sub-classing.
+This is desirable because `CsarContext' is a simple interface with lots of configurable fields, and also allows sub-classing.
 
 \subsubsection{csar-api}
 The `Csar' class uses the listener design pattern to allow custom handling of errors, using the `CsarErrorListener' interface.
 Two implementations of note are the `LoggingErrorListener' which logs errors to the standard error output stream, and the `DefaultCsarErrorListener' which does nothing.
 `csar-cli' contains an extension of the `LoggingErrorListener' called `CliCsarErrorListener', which logs and then calls `System\#exit' with an appropriate exit code.
 
-It also defines the following interfaces, which are extended by plugins to represent language elements: `Descriptor' which describes a language element (and various default implementations of this), `Expression' which is a language expression, `Statement' which is a language statement, `SerializableCode' which represents classes which can be converted into code, and `TypeStatement' which is a language type statement.
+It also defines the following interfaces, which are extended by plugins to represent language elements: `Descriptor' which describes a language element (alongside various default implementations of this), `Expression' which is a language expression, `Statement' which is a language statement, `SerializableCode' which represents classes which can be converted into code, and `TypeStatement' which is a language type statement.
+Furthermore, `Descriptor' is used to represent search targets.
 
-It contains the `ProjectIteratorFactory' which creates instances of `ProjectIterator' whose job is to iterate files within a project.
-There are also various subclasses of `VCSRepositoryIterator' (which is a `ProjectIterator'), with each supporting another version control software repository: Git, Subversion, and Mercurial.
+It contains the `ProjectIteratorFactory' which creates instances of `ProjectIterator' which is used to iterate files within a project.
+There are also various subclasses of `VCSRepositoryIterator' which extends `ProjectIterator', with each supporting another version control software repository: Git, Subversion, and Mercurial.
 
 It also defines the ignore files functionality, which is split into two parts: creating ignore rules, and applying them.
 Rules are split into two categories: a `FlexibleRule' (may be a file or directory), and a `Rule' (is either a file or a directory).
 Rules are specified in a git rules-like format.
 
 It also defines the `CsarQuery' class, which represents a csar query.
-Furthermore, it contains a `CsarQueryFactory' which converts a textual representation of a csar query into a `CsarQuery' instance using the `CsarQueryParser'.
+Furthermore, it contains a `CsarQueryFactory' which parses a textual csar query into a `CsarQuery' instance using the `CsarQueryParser'.
 
-It also defines the `CsarPlugin' class, which plugins must extend.
-This defines how to parse, post-process, search, and refactor some files.
+It also defines the `CsarPlugin' interface which defines a plugin (plugins must extend it) and how to: parse, post-process, search, and refactor code files.
 This is complimented by `CsarPluginLoader' which handles the loading and use of plugins.
 
-`CodeParserFactory' is used to register a corresponding `CodeParser' implementation.
+`CodeParserFactory' instances are used to create `CodeParser' instances, this is done by providing it with a `CodeParser' implementation.
 This is then used by `DefaultProjectCodeParser' to parse the entire project.
-This way, a plugin may choose to use `DefaultProjectCodeParser' and thus not write its own multi-threading logic.
+This way, a plugin may choose to use the `DefaultProjectCodeParser', which is useful because it supports multi-threading without any extra effort on the developer's part.
 
-It also defines the `CodePostProcessor' which should be extended by post-processors, and the `ProjectCodeSearcher' which should be extended by project-wide searchers.
+It also defines the `CodePostProcessor' interface which should be extended by post-processors, and the `ProjectCodeSearcher' which should be extended by project-wide searchers.
 `CodePostProcessor' contains the `postprocess' method which takes a mapping of file paths to statements, this map is hereby referred to as `code base'.
 It is intended for each post-processor to either destructively modify the contents of this map, or to store some result within the post-processor itself for later use.
 
@@ -649,107 +665,112 @@ Furthermore, it defines `ProjectCodeRefactorer' which should be extended by proj
 Finally, it defines the `Result' class which stores a searching or refactoring result.
 
 \subsubsection{Plugins}
-Plugins must adhere to the following rules:
+Plugins must function under the following conditions:
 \begin{itemize}
   \item They will not be executed concurrently, but interleaving during the same step of csar process may occur, i.e. all plugins may be told to parse one by one, and then to post-process one by one, and so forth.
+  A plugin is allowed to use multi-threading within itself, however it should only return from method calls once all of these threads are stopped.
   \item They will have unrestricted access to the host machine.
   \item All plugins have access to all project files, thus it is possible for two plugins to modify the same file.
 \end{itemize}
 
 To use a plugin with csar the following must be done:
 \begin{itemize}
-  \item Place the plugin JAR in the the same directory as csar (which should be the current working directory).
-  If you place it in any other directory, including a sub-directory, csar is not obliged to detect it but it may at its own discretion.
-  \item Run the csar front-end jar, then `csar-api' should automatically detect and delegate tasks to the plugin.
+  \item Place the plugin JAR in the the same directory as csar (which should be the current working directory, and usually the project root).
+  If you place it in any other directory, including a sub-directory, csar is not obliged to detect the plugin but it may at its own discretion.
+  \item Once you run the csar front-end jar, `csar-api' should automatically detect and delegate tasks to the plugin.
 \end{itemize}
 
 \subsubsection{csar-java}
-The `CsarJavaPlugin' class is the subclass of `CsarPlugin'.
-This delegates all of the operations it must support to the necessary classes.
+The `CsarJavaPlugin' class is a subclass of `CsarPlugin'.
+This delegates all of the operations it must support to the necessary internal classes.
 
-It defines all valid Java statements and expressions, and its `JavaCodeParser' class parses Java code into these objects.
+Firstly, defines all valid Java statements and expressions, and its `JavaCodeParser' class which extends `CodeParser` to parse Java code into these objects.
+This is used in conjunction with `DefaultProjectCodeParser' to parse Java code in a multi-threaded manner.
 
-Then, its `CodePostProcessor' class post-processes all of the code.
+Secondly, its `CodePostProcessor' class post-processes all of the code.
 This includes type hierarchy resolving (`TypeHierarchyResolver'), overridden methods resolving (`OverriddenMethodsResolver'), and method use resolving (`MethodUseResolver').
-It also defines a classes which help these post-processors accomplish their goals, including qualified name resolving (`QualifiedNameResolver'), method qualified type resolving (`MethodQualifiedTypeResolver'), and method call type instance resolving(`MethodCallTypeInstanceResolver').
+It also defines a classes which help these post-processors accomplish their goals, including qualified name resolving (`QualifiedNameResolver'), method qualified type resolving (`MethodQualifiedTypeResolver'), and method call type instance resolving (`MethodCallTypeInstanceResolver').
 
-Then, `JavaCodeSearcher' searches the project code.
-it creates and utilises sub-searchers using `SearcherFactory', which implement the `Searcher' interface are defined, each of which carries out a specific type of search.
+Thirdly, its `JavaCodeSearcher' class searches the project code.
+it creates sub-searchers using `SearcherFactory', each of which implement the `Searcher' interface and are utilised to carry out a specific type of search.
 It generates a list of search results, as well as, a list of pending refactor changes (which extend `RefactorChange') depending on the kind of refactoring wanted by the user.
 
 Finally, `JavaCodeRefactorer' refactors the code using the aforementioned list of refactor changes.
-it creates and utilises sub-refactorers using `RefactorerFactory', which implement the `Refactorer' interface are defined, each of which carries out a specific type of refactor.
+it creates sub-refactorers using `RefactorerFactory', each of which implement the `Refactorer' interface and are utilised to carry out a specific type of refactor.
 
 Each of these sub-searchers and sub-refactorers operate on only one file.
-The results are aggregrated by the class calling them before being returned.
+The results are aggregated by the class calling them before being returned.
 
 % Implementation
 \section{Implementation}
-This section describes csar's implementation details, that is, the exact algorithms and ideas of interest used.
+This section describes csar's implementation details, that is, the exact algorithms and ideas used.
 
 \subsection{Csar query}
+\label{sec:CsarQueryImplementation}
 The implemented version of the Csar Query language is a superset of v1.2.0.
-Its `expr' rule is very lenient, this is because the definition of an expression depends on a target programming language. 
+Its `expr' rule is very lenient, this is because the definition of an expression depends on the target programming language. 
 This is intended to be parsed further at a language-specific level.
-The grammar should explicitly allow the escaping of single quote in the comment rules, but it works anyway.
+The grammar should explicitly allow the escaping of single quote in the comment rules, but it works anyway due to how the parser-generator works.
 `REGEXP` rules can be swallowed by other rules, we must make sure its used strictly for regex characters and not string literals.
 
-Some example queries built using the language are specified below:
+Some example queries built using the language are listed below:
 \begin{itemize}
-  \item `SELECT method:use:print' - will find method calls with the identifier `print'.
-  \item `SELECT method:use:REGEXP(print*)' - will find method calls starting the identifier `print'.
-  \item `SELECT method:def:static final print(1)' - will find method definitions which are static and final, with the identifier `print' and one argument.
-  \item `SELECT method:def:print(String)' - will find method definitions with the identifier `print' and one `String' argument.
-  \item `SELECT method:def:print REFACTOR rename:anotherPrint' will find methods with the identifier `print', and then rename them and their corresponding method calls to `anotherPrint'.
-  \item `SELECT method:def:print REFACTOR changeparam:String s, String s1' - will find methods with the identifier `print', and then rename them and their corresponding method calls to `anotherPrint'.
+  \item ``SELECT method:use:print'' - finds method calls with the identifier `print'.
+  \item ``SELECT method:use:REGEXP(print*)'' - finds method calls starting the identifier `print'.
+  \item ``SELECT method:def:static final print(1)'' - finds method definitions which are static and final, with the identifier `print' and one argument.
+  \item ``SELECT method:def:print(String)'' - finds method definitions with the identifier `print' and one `String' argument.
+  \item ``SELECT method:def:print REFACTOR rename:anotherPrint'' finds methods with the identifier `print', and then renames them and their corresponding method calls to `anotherPrint'.
+  \item ``SELECT method:def:print REFACTOR changeparam:String s, String s1'' - finds methods with the identifier `print', and then changes the parameters of them and their corresponding method calls to `(String s, String s1)'.
 \end{itemize}
 
-The `CsarQuery' class represents an instance of the Csar Query language and is contained within the `csar-api'.
+An instance of the `CsarQuery' class represents an instance of the csar query language and is contained within the `csar-api'.
 This class is comprised of four parts, but only the first is required:
 \begin{itemize}
-  \item `TargetDescriptor' - The element to select.
-  \item `ContainsQuery' - What searchTarget should contain within it.
-  \item `List<String>' - Where searchTarget should be found (file names without extensions).
-  \item `RefactorDescriptor' - The transformation to apply to searchTarget.
+  \item `TargetDescriptor' - The element to select (i.e. find).
+  \item `ContainsQuery' - What the target should contain within it (e.g. it should contain a for-loop).
+  \item `List<String>' - Where the target should be found (file names without extensions).
+  \item `RefactorDescriptor' - The refactor to apply to target.
 \end{itemize}
 
 All classes which comprise `CsarQuery' are immutable.
 
 \subsection{Ignore files}
-Firstly, creating ignore rules can be done by reading a file containing rules, or taking as argument a `String' containing rules.
-When these rules are read, they are converted into a specialized regular expression called a `PathMatcher', which is then used to check if a file is matched by a rule.
+Firstly, ignore rules can be created by reading a file containing gitignore-like rules, or by taking as argument a `String' containing rules.
+When these rules are read, they are converted into a specialized file name regular expression matcher called a `PathMatcher' each of which represents a rule.
+This is then used to check if a file name is filtered, by seeing if its name matches against any of these matchers.
 This is typically done by iterating over a list of rules, and checking if any of them match an argument file.
 
-This may have an issue where it does not fully support ignore files.
+This may be an issue where it does not fully support ignore files.
 
-\subsubsection{Plugins}
-To create a plugin for csar the following must be done:
-\begin{itemize}
+\subsection{Plugins}
+This section will detail how to create a new plugin for csar:
+\begin{enumerate}
   \item Create a new project targeting the JVM which depends on: `csar-api'.
   \item Create a class which implements `CsarPlugin' from `csar-api'.
   This must have a public 0-arguments constructor, and must implement the behaviour defined by the interface: parsing, post-processing, searching, and refactoring.
   Your implementation should support adding and removing error listeners as specified by the interface, and delegating the appropriate errors to them.
   The skeleton of this class can be seen in the appendices (see \ref{apx:SkeletonCsarPluginImplementation}).
-  \item Define a resource for the JAR, which should be in the `META-INF/services' folder.
+  \item Define a resource for the JAR, which should be in the `META-INF/services' folder within it.
   The file's name should be `org.qmul.csar.plugin.CsarPlugin' and its content the fully qualified name of your plugin.
-  In the case of the appendix implementation this would be `org.qmul.csar.CsarJavaPlugin'.
+  In the case of the appendix `CsarPlugin' implementation this would be `org.qmul.csar.CsarJavaPlugin'.
   \item Compile the project into a JAR.
-\end{itemize}
+\end{enumerate}
 
-Plugins are loaded at runtime using the `CsarPluginLoader' singleton class, which utilises a `ClassLoader' to find the JARs and `ServiceLoader' to load the plugin classes.
+Plugins are loaded at runtime using the `CsarPluginLoader' singleton instance, which utilises a `ClassLoader' to find the JARs and `ServiceLoader' to load the plugin classes.
 
-The Java plugin implementation is called `CsarJavaPlugin' and the classes it uses to carry out tasks are detailed throughout this section.
-`CsarJavaPlugin' is responsible for adding `ErrorListener' instances added to itself, to the classes which it uses before use.
+The Java plugin implementation is called `CsarJavaPlugin' and the classes it uses to carry out tasks are detailed throughout the rest of this section.
+`CsarJavaPlugin' is responsible for adding the `ErrorListener' instances added to itself, to the classes which it uses.
+This must be done before it uses any of its internal classes, otherwise they may not be active for a portion of the tasks it carries out.
 
 \subsection{Parsing Java Code}
 The Java plugin defines a set of implementations of `Statement' and `Expression' representing Java language elements.
+Typically, searchable statements will include a field which is a `Descriptor' instance.
 
 When `CsarJavaPlugin' is invoked to parse code, it creates a new instance of `CodeParserFactory' which creates instances of `JavaCodeParser'.
-This is a multi-threaded class.
 It then creates an iterator for the project files using `ProjectIteratorFactory'.
-Finally, it uses both of these pieces of information to invoke `DefaultProjectCodeParser', which carries out the parsing of the entire project.
+Finally, it uses both of these pieces of information to invoke `DefaultProjectCodeParser', which is multi-threaded and carries out the parsing of the entire project.
 
-`JavaCodeParser' uses a pre-written ANTLR 4 grammar to parse Java source code into instances of `CompilationUnitStatement', which represents the top-most type in a source code file.
+`JavaCodeParser' uses a pre-written Java 8 ANTLR grammar to parse Java source code into instances of `CompilationUnitStatement', which represents the top-most type in a source code file.
 `CompilationUnitStatement' is comprised of various `Statement' and `Expression' implementations.
 
 \subsection{Post-processing}
@@ -757,39 +778,41 @@ When `CsarJavaPlugin' is invoked to post-process code, it creates a new instance
 This is comprised of the following post-processors, which are executed in order:
 \begin{itemize}
   \item `TypeHierarchyResolver' - resolves the type hierarchy of the project.
-  \item `MethodQualifiedTypeResolver' - attaches `QualifiedType' instances for the return type and parameters of each method statement.
+  \item `MethodQualifiedTypeResolver' - attaches `QualifiedType' instances to each method statement for their return types and parameters.
   \item `OverriddenMethodsResolver' - sets the overridden flag of each method statement.
-  \item `MethodCallTypeInstanceResolver' - attaches `TypeInstance' instances for the name and parameters of each method call expression.
-  \item `MethodUseResolver' - resolves and sets method calls which correspond to each method statement.
+  \item `MethodCallTypeInstanceResolver' - attaches `TypeInstance' instances to each method call expression for their names and parameters.
+  \item `MethodUseResolver' - resolves and attaches method call expressions to the method statements to which they correspond.
 \end{itemize}
 
-Post-processors also make use of the `QualifiedNameResolver' which resolves qualified names of types, and `ExpressionTypeResolver' which resolves the type of an arbitrary `Expression' instance.
+Post-processors also make use of the `QualifiedNameResolver' which resolves the qualified names of types, and `ExpressionTypeResolver' which resolves the type of an arbitrary `Expression' instance.
 
 \subsubsection{Type hierarchy resolver}
-Type hierarchy resolving is necessary for resolving overridden methods because an overridden method's signature is allowed to contain subtypes of the method signature it inherits from.
-It is also necessary for resolving method uses for the same reason, it is allowed to call a method with its arguments as subtypes.
+Type hierarchy resolving is necessary for resolving overridden methods because in Java it is legal to define overridden methods with a subtype as its return type.
+Furthermore, it is also necessary for resolving method method calls for the same reason, it is legal to call a method with its arguments as subtypes.
 
 Firstly, `TypeHierarchyResolver' defines a root type called `Object' because all types in Java are sub-classes of `Object'.
-Secondly, it adds primitive Java types to this type hierarchy.
+Secondly, it adds primitive Java types as well as the `String' class to this type hierarchy.
 
 Then, it iterates over the code base, ignoring annotation types because they cannot be part of a type hierarchy.
-Each time it encounters a source code file, it iterates over its contents for type (i.e. classes, interfaces, and enums) declarations using an instance of `TypeStatementHierarchyResolver'.
-If the current type has no super classes, it is added to the type hierarchy as a direct descendant of `Object'.
+Each time it encounters a source code file, it iterates over its contents for type declarations (i.e. classes, interfaces, and enums) using an instance of `TypeStatementHierarchyResolver'.
+If the current type has no super-classes, it is added to the type hierarchy as a direct descendant of `Object'.
 Otherwise, its super-classes are recursively iterated over, resolved in the same way, and then added to the type hierarchy.
 
-During this process, types which are not fully resolved are stored in a list, at the end of the process any items still in the list are added as direct descendants of `Object'.
+During this process, types which are not yet fully resolved are stored in a list (i.e. their parent class does not tie in with an existing type in the type hierarchy).
+At the end of the process any types still in the list are added as direct descendants of `Object'.
 This is because this `TypeHierarchyResolver' does not handle resolving types within the Java API nor external libraries.
 Hence, sometimes types are not fully resolved (because their super-classes are in a library) and so we settle for a partial type hierarchy.
 
 \subsubsection{Method qualified type resolver}
-Method qualified type resolving is necessary throughout the post-processors, particularly for resolving overridden methods as part of the solution to handling subtypes as return types or parameters types.
+Method qualified type resolving is necessary throughout the post-processors, particularly for resolving overridden methods.
+This is because it requires handling subtypes as return types or parameters types.
 
-Firstly, `MethodQualifiedTypeResolver' iterates over the code base.
+`MethodQualifiedTypeResolver' iterates over the code base.
 Each time it encounters a method, for its return type and parameters it generates their fully qualified name using `TypeHelper', and then uses the `QualifiedNameResolver' to resolve their corresponding `QualifiedType' instances.
-It then sets this in the corresponding instance.
+It then sets this in the corresponding method instance.
 
 \subsubsection{Overridden methods resolver}
-Overridden methods resolving is necessary for searching for methods which are overridden.
+Overridden methods resolving is necessary to be able to search for methods which are overridden.
 
 Firstly, `OverriddenMethodsResolver' iterates over the code base over multiple threads.
 Each time it encounters a method, if the method contains the `@Override' annotation it is set as overridden \autocite{overriddenannotation}.
@@ -803,12 +826,13 @@ If its signature is equal but the found method is not accessible (w.r.t. visibil
 Method call type instance resolving is necessary for method use resolving, because if we do not know the types of a method's `name' (in this section this definition includes expressions like `variable.methodName' or `method') and arguments then we cannot discern which method definition it corresponds to.
 
 Firstly, `MethodCallTypeInstanceResolver' iterates over the code base using a `MethodCallExpressionVisitor' instance to iterate over individual code files.
-Each time it encounters a method call, it resolves the type to where it belongs (e.g. `variable.method' belongs to the type of `variable') and the types of its arguments.
+Each time it encounters a method call, it resolves the type to where it belongs (e.g. in `var.fn' the method `fn' belongs to the type `var') and the types of its arguments.
 These types are called type instances because unlike qualified types they also include a notion of dimension (i.e. arrays), this is because they are a run-time value.
 It then sets these values on the method call.
 
 \subsubsection{Method use resolver}
-Method use resolving is necessary for the rename and change parameters refactors, as well as searching for method uses.
+Method use resolving is necessary for the rename and change parameters refactors because changes to method call signatures will require changes on the corresponding method definition, and vice-versa.
+It is also necessary for searching for method uses.
 
 Firstly, `MethodUseResolver' iterates over the code base using a `MethodCallStatementVisitor' instance to iterate over individual code files.
 Each time it encounters a method call, it resolves the method definition it corresponds to using `MethodCallResolver', and then adds it to the list of usages for that method call.
@@ -818,7 +842,7 @@ If the method call was on a variable or another method, then it is looked for in
 Otherwise, it is looked for in in the current context, then the current type, and then in its super-classes.
 
 When resolving in these contexts method definitions looked for with the same name and arguments as the method call, as well as being accessible (w.r.t. the static modifier) by the method call in the initial context.
-Unfortunately, this does not validate the accessibility in terms of visibility modifiers.
+Unfortunately, this has a defect, in that it does not validate the accessibility in terms of visibility modifiers.
 
 \subsubsection{Expression type resolver}
 `ExpressionTypeResolver' is necessary for method use resolving.
@@ -826,22 +850,23 @@ Unfortunately, this does not validate the accessibility in terms of visibility m
 `ExpressionTypeResolver\#resolve' takes an arbitrary expression and returns its `TypeInstance' (its type and dimensions).
 It supports all Java 8 expression types except method references, and some of interest will be detailed in this section.
 
-Firstly, resolving the `super' keyword involves checking if the current type is an inner class, if so then this is its parent class.
-Otherwise, it is the current type's extended/implemented class/interface.
+Firstly, resolving the `super' keyword involves checking if the current type is an inner class, if so then the type is its parent class.
+Otherwise, it is the current type's extended class, and in the absence of that its implemented interfaces.
 
-Secondly, resolving an identifier involves searching the following, in this order: parameters (constructor and method parameters), local variables (including variables defined within for-loops), instance variables, contents of its super class (recursively), and if none of this is true it is assumed that it may be a fully qualified name and is attempted to be resolved that way.
+Secondly, resolving an identifier involves searching the following, in this order: parameters (constructor and method parameters), local variables (including variables defined within for-loops), instance variables, contents of its super-class (recursively), and if none of this is true it is assumed that it may be a fully qualified name and is attempted to be resolved that way.
 
 Resolving a fully qualified name just involves checking if it is existant and accessible in the current context.
 
-Thirdly, resolving a binary expression is split into resolving its left-hand side (lhs), and then its right-hand side (rhs).
-Then, depending on the binary operator used the two types (for the lhs and the rhs) are `combined'.
-This is quite a cumbersome procedure, but an example is that if the lhs is a `String', then the expression must be of type `String'.
+Thirdly, resolving a binary expression leads to it being split into its left-hand side (lhs) and its right-hand side (rhs), both of which are independently resolved.
+Then, depending on the binary operator which combines the two sides, their two types (for the lhs and the rhs) are `combined' into one type.
+This is quite a cumbersome procedure to fully describe, but an illustration of this is that if the lhs is a `String', then the expression must be of type `String'.
 Similarly, if the lhs is an `int' and the rhs a `long', then the expression must be of type `long'.
+These combination rules are defined by the JVM, and may vary between programming languages.
 
-Finally, resolving ternary expressions involves resolving its conditional values.
+Fourthly, resolving ternary expressions involves resolving its conditional values.
 If both values are null, then it is deemed of type `Object', otherwise it is of the type of either which is non-null.
 
-Resolving literals works as follows: null is of type `Object', values beginning with `"' and `'' are of type `String' and `char' respectively, true or false are of type `boolean', values ending with `d' or containing a decimal point are of type `float', values ending with `f' are of type `float', and otherwise it must be of type `int'.
+Finally, resolving literals works as follows: null is of type `Object', values beginning with `"' or `'' are of type `String' or `char' respectively, true or false are of type `boolean', values ending with `d' or containing a decimal point are of type `float', values ending with `f' are of type `float', and all other values must be of type `int'.
 
 \subsubsection{Qualified name resolver}
 `QualifiedNameResolver' is necessary in all of the aforementioned post-processors, for resolving the qualified names of identifiers.
@@ -854,47 +879,303 @@ This makes extensive use of caching, which substantially speeds up the classes w
 
 \subsection{Searching Java code}
 When `CsarJavaPlugin' is invoked to search code, it creates a new instance of `JavaCodeSearcher'.
-This is a multi-threaded class.
+This is a multi-threaded operation.
 
-Firstly, `JavaCodeSearcher' iterates over the code base using a `SearcherFactory' to provide a suitable `Searcher' implementation to search the current file.
-The `Searcher' implementation depends on what kind of language element it can search for.
+Firstly, `JavaCodeSearcher' iterates over the code base using a `SearcherFactory' to provide a suitable `Searcher' implementation to search each file.
+The `Searcher' implementations depend on what kind of language element they search for.
 The two provided implementations are `MethodDefinitionSearcher' for searching for method definitions and `MethodUseSearcher' for searching for method usages.
 
 Both of these classes apply the `FROM' clause, which consists of file names to search by excluding results which do not lie within that list.
-These search classes using a `SearchStatementVisitor' instance which compares the (search) target `Descriptor' against the current method's descriptor.
-If the `lenientEquals' method returns true, then the current method is a match and its results are added (this is the method itself for `MethodDefinitionSearcher', and the method's calls which `MethodStatement' stores in a list for `MethodUseSearcher').
-Furthermore, the results are also stored as a `RefactorTarget' instance for the refactorer, however this is not strictly enforced by `csar-api'.
+This is done using the Java 8 streams API and using the `filter' stream, which iterates over these file names for a possible match.
+Then these search classes use a `SearchStatementVisitor' instance to compare the (search) target `Descriptor' against the current method's descriptor.
+If the `lenientEquals' method within the `Descriptor' returns true, then the current method is a match and its results are added.
+This result is the method itself for `MethodDefinitionSearcher', and the method's call which is stored in a list in `MethodStatement' for `MethodUseSearcher'.
+Furthermore, the results are also stored as a `RefactorTarget' instance for the refactorer, however this is not strictly enforced by the `csar-api'.
 
 The `lenientEquals' method works by only comparing defined values in the target `Descriptor', because all of its values do not have to be set by `CsarQuery'.
 
 \subsection{Refactoring Java code}
 When `CsarJavaPlugin' is invoked to refactor code, it creates a new instance of `JavaCodeRefactorer'.
-This is a multi-threaded class.
+This is a multi-threaded operation.
 
-Firstly, `JavaCodeSearcher' iterates over the code base using a `RefactorerFactory' to provide a suitable `Refactorer' implementation to search the current file.
-The create method in `RefactorerFactory' has a `writeToFile' flag argument, which is used for unit testing, such that the unit test resources are not overwritten, otherwise tests would only work once.
-The `Refactorer' implementation depends on what kind of refactor is requested.
+Firstly, `JavaCodeSearcher' iterates over the code base using a `RefactorerFactory' to provide a suitable `Refactorer' implementation to search each file.
+The create method in `RefactorerFactory' has a `writeToFile' flag argument, which is used for unit testing, such that the unit test resources are not overwritten, otherwise they would only work as intended once.
+The `Refactorer' implementations depend on what kind of refactor they can apply.
 The two provided implementations are `RenameFactorer' for renaming methods and `ChangeParametersRefactorer' for changing the parameters of methods.
 
 For multi-threading to work without consistency issues, pending refactors are grouped by the file they are going to act upon.
-Then, each file is refactored on a single thread.
-Its changes each have an index which determines where the change begins, the changes are made in descending index order to prevent index values from becoming inconsistent due to other changes in the same file.
+Then, each file is refactored once on the same thread.
+Its changes each have an index which determines where the change begins, the changes are made in descending index order to prevent later index values from becoming inconsistent due to earlier changes in the same file.
 
-`RenameRefactorer' finds the start index of each change, then calculates the end index using the method name's length which it is changing.
+`RenameRefactorer' uses the start index of each change to calculate its corresponding the end index using the method name's length which it is changing.
 Then, it simply replaces the text in this region with the new method name.
 
 `ChangeParametersRefactorer' is more complicated.
 It firstly checks the existing parameters of a method or method call, and creates a parallel list containing the new entries or null where no change is required.
 If the new parameter count is zero or one, then it replaces the region distinguished by the left parenthesis and right parenthesis indexes with the new argument.
-Otherwise, it uses the left parenthesis and first comma indexes to change the first parameter, the indexes of concurrent commas to change the `inner' parameters, and the last comma and right parenthesis to change the last parameter.
+Otherwise, it uses the indexes of the left parenthesis and first comma to change the first parameter, the indexes of contiguous commas to change the `inner' parameters, and the indexes of the last comma and right parenthesis to change the last parameter.
 
-Then, if the new parameters are less in size than the original then some of the existing parameters are removed analogously to how changes are made above, otherwise it adds the new parameters by using the index of the right parenthesis.
+Then, if the new parameters are less in size than the original then some of the existing parameters are removed analogously to how changes are made above, otherwise it adds the new parameters by using the index of the last comma and the right parenthesis.
 
 Finally, the changes are written to the file (if specified by the `writeToFile') flag.
 
+% Testing
+\section{Testing}
+This section describes the two main testing mechanisms I used, which were unit testing and manual testing.
+Some of csar was developed in a test-driven manner, that is, I wrote the tests corresponding to features first and then wrote code to make them work.
+
+Notation: Language constructs will be written within quotes.
+Method names lead with `\#'.
+For example, `\#helloWorld' is a method called `helloWorld', similarly `Helper\#print' is a method called `print' in a type called `Helper'.
+If there is no method, then the quotation may be representing a module or a package if all in lower-case, or otherwise a Class.
+
+\subsection{Unit testing}
+The following section will describe the unit tests present in csar modules.
+
+There will be mentions of statistics, some are generated by my IDE (IntelliJ IDEA) and the rest by the JaCoCo (Java Code Coverage) Gradle plugin.
+These statistics may be misleading in some instances, e.g. JaCoCO accounts for the testing of `toString()' implementations which is usually not interesting.
+
+\subsection{csar-cli}
+`csar-cli' heavily depends on `csar-api' and does not provide a lot behaviour of its own, hence it is not tested with high test coverage.
+
+The only unit tests are on the `ResultFormatter' subclasses `JsonResultFormatter' and `PlainTextResultFormatter', which format results as Strings.
+Each is tested for its output given an empty list of results, a list of one valid result, and a list of two valid results.
+
+This results in six tests which are all successful, achieving 94\% coverage in the `org.qmul.csar.result.formatter' package.
+
+\subsection{csar-api}
+`csar-api' consists mostly of interfaces, hence it is not tested with high coverage.
+
+Firstly, ignore files (`com.purecs.ignorefiles') are tested for file and directory rule parsing, and then for applying these rules on files.
+The specific test cases were adapted from examples on Internet (see \ref{sec:CodeReferences}).
+
+Secondly, the `DefaultProjectCodeParser' is tested for invalid constructor arguments.
+Its test cases are: providing an invalid number of threads (i.e. a negative number or zero), providing a `null' iterator, and providing a `null' CodeParserFactory.
+
+Thirdly, `ContainsQuery\#validate' is tested.
+Its test cases include a contains query: with a descriptor, with the not operator followed by a descriptor, with two consecutive operators, with two consecutive descriptors, leading or ending with an invalid operator, and combinations of the aforementioned.
+
+Then, `CsarQueryFactory\#parse' is tested.
+Its test cases include: the empty query, queries with a from clause, queries with a refactor clause, queries with a contains clause, and syntactically invalid queries.
+
+Then, `FilterableIterator' is tested.
+Its test cases are creating it with a list of paths and a filter, and then consuming its `\#hasNext' and `\#next' methods.
+
+Then, `NamedThreadFactory' is tested.
+Its test cases include: its creation, and verifying the names of the first two threads it creates.
+This is done for two valid naming formats, and providing `null' as the naming format.
+
+Finally, `StringUtils' is tested.
+Its `\#indentation' is tested in two cases, for an argument which is: a positive integer, and zero.
+Its `\#fileNameWithoutExtension' is tested in three cases: a directory input, a file name with an extension, and a file name without an extension.
+Its `\#count' method's test cases include: counting occurrences of the empty string, counting occurrences within the empty string, and testing its case-sensitivity.
+
+This results in 47 tests which are all successful, achieving 55\% coverage in this module.
+This coverage figure is less than expected because it includes coverage for the csar query parser-generator code, which is auto-generated by ANTLR.
+This code is very long, thoroughly tested by ANTLR, and thus not thoroughly tested by me because not all of the query language's functionality is used yet.
+
+\subsection{csar-java}
+Firstly, the ANTLR generated Java 8 parser-generator is tested.
+Its test cases are taken from ANTLR's repository (see \ref{sec:CodeReferences}) and spans 36 input classes.
+
+Secondly, the `JavaCodeParser' is tested.
+Its test cases span thirteen input classes containing a wide variety of language elements.
+
+Thirdly, `OverriddenMethodsResolver' is tested.
+Its test cases include resolving: methods with identical signatures, methods with arguments with dimension (i.e. arrays), methods with generic argument types, methods which have subtypes in their arguments, overridden methods and non-overridden methods.
+
+Then, `MethodUseResolver' is tested.
+Its test cases include resolving method calls: in the current class, which is recursive and in the current class, which is static and in the current class, on a variable, on a method, using the `this' and `super' keywords, with subtype arguments, on a fully qualified name which is static, and on the parent instance from within an inner class.
+
+Then, `TypeHierarchyResolver' is tested.
+Its test cases include resolving of types: in the same package, which are enums, in multiple-inheritance uses, which are inner types, which are the super-class, and in the default package.
+Furthermore, the Java property that all classes must have `java.lang.Object' as their root superclass is tested for types which are: top-level, inner classes, and in the default package.
+Finally, the type hierarchy of Java primitive types are tested \autocite{javadocsnumber}.
+
+Then, `TypeHelper' is tested.
+Its `\#normalizeVarArgs', `\#removeDimensions', and `\#dimensions' methods are tested in multiple cases including arguments which are: a type, a fully qualified type, a type array, a type array with varargs, and a type with varargs.
+Its `\#removeGenericArgument' method is tested in five cases including arguments which are: a type, a type array, a type with a generic argument, a type with two generic arguments, and a type array with a generic argument which is an array.
+Its `\#resolveGenericTypes' method is tested in two cases including arguments which are: a type with two generic arguments, and one which has a generic argument extending another generic argument.
+Its `\#identifierOfGenericTypeParameter' method is tested in three cases including arguments which are: a generic argument, a generic argument which extends a type, and a generic argument array which extends a generic argument array array.
+Its `\#applyTypeParameter' method is tested in 18 cases including arguments which are: types without generic arguments, types with a single generic argument, types with multiple generic arguments, types with generic argument arrays, and types with a generic argument with a generic argument.
+Its `\#eraseBoundsOnTypeParameter' method is tested in four cases including arguments which are: a generic argument, a generic argument extending another generic argument, and anonymous types extending generic types.
+Its `\#eraseBounds' method is tested in five cases including arguments which are: a class without generic arguments, a class with generic arguments, and a class with multiple generic arguments some of which extend other classes.
+Its `\#extractGenericArgument' method is tested in four ways including arguments which are: a type without generic arguments, a type with generic arguments, and a type array with a generic argument array.
+
+Then, `ChangeParametersRefactorer\#setLines' is tested for four cases, in which we set the contents of: multiple lines such that lines are collapsed (i.e. removed), a blank line segment, a single line, and multiple lines.
+
+Then, `JavaCodeSearcher' is tested.
+Its test case includes three classes: A, B which extends A, and C which has a method call on A in a constructor, and a method call on B in a static constructor.
+It has five test cases which are the following queries searching for method usages and definitions: ``SELECT method:use:print'', ``SELECT method:use:print(String)'', and ``SELECT method:def:print'', ``SELECT method:def:print(String)'', and ``SELECT method:def:print(1)''.
+
+Finally, `JavaCodeRefactorer' is tested.
+Each of its test cases correspond to a set of three unique classes: A, B, and C, which interact with each other in various ways.
+It has four test cases which are the following queries refactoring methods: ``SELECT method:def:print REFACTOR rename:anotherPrint'', ``SELECT method:def:print REFACTOR changeparam:int a'', ``SELECT method:def:print REFACTOR changeparam:String s, String s1'', ``SELECT method:def:print REFACTOR changeparam:int a, int b, int c'', and ``SELECT method:def:print REFACTOR changeparam:int a, int b, int c''.
+
+This results in 87 tests which are all successful, achieving 65\% coverage in this module.
+This coverage figure is less than expected because it includes coverage for the Java 8 parser-generator code, which is auto-generated by ANTLR.
+
+\subsection{Manual testing}
+csar was tested manually throughout its development to ensure its reliability.
+This section will detail the final instance of manual testing, which was conducted on the \href{https://github.com/elastic/elasticsearch}{elasticsearch} Git repository.
+This repository was manually tested previously and contributed to the discovery of multiple Java 8 parser bugs and a searching bug.
+
+It is not expected for csar to work faultlessly, since it has some issues which were detailed in this report, but we will observe to what extent csar works on a big, complicated project like this one.
+
+I will invoke csar with the following command-line arguments: ``SELECT method:def:cluster REFACTOR rename:shards -t 8 --log-level DEBUG''.
+
+This corresponds to the csar query ``SELECT method:def:cluster REFACTOR rename:shards'', which will find all methods called `cluster' and rename them to `shards'.
+Furthermore, it will run on up to eight threads where supported, and will log all messages with a level equal to or above `DEBUG'.
+This logging will give us various debugging information alongside benchmarking statistics on this repository.
+
+Firstly, this led to one parsing issue in two files regarding method references which was logged to the console.
+It turns out the Java 8 grammar does not support method references on expressions, for example: `((CastType) variable)::methodName'.
+
+Secondly,, csar parsed 46,570 kB of code in 31.7 seconds (rounded to 1 decimal point, hereby denoted by 1 d.p.).
+This equates to an average throughput of 1.5MB (1 d.p.) per second.
+
+Then, the type hierarchy resolver processed 5,609 files in 4.3 seconds (2 d.p.), which was proceeded by the method qualified type resolver which processed 51,175 methods in 11.5s (1 d.p.).
+Furthermore, overridden methods resolving found 19,495 overridden methods in 19.6s (1 d.p.).
+Then, the method call type instance resolver processed 521,358 method call expressions in 141.2s (1 d.p.), followed by the method use resolver which took 119.5s (1 d.p.).
+
+Penultimately, the searcher took 59ms to find four results.
+Finally, the refactorer took 611ms to make 1,575 changes.
+
+I tried to build the project to see if the changes made were non-functional as intended, however my attempts were thwarted by a complicated build process.
+The project wanted me to install Java 10 as well as Java 9, the latter of which is no longer distributed by Oracle, hence it refused to work.
+In lieu of that, we still have learned some valuable information about a parsing defect, benchmarking statistics, and some results.
+This helps illustrate the usefulness of manual testing.
+
+% Analysis
+\section{Analysis}
+This section will evaluate the achievements of the project, the author, and future work which ties in with this project.
+
+\subsection{Project's achievements}
+Firstly, I will examine csar's primary requirements (see \ref{sec:PrimaryRequirements}).
+
+Primary requirement 1 was implemented. 
+
+Primary requirement 2 was implemented, however it does have some issues (see \ref{sec:DesignCsarQuery} and \ref{CsarQueryImplementation}).
+
+Primary requirement 3 was partially implemented.
+I used a pre-written ANTLR grammar which I modified.
+It contains a two minor defects which is that it does not support method references on expression, and source files with more than one top-level type.
+It is important to note that the grammar is not very strict for efficiency purposes.
+
+Primary requirement 4 was partially implemented, support for the `CONTAINS' clause in the csar query is not implemented.
+Furthermore, the `toPseudoCode()' method is used to generate code to display in the output results.
+Implementations of this method are not tested, which means some of the generated code may be partially incorrect.
+This is used as such because Java conventions vary, and generating the code on the fly sounded more appealing.
+However, in hindsight it was misguided due to the verbosity of its output.
+
+Primary requirement 5 was implemented.
+
+Primary requirements 6 and 7 were implemented, however I think refactoring could benefit from more testing.
+The refactoring interfaces could also be improved, there are some unused methods, and messy code.
+It would also be optimal for the refactoring to not modify the conventions of the code it is modifying.
+
+Primary requirement 8 was implemented.
+
+Primary requirement 9 was partially implemented
+The first issue is that method references are not supported.
+The second issue is that method use resolving does not support checking visibility modifiers.
+The third issue is that csar does not support external libraries (i.e. it does not recognize their types) - this also extends to the Java 8 standard library.
+This is because without efficient, and complete indexing (also known as caching) capabilities this would slow down csar too much.
+
+It is important to note that, searching and refactoring work on Java code using any kinds of conventions.
+This is because the searching is context-based, and the refactoring leverages this feature.
+
+Secondly, I will examine csar's secondary requirements (see \ref{sec:SecondaryRequirements}).
+
+Secondary requirement `Indexing parsed project source code' was not implemented.
+This is because it would require clarification on where csar's supporting binaries and caches should reside, the need for an installer as a corollary.
+It would also require indexing the results of post-processing, searching, and refactoring to fully exploit it.
+Some of these are very complicated due to how changes in the code base affect them.
+For example, if we wanted to index the project's type hierarchy, we would need to figure out how the changed files change the type hierarchy without calculating it all from scratch.
+
+Secondary requirement `Supporting Mercurial (hg)/Subversion (svn) repositories' was implemented.
+It it was not thoroughly tested because I am not proficient enough in either, and nor do I particularly care for them.
+
+Secondary requirement `IntelliJ IDEA integration' was not implemented.
+I never intended to implement it because it would be very complicated, and IntelliJ is updated too often for me to have enough time to keep it updated.
+It was included in the requirements so that I could outline how a potential implementation of it would work for future work purposes.
+
+Secondary requirement `Ignore files' was implemented.
+However, it is possible that it does not fully support trailing spaces in file names.
+
+Finally, I will examine csar's non-functional requirements (see \ref{sec:NonFunctionalRequirements}).
+
+Requirement 1 was implemented.
+For the most part I followed the formal Javadocs style, I strayed from it occasionally because I find it redundant for certain kinds of documentation (e.g. getters, setters, and constructors).
+
+Non-functional requirement 2 was partially implemented.
+Some of the algorithms are not polynomial time, but the use of caching has helped alleviate such concerns where appropriate.
+The most time consuming tasks in csar are code parsing and post-processing.
+
+Non-functional requirement 3 was implemented, however there is room for improvement.
+Some of the design could benefit from being reworked, now that my knowledge of this area has expanded.
+
+Non-functional requirement 4 was implemented.
+
+Non-functional requirement 5 will be implemented once my project is graded to prevent self-plagiarism.
+
+Non-functional requirement 6 was implemented because csar was written using Java 8.
+
+Non-functional requirement 7 was partially implemented.
+The biggest issue is that interface mocking is not used enough, leading to multiple tests relying on each other working for themselves to work.
+This makes detecting bugs harder than otherwise.
+Furthermore, JaCoCO has some defects which mean its code coverage reports are not very accurate.
+For example, it counts setters and getters in its coverage statistics.
+
+Non-functional requirement 8 was partially implemented.
+The only major operations which are not multi-threaded are the following post-processors: `QualifiedNameResolver', `TypeHierarchyResolver', `MethodQualifiedTypeResolver', `MethodUseResolver', and `MethodCallTypeInstanceResolver'.
+
+Non-functional requirement 9 was implemented.
+
+\subsection{Author's achievements}
+This was a one of the biggest, most ambitious, and longest lasting projects I have worked on.
+It thoroughly tested my resolve, discipline, time management, and programming ability due to its immense scope and complexity.
+
+This was the first time I used Gradle, and deployed a build tool in a multi-module project.
+It was also the first time I used the ANTLR, JCommander, and Mockito libraries.
+It was also the first time I used TeX, and wrote a language grammar from scratch (csar query).
+
+It contributed greatly to my understanding of multi-threading, Git, Subversion, Mercurial, Java 8 lambdas, Java 8 syntax intricacies, and the Java ServiceLoader (which was used for the plugin system).
+
+It also led to me making my first open-source contribution on a big project.
+It was the first time I had to discuss my ideas with and seek approval from developers I had no prior relationship with in order to get my changes accepted.
+I also had the pleasure of working with highly esteemed developers, including Cedric Beust on JCommander, who created the Android Gmail application.
+This was followed up with numerous commits on the ANTLR grammars-v4, and JCommander repositories (see \ref{apx:OpenSourceContributions}).
+
+\subsection{Future work}
+A wider range of searching and refactoring tools should be evaluated, to guide future development of csar and focus efforts on the most important features.
+
+The plugin system should be improved by potentially allowing language-specific query languages.
+Furthermore, it could be enhanced by setting strict permissions on plugins to prevent unexpected or malicious behaviour.
+For example, perhaps plugins cannot access or modify system files, or access the internet.
+
+It would be desirable for there to be an easier way to define new `ResultFormatter' implementations without modifying `csar-cli' directly.
+This could be provided in plugins which run in parallel to the language implementation plugins, to prevent clashes between which plugin to use for which format.
+
+It would be useful to rewrite the csar query language as part of an elaborate research project.
+Then, csar could be reimplemented in full, with changes focused on csar-java, in an attempt to ensure it is bug-free, and theoretically sound.
+
+This could be followed up with an implementation for a dynamically-typed programming language such as Python \autocite{learningpython5thed}, so that future developers can use it to develop plugins for similar languages.
+
+There are plenty of refactoring operations that could be supported, such as: move code, detect duplicate code, change signature (renaming and changing parameters are a subset of this), convert anonymous class to inner class, encapsulate fields, inline code, replace constructor with builder or factory method, etc. \autocite{intellijidearefactoring}
+
+It would also be optimal for the refactoring to maintain the current conventions of the code file being edited.
+
+Finally, it would be marvellous if csar was integrated into an existing IDE such as IntelliJ whose possible implementation was outlined.
+It would then be used for searching and refactoring.
+
+% References
+\section{References}
+This section will list most of the references used in the construction of csar.
+
 \subsection{Code references}
 \label{sec:CodeReferences}
-csar has reused some code, or ideas from external sources within its code. They are listed below:
+csar has reused code, or ideas from external sources within its code. They are listed below:
 
 \begin{itemize}
   \item Ignore files syntax - \url{https://git-scm.com/docs/gitignore} and \url{https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js}
@@ -921,247 +1202,11 @@ Gradle is configured through scripts, the following references were used to help
 A majority of this document was written using TeX, the following references were used to help create them. They are listed below:
 
 \begin{itemize}
-  \item Code blocks - \url{https://stackoverflow.com/a/3175141}
-  \item Line spacing - \url{https://tex.stackexchange.com/questions/373555/1-5-spacing-with-baselinestretch}
-  \item Font (Sans Serif) - \url{https://tex.stackexchange.com/questions/2095/simplest-way-to-typeset-entire-document-in-sans-serif-helvetica}
   \item Single-sided document - \url{https://www.sharelatex.com/learn/Single_sided_and_double_sided_documents}
+  \item Font (Sans Serif) - \url{https://tex.stackexchange.com/questions/2095/simplest-way-to-typeset-entire-document-in-sans-serif-helvetica}
+  \item Line spacing - \url{https://tex.stackexchange.com/questions/373555/1-5-spacing-with-baselinestretch}
+  \item Code blocks - \url{https://stackoverflow.com/a/3175141}
 \end{itemize}
-
-% Testing
-\section{Testing}
-This section describes the two main testing mechanisms I used, which are unit testing and manual testing.
-Some of csar was developed in a test-driven manner, that is, I wrote the tests corresponding to features first and then wrote code to make them work.
-
-In the unit testing section there will be mentions of statistics, some are generated by my IDE (IntelliJ IDEA) and the rest by the JaCoCo (Java Code Coverage) Gradle plugin.
-These statistics may be misleading in some instances, e.g. they account for the testing of `toString()' implementations which may not be interesting in most scenarios.
-
-Notation: Language constructs will be written within quotes.
-Method names lead with `\#', e.g. `\#helloWorld' is a method called `helloWorld', similarly `Helper\#print' is a method called `print' in a type called `Helper'.
-If there is no method, then the quotation may be representing a package if all in lowercase, or otherwise a Class.
-
-\subsection{Unit testing}
-The following will describe the unit tests present in csar modules.
-
-\subsection{csar-cli}
-csar-cli heavily depends on csar-api and doesn't provide a lot behaviour of its own, hence it is not tested with high coverage.
-
-The only unit tests are on the `ResultFormatter' subclasses `JsonResultFormatter' and `PlainTextResultFormatter', which format results as Strings.
-Each is tested for its output given an empty list of results, a list of one valid result, and a list of two valid results.
-
-This results in six tests which are all successful, achieving 94\% coverage on the `org.qmul.csar.result.formatter' package.
-
-\subsection{csar-api}
-csar-api consists mostly of interfaces, hence it is not tested with high coverage.
-
-Firstly, ignore files (`com.purecs.ignorefiles') are tested for file and directory rule parsing, and then for applying these rules on files.
-The specific test cases were largely taken from the internet (see \ref{sec:CodeReferences}).
-
-Secondly, the `DefaultProjectCodeParser' is tested for invalid constructor arguments.
-Its test cases are: providing an invalid number of threads - a negative number or zero, providing a `null' iterator, and providing a `null' CodeParserFactory.
-
-Thirdly, `ContainsQuery\#validate' is tested.
-Its test cases include: a descriptor, the not operator followed by a descriptor, two consecutive operators, two consecutive descriptors, leading or ending with an invalid operator, and combinations of the aforementioned.
-
-Then, `CsarQueryFactory\#parse' is tested.
-Its test cases include: empty query, queries with a from clause, queries with refactor clause, queries with a contains clause, and syntactically invalid queries.
-
-Then, `FilterableIterator' is tested.
-Its test cases include: creating it with a list of paths and a filter, and then consuming its `\#hasNext' and `\#next' methods.
-
-Then, `NamedThreadFactory' is tested.
-Its test cases include: its creation, and verifying the names of the first two threads it creates.
-This is done for two valid naming formats, and providing `null' as the naming format.
-
-Finally, `StringUtils' is tested.
-Its `\#indentation' is tested in two cases: a positive integer, and zero.
-Its `\#fileNameWithoutExtension' is tested in three cases: a directory input, a file name with an extension, and a file name without an extension.
-Its `\#count' method's test cases include: counting the empty string, counting within the empty string, and testing case-sensitivity in the counting.
-
-This results in 47 tests which are all successful, achieving 55\% coverage in this module.
-This coverage figure is less than expected because it includes coverage for the csar query parser-generator code, which is auto-generated by ANTLR.
-This code is very long and not thoroughly tested because not all of its functionality is used yet.
-
-\subsection{csar-java}
-Firstly, the ANTLR generated Java 8 parser-generator is tested.
-Its test cases are taken from ANTLR's repository (see \ref{sec:CodeReferences}) and span 36 input classes.
-
-Secondly, the `JavaCodeParser' is tested.
-Its test cases span thirteen input classes.
-
-Thirdly, `OverriddenMethodsResolver' is tested.
-Its test cases include resolving: methods with identical signatures, methods with arguments with dimension (i.e. arrays), methods with generic argument types, methods which have subtypes in their arguments, regular overridden methods and regular non-overridden methods.
-
-Then, `MethodUseResolver' is tested.
-Its test cases include method calls: in the current class, in the current class which is recursive, in the current class which is static, on a variable, using the `this' and `super' keywords, on a method, with subtype arguments, on a fully qualified name which is static, and on the parent instance from within an inner class.
-
-Then, `TypeHierarchyResolver' is tested.
-Its test cases include sub-typing of types: in the same package, which are enums, in multiple-inheritance uses, which are inner types, which are the super class, and in the default package.
-Furthermore, the Java property that all classes must have `java.lang.Object' as their root superclass is tested for types which are: top-level, inner classes, and in the default package.
-Finally, the type hierarchy of Java primitive types are tested \autocite{javadocsnumber}.
-
-Then, `TypeHelper' is tested.
-Its `\#normalizeVarArgs', `\#removeDimensions', and `\#dimensions' are tested in multiple cases including: a type, a fully qualified type, a type array, a type array with varargs, and a type with varargs.
-Its `\#removeGenericArgument' is tested in five cases including: a type, a type array, a type with a generic argument, a type with two generic arguments, and a type array with a generic argument which is an array.
-Its `\#resolveGenericTypes' is tested in two cases including: a type with two generic arguments, and one which has a generic argument extending another generic argument.
-Its `\#identifierOfGenericTypeParameter' is tested in three cases including: a generic argument, a generic argument which extends a type, and a generic argument array which extends a generic argument array array.
-Its `\#applyTypeParameter' is tested in 18 cases including: types without generic arguments, types with a single generic argument, types with multiple generic arguments, types with generic argument arrays, and types with a generic argument with a generic argument.
-Its `\#eraseBoundsOnTypeParameter' is tested in four cases including: a generic argument, a generic argument extending another generic argument, and anonymous types extending generic types.
-Its `\#eraseBounds' is tested in five cases including: a class without generic arguments, a class with generic arguments, and a class with multiple generic arguments some of which extend other classes.
-Its `\#extractGenericArgument' is tested in four ways including: a type without generic arguments, a type with generic arguments, and a type array with a generic argument array.
-
-Then, `ChangeParametersRefactorer\#setLines' is tested for four test cases, in which we set the contents of: multiple lines such that lines are collapsed, a blank line, a single line, and multiple lines.
-
-Then, `JavaCodeSearcher' is tested.
-Its test case includes three classes: A, B which extends A, and C which has a constructor calling a method on A, and a static constructor calling a method on B.
-It has five test cases which are the following queries searching for method usages and definitions: ``SELECT method:use:print'', ``SELECT method:use:print(String)'', and ``SELECT method:def:print'', ``SELECT method:def:print(String)'', and ``SELECT method:def:print(1)''.
-
-Finally, `JavaCodeRefactorer' is tested.
-Each of its test case correspond to a collection of three unique classes: A, B, and C, which interact with each other in various ways.
-It has four test cases which are the following queries refactoring methods: ``SELECT method:def:print REFACTOR rename:anotherPrint'', ``SELECT method:def:print REFACTOR changeparam:int a'', ``SELECT method:def:print REFACTOR changeparam:String s, String s1'', ``SELECT method:def:print REFACTOR changeparam:int a, int b, int c'', and ``SELECT method:def:print REFACTOR changeparam:int a, int b, int c''.
-
-This results in 87 tests which are all successful, achieving 65\% coverage in this module.
-This coverage figure is less than expected because it includes coverage for the Java 8 parser-generator code.
-
-\subsection{Manual testing}
-csar was tested manually throughout its development to ensure its reliability.
-This section will detail an instance of manual testing conducting on the \href{https://github.com/elastic/elasticsearch}{elasticsearch} Git repository.
-This repository was manually tested previously and contributed to the discovery of multiple Java 8 parser bugs.
-
-It is not expected for csar to work faultlessly, since it has some issues which were detailed in this report, but we will observe to what extent csar works on a big, complicated project like this one.
-
-csar will be invoked with the command-line argument `SELECT method:def:cluster REFACTOR rename:shards -t 8 --log-level DEBUG'.
-
-This means that the csar instance will operate with the csar query `SELECT method:def:cluster REFACTOR rename:shards', which will find all methods called `cluster' and rename them to `shards'.
-Furthermore, it will run on up to eight threads where supported, and will log all messages with a level equal to or above `DEBUG'.
-This logging will give us various debugging information alongside benchmarking statistics on this repository.
-
-This led to one parsing issue in two files regarding method references.
-It turns out the grammar does not support method references on expressions, e.g. `((CastType) variable)::methodName'
-
-Firstly, csar parsed 46,570 kB of code in 31.7 seconds (rounded to 1dp, hereby denoted by 1dp).
-This equates to an average throughput of 1.5MB (1dp) per second.
-
-Then, the type hierarchy resolver processed 5,609 files in 4.3 seconds (2dp), which was proceeded by the method qualified type resolver which processed 51,175 methods in 11.5s (1dp).
-Furthermore, overridden methods resolving found 19,495 overridden methods in 19.6s (1dp).
-Then, the method call type instance resolver processed 521,358 method call expressions in 141.2s (1dp), followed by the method use resolver which took 119.5s (1dp).
-
-Penultimately, the searcher took 59ms to find four results.
-Finally, the refactorer took 611ms to make 1,575 changes.
-
-I tried to build the project to see if our changes were non-functional as intended, however my attempts were thwarted by a complicated build process.
-The project wanted me to install Java 10 as well as Java 9, the latter of which is no longer distributed by Oracle, hence it refused to work.
-In lieu of that, we still have learned some valuable information about a parsing defect, benchmarking statistics, and some results.
-
-% Analysis
-\section{Analysis}
-This section will evaluate the achievements of the project, the author, and future work which ties in with this project.
-
-\subsection{Project's achievements}
-Firstly, I will examine csar's primary requirements (see \ref{sec:PrimaryRequirements}).
-
-Primary requirement 1 was implemented. 
-
-Primary requirement 2 was implemented, however it does have some issues (see \ref{sec:DesignCsarQuery}).
-
-Primary requirement 3 was partially implemented.
-I used a pre-written ANTLR grammar which I modified. 
-It contains a minor defect which is that it doesn't handle source files with more than one top-level class.
-The grammar is not very strict for efficiency purposes.
-
-Primary requirement 4 was partially implemented, support for the `CONTAINS' clause in the csar query is not implemented.
-Furthermore, the `toPseudoCode()' method is used to generate code fragments to display in the output results.
-This method is not tested for every implementation of it, which means some of the code fragments may be partially incorrect.
-
-Primary requirement 5 was implemented.
-
-Primary requirement 6 and 7 were implemented, however I think refactoring could benefit from more testing.
-The refactoring interfaces could also be improved, there are some unused methods, and messy code.
-
-Primary requirement 8 was implemented.
-
-Primary requirement 9 was partially implemented. The first issue is that method references are not handled.
-The second issue is that method use resolving does not check for accessibility in terms of visibility modifiers.
-The third issue is that csar does not support external libraries (i.e. it does not recognize their types) - this also extends to the Java 8 standard library.
-This is because without efficient, and complete indexing (also known as caching) capabilities this would slow down csar too much.
-
-Secondly, I will examine csar's secondary requirements (see \ref{sec:SecondaryRequirements}).
-
-Secondary requirement `Indexing parsed project source code' was not implemented.
-This is because it would require clarification on where csar's supporting binaries and caches should reside, which would imply that an installer would need to be created.
-It would also require us to index post-processing, searching, and refactoring results to fully exploit indexing.
-Some of these are very complicated.
-Suppose we wanted to index the project's type hierarchy, we would need to figure out how the changed files change the type hierarchy without calculating it all from scratch.
-
-Secondary requirement `Supporting Mercurial (hg)/Subversion (svn) repositories' was implemented, however it was not thoroughly tested because I am not proficient enough in Subversion nor Mercurial.
-
-Secondary requirement `IntelliJ IDEA integration' was not implemented.
-I never intended to implement it because I do not consider it very important, and IntelliJ is updated too often for me to have enough time to keep it updated.
-It was included in the requirements so that I could outline how a potential implementation of it would work.
-
-Secondary requirement `Ignore files' was implemented.
-It may however not fully support trailing spaces in file names.
-
-Thirdly, I will examine csar's non-functional requirements (see \ref{sec:NonFunctionalRequirements}).
-
-Requirement 1 was implemented.
-For the most part I followed the formal Javadocs style, I strayed from it occasionally because I find it repetitive for certain kinds of documentation (e.g. getters, setters, and constructors).
-
-Non-functional requirement 2 was partially implemented.
-Some of the algorithms are not polynomial time, but the use of caching has helped alleviate such concerns where appropriate.
-The most time consuming tasks in csar are: code parsing, and post-processing.
-
-Non-functional requirement 3 was implemented, however there is room for improvement.
-Some of the design could benefit from being reworked, now that my knowledge of this area is greater.
-
-Non-functional requirement 4 was implemented.
-
-Non-functional requirement 5 will be implemented once my project is graded, to prevent self-plagiarism.
-
-Non-functional requirement 6 was implemented, csar was written using Java 8.
-
-Non-functional requirement 7 was partially implemented.
-The biggest issue of note is that interface mocking is not used enough, leading to multiple tests relying on each other working to work themselves.
-This might make detecting bugs harder than otherwise.
-JaCoCO has some defects which mean its reports are not very accurate.
-For example, it counts setters and getters in its coverage statistics.
-
-Non-functional requirement 8 was partially implemented.
-The only major operations which are not multi-threaded are the following post-processors: `QualifiedNameResolver', `TypeHierarchyResolver', `MethodQualifiedTypeResolver', `MethodUseResolver', and `MethodCallTypeInstanceResolver'.
-
-Non-functional requirement 9 was implemented.
-
-\subsection{Author's achievements}
-This was a one of the biggest, most ambitious, and longest lasting projects I have worked on.
-It thoroughly tested my resolve, discipline, time management, and programming ability due to its immense complexity.
-
-This was the first time I used Gradle, and deployed a build tool in a multi-module project.
-It was also the first time I used the ANTLR, JCommander, and Mockito libraries.
-It was also the first time I used TeX, and wrote a language grammar from scratch (csar query).
-
-It contributed greatly to my understanding of multi-threading, Subversion/Mercurial, Java 8 lambdas, Java 8 syntax intricacies, and the Java ServiceLoader (for the plugin system).
-
-It also led to me making my first open-source contribution on a big project.
-It was the first time I had to discuss my ideas and seek approval from developers I had no prior relationship with in order to get my changes accepted.
-I also had the pleasure of working with highly esteemed developers, including Cedric Beust on JCommander, who created the Android Gmail application.
-This was followed up with numerous commits on the ANTLR grammars-v4, and JCommander repositories (see \ref{apx:OpenSourceContributions}).
-
-\subsection{Future work}
-A wider range of searching and refactoring tools should be evaluated, to guide future development of csar and focus efforts on the most important features.
-
-The plugin system should be improved by potentially allowing language-specific query languages.
-Furthermore, it could be enhanced by setting strict permissions on plugins to prevent unexpected or malicious behaviour.
-For example, perhaps plugins cannot access or modify system files, or access the internet.
-
-It would be desirable for there to be an easier way to define new `ResultFormatter' implementations without modify `csar-cli' directly.
-
-It would be useful to rewrite Csar Query as part of an elaborate research project.
-Then, csar could be reimplemented in full, with changes focused on csar-java, in an attempt to ensure it is bug-free, and theoretically sound.
-
-This could be followed up with an implementation for a dynamically-typed programming language such as Python \autocite{learningpython5thed}, so that future developers can use it to develop support for similar languages.
-
-There are plenty of refactoring operations that could be supported, such as: move code, detect duplicate code, change signature (change parameters is a subset of this), convert anonymous to inner, encapsulate fields, inline, replace constructor with builder or factory method, etc. \autocite{intellijidearefactoring}.
-
-It would also be optimal for the refactoring to maintain the current conventions of the code file being edited.
 
 % Bibliography
 \section{Bibliography}
@@ -1252,9 +1297,7 @@ public class CsarJavaPlugin implements CsarPlugin {
 lexer grammar CsarLexer;
 
 /*
- * The lexer rules have been omitted for brevity, because their names are very good indicators
- * of exactly what they are. Each rule represents a literal or range of literals.
- * You can find the full grammar in the `design-docs/query-language' folder within the project.
+ * The lexer rules have been omitted for brevity, because their names are very good indicators of exactly what they are. Each rule represents a literal or range of literals. You can find the full grammar in the `design-docs/query-language' folder within the project.
  */
 
 // Language elements
