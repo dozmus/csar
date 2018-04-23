@@ -2,8 +2,8 @@ csar (code search and refactor)
 ========
 
 ### Usage
-All source code in the working directory will be searched, if the current directory is a git repository then only source
-code in the repository (and staging area) will be searched. This can be toggled using the `--narrow-search` CLI flag.
+All source code in the working directory will be searched, if the current directory is a git repository then only source code in the repository (and staging area) will be searched.
+This can be toggled using the `--narrow-search` CLI flag.
 
 ```
 Usage: java -jar csar.jar [options] Search query
@@ -29,7 +29,8 @@ Usage: java -jar csar.jar [options] Search query
 Example (more in the project report): `java -jar csar.jar SELECT method:def:add -t 4`.
 
 ### Gradle cheat sheet
+* You can invoke gradle using the `gradlew` scripts, there is one for Windows and one for Unix.
 * Build: `build`
 * Run: `:csar-cli:run`
-* Distribution jar: `:csar-cli:distJar` (these will be placed in `csar\csar-cli\build\distributions' alongside archive distributions)
+* Build distribution JARs: `:csar-cli:distJar` (these will be placed in `csar\csar-cli\build\distributions' alongside archive distributions)
 * Specify Java arguments to `:csar-cli:run` with `-Pjargs="SELECT method:def:add -t 1 --log-level TRACE"`
