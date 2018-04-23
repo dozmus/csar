@@ -1,0 +1,31 @@
+# IDEA files
+.idea/
+*.iml
+
+# Gradle files
+.gradle/
+
+# Build files
+build/
+out/
+csar-cli/*.jar
+*.class
+
+# Temp/unwanted UML design files
+*.vpp.bak_*
+*.vpp.lck
+*.vux
+
+# Csar files
+.csarignore
+
+# LaTeX Output files
+design-docs/*.pdf
+design-docs/*.log
+design-docs/*.out
+design-docs/*.aux
+design-docs/*.toc
+design-docs/*.bbl
+design-docs/*.bcf
+design-docs/*.blg
+design-docs/*.run.xml
