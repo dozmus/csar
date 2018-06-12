@@ -14,6 +14,7 @@ dependencies {
 
 run {
     dependsOn.add ':plugins:jar'
+    dependsOn.add 'build'
 
     // Set java program arguments from gradle run arguments
     if (project.hasProperty('jargs'))
