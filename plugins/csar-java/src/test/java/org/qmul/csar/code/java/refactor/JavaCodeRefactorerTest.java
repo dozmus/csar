@@ -112,6 +112,71 @@ public class JavaCodeRefactorerTest {
     }
 
     /**
+     * Tests refactoring change parameters of methods, for when a method call argument contains the initial method call.
+     * i.e. <tt>(int a, int b) -> (String a, int b)</tt>.
+     */
+    @Test
+    public void testChangeParametersOfMethods4() throws Exception {
+        // Expected
+        String directory = "src/test/resources/org/qmul/csar/refactor/changeparams4/";
+        List<Result> expectedResults = new ArrayList<>();
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 8,
+                "    public void print(String a, int b) {"));
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 5, "        a.print(a.print(a, 2), 2);"));
+
+        // Actual
+        List<Result> actualResults = refactor("SELECT method:def:print REFACTOR changeparam:String a, int b",
+                directory);
+
+        // Compare
+        TestUtils.assertEquals(expectedResults, actualResults);
+    }
+
+    /**
+     * Tests refactoring change parameters of methods, for when a method call argument contains the initial method call.
+     * i.e. <tt>(int a, int b) -> (int a, String b)</tt>.
+     */
+    @Test
+    public void testChangeParametersOfMethods5() throws Exception {
+        // Expected
+        String directory = "src/test/resources/org/qmul/csar/refactor/changeparams5/";
+        List<Result> expectedResults = new ArrayList<>();
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 8,
+                "    public void print(int a, String b) {"));
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 5, "        a.print(1, a.print(1, b));"));
+
+        // Actual
+        List<Result> actualResults = refactor("SELECT method:def:print REFACTOR changeparam:int a, String b",
+                directory);
+
+        // Compare
+        TestUtils.assertEquals(expectedResults, actualResults);
+    }
+
+    /**
+     * Tests refactoring change parameters of methods, for when a method call argument contains the initial method call,
+     * and there is an identical method call on the same line.
+     * i.e. <tt>(int a, int b) -> (String a, int b)</tt>.
+     */
+    @Test
+    public void testChangeParametersOfMethods6() throws Exception {
+        // Expected
+        String directory = "src/test/resources/org/qmul/csar/refactor/changeparams6/";
+        List<Result> expectedResults = new ArrayList<>();
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 8,
+                "    public void print(String a, int b) {"));
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 5, "        a.print(a.print(1, 2), 2); a.print(a.print(a, 2), 2);"));
+        expectedResults.add(new Result(Paths.get(directory, "A.java"), 5, "        a.print(a.print(a, 2), 2); a.print(a.print(a, 2), 2);"));
+
+        // Actual
+        List<Result> actualResults = refactor("SELECT method:def:print REFACTOR changeparam:String a, int b",
+                directory);
+
+        // Compare
+        TestUtils.assertEquals(expectedResults, actualResults);
+    }
+
+    /**
      * Returns the refactor results of applying the argument query onto the argument code directory.
      */
     private static List<Result> refactor(String csarQuery, String directory) throws Exception {

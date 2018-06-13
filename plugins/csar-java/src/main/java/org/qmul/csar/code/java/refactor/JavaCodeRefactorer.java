@@ -65,7 +65,7 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
         Map<Path, List<RefactorChange>> results = new HashMap<>();
 
         for (RefactorTarget target : refactorTargets) {
-            Path path = pathFromRefactorTarget(target);
+            Path path = pathOfRefactorTarget(target);
             RefactorChange change = changeFromRefactorTarget(target);
 
             if (results.containsKey(path)) {
@@ -79,7 +79,10 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
         return results;
     }
 
-    private Path pathFromRefactorTarget(RefactorTarget target) {
+    /**
+     * Returns the path this refactor target represents.
+     */
+    private Path pathOfRefactorTarget(RefactorTarget target) {
         if (target instanceof RefactorTarget.Expression) {
             return ((MethodCallExpression)((RefactorTarget.Expression) target).getExpression()).getPath();
         } else if (target instanceof RefactorTarget.Statement) {
