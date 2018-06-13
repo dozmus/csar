@@ -8,15 +8,14 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * A singleton plugin loader for classes which extend {@link CsarPlugin} residing in JARs.
+ * A plugin loader for classes which extend {@link CsarPlugin} residing in JARs.
  * This will examine the current working directory non-recursively.
  */
 public final class CsarPluginLoader {
 
-    private static CsarPluginLoader instance;
     private final ServiceLoader<CsarPlugin> loader;
 
-    private CsarPluginLoader() {
+    public CsarPluginLoader() {
         loader = ServiceLoader.load(CsarPlugin.class, classLoader());
     }
 
@@ -33,16 +32,6 @@ public final class CsarPluginLoader {
      */
     public Iterator<CsarPlugin> plugins() {
         return loader.iterator();
-    }
-
-    /**
-     * Returns the singleton instance.
-     */
-    public static synchronized CsarPluginLoader getInstance() {
-        if (instance == null) {
-            instance = new CsarPluginLoader();
-        }
-        return instance;
     }
 
     /**

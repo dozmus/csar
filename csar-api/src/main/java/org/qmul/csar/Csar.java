@@ -25,6 +25,7 @@ public class Csar {
     private final Path ignoreFile;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private CsarQuery csarQuery;
+    private CsarPluginLoader pluginLoader;
     private List<Result> searchResults;
     private ArrayList<Result> refactorResults;
     private boolean errorOccurred = false;
@@ -59,14 +60,14 @@ public class Csar {
         LOGGER.info("Loading plugins...");
 
         // Create the service provider
-        CsarPluginLoader pluginLoader = CsarPluginLoader.getInstance();
+        pluginLoader = new CsarPluginLoader();
 
         if (!pluginLoader.plugins().hasNext()) {
             errorListeners.forEach(CsarErrorListener::fatalErrorInitializing);
         }
 
         // Add error handlers
-        errorListeners.forEach(el -> pluginLoader.forEachPlugin(p -> p.addErrorListener(el)));
+        errorListeners.forEach(l -> pluginLoader.forEachPlugin(p -> p.addErrorListener(l)));
     }
 
     /**
@@ -89,7 +90,7 @@ public class Csar {
     public void parseCode() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        CsarPluginLoader.getInstance().forEachPlugin(p -> {
+        pluginLoader.forEachPlugin(p -> {
             try {
                 p.parse(projectDirectory, narrowSearch, ignoreFile, threadCount);
             } catch (Exception e) {
@@ -104,7 +105,7 @@ public class Csar {
     public void postprocess() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        CsarPluginLoader.getInstance().forEachPlugin(p -> p.postprocess(threadCount));
+        pluginLoader.forEachPlugin(p -> p.postprocess(threadCount));
     }
 
     /**
@@ -115,7 +116,7 @@ public class Csar {
             throw new IllegalStateException("an error has occurred, csar cannot continue");
         searchResults = new ArrayList<>();
 
-        CsarPluginLoader.getInstance().forEachPlugin(p -> {
+        pluginLoader.forEachPlugin(p -> {
             List<Result> results = p.search(csarQuery, threadCount);
             this.searchResults.addAll(results);
         });
@@ -137,7 +138,7 @@ public class Csar {
             // Apply refactor
             refactorResults = new ArrayList<>();
 
-            CsarPluginLoader.getInstance().forEachPlugin(p -> {
+            pluginLoader.forEachPlugin(p -> {
                 List<Result> results = p.refactor(csarQuery, searchResults, threadCount);
                 this.refactorResults.addAll(results);
             });
