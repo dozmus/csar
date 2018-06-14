@@ -3,7 +3,7 @@ package org.qmul.csar;
 import org.qmul.csar.plugin.CsarPluginLoader;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +47,20 @@ public class Csar {
         this.narrowSearch = narrowSearch;
         this.ignoreFile = Objects.requireNonNull(ignoreFile);
 
-        // Add default error listener
+        // Add default error listener, which sets errorOccurred
         addErrorListener(new DefaultCsarErrorListener(this));
+    }
+
+    /**
+     * Initializes and then runs Csar.
+     */
+    public void run() {
+        init();
+        parseQuery();
+        parse();
+        postprocess();
+        search();
+        refactor();
     }
 
     /**
@@ -59,14 +71,14 @@ public class Csar {
             throw new IllegalStateException("an error has occurred, csar cannot continue");
         LOGGER.info("Loading plugins...");
 
-        // Create the service provider
+        // Create the plugin loader
         pluginLoader = new CsarPluginLoader();
 
         if (!pluginLoader.plugins().hasNext()) {
             errorListeners.forEach(CsarErrorListener::fatalErrorInitializing);
         }
 
-        // Add error handlers
+        // Add error handlers to each plugin
         errorListeners.forEach(l -> pluginLoader.forEachPlugin(p -> p.addErrorListener(l)));
     }
 
@@ -87,7 +99,7 @@ public class Csar {
     /**
      * Parses the project code on each underlying language-specific plugin.
      */
-    public void parseCode() {
+    public void parse() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
         pluginLoader.forEachPlugin(p -> {
@@ -111,7 +123,7 @@ public class Csar {
     /**
      * Searches the project code on each underlying language-specific plugin.
      */
-    public void searchCode() {
+    public void search() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
         searchResults = new ArrayList<>();
@@ -125,7 +137,7 @@ public class Csar {
     /**
      * Refactors the project code on each underlying language-specific plugin.
      */
-    public void refactorCode() {
+    public void refactor() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
 
@@ -189,8 +201,6 @@ public class Csar {
 
     /**
      * Returns if an error occurred.
-     *
-     * @return if an error occurred.
      */
     public boolean isErrorOccurred() {
         return errorOccurred;
@@ -199,7 +209,7 @@ public class Csar {
     /**
      * This tells Csar that an error occurred, do not use this sporadically!
      */
-    public void setErrorOccurred() {
+    void setErrorOccurred() {
         this.errorOccurred = true;
     }
 }

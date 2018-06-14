@@ -2,7 +2,7 @@ package org.qmul.csar.code.refactor;
 
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.query.RefactorDescriptor;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.util.List;
 

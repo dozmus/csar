@@ -6,7 +6,7 @@ import org.qmul.csar.code.java.TestUtils;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;

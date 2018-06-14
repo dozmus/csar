@@ -8,7 +8,7 @@ import org.qmul.csar.code.java.parse.statement.ParameterVariableStatement;
 import org.qmul.csar.code.java.postprocess.util.TypeHelper;
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 import org.qmul.csar.util.FilePosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

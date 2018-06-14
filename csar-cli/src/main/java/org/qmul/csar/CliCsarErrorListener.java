@@ -3,9 +3,10 @@ package org.qmul.csar;
 import java.nio.file.Path;
 
 /**
- * The {@link CsarErrorListener} to use.
+ * The {@link CsarErrorListener} which this frontend will use. It logs any errors, and if a fatal error occurs it
+ * terminates the program using the appropriate exit codes defined in {@link Main}.
  */
-public class CliCsarErrorListener extends LoggingCsarErrorListener {
+public final class CliCsarErrorListener extends LoggingCsarErrorListener {
 
     @Override
     public void fatalErrorInitializing() {

@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.refactor;
 
 import org.qmul.csar.code.refactor.RefactorChange;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.io.IOException;
 import java.nio.file.Path;

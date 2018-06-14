@@ -1,4 +1,4 @@
-package org.qmul.csar.result;
+package org.qmul.csar.code;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.util.ToStringStyles;
@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * A match from the searching performed by {@link org.qmul.csar.Csar}.
+ * A searching or refactoring result.
  */
 public class Result {
 

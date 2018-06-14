@@ -2,7 +2,7 @@ package org.qmul.csar.result.formatter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

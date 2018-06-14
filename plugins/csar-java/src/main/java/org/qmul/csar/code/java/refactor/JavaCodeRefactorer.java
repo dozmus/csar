@@ -7,7 +7,7 @@ import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.query.RefactorDescriptor;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.slf4j.Logger;

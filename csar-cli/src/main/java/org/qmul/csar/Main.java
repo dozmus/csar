@@ -2,7 +2,7 @@ package org.qmul.csar;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -39,7 +39,6 @@ public final class Main {
      *
      * @param args application command-line arguments
      * @see CsarContext
-     * @see CsarFactory
      */
     public static void main(String[] args) {
         // Parse command-line arguments
@@ -80,20 +79,15 @@ public final class Main {
     /**
      * This is an extension of {@link #main(String[])} because once any {@link Logger} is created, all following
      * instantiations of it will have the same logging level. Thus, the logger instance in this class is not
-     * <tt>static</tt>, and this method exists so that it can be used once configured.
+     * <tt>static</tt>, and this method exists so that it can be configured, and then used afterwards.
      */
     private void main(CsarContext ctx) {
         Logger logger = LoggerFactory.getLogger(Main.class);
 
         // Run csar
         logger.info("Starting...");
-        Csar csar = CsarFactory.create(ctx);
-        csar.init();
-        csar.parseQuery();
-        csar.parseCode();
-        csar.postprocess();
-        csar.searchCode();
-        csar.refactorCode();
+        Csar csar = ctx.createCsar();
+        csar.run();
 
         try {
             List<Result> results = csar.getSearchResults();

@@ -103,10 +103,18 @@ class CsarContext {
 
     /**
      * Returns the base project directory.
-     *
-     * @return the base project directory
      */
     public Path getProjectDirectory() {
         return projectDirectory;
+    }
+
+    /**
+     * Returns a new instance of {@link Csar} with the details contained in this class, and with the standard
+     * {@link CliCsarErrorListener}.
+     */
+    public Csar createCsar() {
+        Csar csar = new Csar(getQuery(), threads, projectDirectory, narrowSearch, ignoreFile);
+        csar.addErrorListener(new CliCsarErrorListener());
+        return csar;
     }
 }

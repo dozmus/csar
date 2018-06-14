@@ -50,7 +50,6 @@ public class DefaultCsarErrorListener implements CsarErrorListener {
 
     @Override
     public void errorRefactoring(Path path, Exception ex) {
-
     }
 
     @Override

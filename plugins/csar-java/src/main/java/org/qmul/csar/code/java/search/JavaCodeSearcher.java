@@ -6,7 +6,7 @@ import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.TargetDescriptor;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.slf4j.Logger;

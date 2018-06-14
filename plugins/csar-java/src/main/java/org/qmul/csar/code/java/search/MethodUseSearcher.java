@@ -31,14 +31,14 @@ public class MethodUseSearcher implements Searcher {
         visitor.visitStatement(statement);
 
         // Aggregate and return results
-        List<org.qmul.csar.result.Result> results = new ArrayList<>();
+        List<org.qmul.csar.code.Result> results = new ArrayList<>();
         List<RefactorTarget> refactorTargets = new ArrayList<>();
 
         for (Statement st : visitor.getResults()) {
             MethodStatement method = (MethodStatement)st;
 
             // Create Results
-            List<org.qmul.csar.result.Result> tmpResults = method.getMethodUsages().stream()
+            List<org.qmul.csar.code.Result> tmpResults = method.getMethodUsages().stream()
                     .filter(expr -> !skipped(query, expr.getPath()))
                     .map(this::exprToResult)
                     .collect(Collectors.toList());
@@ -74,8 +74,8 @@ public class MethodUseSearcher implements Searcher {
         return true;
     }
 
-    private org.qmul.csar.result.Result exprToResult(MethodCallExpression expr) {
-        return new org.qmul.csar.result.Result(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode());
+    private org.qmul.csar.code.Result exprToResult(MethodCallExpression expr) {
+        return new org.qmul.csar.code.Result(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode());
     }
 }
 

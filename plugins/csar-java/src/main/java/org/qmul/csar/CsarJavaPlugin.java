@@ -21,7 +21,7 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.RefactorDescriptor;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.io.IOException;
 import java.nio.file.Files;

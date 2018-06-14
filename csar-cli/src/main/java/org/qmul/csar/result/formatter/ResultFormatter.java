@@ -1,6 +1,6 @@
 package org.qmul.csar.result.formatter;
 
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.util.List;
 

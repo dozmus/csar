@@ -1,7 +1,7 @@
 package org.qmul.csar.result.formatter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.util.List;
 

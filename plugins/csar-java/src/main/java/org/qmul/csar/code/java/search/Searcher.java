@@ -23,15 +23,15 @@ public interface Searcher {
      */
     class Result {
 
-        private final List<org.qmul.csar.result.Result> results;
+        private final List<org.qmul.csar.code.Result> results;
         private final List<RefactorTarget> refactorTargets;
 
-        public Result(List<org.qmul.csar.result.Result> results, List<RefactorTarget> refactorTargets) {
+        public Result(List<org.qmul.csar.code.Result> results, List<RefactorTarget> refactorTargets) {
             this.results = results;
             this.refactorTargets = refactorTargets;
         }
 
-        public List<org.qmul.csar.result.Result> getResults() {
+        public List<org.qmul.csar.code.Result> getResults() {
             return results;
         }
 

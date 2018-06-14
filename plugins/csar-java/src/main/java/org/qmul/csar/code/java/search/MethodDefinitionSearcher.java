@@ -34,7 +34,7 @@ public class MethodDefinitionSearcher implements Searcher {
         visitor.visitStatement(statement);
 
         // Aggregate and return results
-        List<org.qmul.csar.result.Result> results = visitor.getResults().stream()
+        List<org.qmul.csar.code.Result> results = visitor.getResults().stream()
                 .map(s -> methodStatementToResult(file, s))
                 .collect(Collectors.toList());
 
@@ -73,7 +73,7 @@ public class MethodDefinitionSearcher implements Searcher {
         return false;
     }
 
-    private org.qmul.csar.result.Result methodStatementToResult(Path file, Statement s) {
-        return new org.qmul.csar.result.Result(file, ((MethodStatement)s).getLineNumber(), s.toPseudoCode());
+    private org.qmul.csar.code.Result methodStatementToResult(Path file, Statement s) {
+        return new org.qmul.csar.code.Result(file, ((MethodStatement)s).getLineNumber(), s.toPseudoCode());
     }
 }

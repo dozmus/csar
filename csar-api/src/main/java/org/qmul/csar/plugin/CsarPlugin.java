@@ -3,7 +3,7 @@ package org.qmul.csar.plugin;
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
-import org.qmul.csar.result.Result;
+import org.qmul.csar.code.Result;
 
 import java.nio.file.Path;
 import java.util.List;
