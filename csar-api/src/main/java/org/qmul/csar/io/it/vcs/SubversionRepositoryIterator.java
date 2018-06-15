@@ -48,15 +48,15 @@ public class SubversionRepositoryIterator extends VCSRepositoryIterator {
             throw new Exception("Error running svn status: no output");
         }
 
-        String output1 = output.get(0);
+        String line1 = output.get(0);
 
-        if (output1.startsWith("svn: E:") || output1.startsWith("E:")) {
-            throw new Exception("Error running svn status: " + output1);
+        if (line1.startsWith("svn: E:") || line1.startsWith("E:")) {
+            throw new Exception("Error running svn status: " + line1);
         }
 
-        if (output1.startsWith("'svn' is not recognized as an internal or external command")  // win error msg
-                || output1.endsWith("command not found") // linux error msg
-                || output1.startsWith("The program 'svn' is currently not installed.")) { // linux error msg
+        if (line1.startsWith("'svn' is not recognized as an internal or external command")  // win error msg
+                || line1.endsWith("command not found") // linux error msg
+                || line1.startsWith("The program 'svn' is currently not installed.")) { // linux error msg
             throw new Exception("Error running svn status: svn is not recognized");
         }
 

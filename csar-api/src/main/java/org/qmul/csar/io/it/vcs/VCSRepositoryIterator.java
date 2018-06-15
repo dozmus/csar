@@ -18,19 +18,19 @@ public abstract class VCSRepositoryIterator extends ProjectIterator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitRepositoryIterator.class);
     private final String vcsName;
-    private final String reservedFolderName;
+    private final String vcsFolderName;
 
     /**
      * Creates a new instance with the argument directory, VCS name and reserved folder name.
      *
      * @param directory the directory to search for files in
      * @param vcsName the name of the VCS supported
-     * @param reservedFolderName the name of the repository's reserved folder
+     * @param vcsFolderName the name of the repository's folder
      */
-    public VCSRepositoryIterator(Path directory, String vcsName, String reservedFolderName) {
+    public VCSRepositoryIterator(Path directory, String vcsName, String vcsFolderName) {
         super(directory);
         this.vcsName = vcsName;
-        this.reservedFolderName = reservedFolderName;
+        this.vcsFolderName = vcsFolderName;
     }
 
     /**
@@ -38,10 +38,10 @@ public abstract class VCSRepositoryIterator extends ProjectIterator {
      */
     public void init() {
         LOGGER.info("Scanning project directory: {}", getDirectory().toString());
-        boolean isValid = Files.isDirectory(Paths.get(getDirectory().toString(), reservedFolderName));
+        boolean isValid = Files.isDirectory(Paths.get(getDirectory().toString(), vcsFolderName));
 
         if (!isValid)
-            throw new IllegalStateException("repository is missing a " + reservedFolderName + " folder");
+            throw new IllegalStateException("repository is missing a " + vcsFolderName + " folder");
         scanVcsDir();
         initialized = true;
     }
