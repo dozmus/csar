@@ -60,6 +60,18 @@ public final class ContainsQueryTest {
     }
 
     @Test
+    public void testValidateCombinedDescriptors3() {
+        ContainsQuery query = create(dummyDescriptor(), notOperator(), dummyDescriptor());
+        Assert.assertFalse(ContainsQuery.validate(query));
+    }
+
+    @Test
+    public void testValidateCombinedDescriptors4() {
+        ContainsQuery query = create(dummyDescriptor(), orOperator(), dummyDescriptor(), notOperator());
+        Assert.assertFalse(ContainsQuery.validate(query));
+    }
+
+    @Test
     public void testValidateInvalidConsecutiveOperators1() {
         ContainsQuery query = create(dummyDescriptor(), andOperator(), andOperator(), dummyDescriptor());
         Assert.assertFalse(ContainsQuery.validate(query));

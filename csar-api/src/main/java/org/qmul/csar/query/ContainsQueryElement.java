@@ -4,12 +4,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Objects;
 
-public abstract class ContainsQueryElement {
+public interface ContainsQueryElement {
 
     /**
      * A target descriptor element.
      */
-    public static class TargetDescriptor extends ContainsQueryElement {
+    class TargetDescriptor implements ContainsQueryElement {
     
         private final org.qmul.csar.query.TargetDescriptor targetDescriptor;
     
@@ -45,7 +45,7 @@ public abstract class ContainsQueryElement {
     /**
      * A logical operator element. The order of precedence is (highest to lowest): NOT, AND, OR.
      */
-    public static class LogicalOperator extends ContainsQueryElement {
+    class LogicalOperator implements ContainsQueryElement {
     
         private final org.qmul.csar.query.LogicalOperator logicalOperator;
     

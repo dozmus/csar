@@ -25,6 +25,7 @@ public class ContainsQuery {
      * <ol>
      *     <li>No consecutive descriptors.</li>
      *     <li>No consecutive logical operators (unless if <tt>AND</tt> or <tt>OR</tt>, followed by <tt>NOT</tt>).</li>
+     *     <li>The only connective operators are <tt>AND</tt> and <tt>OR</tt>.</li>
      *     <li>First element is not <tt>AND</tt> or <tt>OR</tt>.</li>
      *     <li>Last element is not <tt>AND</tt>, <tt>NOT</tt> or <tt>OR</tt>.</li>
      * </ol>
@@ -34,22 +35,22 @@ public class ContainsQuery {
      */
     public static boolean validate(ContainsQuery containsQuery) {
         List<ContainsQueryElement> elements = containsQuery.getElements();
+        int n = elements.size();
 
-        if (elements.size() == 0)
+        // No elements
+        if (n == 0)
             return true;
 
         // First element
         if (elements.get(0) instanceof ContainsQueryElement.LogicalOperator) {
             ContainsQueryElement.LogicalOperator op = ((ContainsQueryElement.LogicalOperator) elements.get(0));
 
-            if (op.getLogicalOperator() == LogicalOperator.AND || op.getLogicalOperator() == LogicalOperator.OR) {
+            if (op.getLogicalOperator() != LogicalOperator.NOT) {
                 return false;
             }
         }
 
         // Last element
-        int n = elements.size();
-
         if (elements.get(n - 1) instanceof ContainsQueryElement.LogicalOperator) {
             return false;
         }
@@ -74,7 +75,22 @@ public class ContainsQuery {
                 LogicalOperator curOp = ((ContainsQueryElement.LogicalOperator) currentElement).getLogicalOperator();
                 LogicalOperator nextOp = ((ContainsQueryElement.LogicalOperator) nextElement).getLogicalOperator();
 
-                if (nextOp != LogicalOperator.NOT || curOp == LogicalOperator.NOT) {
+                if (curOp == LogicalOperator.NOT || nextOp != LogicalOperator.NOT) {
+                    return false;
+                }
+            }
+
+            // Illegal connective logical operator
+            if (i + 2 >= n) // has no two next elements
+                continue;
+            ContainsQueryElement e2 = elements.get(i + 2);
+
+            if (currentElement instanceof ContainsQueryElement.TargetDescriptor
+                    && nextElement instanceof ContainsQueryElement.LogicalOperator
+                    && e2 instanceof ContainsQueryElement.TargetDescriptor) {
+                LogicalOperator curOp = ((ContainsQueryElement.LogicalOperator) nextElement).getLogicalOperator();
+
+                if (curOp == LogicalOperator.NOT) {
                     return false;
                 }
             }
