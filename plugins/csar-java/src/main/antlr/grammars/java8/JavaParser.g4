@@ -271,11 +271,11 @@ formalParameterList
     ;
 
 formalParameter
-    : variableModifier* typeType variableDeclaratorId
+    : variableModifier* typeType variableModifier* variableDeclaratorId
     ;
 
 lastFormalParameter
-    : variableModifier* typeType ELLIPSIS variableDeclaratorId
+    : variableModifier* typeType variableModifier* ELLIPSIS variableDeclaratorId
     ;
 
 qualifiedName
