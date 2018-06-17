@@ -3,8 +3,8 @@ Use Guide
 
 # General
 If you want accurate results from csar you should ensure that your source code is correct.
-csar currently only supports Java 8, `package-info.java` files introduced in Java 9 will be ignored for partial
-compatibility.
+csar currently only supports Java 8, `package-info.java` and `module-info.java` files will be ignored for partial
+Java 9 compatibility.
 Parsing source code with invalid syntax will lead to an error occurring and it being skipped.
 
 # Narrowing Domain in VCS Repositories

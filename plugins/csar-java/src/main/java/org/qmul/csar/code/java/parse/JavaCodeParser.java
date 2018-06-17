@@ -294,9 +294,10 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
     @Override
     public boolean accepts(Path file) {
-        // XXX ignores package-info.java
+        // XXX ignores package-info.java and module-info.java
         String fileName = file.getFileName().toString();
-        return !fileName.equals("package-info.java") && fileName.endsWith(".java");
+        return !fileName.equals("package-info.java") && !fileName.equals("module-info.java")
+                && fileName.endsWith(".java");
     }
 
     private List<Annotation> parseVariableModifierAnnotations(List<JavaParser.VariableModifierContext> ctxs) {
