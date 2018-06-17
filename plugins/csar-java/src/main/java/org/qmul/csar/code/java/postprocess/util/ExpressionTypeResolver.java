@@ -599,13 +599,22 @@ public class ExpressionTypeResolver {
         if (value.equals("true") || value.equals("false"))
             return literalType("boolean");
 
-        // Double
-        if (value.endsWith("d") || value.endsWith("D") || value.contains("."))
-            return literalType("double");
+        // Hex values
+        if (value.startsWith("0x")) {
+            if (value.contains("p") || value.contains("."))
+                return literalType("double");
+
+            if (value.contains("e"))
+                return literalType("float");
+        }
 
         // Float
         if (value.endsWith("f") || value.endsWith("F"))
             return literalType("float");
+
+        // Double
+        if (value.endsWith("d") || value.endsWith("D") || value.contains("."))
+            return literalType("double");
 
         // Fall-back: has to be integer
         return literalType("int");
