@@ -64,7 +64,7 @@ public class ForEachStatement implements Statement {
         return new StringBuilder()
                 .append(StringUtils.indentation(indentation))
                 .append("for (")
-                .append(variable.toPseudoCode())
+                .append(variable.toPseudoCode(0, false))
                 .append(" : ")
                 .append(collection.toPseudoCode())
                 .append(") {")

@@ -66,6 +66,10 @@ public class LocalVariableStatement implements Statement {
 
     @Override
     public String toPseudoCode(int indentation) {
+        return toPseudoCode(indentation, true);
+    }
+
+    public String toPseudoCode(int indentation, boolean endWithSemiColon) {
         StringBuilder builder = new StringBuilder();
 
         if (getAnnotations().size() > 0) {
@@ -77,7 +81,7 @@ public class LocalVariableStatement implements Statement {
         return builder.append(descriptor.getIdentifierType().map(t -> t + " ").orElse(""))
                 .append(descriptor.getIdentifierName())
                 .append(valueExpression.map(expression -> " = " + expression.toPseudoCode()).orElse(""))
-                .append(";")
+                .append(endWithSemiColon ? ";" : "")
                 .toString();
     }
 }
