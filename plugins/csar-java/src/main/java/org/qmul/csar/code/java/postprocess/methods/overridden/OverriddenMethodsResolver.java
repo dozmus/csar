@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methods.overridden;
 
+import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
@@ -12,7 +13,6 @@ import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.EnumDescriptor;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
-import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

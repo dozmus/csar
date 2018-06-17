@@ -5,6 +5,8 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
     // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
     compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.7'
+    // https://search.maven.org/#artifactdetails%7Ccom.github.dozmus%7Citerators%7C0.0.1%7Cjar
+    compile group: 'com.github.dozmus', name: 'iterators', version: '0.0.1'
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7'
     // https://mvnrepository.com/artifact/org.mockito/mockito-core

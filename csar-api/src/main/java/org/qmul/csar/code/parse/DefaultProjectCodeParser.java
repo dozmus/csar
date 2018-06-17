@@ -1,8 +1,8 @@
 package org.qmul.csar.code.parse;
 
+import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.lang.Statement;
-import org.qmul.csar.util.ConcurrentIterator;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
