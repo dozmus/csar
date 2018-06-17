@@ -50,12 +50,14 @@ public class TryWithResourcesStatement extends TryStatement {
     public String toPseudoCode(int indentation) {
         // Resource
         List<LocalVariableStatement> locals = resources.getLocals();
-        String resourceString = locals.get(0).toPseudoCode();
+        String resourceString = locals.get(0).toPseudoCode(0, false);
 
         // Try
         StringBuilder builder = new StringBuilder()
                 .append(StringUtils.indentation(indentation))
-                .append("try (").append(resourceString).append(") {")
+                .append("try (")
+                .append(resourceString)
+                .append(") {")
                 .append(System.lineSeparator())
                 .append(getBlock().toPseudoCode(indentation + 1))
                 .append(System.lineSeparator())
