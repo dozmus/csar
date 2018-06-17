@@ -33,4 +33,11 @@ public class AbstractClass {
     public static void hello() {
         System.out.println(hello);
     }
+
+    public void doubleLiteralInHex() {
+        double h = 0x1.0p20;
+        double h = 0x1.0p0;
+        double h = 0x10p20;
+        double h = 0x10p0;
+    }
 }

@@ -285,6 +285,7 @@ qualifiedName
 literal
     : integerLiteral
     | FLOAT_LITERAL
+    | HEX_FLOAT_LITERAL
     | CHAR_LITERAL
     | STRING_LITERAL
     | BOOL_LITERAL
