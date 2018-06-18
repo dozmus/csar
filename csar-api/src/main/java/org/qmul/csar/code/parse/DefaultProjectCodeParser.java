@@ -21,7 +21,7 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultProjectCodeParser.class);
     private final ConcurrentIterator<Path> it;
     private final ConcurrentHashMap<Path, Statement> results = new ConcurrentHashMap<>();
-    private final TotalFileSizes totalFileSizes = new TotalFileSizes();
+    private final Statistics statistics = new Statistics();
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final CodeParserFactory factory;
 
@@ -69,8 +69,8 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
         run();
 
         // Log completion message
-        LOGGER.debug("Parsed {}kb of code in {}ms", totalFileSizes.sizeKb,
-                (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Parsed {}kb of code in {}ms over {} files containing {} LOC", statistics.sizeKb,
+                (System.currentTimeMillis() - startTime), statistics.fileCount, statistics.linesOfCode);
         LOGGER.info("Finished");
         return results;
     }
@@ -85,9 +85,11 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
         errorListeners.remove(errorListener);
     }
 
-    private static final class TotalFileSizes {
+    private static final class Statistics {
 
-        private long sizeKb = 0;
+        private long sizeKb;
+        private long linesOfCode;
+        private int fileCount;
 
         public void add(long sizeBytes) {
             sizeKb += Math.round((double)sizeBytes / 1000D);
@@ -116,10 +118,14 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
                         // Parse file and put in the map
                         root = factory.create(file).parse(file);
                         results.put(file, root);
+                        long sizeB = Files.size(file);
+                        long lineCount = Files.lines(file).count();
 
                         // Update statistics
-                        synchronized (totalFileSizes) {
-                            totalFileSizes.add(Files.size(file));
+                        synchronized (statistics) {
+                            statistics.add(sizeB);
+                            statistics.fileCount++;
+                            statistics.linesOfCode += lineCount;
                         }
                     } catch (IOException | RuntimeException ex) {
                         Path finalFile = file;
