@@ -9,12 +9,65 @@ Parsing source code with invalid syntax will lead to an error occurring and it b
 
 # Narrowing Domain in VCS Repositories
 csar will detect and narrow its domain in supported VCS repositories (git, svn, and hg), this can be disabled using
-the `--narrow-search`.  
+ `--narrow-search`.  
 This requires their pure CLI frontends to be installed otherwise an error will be printed.  
 This is the following if a suitable git frontend is not installed: `Error running git ls-files: git is not recognized`.
 
 # Plugins
-See project report.
+Plugins were introduced into csar to provide language-agnosticism.
+This means that the API itself does not define the specifics of how to perform a search or a refactor, this is instead provided by plugins.
+
+Plugins are creating as follows:
+* Create a new project targeting the JVM which has `csar-api' as a compile-time dependency.
+* Create a class which implements `CsarPlugin` from `csar-api'.
+  This must have a public 0-arguments constructor, and also must implement all of the behaviour defined by the interface.
+  Furthermore, you should provide the error listeners with the appropriate error details if one occurs.
+* Define a resource for the JAR, which should reside in the `META-INF/services` folder within it.
+  The resource file's name should be `org.qmul.csar.plugin.CsarPlugin` and its content the fully qualified name of your plugin.
+* Compile the source code into a JAR.
+
+The following is the plugin skeleton. 
+```java
+package my.package;
+
+/**
+  * A csar plugin.
+  */
+public class MyCsarPlugin implements CsarPlugin {
+
+  @Override
+  public void parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount) {
+    // Parse code...
+  }
+
+  @Override
+  public void postprocess(int threadCount) {
+    // Post-process code...
+  }
+
+  @Override
+  public List<Result> search(CsarQuery csarQuery, int threadCount) {
+    // Search code...
+  }
+
+  @override
+  public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount) {
+    // Refactor code...
+  }
+
+  @Override
+  public void addErrorListener(CsarErrorListener errorListener) {
+    // Add the error listener...
+  }
+
+  @Override
+  public void removeErrorListener(CsarErrorListener errorListener) {
+    // Remove the error listener...
+  }
+}
+```
+
+This plugin would have the fully qualified name `my.package.MyCsarPlugin'.
 
 # Csar Query Language
 Each csar query is comprised of four parts, but only the first is required:
