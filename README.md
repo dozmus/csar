@@ -8,7 +8,7 @@ changing their names or parameters.
 You can find more information in the project report and the [use guide](USEGUIDE.md).
 
 ### Example queries
-* `SELECT method:use:final String appender(int, String)
+* `SELECT method:use:final String appender(int, String)`
    This will find all method calls which have the signature `final String appender(int, String)`.
 
 * `SELECT method:def:public int add(4) REFACTOR rename:sum`
