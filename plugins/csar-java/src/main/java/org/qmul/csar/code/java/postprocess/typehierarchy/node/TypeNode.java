@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.postprocess.typehierarchy;
+package org.qmul.csar.code.java.postprocess.typehierarchy.node;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.util.ToStringStyles;
@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * A node representing the type hierarchy of a single type.
  */
-class TypeNode {
+public class TypeNode {
 
     private final String qualifiedName;
     private final List<TypeNode> children = new ArrayList<>();
@@ -36,7 +36,7 @@ class TypeNode {
     }
 
     public boolean insert(TypeNode root) {
-        if (root.qualifiedName.equals(qualifiedName)) {
+        if (qualifiedNameEquals(root.getQualifiedName())) {
             root.children.addAll(children);
             return true;
         } else {
@@ -62,7 +62,7 @@ class TypeNode {
      * @return if the argument node contains the argument qualifiedName
      */
     public boolean containsQualifiedName(String qualifiedName, boolean checkCurrent) {
-        if (checkCurrent && this.qualifiedName.equals(qualifiedName)) {
+        if (checkCurrent && qualifiedNameEquals(qualifiedName)) {
             return true;
         } else {
             for (TypeNode child : children) {
@@ -71,6 +71,10 @@ class TypeNode {
             }
             return false;
         }
+    }
+
+    public boolean qualifiedNameEquals(String qualifiedName) {
+        return getQualifiedName().equals(qualifiedName);
     }
 
     public String getQualifiedName() {

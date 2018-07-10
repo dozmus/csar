@@ -4,6 +4,7 @@ import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.EnumStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
+import org.qmul.csar.code.java.postprocess.typehierarchy.node.TypeNode;
 import org.qmul.csar.lang.IdentifierName;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.code.java.StatementVisitor;
@@ -15,7 +16,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Resolves the type hierarchy of a given type statement, in conjunction with {@link TypeHierarchyResolver}.
+ * Resolves the type hierarchy of a given type statement, in conjunction with {@link SimpleTypeHierarchyResolver}.
  */
 final class TypeStatementHierarchyResolver extends StatementVisitor {
 
@@ -27,11 +28,11 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
     private final Path path;
     private final TypeStatement targetType;
     private final TypeStatement topStatement;
-    private final TypeHierarchyResolver typeHierarchyResolver;
+    private final SimpleTypeHierarchyResolver typeHierarchyResolver;
     private String currentIdentifierName;
     private int nesting = 0;
 
-    TypeStatementHierarchyResolver(TypeHierarchyResolver typeHierarchyResolver, Map<Path, Statement> code,
+    TypeStatementHierarchyResolver(SimpleTypeHierarchyResolver typeHierarchyResolver, Map<Path, Statement> code,
             List<TypeNode> tmp, Path path, String currentPkg, List<ImportStatement> imports,
             Optional<PackageStatement> packageStatement, TypeStatement targetType, TypeStatement topStatement) {
         this.typeHierarchyResolver = typeHierarchyResolver;
@@ -50,24 +51,26 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
         ClassDescriptor desc = statement.getDescriptor();
         List<String> superClasses = new ArrayList<>(desc.getImplementedInterfaces());
         desc.getExtendedClass().ifPresent(superClasses::add);
+
         preVisit(desc.getIdentifierName(), superClasses);
         super.visitClassStatement(statement);
-        nesting--;
+        postVisit();
     }
 
     @Override
     public void visitEnumStatement(EnumStatement statement) {
         EnumDescriptor desc = statement.getDescriptor();
+
         preVisit(desc.getIdentifierName(), desc.getSuperClasses());
         super.visitEnumStatement(statement);
-        nesting--;
+        postVisit();
     }
 
-    private void preVisit(IdentifierName identifierName, List<String> superClasses) {
+    private void preVisit(IdentifierName identifier, List<String> superClasses) {
         if (!map.containsKey(nesting)) {
             map.put(nesting, currentIdentifierName);
         }
-        currentIdentifierName = map.get(nesting) + (nesting > 0 ? "$" : "") + identifierName;
+        currentIdentifierName = map.get(nesting) + (nesting > 0 ? "$" : "") + identifier;
 
         if (superClasses.size() == 0) {
             typeHierarchyResolver.addToRoot(getFromListOrDefault(tmp, currentIdentifierName));
@@ -76,6 +79,10 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
                     currentIdentifierName, superClasses, topStatement);
         }
         nesting++;
+    }
+
+    private void postVisit() {
+        nesting--;
     }
 
     /**

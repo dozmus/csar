@@ -6,6 +6,7 @@ import org.qmul.csar.code.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.postprocess.typehierarchy.SimpleTypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.util.PostProcessUtils;
 import org.qmul.csar.lang.Statement;
@@ -50,7 +51,7 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
     private Map<Path, Statement> code;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
 
-    public OverriddenMethodsResolver(QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
+    public OverriddenMethodsResolver(QualifiedNameResolver qnr, SimpleTypeHierarchyResolver thr) {
         this(1, qnr, thr);
     }
 

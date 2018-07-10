@@ -7,6 +7,7 @@ import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.SimpleTypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.util.MethodCallResolver;
 import org.qmul.csar.lang.Statement;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This maps method usages to their corresponding definitions. It requires {@link TypeHierarchyResolver} and
+ * This maps method usages to their corresponding definitions. It requires {@link SimpleTypeHierarchyResolver} and
  * {@link MethodCallTypeInstanceResolver} to be run first.
  */
 public class MethodUseResolver implements CodePostProcessor {
@@ -34,7 +35,7 @@ public class MethodUseResolver implements CodePostProcessor {
         this.thr = thr;
     }
 
-    public MethodUseResolver(TypeHierarchyResolver thr) {
+    public MethodUseResolver(SimpleTypeHierarchyResolver thr) {
         this(new QualifiedNameResolver(), thr);
     }
 

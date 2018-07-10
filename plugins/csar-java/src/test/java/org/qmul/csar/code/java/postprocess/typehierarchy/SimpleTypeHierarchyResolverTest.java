@@ -16,10 +16,10 @@ import java.util.Map;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TypeHierarchyResolverTest {
+public class SimpleTypeHierarchyResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
-    private static final TypeHierarchyResolver resolver = new TypeHierarchyResolver();
+    private static final SimpleTypeHierarchyResolver resolver = new SimpleTypeHierarchyResolver();
 
     @BeforeClass
     public static void setUp() throws IllegalAccessException, InstantiationException {

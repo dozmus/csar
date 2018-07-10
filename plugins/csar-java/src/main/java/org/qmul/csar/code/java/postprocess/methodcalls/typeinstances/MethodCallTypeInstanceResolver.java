@@ -10,6 +10,7 @@ import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.code.java.postprocess.methods.use.TraversalHierarchy;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.SimpleTypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.util.ExpressionTypeResolver;
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
@@ -39,7 +40,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
         this.thr = thr;
     }
 
-    public MethodCallTypeInstanceResolver(TypeHierarchyResolver thr) {
+    public MethodCallTypeInstanceResolver(SimpleTypeHierarchyResolver thr) {
         this(new QualifiedNameResolver(), thr);
     }
 
