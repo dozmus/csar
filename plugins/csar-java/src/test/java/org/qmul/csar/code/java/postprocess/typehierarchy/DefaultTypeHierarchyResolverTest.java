@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class DefaultTypeHierarchyResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
-    private static final DefaultTypeHierarchyResolver resolver = new DefaultTypeHierarchyResolver();
+    private static final TypeHierarchyResolver resolver = new DefaultTypeHierarchyResolver();
 
     @BeforeClass
     public static void setUp() throws IllegalAccessException, InstantiationException {

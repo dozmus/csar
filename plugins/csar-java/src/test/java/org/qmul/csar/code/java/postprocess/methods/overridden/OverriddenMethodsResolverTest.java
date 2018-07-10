@@ -2,12 +2,13 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.qmul.csar.code.parse.CodeParserFactory;
-import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.parse.CodeParserFactory;
+import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.Statement;
 
@@ -23,7 +24,7 @@ public class OverriddenMethodsResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
-    private static final DefaultTypeHierarchyResolver typeHierarchyResolver = new DefaultTypeHierarchyResolver(qualifiedNameResolver);
+    private static final TypeHierarchyResolver typeHierarchyResolver = new DefaultTypeHierarchyResolver(qualifiedNameResolver);
     private static final MethodQualifiedTypeResolver methodQualifiedTypeResolver
             = new MethodQualifiedTypeResolver(qualifiedNameResolver);
     private static final OverriddenMethodsResolver resolver = new OverriddenMethodsResolver(qualifiedNameResolver,

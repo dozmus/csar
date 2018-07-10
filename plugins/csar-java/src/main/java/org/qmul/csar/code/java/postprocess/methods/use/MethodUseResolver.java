@@ -35,7 +35,7 @@ public class MethodUseResolver implements CodePostProcessor {
         this.thr = thr;
     }
 
-    public MethodUseResolver(DefaultTypeHierarchyResolver thr) {
+    public MethodUseResolver(TypeHierarchyResolver thr) {
         this(new QualifiedNameResolver(), thr);
     }
 
