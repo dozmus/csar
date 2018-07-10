@@ -168,7 +168,7 @@ public class SimpleTypeHierarchyResolver implements TypeHierarchyResolver {
 
     @Override
     public void addErrorListener(CsarErrorListener errorListener) {
-        errorListeners.remove(errorListener);
+        errorListeners.add(errorListener);
     }
 
     @Override
