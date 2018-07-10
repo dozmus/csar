@@ -152,4 +152,9 @@ public class SimpleTypeHierarchyResolverTest {
         assertIsSubtype("java.lang.Double", "double");
         assertIsSubtype("double", "java.lang.Double");
     }
+
+    @Test
+    public void testInnerStaticClassIsNotSubtypeOfParentClass() {
+        assertIsNotSubtype("base.A2", "base.A2$StaticInner");
+    }
 }
