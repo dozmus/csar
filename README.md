@@ -48,5 +48,5 @@ Example (more in the project report): `java -jar csar.jar SELECT method:def:add 
 * You can invoke gradle using the `gradlew` scripts, there is one for Windows and one for Unix.
 * Build: `build`
 * Run: `:csar-cli:run`
-* Build distribution JARs: `:csar-cli:distJar` (these will be placed in `csar\csar-cli\build\distributions' alongside archive distributions)
+* Build distribution JARs: `:csar-cli:distJar` (these will be placed in `csar\csar-cli\build\distributions` alongside archive distributions)
 * Specify Java arguments to `:csar-cli:run` with `-Pjargs="SELECT method:def:add -t 1 --log-level TRACE"`
