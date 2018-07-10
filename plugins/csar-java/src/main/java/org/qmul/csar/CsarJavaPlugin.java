@@ -8,7 +8,7 @@ import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeReso
 import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
 import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
-import org.qmul.csar.code.java.postprocess.typehierarchy.SimpleTypeHierarchyResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.refactor.JavaCodeRefactorer;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
@@ -63,7 +63,7 @@ public class CsarJavaPlugin implements CsarPlugin {
     public void postprocess(int threadCount) {
         // Create components
         QualifiedNameResolver qnr = new QualifiedNameResolver();
-        TypeHierarchyResolver thr = new SimpleTypeHierarchyResolver(qnr);
+        TypeHierarchyResolver thr = new DefaultTypeHierarchyResolver(qnr);
         MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver(qnr);
         OverriddenMethodsResolver omr = new OverriddenMethodsResolver(threadCount, qnr, thr);
         MethodUseResolver mur = new MethodUseResolver(qnr, thr);

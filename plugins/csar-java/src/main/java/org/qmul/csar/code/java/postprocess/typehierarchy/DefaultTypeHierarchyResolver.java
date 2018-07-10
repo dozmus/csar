@@ -22,11 +22,11 @@ import java.util.*;
  * A type hierarchy resolver for a code base, represented as a mapping of {@link Path} to {@link Statement}.
  * This only considers classes, interfaces, and enums (i.e. it ignores annotation types).
  */
-public class SimpleTypeHierarchyResolver implements TypeHierarchyResolver {
+public class DefaultTypeHierarchyResolver implements TypeHierarchyResolver {
 
     // TODO parse java api classes properly
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeHierarchyResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultTypeHierarchyResolver.class);
     /**
      * A mapping of names to type nodes.
      * Make sure {@link Map#putIfAbsent(Object, Object)} is used, this is such that if duplicate nodes are created
@@ -44,11 +44,11 @@ public class SimpleTypeHierarchyResolver implements TypeHierarchyResolver {
     private final QualifiedNameResolver qualifiedNameResolver;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
 
-    public SimpleTypeHierarchyResolver() {
+    public DefaultTypeHierarchyResolver() {
         this(new QualifiedNameResolver());
     }
 
-    public SimpleTypeHierarchyResolver(QualifiedNameResolver qualifiedNameResolver) {
+    public DefaultTypeHierarchyResolver(QualifiedNameResolver qualifiedNameResolver) {
         this.qualifiedNameResolver = qualifiedNameResolver;
         addPrimitives();
     }

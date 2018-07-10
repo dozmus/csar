@@ -9,7 +9,7 @@ import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
-import org.qmul.csar.code.java.postprocess.typehierarchy.SimpleTypeHierarchyResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
@@ -39,7 +39,7 @@ public class MethodUseResolverTest {
         code = parser.results();
 
         // Pre-requisites
-        SimpleTypeHierarchyResolver typeHierarchyResolver = new SimpleTypeHierarchyResolver();
+        DefaultTypeHierarchyResolver typeHierarchyResolver = new DefaultTypeHierarchyResolver();
         typeHierarchyResolver.postprocess(code);
 
         MethodQualifiedTypeResolver methodQualifiedTypeResolver = new MethodQualifiedTypeResolver();
