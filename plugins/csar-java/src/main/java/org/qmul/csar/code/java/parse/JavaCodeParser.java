@@ -3,6 +3,7 @@ package org.qmul.csar.code.java.parse;
 import grammars.java8.JavaLexer;
 import grammars.java8.JavaParser;
 import grammars.java8.JavaParserBaseListener;
+import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
@@ -15,8 +16,8 @@ import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.*;
-import org.qmul.csar.util.FilePosition;
 import org.qmul.csar.util.DefaultAntlrErrorListener;
+import org.qmul.csar.util.FilePosition;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -277,13 +278,15 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
      */
     @Override
     public Statement parse(Path file) throws IOException {
+        ANTLRErrorListener listener = new DefaultAntlrErrorListener("java");
+
         JavaLexer lexer = new JavaLexer(CharStreams.fromPath(file));
         lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        lexer.addErrorListener(new DefaultAntlrErrorListener("java"));
+        lexer.addErrorListener(listener);
 
         JavaParser parser = new JavaParser(new CommonTokenStream(lexer));
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        parser.addErrorListener(new DefaultAntlrErrorListener("java"));
+        parser.addErrorListener(listener);
 
         // Generate the code tree for it
         ParseTreeWalker walker = new ParseTreeWalker();
@@ -294,7 +297,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
     @Override
     public boolean accepts(Path file) {
-        // XXX ignores package-info.java and module-info.java
+        // XXX ignores package-info.java and module-info.java for partial Java 9+ compatibility
         String fileName = file.getFileName().toString();
         return !fileName.equals("package-info.java") && !fileName.equals("module-info.java")
                 && fileName.endsWith(".java");
