@@ -574,30 +574,34 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
         return builder.parameterCount(params.size()).parameters(params).build();
     }
 
-    private Expression parseExpression(JavaParser.ExpressionContext ctx) {
-        if (ctx.primary() != null) {
-            JavaParser.PrimaryContext primary = ctx.primary();
+    private Expression parsePrimary(JavaParser.PrimaryContext ctx) {
+        if (ctx.LPAREN() == null) {
             UnitExpression.ValueType valueType;
 
-            if (primary.LPAREN() != null && primary.RPAREN() != null) {
-                return new ParenthesisExpression(parseExpression(primary.expression()));
-            } else if (primary.DOT() != null && primary.CLASS() != null) {
+            if (ctx.DOT() != null && ctx.CLASS() != null) {
                 valueType = UnitExpression.ValueType.CLASS_REFERENCE;
-            } else if (primary.methodReference() != null) {
-                valueType = UnitExpression.ValueType.METHOD_REFERENCE;
-            } else if (primary.THIS() != null) {
+            } else if (ctx.THIS() != null) {
                 valueType = UnitExpression.ValueType.THIS;
-            } else if (primary.SUPER() != null) {
+            } else if (ctx.SUPER() != null) {
                 valueType = UnitExpression.ValueType.SUPER;
-            } else if (primary.literal() != null) {
+            } else if (ctx.literal() != null) {
                 valueType = UnitExpression.ValueType.LITERAL;
-            } else if (primary.IDENTIFIER() != null) {
+            } else if (ctx.IDENTIFIER() != null) {
                 valueType = UnitExpression.ValueType.IDENTIFIER;
             } else { // nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)
-                valueType = (primary.arguments() != null) ? UnitExpression.ValueType.THIS_CALL
+                valueType = (ctx.arguments() != null) ? UnitExpression.ValueType.THIS_CALL
                         : UnitExpression.ValueType.SUPER_CALL;
             }
-            return new UnitExpression(valueType, primary.getText());
+            return new UnitExpression(valueType, ctx.getText());
+        } else {
+            return new ParenthesisExpression(parseExpression(ctx.expression()));
+        }
+    }
+
+    private Expression parseExpression(JavaParser.ExpressionContext ctx) {
+        // Primary
+        if (ctx.primary() != null) {
+            return parsePrimary(ctx.primary());
         }
 
         // Binary operations
@@ -651,6 +655,67 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
             Expression left = parseExpression(ctx.expression(0));
             Expression right = parseExpression(ctx.expression(1));
             return new BinaryExpression(left, BinaryOperation.UNSIGNED_RSHIFT, right);
+        }
+
+        // Method reference
+        if (ctx.COLONCOLON() != null) {
+            Optional<List<TypeArgument>> typeArguments = ctx.typeArguments() == null ? Optional.empty()
+                    : Optional.of(parseTypeArguments(ctx.typeArguments()));
+
+            if (ctx.classType() != null) { // classType COLONCOLON typeArguments? NEW
+                Expression qualifier = new UnitExpression(UnitExpression.ValueType.IDENTIFIER,
+                        ctx.classType().getText());
+                return new MethodReferenceExpression(qualifier, "new", typeArguments);
+            } else if (ctx.typeType() != null) { // typeType COLONCOLON (typeArguments? IDENTIFIER | NEW)
+                Expression qualifier = new UnitExpression(UnitExpression.ValueType.IDENTIFIER,
+                        ctx.typeType().getText());
+
+                if (ctx.NEW() != null) {
+                    return new MethodReferenceExpression(qualifier, "new", typeArguments);
+                } else {
+                    return new MethodReferenceExpression(qualifier, ctx.IDENTIFIER().getText(), typeArguments);
+                }
+            } else { // expression COLONCOLON typeArguments? IDENTIFIER
+                Expression qualifier = parseExpression(ctx.expression(0));
+                return new MethodReferenceExpression(qualifier, ctx.IDENTIFIER().getText(), typeArguments);
+            }
+
+//            private Expression parseMethodReference(JavaParser.PrimaryContext primary) {
+//
+//                if (primary.NEW() != null) {
+//                    if (primary.classType() != null) { // classType COLONCOLON typeArguments? NEW
+//                    } else { // typeType COLONCOLON NEW
+//                        Expression qualifier = new UnitExpression(UnitExpression.ValueType.IDENTIFIER,
+//                                primary.typeType().getText());
+//                        return new MethodReferenceExpression(qualifier, "new", typeArguments);
+//                    }
+//                } else {
+//                    String identifier = primary.IDENTIFIER().getText();
+//
+//                    if (primary.typeType() != null) { // typeType COLONCOLON typeArguments? IDENTIFIER
+//                        Expression qualifier = new UnitExpression(UnitExpression.ValueType.IDENTIFIER,
+//                                primary.typeType().getText());
+//                        return new MethodReferenceExpression(qualifier, identifier, typeArguments);
+//                    } else if (primary.primary() != null) { // primary COLONCOLON typeArguments? IDENTIFIER
+//                        Expression qualifier = parsePrimary(primary.primary());
+//                        return new MethodReferenceExpression(qualifier, identifier, typeArguments);
+//                    } else if (primary.qualifiedName() == null
+//                            && primary.SUPER() != null) { // SUPER COLONCOLON typeArguments? IDENTIFIER
+//                        Expression qualifier = new UnitExpression(UnitExpression.ValueType.SUPER, "super");
+//                        return new MethodReferenceExpression(qualifier, identifier, typeArguments);
+//                    } else if (primary.DOT() != null) { // qualifiedName DOT SUPER COLONCOLON typeArguments? IDENTIFIER
+//                        BinaryExpression qualifier = new BinaryExpression(
+//                                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, primary.qualifiedName().getText()),
+//                                BinaryOperation.DOT,
+//                                new UnitExpression(UnitExpression.ValueType.SUPER, "super"));
+//                        return new MethodReferenceExpression(qualifier, identifier, typeArguments);
+//                    } else { // qualifiedName COLONCOLON typeArguments? IDENTIFIER
+//                        Expression qualifier = new UnitExpression(UnitExpression.ValueType.IDENTIFIER,
+//                                primary.qualifiedName().getText());
+//                        return new MethodReferenceExpression(qualifier, identifier, typeArguments);
+//                    }
+//                }
+//            }
         }
 
         // Lambda expression
@@ -792,6 +857,31 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                     commaFilePositions);
         }
         throw new IllegalArgumentException("invalid context: " + ctx.getText());
+    }
+
+    private List<TypeArgument> parseTypeArguments(JavaParser.TypeArgumentsContext ctx) {
+        if (ctx.LT() != null) {
+            return Collections.emptyList();
+        } else {
+            List<TypeArgument> args = new ArrayList<>();
+
+            for (JavaParser.TypeArgumentContext tac : ctx.typeArgument()) {
+                if (tac.QUESTION() == null) {
+                    args.add(new TypeArgument.Type(tac.typeType().getText()));
+                } else {
+                    if (tac.SUPER() != null) {
+                        args.add(new TypeArgument.Bounds(Optional.of(tac.typeType().getText()),
+                                TypeArgument.Bounds.Type.SUPER));
+                    } else if (tac.EXTENDS() != null) {
+                        args.add(new TypeArgument.Bounds(Optional.of(tac.typeType().getText()),
+                                TypeArgument.Bounds.Type.EXTENDS));
+                    } else {
+                        args.add(new TypeArgument.Bounds(Optional.empty(), TypeArgument.Bounds.Type.NONE));
+                    }
+                }
+            }
+            return args;
+        }
     }
 
     private BlockStatement parseBlockStatements(JavaParser.BlockContext ctx) {

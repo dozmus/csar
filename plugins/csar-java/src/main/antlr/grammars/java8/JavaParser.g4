@@ -472,8 +472,8 @@ expression
       | SUPER superSuffix
       | explicitGenericInvocation
       )
-    | expression LBRACK expression RBRACK
     | expression LPAREN expressionList? RPAREN
+    | expression LBRACK expression RBRACK
     | NEW creator
     | LPAREN typeType RPAREN expression
     | expression postfix=(INC | DEC)
@@ -496,6 +496,12 @@ expression
       | RSHIFT_ASSIGN | URSHIFT_ASSIGN | LSHIFT_ASSIGN | MOD_ASSIGN)
       expression
     | lambdaExpression // Java8
+
+    // Java 8: Method references
+    // Source: https://docs.oracle.com/javase/specs/jls/se8/html/jls-19.html
+    | expression COLONCOLON typeArguments? IDENTIFIER
+    | typeType COLONCOLON (typeArguments? IDENTIFIER | NEW)
+    | classType COLONCOLON typeArguments? NEW
     ;
 
 // Java8
@@ -524,20 +530,6 @@ primary
     | IDENTIFIER
     | typeTypeOrVoid DOT CLASS
     | nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)
-    | methodReference // Java 8
-    ;
-
-methodReference
-    : (typeType | qualifiedName (DOT accessorOrMethodRefCall)? | accessorOrMethodRefCall)
-      COLONCOLON typeArguments? IDENTIFIER
-    | classType COLONCOLON typeArguments? NEW
-    | typeType COLONCOLON NEW
-    ;
-
-accessorOrMethodRefCall
-    : SUPER
-    | THIS
-    | IDENTIFIER LPAREN expressionList? RPAREN (DOT IDENTIFIER LPAREN expressionList? RPAREN)*
     ;
 
 classType

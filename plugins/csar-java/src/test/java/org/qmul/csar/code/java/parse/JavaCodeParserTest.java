@@ -569,8 +569,10 @@ public final class JavaCodeParserTest {
                 new BinaryExpression(new MethodCallExpression(bexp, new ArrayList<>(), path, 17,
                         new FilePosition(17, 24), new FilePosition(17, 25), Collections.emptyList()),
                         BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "map")),
-                Arrays.asList(new UnitExpression(UnitExpression.ValueType.METHOD_REFERENCE,
-                        "SerializableCode::toPseudoCode")), path, 17, new FilePosition(17, 30),
+                Arrays.asList(new MethodReferenceExpression(
+                        new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "SerializableCode"),
+                        "toPseudoCode", Optional.empty()
+                )), path, 17, new FilePosition(17, 30),
                 new FilePosition(17, 61), Collections.emptyList())
         );
 

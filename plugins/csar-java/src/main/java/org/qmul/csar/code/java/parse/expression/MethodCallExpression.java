@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class MethodCallExpression implements Expression {
 
@@ -31,10 +32,11 @@ public class MethodCallExpression implements Expression {
     private final FilePosition leftParenthesisPosition;
     private final FilePosition rightParenthesisPosition;
     private final List<FilePosition> commaFilePositions;
+    private Optional<List<TypeArgument>> typeArguments;
 
     public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber,
             FilePosition leftParenthesisPosition, FilePosition rightParenthesisPosition,
-            List<FilePosition> commaFilePositions) {
+            List<FilePosition> commaFilePositions, Optional<List<TypeArgument>> typeArguments) {
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);
         this.path = path;
@@ -42,15 +44,27 @@ public class MethodCallExpression implements Expression {
         this.leftParenthesisPosition = leftParenthesisPosition;
         this.rightParenthesisPosition = rightParenthesisPosition;
         this.commaFilePositions = commaFilePositions;
+        this.typeArguments = typeArguments;
     }
 
     /**
-     * Creates a new MethodCallExpression instance with an empty list for {@link #commaFilePositions}.
+     * Creates a new MethodCallExpression instance with an empty list for {@link #commaFilePositions}, and with
+     * no type arguments.
      */
     public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber,
             FilePosition leftParenthesisPosition, FilePosition rightParenthesisPosition) {
         this(methodName, arguments, path, lineNumber, leftParenthesisPosition, rightParenthesisPosition,
-                Collections.emptyList());
+                Collections.emptyList(), Optional.empty());
+    }
+
+    /**
+     * Creates a new MethodCallExpression instance with no type arguments.
+     */
+    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path, int lineNumber,
+            FilePosition leftParenthesisPosition, FilePosition rightParenthesisPosition,
+            List<FilePosition> commaFilePositions) {
+        this(methodName, arguments, path, lineNumber, leftParenthesisPosition, rightParenthesisPosition,
+                commaFilePositions, Optional.empty());
     }
 
     public Expression getMethodName() {
@@ -120,13 +134,14 @@ public class MethodCallExpression implements Expression {
                 && Objects.equals(lineNumber, that.lineNumber)
                 && Objects.equals(leftParenthesisPosition, that.leftParenthesisPosition)
                 && Objects.equals(rightParenthesisPosition, that.rightParenthesisPosition)
-                && Objects.equals(commaFilePositions, that.commaFilePositions);
+                && Objects.equals(commaFilePositions, that.commaFilePositions)
+                && Objects.equals(typeArguments, that.typeArguments);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(methodName, arguments, path, lineNumber, leftParenthesisPosition, rightParenthesisPosition,
-                commaFilePositions);
+                commaFilePositions, typeArguments);
     }
 
     @Override
@@ -141,11 +156,12 @@ public class MethodCallExpression implements Expression {
                 .append("leftParenthesisPosition", leftParenthesisPosition)
                 .append("rightParenthesisPosition", rightParenthesisPosition)
                 .append("commaFilePositions", commaFilePositions)
+                .append("typeArguments", typeArguments)
                 .toString();
     }
 
     @Override
-    public String toPseudoCode(int indentation) {
+    public String toPseudoCode(int indentation) { // TODO include type arguments
         StringBuilder sb = new StringBuilder()
                 .append(StringUtils.indentation(indentation))
                 .append(methodName.toPseudoCode()).append("(");

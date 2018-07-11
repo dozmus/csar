@@ -15,5 +15,14 @@ public class MethodReferenceSample  {
 
         Function <Integer, Computer[]> computerCreator = Computer[]::new;
         Computer[] computerArray = computerCreator.apply(5);
+
+        // The following method references were taken from the elasticsearch github repository
+        // Source: https://github.com/elastic/elasticsearch
+        Function f1 = ((RoundingValuesSource) vs)::round;
+        Function f2 = InternalAggregation.class::cast;
+        Function f3 = ""::equals;
+        Function f4 = "Hello World"::toCharArray;
+        Function f5 = new String[]{"foo:bar", "cluster_1:bar"}::equals;
+        Function f6 = this.actions::add;
     }
 }
