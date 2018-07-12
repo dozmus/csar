@@ -1,4 +1,4 @@
-package org.qmul.csar.code.java.refactor;
+package org.qmul.csar.code.java.refactor.change;
 
 import org.qmul.csar.code.refactor.RefactorChange;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;

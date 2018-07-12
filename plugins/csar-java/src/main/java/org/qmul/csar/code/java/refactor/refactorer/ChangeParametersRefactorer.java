@@ -1,6 +1,9 @@
-package org.qmul.csar.code.java.refactor;
+package org.qmul.csar.code.java.refactor.refactorer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.qmul.csar.code.refactor.Refactorer;
+import org.qmul.csar.code.java.refactor.change.MethodCallExpressionChangeParametersRefactorChange;
+import org.qmul.csar.code.java.refactor.change.MethodStatementChangeParametersRefactorChange;
 import org.qmul.csar.code.refactor.RefactorChange;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;

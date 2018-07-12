@@ -1,5 +1,6 @@
-package org.qmul.csar.code.java.refactor;
+package org.qmul.csar.code.java.refactor.refactorer;
 
+import org.qmul.csar.code.refactor.Refactorer;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 import org.qmul.csar.query.RefactorDescriptor;
 

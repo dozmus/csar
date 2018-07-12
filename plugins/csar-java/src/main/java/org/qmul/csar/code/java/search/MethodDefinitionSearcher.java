@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.search;
 
-import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
+import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.TargetDescriptor;
@@ -38,15 +38,15 @@ public class MethodDefinitionSearcher implements Searcher {
                 .map(s -> methodStatementToResult(file, s))
                 .collect(Collectors.toList());
 
-        // Create RefactorTargets (these are not restricted by search domain, or the output would be incorrect)
-        List<RefactorTarget> refactorTargets = new ArrayList<>();
+        // Create result objects (these are not restricted by search domain, or the output would be incorrect)
+        List<SerializableCode> resultObjects = new ArrayList<>();
         visitor.getResults().stream()
                 .map(s -> (MethodStatement)s)
                 .forEach(m -> {
-                    refactorTargets.add(new RefactorTarget.Statement(m));
-                    m.getMethodUsages().forEach(mce -> refactorTargets.add(new RefactorTarget.Expression(mce)));
+                    resultObjects.add(m);
+                    resultObjects.addAll(m.getMethodUsages());
                 });
-        return new Result(results, refactorTargets);
+        return new Result(results, resultObjects);
     }
 
     /**

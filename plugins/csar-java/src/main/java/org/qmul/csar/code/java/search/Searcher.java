@@ -1,6 +1,6 @@
 package org.qmul.csar.code.java.search;
 
-import org.qmul.csar.code.refactor.RefactorTarget;
+import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 
@@ -24,19 +24,19 @@ public interface Searcher {
     class Result {
 
         private final List<org.qmul.csar.code.Result> results;
-        private final List<RefactorTarget> refactorTargets;
+        private final List<SerializableCode> resultObjects;
 
-        public Result(List<org.qmul.csar.code.Result> results, List<RefactorTarget> refactorTargets) {
+        public Result(List<org.qmul.csar.code.Result> results, List<SerializableCode> resultObjects) {
             this.results = results;
-            this.refactorTargets = refactorTargets;
+            this.resultObjects = resultObjects;
         }
 
         public List<org.qmul.csar.code.Result> getResults() {
             return results;
         }
 
-        public List<RefactorTarget> getRefactorTargets() {
-            return refactorTargets;
+        public List<SerializableCode> getResultObjects() {
+            return resultObjects;
         }
     }
 }

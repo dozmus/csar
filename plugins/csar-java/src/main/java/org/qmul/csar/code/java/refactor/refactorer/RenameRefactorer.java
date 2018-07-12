@@ -1,5 +1,6 @@
-package org.qmul.csar.code.java.refactor;
+package org.qmul.csar.code.java.refactor.refactorer;
 
+import org.qmul.csar.code.refactor.Refactorer;
 import org.qmul.csar.code.refactor.RefactorChange;
 import org.qmul.csar.code.Result;
 import org.slf4j.Logger;

@@ -1,6 +1,5 @@
-package org.qmul.csar.code.java.refactor;
+package org.qmul.csar.code.refactor;
 
-import org.qmul.csar.code.refactor.RefactorChange;
 import org.qmul.csar.code.Result;
 
 import java.io.IOException;
@@ -8,7 +7,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * A specific refactorer.
+ * A refactorer for a specific type of change.
  */
 public interface Refactorer {
 

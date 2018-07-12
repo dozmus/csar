@@ -2,16 +2,16 @@ package org.qmul.csar.code.java.refactor;
 
 import org.junit.Test;
 import org.qmul.csar.CsarJavaPlugin;
-import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
 import org.qmul.csar.code.ProjectCodeSearcher;
-import org.qmul.csar.code.refactor.RefactorTarget;
+import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.TestUtils;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
+import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
+import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
-import org.qmul.csar.code.Result;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -195,7 +195,7 @@ public class JavaCodeRefactorerTest {
     private static final class DummyJavaPlugin extends CsarJavaPlugin {
 
         private Map<Path, Statement> code;
-        private List<RefactorTarget> refactorTargets;
+        private List<SerializableCode> searchResultObjects;
 
         @Override
         public Map<Path, Statement> parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
@@ -214,7 +214,7 @@ public class JavaCodeRefactorerTest {
             ProjectCodeSearcher searcher = new JavaCodeSearcher(threadCount);
             searcher.setCsarQuery(csarQuery);
             searcher.setIterator(code.entrySet().iterator());
-            refactorTargets = searcher.refactorTargets();
+            searchResultObjects = searcher.resultObjects();
             return searcher.results();
         }
 
@@ -223,7 +223,7 @@ public class JavaCodeRefactorerTest {
             ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount, false);
             refactorer.setRefactorDescriptor(csarQuery.getRefactorDescriptor().
                     orElseThrow(IllegalArgumentException::new));
-            refactorer.setRefactorTargets(refactorTargets);
+            refactorer.setSearchResultObjects(searchResultObjects);
             return refactorer.results();
         }
     }

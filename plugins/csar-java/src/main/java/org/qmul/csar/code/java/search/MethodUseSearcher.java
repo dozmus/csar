@@ -1,8 +1,8 @@
 package org.qmul.csar.code.java.search;
 
-import org.qmul.csar.code.refactor.RefactorTarget;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
+import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.TargetDescriptor;
@@ -32,7 +32,7 @@ public class MethodUseSearcher implements Searcher {
 
         // Aggregate and return results
         List<org.qmul.csar.code.Result> results = new ArrayList<>();
-        List<RefactorTarget> refactorTargets = new ArrayList<>();
+        List<SerializableCode> resultObjects = new ArrayList<>();
 
         for (Statement st : visitor.getResults()) {
             MethodStatement method = (MethodStatement)st;
@@ -44,14 +44,12 @@ public class MethodUseSearcher implements Searcher {
                     .collect(Collectors.toList());
             results.addAll(tmpResults);
 
-            // Create RefactorTargets (these are not restricted by search domain, or the output would be incorrect)
-            List<RefactorTarget> tmpRefactorTargets = method.getMethodUsages().stream()
-                    .map(RefactorTarget.Expression::new)
-                    .collect(Collectors.toList());
-            refactorTargets.add(new RefactorTarget.Statement(method));
-            refactorTargets.addAll(tmpRefactorTargets);
+            // Create result objects (these are not restricted by search domain, or the output would be incorrect)
+            List<SerializableCode> tmp = new ArrayList<>(method.getMethodUsages());
+            resultObjects.add(method);
+            resultObjects.addAll(tmp);
         }
-        return new Result(results, refactorTargets);
+        return new Result(results, resultObjects);
     }
 
     /**

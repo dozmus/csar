@@ -4,7 +4,7 @@ import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.ProjectCodeSearcher;
 import org.qmul.csar.code.Result;
-import org.qmul.csar.code.refactor.RefactorTarget;
+import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.TargetDescriptor;
@@ -23,7 +23,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaCodeSearcher.class);
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final List<Result> results = Collections.synchronizedList(new ArrayList<>());
-    private final List<RefactorTarget> refactorTargets = Collections.synchronizedList(new ArrayList<>());
+    private final List<SerializableCode> resultObjects = Collections.synchronizedList(new ArrayList<>());
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
     private CsarQuery query;
 
@@ -75,8 +75,8 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
     }
 
     @Override
-    public List<RefactorTarget> refactorTargets() {
-        return refactorTargets;
+    public List<SerializableCode> resultObjects() {
+        return resultObjects;
     }
 
     @Override
@@ -115,7 +115,7 @@ public class JavaCodeSearcher extends MultiThreadedTaskProcessor implements Proj
                         TargetDescriptor searchTarget = query.getSearchTarget();
                         Searcher.Result result = SearcherFactory.create(searchTarget).search(query, file, statement);
                         results.addAll(result.getResults());
-                        refactorTargets.addAll(result.getRefactorTargets());
+                        resultObjects.addAll(result.getResultObjects());
                     } catch (RuntimeException ex) {
                         Path finalFile = file;
                         errorListeners.forEach(l -> l.errorSearching(finalFile, ex));

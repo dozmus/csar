@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.refactor;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.qmul.csar.code.java.refactor.refactorer.ChangeParametersRefactorer;
 import org.qmul.csar.util.FilePosition;
 
 import java.util.ArrayList;
