@@ -2,6 +2,7 @@ package org.qmul.csar.util;
 
 /**
  * A stopwatch utility.
+ * This should only be created and used within a single thread.
  */
 public class Stopwatch {
 
