@@ -16,6 +16,7 @@ import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
+import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
 
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = new Stopwatch();
         int methodCallsProcessed = 0;
 
         try {
@@ -65,8 +66,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
         }
 
         // Log completion message
-        LOGGER.debug("Processed {} method call expressions in {}ms", methodCallsProcessed,
-                (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Processed {} method call expressions in {}ms", methodCallsProcessed, stopwatch.elapsedMillis());
         LOGGER.info("Finished");
     }
 

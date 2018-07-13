@@ -4,6 +4,7 @@ import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
+import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,12 +66,12 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
         }
 
         // Execute and return results
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = new Stopwatch();
         run();
 
         // Log completion message
         LOGGER.debug("Parsed {}kb of code in {}ms over {} files containing {} LOC", statistics.sizeKb,
-                (System.currentTimeMillis() - startTime), statistics.fileCount, statistics.linesOfCode);
+                stopwatch.elapsedMillis(), statistics.fileCount, statistics.linesOfCode);
         LOGGER.info("Finished");
         return results;
     }

@@ -9,6 +9,7 @@ import org.qmul.csar.code.refactor.RefactorChange;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.query.RefactorDescriptor;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
+import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +51,11 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
         it = new ConcurrentIterator<>(groupedChanges.entrySet().iterator());
 
         // Execute and return results
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = new Stopwatch();
         run();
 
         // Log completion message
-        LOGGER.debug("Time taken: {}ms", (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Time taken: {}ms", stopwatch.elapsedMillis());
         LOGGER.info("Finished");
         return results;
     }

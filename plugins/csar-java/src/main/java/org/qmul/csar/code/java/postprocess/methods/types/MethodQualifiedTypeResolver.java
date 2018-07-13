@@ -12,6 +12,7 @@ import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
+import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
      */
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = new Stopwatch();
         int methodsProcessed = 0;
 
         try {
@@ -77,7 +78,7 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
         }
 
         // Log completion message
-        LOGGER.debug("Processed {} methods in: {}ms", methodsProcessed, (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Processed {} methods in: {}ms", methodsProcessed, stopwatch.elapsedMillis());
         LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
     }

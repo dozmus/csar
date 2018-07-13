@@ -6,6 +6,7 @@ import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
+import org.qmul.csar.util.Stopwatch;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -20,7 +21,7 @@ public class QualifiedNameResolver {
      */
     public static final class Statistics {
 
-        private long startTime = 0;
+        private Stopwatch stopwatch = new Stopwatch();
         private long currentClassTimeTaken = 0;
         private long currentParentClassTimeTaken = 0;
         private long samePackageTimeTaken = 0;
@@ -28,15 +29,15 @@ public class QualifiedNameResolver {
         private long defaultPackageTimeTaken = 0;
 
         private void prepare() {
-            startTime = System.nanoTime();
+            stopwatch.reset();
         }
 
-        private double diff() {
-            return (System.nanoTime() - startTime) / 1000000;
+        private double elapsedMillis() {
+            return stopwatch.elapsedMillis();
         }
 
         public void reset() {
-            startTime = 0;
+            stopwatch.reset();
             currentClassTimeTaken = 0;
             currentParentClassTimeTaken = 0;
             samePackageTimeTaken = 0;
@@ -91,7 +92,7 @@ public class QualifiedNameResolver {
 
             statistics.prepare();
             QualifiedType t = resolveInCurrentPackage(code, currentPackage, name);
-            statistics.samePackageTimeTaken += statistics.diff();
+            statistics.samePackageTimeTaken += statistics.elapsedMillis();
 
             if (t != null)
                 return t;
@@ -115,7 +116,7 @@ public class QualifiedNameResolver {
         // Resolve against inner classes in current class
         statistics.prepare();
         QualifiedType t0 = resolveInCurrentClass(topLevelParent, parent, currentPackage, name, path);
-        statistics.currentClassTimeTaken += statistics.diff();
+        statistics.currentClassTimeTaken += statistics.elapsedMillis();
 
         if (t0 != null)
             return t0;
@@ -123,7 +124,7 @@ public class QualifiedNameResolver {
         // Resolve against inner classes in top-level parent class
         statistics.prepare();
         QualifiedType t1 = resolveInCurrentClass(topLevelParent, topLevelParent, currentPackage, name, path);
-        statistics.currentParentClassTimeTaken += statistics.diff();
+        statistics.currentParentClassTimeTaken += statistics.elapsedMillis();
 
         if (t1 != null)
             return t1;
@@ -131,7 +132,7 @@ public class QualifiedNameResolver {
         // Resolve against classes in same package
         statistics.prepare();
         QualifiedType t2 = resolveInCurrentPackage(code, currentPackage, name);
-        statistics.samePackageTimeTaken += statistics.diff();
+        statistics.samePackageTimeTaken += statistics.elapsedMillis();
 
         if (t2 != null)
             return t2;
@@ -139,7 +140,7 @@ public class QualifiedNameResolver {
         // Resolve against imports
         statistics.prepare();
         QualifiedType t3 = resolveInOtherPackages(code, imports, name);
-        statistics.otherPackageTimeTaken += statistics.diff();
+        statistics.otherPackageTimeTaken += statistics.elapsedMillis();
 
         if (t3 != null)
             return t3;
@@ -147,7 +148,7 @@ public class QualifiedNameResolver {
         // Resolve against default package
         statistics.prepare();
         QualifiedType t4 = resolveInDefaultPackage(code, path, currentPackage, name);
-        statistics.defaultPackageTimeTaken += statistics.diff();
+        statistics.defaultPackageTimeTaken += statistics.elapsedMillis();
 
         if (t4 != null)
             return t4;

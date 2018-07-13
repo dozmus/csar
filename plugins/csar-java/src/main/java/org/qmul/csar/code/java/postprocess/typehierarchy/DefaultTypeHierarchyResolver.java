@@ -12,6 +12,7 @@ import org.qmul.csar.code.java.postprocess.typehierarchy.node.TypeNode;
 import org.qmul.csar.code.java.postprocess.util.TypeHelper;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
+import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +132,7 @@ public class DefaultTypeHierarchyResolver implements TypeHierarchyResolver {
      */
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = new Stopwatch();
 
         try {
             List<TypeNode> partialHierarchies = new ArrayList<>();
@@ -161,7 +162,7 @@ public class DefaultTypeHierarchyResolver implements TypeHierarchyResolver {
         }
 
         // Log completion message
-        LOGGER.debug("Processed {} files in {}ms", code.size(), (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Processed {} files in {}ms", code.size(), stopwatch.elapsedMillis());
         LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
     }

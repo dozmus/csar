@@ -11,6 +11,7 @@ import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyRes
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.util.MethodCallResolver;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class MethodUseResolver implements CodePostProcessor {
 
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = new Stopwatch();
 
         try {
             MethodCallStatementVisitor visitor = new MethodCallStatementVisitor(code);
@@ -59,7 +60,7 @@ public class MethodUseResolver implements CodePostProcessor {
         }
 
         // Log completion message
-        LOGGER.debug("Time taken {}ms", (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Time taken {}ms", stopwatch.elapsedMillis());
         LOGGER.info("Finished");
     }
 

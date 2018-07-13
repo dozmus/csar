@@ -14,6 +14,7 @@ import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.EnumDescriptor;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
+import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,11 +68,11 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
         // Execute and return results
         this.code = code;
         it = new ConcurrentIterator<>(code.entrySet().iterator());
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = new Stopwatch();
         run();
 
         // Log completion message
-        LOGGER.debug("Found {} overridden methods in {}ms", map.size(), (System.currentTimeMillis() - startTime));
+        LOGGER.debug("Found {} overridden methods in {}ms", map.size(), stopwatch.elapsedMillis());
         LOGGER.debug("Statistics: " + qnr.getStatistics().toString());
         LOGGER.info("Finished");
     }
