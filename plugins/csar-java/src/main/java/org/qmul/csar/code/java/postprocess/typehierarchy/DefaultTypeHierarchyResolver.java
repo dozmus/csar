@@ -225,6 +225,18 @@ public class DefaultTypeHierarchyResolver implements TypeHierarchyResolver {
     }
 
     /**
+     * Returns <tt>true</tt> if the first type is possibly a superclass of, or equal to, the second type.
+     * That is, type2 is not specified as a fully qualified name.
+     */
+    @Override
+    public boolean isPossiblySubtype(String type1, String type2) { // TODO test
+        type1 = TypeHelper.normalizeVarArgs(type1);
+        type2 = TypeHelper.normalizeVarArgs(type2);
+        TypeNode subRoot = cache.get(type1);
+        return type1.equals(type2) || subRoot != null && subRoot.containsName(type2, true);
+    }
+
+    /**
      * Returns <tt>true</tt> if the first type is a superclass of the second type, it looks in {@link #cache} for the
      * first type argument.
      *

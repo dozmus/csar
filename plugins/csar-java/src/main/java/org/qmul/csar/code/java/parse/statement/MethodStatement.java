@@ -29,8 +29,7 @@ public class MethodStatement implements Statement {
     private final List<ParameterVariableStatement> params;
     private final BlockStatement block;
     private final List<Annotation> annotations;
-    private final int lineNumber;
-    private final int identifierStartIdx;
+    private final FilePosition identifierFilePosition;
     private final FilePosition leftParenFilePosition;
     private final FilePosition rightParenFilePosition;
     private final List<FilePosition> commaFilePositions;
@@ -45,14 +44,13 @@ public class MethodStatement implements Statement {
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations, int lineNumber, int identifierStartIdx, FilePosition leftParenFilePosition,
+            List<Annotation> annotations, FilePosition identifierFilePosition, FilePosition leftParenFilePosition,
             FilePosition rightParenFilePosition, List<FilePosition> commaFilePositions, Path path) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;
         this.annotations = Collections.unmodifiableList(annotations);
-        this.lineNumber = lineNumber;
-        this.identifierStartIdx = identifierStartIdx;
+        this.identifierFilePosition = identifierFilePosition;
         this.leftParenFilePosition = leftParenFilePosition;
         this.rightParenFilePosition = rightParenFilePosition;
         this.commaFilePositions = commaFilePositions;
@@ -87,12 +85,8 @@ public class MethodStatement implements Statement {
         return methodUsages;
     }
 
-    public int getLineNumber() {
-        return lineNumber;
-    }
-
-    public int getIdentifierStartIdx() {
-        return identifierStartIdx;
+    public FilePosition getIdentifierFilePosition() {
+        return identifierFilePosition;
     }
 
     public FilePosition getLeftParenFilePosition() {
@@ -120,20 +114,19 @@ public class MethodStatement implements Statement {
                 && Objects.equals(params, that.params)
                 && Objects.equals(block, that.block)
                 && Objects.equals(annotations, that.annotations)
-                && Objects.equals(returnQualifiedType, that.returnQualifiedType)
-                && Objects.equals(methodUsages, that.methodUsages)
-                && Objects.equals(lineNumber, that.lineNumber)
-                && Objects.equals(identifierStartIdx, that.identifierStartIdx)
+                && Objects.equals(identifierFilePosition, that.identifierFilePosition)
                 && Objects.equals(leftParenFilePosition, that.leftParenFilePosition)
                 && Objects.equals(rightParenFilePosition, that.rightParenFilePosition)
                 && Objects.equals(commaFilePositions, that.commaFilePositions)
-                && Objects.equals(path, that.path);
+                && Objects.equals(path, that.path)
+                && Objects.equals(returnQualifiedType, that.returnQualifiedType)
+                && Objects.equals(methodUsages, that.methodUsages);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages, lineNumber,
-                identifierStartIdx, leftParenFilePosition, rightParenFilePosition, commaFilePositions, path);
+        return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages,
+                identifierFilePosition, leftParenFilePosition, rightParenFilePosition, commaFilePositions, path);
     }
 
     @Override
@@ -145,8 +138,7 @@ public class MethodStatement implements Statement {
                 .append("annotations", annotations)
                 .append("returnQualifiedType", returnQualifiedType)
                 .append("methodUsages", methodUsages)
-                .append("lineNumber", lineNumber)
-                .append("identifierStartIdx", identifierStartIdx)
+                .append("identifierFilePosition", identifierFilePosition)
                 .append("leftParenFilePosition", leftParenFilePosition)
                 .append("rightParenFilePosition", rightParenFilePosition)
                 .append("commaFilePositions", commaFilePositions)
@@ -193,7 +185,7 @@ public class MethodStatement implements Statement {
         }
 
         if (descriptor.getThrownExceptions().size() > 0) {
-            builder.append(" throws ").append(String.join(", ", descriptor.getThrownExceptions())).append("");
+            builder.append(" throws ").append(String.join(", ", descriptor.getThrownExceptions()));
         }
 
         if (descriptor.getStub().orElse(false)) {

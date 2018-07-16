@@ -3,9 +3,11 @@ package org.qmul.csar.code.java.refactor;
 import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
 import org.qmul.csar.code.Result;
-import org.qmul.csar.code.java.refactor.refactorer.RefactorerFactory;
+import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
+import org.qmul.csar.code.refactor.writer.DefaultRefactorChangeWriter;
 import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
 import org.qmul.csar.code.refactor.RefactorChange;
+import org.qmul.csar.code.refactor.writer.RefactorChangeWriter;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.query.RefactorDescriptor;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
@@ -24,20 +26,30 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaCodeRefactorer.class);
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final List<Result> results = Collections.synchronizedList(new ArrayList<>());
-    private final boolean writeToFiles;
+    private final RefactorChangeWriter writer;
     private RefactorDescriptor refactorDescriptor;
     private List<SerializableCode> searchResultObjects;
     private ConcurrentIterator<Map.Entry<Path, List<RefactorChange>>> it;
+    private TypeHierarchyResolver thr;
+
+    /**
+     * Constructs a new {@link JavaCodeRefactorer} with {@link DefaultRefactorChangeWriter}.
+     *
+     * @param threadCount the amount of threads to use
+     */
+    public JavaCodeRefactorer(int threadCount, TypeHierarchyResolver thr) {
+        this(threadCount, thr, new DefaultRefactorChangeWriter());
+    }
 
     /**
      * Constructs a new {@link JavaCodeRefactorer} with the given arguments.
      *
      * @param threadCount the amount of threads to use
-     * @param writeToFiles if the refactor changes should be written to the files
      */
-    public JavaCodeRefactorer(int threadCount, boolean writeToFiles) {
+    public JavaCodeRefactorer(int threadCount, TypeHierarchyResolver thr, RefactorChangeWriter writer) {
         super(threadCount, "csar-refactor");
-        this.writeToFiles = writeToFiles;
+        this.writer = writer;
+        this.thr = thr;
         setRunnable(new Task());
     }
 
@@ -46,8 +58,8 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
         LOGGER.info("Starting...");
 
         // Group search results by file, to allow multi-threading without resource races
-        Map<Path, List<RefactorChange>> groupedChanges
-                = new RefactorChangeFactory(refactorDescriptor, searchResultObjects).create().groupByFile();
+        List<RefactorChange> changes = RefactorChangeHelper.create(refactorDescriptor, searchResultObjects, thr);
+        Map<Path, List<RefactorChange>> groupedChanges = RefactorChangeHelper.groupByFile(changes);
         it = new ConcurrentIterator<>(groupedChanges.entrySet().iterator());
 
         // Execute and return results
@@ -86,7 +98,7 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
         public void run() {
             Map.Entry<Path, List<RefactorChange>> entry;
             Path file = null;
-            List<RefactorChange> searchResults;
+            List<RefactorChange> changes;
 
             try {
                 while (!Thread.currentThread().isInterrupted() && it.hasNext()) {
@@ -97,14 +109,13 @@ public class JavaCodeRefactorer extends MultiThreadedTaskProcessor implements Pr
                         break;
                     }
                     file = entry.getKey();
-                    searchResults = entry.getValue();
+                    changes = entry.getValue();
                     String fileName = file.getFileName().toString();
                     LOGGER.trace("Refactoring {}", fileName);
 
                     try {
                         // Refactor file and store the results
-                        List<Result> tmpResults = RefactorerFactory.create(refactorDescriptor, writeToFiles)
-                                .refactor(file, searchResults);
+                        List<Result> tmpResults = writer.writeAll(changes);
                         results.addAll(tmpResults);
                     } catch (RuntimeException ex) {
                         Path finalFile = file;

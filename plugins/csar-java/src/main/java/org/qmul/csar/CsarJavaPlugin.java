@@ -1,7 +1,7 @@
 package org.qmul.csar;
 
-import org.qmul.csar.code.CodePostProcessor;
-import org.qmul.csar.code.ProjectCodeSearcher;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
+import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
@@ -11,7 +11,6 @@ import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeReso
 import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
-import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.refactor.JavaCodeRefactorer;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
@@ -41,6 +40,7 @@ public class CsarJavaPlugin implements CsarPlugin {
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private Map<Path, Statement> code;
     private List<SerializableCode> searchResultObjects;
+    private DefaultTypeHierarchyResolver thr;
 
     @Override
     public Map<Path, Statement> parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
@@ -67,7 +67,7 @@ public class CsarJavaPlugin implements CsarPlugin {
     public void postprocess(int threadCount) {
         // Create components
         QualifiedNameResolver qnr = new QualifiedNameResolver();
-        TypeHierarchyResolver thr = new DefaultTypeHierarchyResolver(qnr);
+        thr = new DefaultTypeHierarchyResolver(qnr);
         MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver(qnr);
         OverriddenMethodsResolver omr = new OverriddenMethodsResolver(threadCount, qnr, thr);
         MethodUseResolver mur = new MethodUseResolver(qnr, thr);
@@ -94,7 +94,7 @@ public class CsarJavaPlugin implements CsarPlugin {
         RefactorDescriptor descriptor = csarQuery.getRefactorDescriptor().orElseThrow(IllegalArgumentException::new);
 
         // Create refactorer
-        ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount, true);
+        ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount, thr);
         refactorer.setRefactorDescriptor(descriptor);
         refactorer.setSearchResultObjects(searchResultObjects);
         errorListeners.forEach(refactorer::addErrorListener);

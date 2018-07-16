@@ -468,9 +468,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasTypeArguments(typeParameters.size() > 0)
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
-        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
-                identifier.getSymbol().getCharPositionInLine(), new FilePosition(lparen.getSymbol()),
-                new FilePosition(rparen.getSymbol()), paramsFilePositions, path);
+        return new MethodStatement(descriptor, params, block, annotations, new FilePosition(identifier.getSymbol()),
+                new FilePosition(lparen.getSymbol()), new FilePosition(rparen.getSymbol()), paramsFilePositions, path);
     }
 
     private MethodStatement parseInterfaceMethod(TerminalNode identifier, JavaParser.TypeTypeOrVoidContext returnType,
@@ -523,9 +522,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                 .hasTypeArguments(typeParameters.size() > 0)
                 .hasThrownExceptions(thrownExceptions.size() > 0)
                 .build();
-        return new MethodStatement(descriptor, params, block, annotations, identifier.getSymbol().getLine(),
-                identifier.getSymbol().getCharPositionInLine(), new FilePosition(lparen.getSymbol()),
-                new FilePosition(rparen.getSymbol()), paramsFilePositions, path);
+        return new MethodStatement(descriptor, params, block, annotations, new FilePosition(identifier.getSymbol()),
+                new FilePosition(lparen.getSymbol()), new FilePosition(rparen.getSymbol()), paramsFilePositions, path);
     }
 
     private ConstructorStatement parseConstructor(TerminalNode identifier, List<JavaParser.ModifierContext> modifiers,
@@ -838,10 +836,14 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
         // Fall-back: expression LPAREN expressionList? RPAREN
         if (ctx.expression().size() > 0) {
-            Expression method = parseExpression(ctx.expression(0));
-            FilePosition lParenStartIdx = new FilePosition(ctx.LPAREN().getSymbol());
-            FilePosition rParenStartIdx = new FilePosition(ctx.RPAREN().getSymbol());
-            int lineNo = ctx.LPAREN().getSymbol().getLine();
+            JavaParser.ExpressionContext methodExprCtx = ctx.expression(0);
+            Expression method = parseExpression(methodExprCtx);
+            FilePosition lParenPos = new FilePosition(ctx.LPAREN().getSymbol());
+            FilePosition rParenPos = new FilePosition(ctx.RPAREN().getSymbol());
+
+            // Method identifier position
+            // XXX getStop() returns the last sequential token in methodExprCtx, which is the method identifier
+            FilePosition identifierPos = new FilePosition(methodExprCtx.getStop());
 
             // Parameters
             List<Expression> parameters = new ArrayList<>();
@@ -850,10 +852,10 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
             if (ctx.expressionList() != null) {
                 ctx.expressionList().expression().forEach(e -> parameters.add(parseExpression(e)));
                 commaFilePositions = ctx.expressionList().COMMA().stream()
-                        .map(c -> new FilePosition(c.getSymbol().getLine(), c.getSymbol().getCharPositionInLine()))
+                        .map(c -> new FilePosition(c.getSymbol()))
                         .collect(Collectors.toList());
             }
-            return new MethodCallExpression(method, parameters, path, lineNo, lParenStartIdx, rParenStartIdx,
+            return new MethodCallExpression(method, parameters, path, identifierPos, lParenPos, rParenPos,
                     commaFilePositions);
         }
         throw new IllegalArgumentException("invalid context: " + ctx.getText());

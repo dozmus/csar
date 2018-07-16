@@ -1,6 +1,7 @@
-package org.qmul.csar.code;
+package org.qmul.csar.code.search;
 
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.Result;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;

@@ -48,6 +48,22 @@ public class TypeNode {
         return false;
     }
 
+    public boolean containsName(String name) {
+        return containsName(name, false);
+    }
+
+    public boolean containsName(String name, boolean checkCurrent) {
+        if (checkCurrent && nameEquals(name)) {
+            return true;
+        } else {
+            for (TypeNode child : children) {
+                if (child.containsName(name, true))
+                    return true;
+            }
+            return false;
+        }
+    }
+
     public boolean containsQualifiedName(String qualifiedName) {
         return containsQualifiedName(qualifiedName, false);
     }
@@ -75,6 +91,10 @@ public class TypeNode {
 
     public boolean qualifiedNameEquals(String qualifiedName) {
         return getQualifiedName().equals(qualifiedName);
+    }
+
+    public boolean nameEquals(String name) {
+        return qualifiedNameEquals(name) || getQualifiedName().endsWith("." + name);
     }
 
     public String getQualifiedName() {

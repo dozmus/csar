@@ -73,7 +73,7 @@ public class MethodUseSearcher implements Searcher {
     }
 
     private org.qmul.csar.code.Result exprToResult(MethodCallExpression expr) {
-        return new org.qmul.csar.code.Result(expr.getPath(), expr.getLineNumber(), expr.toPseudoCode());
+        return new org.qmul.csar.code.Result(expr.getPath(), expr.getIdentifierFilePosition().getLineNumber(), expr.toPseudoCode());
     }
 }
 

@@ -41,8 +41,16 @@ public class DefaultTypeHierarchyResolverTest {
         assertTrue(resolver.isSubtype(type1, type2));
     }
 
+    private void assertIsPossiblySubtype(String type1, String type2) {
+        assertTrue(resolver.isPossiblySubtype(type1, type2));
+    }
+
     private void assertIsNotSubtype(String type1, String type2) {
         assertFalse(resolver.isSubtype(type1, type2));
+    }
+
+    private void assertIsNotPossiblySubtype(String type1, String type2) {
+        assertFalse(resolver.isPossiblySubtype(type1, type2));
     }
 
     @Test
@@ -65,6 +73,15 @@ public class DefaultTypeHierarchyResolverTest {
 
         // Fully qualified name
         assertIsSubtype("java.lang.Runnable", "base.L");
+    }
+
+    @Test
+    public void testIsPossiblySubtype() {
+        assertIsPossiblySubtype("base.L", "L");
+        assertIsPossiblySubtype("base.GenericFnArgInterface", "GenericFnArgInterfaceImpl1");
+        assertIsPossiblySubtype("base.GenericFnArgInterface", "base.GenericFnArgInterfaceImpl1");
+        assertIsPossiblySubtype("base.GenericFnArgInterface", "base.GenericFnArgInterface");
+        assertIsNotPossiblySubtype("base.L", "N");
     }
 
     @Test

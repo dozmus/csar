@@ -2,7 +2,7 @@ package org.qmul.csar.code.java.search;
 
 import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.ProjectCodeSearcher;
+import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.code.Result;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;

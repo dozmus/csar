@@ -63,6 +63,10 @@ public final class TypeInstance {
         dimensions--;
     }
 
+    public String getTypeWithDimensions() {
+        return getType() + TypeHelper.dimensionsToString(dimensions);
+    }
+
     public String getType() {
         int dollarIdx = qualifiedName.lastIndexOf('$');
         int dotIdx = qualifiedName.lastIndexOf('.');

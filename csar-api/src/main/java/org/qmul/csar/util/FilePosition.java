@@ -17,27 +17,27 @@ public class FilePosition {
     /**
      * Indexed from 0 to N.
      */
-    private final int columnNumber;
+    private final int fileOffset;
 
-    public FilePosition(int lineNumber, int columnNumber) {
+    public FilePosition(int lineNumber, int fileOffset) {
         this.lineNumber = lineNumber;
-        this.columnNumber = columnNumber;
+        this.fileOffset = fileOffset;
     }
 
     public FilePosition(Token token) {
-        this(token.getLine(), token.getCharPositionInLine());
+        this(token.getLine(), token.getStartIndex());
     }
 
     public int getLineNumber() {
         return lineNumber;
     }
 
-    public int getColumnNumber() {
-        return columnNumber;
+    public int getFileOffset() {
+        return fileOffset;
     }
 
-    public FilePosition add(int lineNumber, int columnNumber) {
-        return new FilePosition(this.lineNumber + lineNumber, this.columnNumber + columnNumber);
+    public FilePosition add(int offset) {
+        return new FilePosition(this.lineNumber, this.fileOffset + offset);
     }
 
     @Override
@@ -45,19 +45,19 @@ public class FilePosition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FilePosition that = (FilePosition) o;
-        return lineNumber == that.lineNumber && columnNumber == that.columnNumber;
+        return lineNumber == that.lineNumber && fileOffset == that.fileOffset;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineNumber, columnNumber);
+        return Objects.hash(lineNumber, fileOffset);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
                 .append("lineNumber", lineNumber)
-                .append("columnNumber", columnNumber)
+                .append("fileOffset", fileOffset)
                 .toString();
     }
 }

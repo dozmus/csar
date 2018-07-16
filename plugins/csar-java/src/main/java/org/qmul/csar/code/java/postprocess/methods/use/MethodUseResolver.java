@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.postprocess.methods.use;
 
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.CodePostProcessor;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;

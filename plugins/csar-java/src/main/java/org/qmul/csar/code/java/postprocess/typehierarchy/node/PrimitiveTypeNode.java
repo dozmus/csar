@@ -30,6 +30,11 @@ public class PrimitiveTypeNode extends TypeNode {
                 || nonQualifiedName.equals(qualifiedName);
     }
 
+    public boolean nameEquals(String name) {
+        return super.nameEquals(name) || primitiveName.equals(name)
+                || nonQualifiedName.equals(name);
+    }
+
     @Override
     public void cache(Map<String, TypeNode> cache) {
         cache.putIfAbsent(super.getQualifiedName(), this);

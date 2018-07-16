@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.postprocess.methodcalls.typeinstances;
 
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.CodePostProcessor;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.expression.BinaryExpression;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
@@ -118,7 +118,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
 
         private void resolveMethodCall(MethodCallExpression expression) {
             LOGGER.trace("Resolving method type instances: {} (line={})", expression.toPseudoCode(),
-                    expression.getLineNumber());
+                    expression.getIdentifierFilePosition().getLineNumber());
             resolve(expression);
         }
 

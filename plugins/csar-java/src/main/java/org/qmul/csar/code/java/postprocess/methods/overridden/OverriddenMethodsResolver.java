@@ -2,7 +2,7 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.CodePostProcessor;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;

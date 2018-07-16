@@ -74,6 +74,7 @@ public class MethodDefinitionSearcher implements Searcher {
     }
 
     private org.qmul.csar.code.Result methodStatementToResult(Path file, Statement s) {
-        return new org.qmul.csar.code.Result(file, ((MethodStatement)s).getLineNumber(), s.toPseudoCode());
+        return new org.qmul.csar.code.Result(file, ((MethodStatement)s).getIdentifierFilePosition().getLineNumber(),
+                s.toPseudoCode());
     }
 }

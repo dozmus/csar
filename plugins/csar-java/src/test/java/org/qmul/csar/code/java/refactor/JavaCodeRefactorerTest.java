@@ -2,10 +2,19 @@ package org.qmul.csar.code.java.refactor;
 
 import org.junit.Test;
 import org.qmul.csar.CsarJavaPlugin;
-import org.qmul.csar.code.ProjectCodeSearcher;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
+import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.TestUtils;
+import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
+import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
+import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
+import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
+import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
+import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
+import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
 import org.qmul.csar.code.java.search.JavaCodeSearcher;
+import org.qmul.csar.code.refactor.writer.DummyRefactorChangeWriter;
 import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
@@ -101,7 +110,7 @@ public class JavaCodeRefactorerTest {
         expectedResults.add(new Result(Paths.get(directory, "B.java"), 3,
                 "    public void print(int a, int b, int c) {"));
         expectedResults.add(new Result(Paths.get(directory, "C.java"), 5, "        a.print(1, 2, c);"));
-        expectedResults.add(new Result(Paths.get(directory, "C.java"), 10, "        b.print(500                , 100, c);"));
+        expectedResults.add(new Result(Paths.get(directory, "C.java"), 10, "        b.print(500"));
 
         // Actual
         List<Result> actualResults = refactor("SELECT method:def:print REFACTOR changeparam:int a, int b, int c",
@@ -165,7 +174,6 @@ public class JavaCodeRefactorerTest {
         List<Result> expectedResults = new ArrayList<>();
         expectedResults.add(new Result(Paths.get(directory, "A.java"), 8,
                 "    public void print(String a, int b) {"));
-        expectedResults.add(new Result(Paths.get(directory, "A.java"), 5, "        a.print(a.print(1, 2), 2); a.print(a.print(a, 2), 2);"));
         expectedResults.add(new Result(Paths.get(directory, "A.java"), 5, "        a.print(a.print(a, 2), 2); a.print(a.print(a, 2), 2);"));
 
         // Actual
@@ -196,6 +204,7 @@ public class JavaCodeRefactorerTest {
 
         private Map<Path, Statement> code;
         private List<SerializableCode> searchResultObjects;
+        private DefaultTypeHierarchyResolver thr;
 
         @Override
         public Map<Path, Statement> parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
@@ -206,7 +215,17 @@ public class JavaCodeRefactorerTest {
 
         @Override
         public void postprocess(int threadCount) {
-            super.postprocess(1);
+            // Create components
+            QualifiedNameResolver qnr = new QualifiedNameResolver();
+            thr = new DefaultTypeHierarchyResolver(qnr);
+            MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver(qnr);
+            OverriddenMethodsResolver omr = new OverriddenMethodsResolver(threadCount, qnr, thr);
+            MethodUseResolver mur = new MethodUseResolver(qnr, thr);
+            MethodCallTypeInstanceResolver mctir = new MethodCallTypeInstanceResolver(qnr, thr);
+
+            // Create post-processor
+            CodePostProcessor processor = new JavaPostProcessor(thr, mqtr, omr, mctir, mur);
+            processor.postprocess(code);
         }
 
         @Override
@@ -220,7 +239,8 @@ public class JavaCodeRefactorerTest {
 
         @Override
         public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount) {
-            ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount, false);
+            ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount, thr,
+                    new DummyRefactorChangeWriter());
             refactorer.setRefactorDescriptor(csarQuery.getRefactorDescriptor().
                     orElseThrow(IllegalArgumentException::new));
             refactorer.setSearchResultObjects(searchResultObjects);

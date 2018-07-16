@@ -151,8 +151,6 @@ public class MethodDescriptor implements Descriptor {
 
     /**
      * Returns the signature of this method. This does not apply type erasure or translate varargs into array notation.
-     *
-     * @return the signature of this method
      */
     public String signature() {
         if (signature != null)

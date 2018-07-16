@@ -1,29 +1,81 @@
 package org.qmul.csar.code.refactor;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.qmul.csar.util.ToStringStyles;
+
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
- * A refactor target.
+ * A refactor change.
  */
-public interface RefactorChange {
+public class RefactorChange {
 
+    private final Path path;
+    private final int lineNumber;
     /**
-     * Returns the path of the change.
+     * The start offset of the change, this is inclusive.
      */
-    Path path();
+    private final int startOffset;
+    /**
+     * The end offset of the change, this is exclusive.
+     */
+    private final int endOffset;
+    private final String replacement;
 
-    /**
-     * Returns the line number of the change (starts at 1).
-     */
-    int lineNumber();
+    public RefactorChange(Path path, int lineNumber, int startOffset, int endOffset, String replacement) {
+        this.path = path;
+        this.lineNumber = lineNumber;
+        this.startOffset = startOffset;
+        this.endOffset = endOffset;
+        this.replacement = replacement;
+    }
 
-    /**
-     * Returns the start index of the change (starts at 0).
-     */
-    int startIndex();
+    public Path getPath() {
+        return path;
+    }
 
-    /**
-     * Returns the end index of the change (starts at 0).
-     */
-    int endIndex();
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public int getStartOffset() {
+        return startOffset;
+    }
+
+    public int getEndOffset() {
+        return endOffset;
+    }
+
+    public String getReplacement() {
+        return replacement;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
+                .append("path", path)
+                .append("lineNumber", lineNumber)
+                .append("startOffset", startOffset)
+                .append("endOffset", endOffset)
+                .append("replacement", replacement)
+                .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RefactorChange change = (RefactorChange) o;
+        return lineNumber == change.lineNumber
+                && startOffset == change.startOffset
+                && endOffset == change.endOffset
+                && Objects.equals(path, change.path)
+                && Objects.equals(replacement, change.replacement);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(path, lineNumber, startOffset, endOffset, replacement);
+    }
 }
