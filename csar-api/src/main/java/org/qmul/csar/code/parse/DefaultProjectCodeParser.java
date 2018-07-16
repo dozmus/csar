@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A multi-threaded project-wide code parser.
@@ -88,13 +90,9 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
 
     private static final class Statistics {
 
-        private long sizeKb;
-        private long linesOfCode;
-        private int fileCount;
-
-        public void add(long sizeBytes) {
-            sizeKb += Math.round((double)sizeBytes / 1000D);
-        }
+        private AtomicLong sizeKb = new AtomicLong();
+        private AtomicLong linesOfCode = new AtomicLong(); // XXX rough figure
+        private AtomicInteger fileCount = new AtomicInteger();
     }
 
     private class Task implements Runnable {
@@ -119,15 +117,14 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
                         // Parse file and put in the map
                         root = factory.create(file).parse(file);
                         results.put(file, root);
+
+                        // Update statistics
                         long sizeB = Files.size(file);
                         long lineCount = Files.lines(file).count();
 
-                        // Update statistics
-                        synchronized (statistics) {
-                            statistics.add(sizeB);
-                            statistics.fileCount++;
-                            statistics.linesOfCode += lineCount;
-                        }
+                        statistics.sizeKb.addAndGet(Math.round(sizeB / 1000D));
+                        statistics.linesOfCode.addAndGet(lineCount);
+                        statistics.fileCount.incrementAndGet();
                     } catch (IOException | RuntimeException ex) {
                         Path finalFile = file;
                         errorListeners.forEach(l -> l.errorParsing(finalFile, ex));
