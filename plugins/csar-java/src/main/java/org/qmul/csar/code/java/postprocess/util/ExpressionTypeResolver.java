@@ -175,10 +175,10 @@ public class ExpressionTypeResolver {
                     qt = r.resolve(code, path, topLevelType, topLevelType, currentPackage, imports, uexp.getValue());
                     return new TypeInstance(qt, 0);
                 case NEW:
-                    // not sure how this fits into things
+                    // XXX not sure how this fits into things
                     break;
                 case METHOD_CALL:
-                    // resolve method?
+                    // XXX resolve method?
                     break;
             }
         }
