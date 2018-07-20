@@ -178,7 +178,6 @@ public class ExpressionTypeResolver {
                     // not sure how this fits into things
                     break;
                 case METHOD_CALL:
-                    System.out.println("UnitExpression.ValueType=METHOD_CALL");
                     // resolve method?
                     break;
             }
