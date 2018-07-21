@@ -2,10 +2,8 @@ package org.qmul.csar.code.java.refactor;
 
 import org.junit.Test;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
-import org.qmul.csar.code.java.parse.statement.ConstructorStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.refactor.RefactorChange;
-import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.util.FilePosition;
 
 import java.nio.file.Path;
@@ -29,7 +27,7 @@ public class RenameRefactorChangeFactoryTest {
 
         MethodStatement ms = mock(MethodStatement.class);
         when(ms.getPath()).thenReturn(path);
-        when(ms.getDescriptor()).thenReturn(new MethodDescriptor.Builder(newName).build());
+        when(ms.getIdentifierName()).thenReturn(newName);
         when(ms.getIdentifierFilePosition()).thenReturn(new FilePosition(lineNumber, startOffset));
 
         // Create change
@@ -53,7 +51,7 @@ public class RenameRefactorChangeFactoryTest {
 
         MethodCallExpression ms = mock(MethodCallExpression.class);
         when(ms.getPath()).thenReturn(path);
-        when(ms.getMethodIdentifier()).thenReturn(newName);
+        when(ms.getIdentifierName()).thenReturn(newName);
         when(ms.getIdentifierFilePosition()).thenReturn(new FilePosition(lineNumber, startOffset));
 
         // Create change
@@ -65,10 +63,5 @@ public class RenameRefactorChangeFactoryTest {
         assertEquals(newName, change.getReplacement());
         assertEquals(startOffset, change.getStartOffset());
         assertEquals(startOffset + newName.length(), change.getEndOffset());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidArgument() {
-        factory.change(mock(ConstructorStatement.class), "sum");
     }
 }

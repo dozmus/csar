@@ -5,7 +5,6 @@ import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.code.refactor.RefactorChange;
-import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
 import org.qmul.csar.util.FilePosition;
 import org.slf4j.Logger;
@@ -17,7 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ChangeParametersRefactorChangeFactory implements RefactorChangeFactory<List<ParameterVariableDescriptor>> {
+public class ChangeParametersRefactorChangeFactory implements RefactorChangeFactory<ChangeableParameters,
+        List<ParameterVariableDescriptor>> {
 
     // TODO insert 'final' modifier where appropriate as well?
     // TODO handle varargs replacements, like subtype replacements, in changeMethodCallExpression?
@@ -28,7 +28,7 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
         this.thr = thr;
     }
 
-    public List<RefactorChange> changes(SerializableCode target, List<ParameterVariableDescriptor> newParameters) {
+    public List<RefactorChange> changes(ChangeableParameters target, List<ParameterVariableDescriptor> newParameters) {
         if (target instanceof MethodStatement) {
             return changesForMethod((MethodStatement) target, newParameters);
         } else if (target instanceof MethodCallExpression) {
@@ -40,22 +40,18 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
     /**
      * Returns the refactor changes for refactoring a method statement.
      */
-    private static List<RefactorChange> changesForMethod(MethodStatement ms,
+    private List<RefactorChange> changesForMethod(MethodStatement ms,
             List<ParameterVariableDescriptor> newParameters) {
         LOGGER.trace("Change Parameters (method)");
         List<String> args = ms.getParameters().stream()
                 .map(p -> p.getTypeInstance().getTypeWithDimensions() + " " + p.getDescriptor().getIdentifierName().get())
                 .collect(Collectors.toList());
-        FilePosition lParen = ms.getLeftParenFilePosition();
-        FilePosition rParen = ms.getRightParenFilePosition();
-        List<FilePosition> commas = ms.getCommaFilePositions();
-        int lineNumber = ms.getIdentifierFilePosition().getLineNumber();
 
         // Create list of new args
         List<String> newArgs = newParameters.stream()
                 .map(desc -> desc.getIdentifierType().get() + " " + desc.getIdentifierName().get())
                 .collect(Collectors.toList());
-        return changes(args, newArgs, lParen, rParen, commas, ms.getPath(), lineNumber);
+        return changes(args, newArgs, ms, ((oldArg, newArg, i) -> !oldArg.equals(newArg)));
     }
 
     /**
@@ -64,11 +60,10 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
     private List<RefactorChange> changesForMethodCall(MethodCallExpression mce,
             List<ParameterVariableDescriptor> newParameters) {
         LOGGER.trace("Change Parameters (method call)");
-        List<TypeInstance> argsTypes = mce.getArgumentTypes();
-        FilePosition lParen = mce.getLeftParenthesisPosition();
-        FilePosition rParen = mce.getRightParenthesisPosition();
-        List<FilePosition> commas = mce.getCommaFilePositions();
-        int lineNumber = mce.getIdentifierFilePosition().getLineNumber();
+        List<TypeInstance> rawArgsTypes = mce.getArgumentTypes();
+        List<String> argsTypes = rawArgsTypes.stream()
+                .map(TypeInstance::getTypeWithDimensions)
+                .collect(Collectors.toList());
 
         // Create list of new args
         List<String> newArgsTypes = newParameters.stream()
@@ -77,12 +72,17 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
         List<String> newArgsIdentifiers = newParameters.stream()
                 .map(desc -> desc.getIdentifierName().get().toString())
                 .collect(Collectors.toList());
-        return mceChanges(argsTypes, newArgsTypes, newArgsIdentifiers, lParen, rParen, commas, mce.getPath(),
-                lineNumber);
+
+        ParameterUpdateRequired manager = ((String oldArg, String newArg, int i) -> {
+            String oldArgQualifiedName = rawArgsTypes.get(i).getQualifiedName();
+            String newArgType = newArgsTypes.get(i);
+            return !thr.isPossiblySubtype(oldArgQualifiedName, newArgType);
+        });
+        return changes(argsTypes, newArgsIdentifiers, mce, manager);
     }
 
-    private static List<RefactorChange> changes(List<String> args, List<String> newArgs, FilePosition lParen,
-            FilePosition rParen, List<FilePosition> commas, Path path, int lineNumber) {
+    private List<RefactorChange> changes(List<String> args, List<String> newArgs, ChangeableParameters cp,
+            ParameterUpdateRequired parameterUpdateRequired) {
         LOGGER.trace("Change Parameters: old={}, new={}", args, newArgs);
         int oldSize = args.size();
         int newSize = newArgs.size();
@@ -91,7 +91,7 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
         List<RefactorChange> changes = new ArrayList<>();
 
         // Change needed if they are not equal (this also includes if they are both empty)
-        if (args.equals(newArgs))
+        if (equals(args, newArgs, parameterUpdateRequired))
             return Collections.emptyList();
 
         // Replace arguments
@@ -100,84 +100,59 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
             String oldArg = args.get(i);
 
             // Check if change needed
-            if (oldArg.equals(newArg))
+            if (!parameterUpdateRequired.required(oldArg, newArg, i))
                 continue;
 
             // Conventions of new argument
-            if (i > 0)
-                newArg = " " + newArg;
+            newArg = formatReplacement(newArg, i);
 
             // Create refactor change
-            RefactorChange change = replaceArgument(oldSize, i, commas, lParen, rParen, path, lineNumber, newArg);
+            RefactorChange change = replaceArgument(cp, oldSize, i, newArg);
             changes.add(change);
         }
 
         // Handle size mismatches
-        changes.addAll(changesSizeMismatch(oldSize, newArgs, commas, lParen, rParen, path, lineNumber));
+        changes.addAll(changesSizeMismatch(cp, oldSize, newArgs));
         return changes;
     }
 
-    private List<RefactorChange> mceChanges(List<TypeInstance> argsTypeInstances, List<String> newArgsTypes,
-            List<String> newArgsIdentifiers, FilePosition lParen, FilePosition rParen, List<FilePosition> commas,
-            Path path, int lineNumber) {
-        List<String> argsTypes = argsTypeInstances.stream()
-                .map(TypeInstance::getTypeWithDimensions)
-                .collect(Collectors.toList());
-        LOGGER.trace("Change Parameters: old={}, new={}", argsTypes, newArgsTypes);
-        int oldSize = argsTypes.size();
-        int newSize = newArgsTypes.size();
+    @FunctionalInterface
+    public interface ParameterUpdateRequired {
 
-        // Create refactor changes
-        List<RefactorChange> changes = new ArrayList<>();
-
-        // Change needed if they are not equal (this also includes if they are both empty)
-        if (equals(argsTypeInstances, newArgsTypes, thr))
-            return Collections.emptyList();
-
-        // Replace arguments
-        for (int i = Math.min(oldSize, newSize) - 1; i >= 0; i--) {
-            String oldArgQualifiedName = argsTypeInstances.get(i).getQualifiedName();
-            String newArg = newArgsTypes.get(i);
-            String replacement = newArgsIdentifiers.get(i);
-
-            // Check if change needed
-            if (thr.isPossiblySubtype(oldArgQualifiedName, newArg))
-                continue;
-
-            // Conventions of new argument
-            if (i > 0)
-                replacement = " " + replacement;
-
-            // Create refactor change
-            RefactorChange change = replaceArgument(oldSize, i, commas, lParen, rParen, path, lineNumber, replacement);
-            changes.add(change);
-        }
-
-        // Account for size mismatches
-        changes.addAll(changesSizeMismatch(oldSize, newArgsIdentifiers, commas, lParen, rParen, path, lineNumber));
-        return changes;
+        /**
+         * Returns if an update is required.
+         * @param i index of argument
+         */
+        boolean required(String oldArg, String newArg, int i);
     }
 
-    private boolean equals(List<TypeInstance> argsTypeInstances, List<String> newArgsTypes, TypeHierarchyResolver thr) {
-        if (argsTypeInstances.size() != newArgsTypes.size())
+    private boolean equals(List<String> args, List<String> newArgs, ParameterUpdateRequired parameterUpdateRequired) {
+        if (args.size() != newArgs.size())
             return false;
 
-        for (int i = 0; i < newArgsTypes.size(); i++) {
-            TypeInstance l = argsTypeInstances.get(i);
-            String r = newArgsTypes.get(i);
-
-            if (!thr.isPossiblySubtype(l.getQualifiedName(), r))
+        for (int i = 0; i < args.size(); i++) {
+            if (parameterUpdateRequired.required(args.get(i), newArgs.get(i), i))
                 return false;
         }
         return true;
+    }
+
+    private static String formatReplacement(String replacement, int i) {
+        return i == 0 ? replacement : " " + replacement;
     }
 
     /**
      * Returns the refactor change for an argument replacement.
      * @param i index of argument
      */
-    private static RefactorChange replaceArgument(int oldSize, int i, List<FilePosition> commas,
-            FilePosition lParen, FilePosition rParen, Path path, int lineNumber, String replacement) {
+    private static RefactorChange replaceArgument(ChangeableParameters cp, int oldSize, int i,
+            String replacement) {
+        Path path = cp.getPath();
+        FilePosition lParen = cp.getLeftParenFilePosition();
+        FilePosition rParen = cp.getRightParenFilePosition();
+        List<FilePosition> commas = cp.getCommaFilePositions();
+        int lineNumber = cp.getLineNumber();
+
         FilePosition firstComma;
         FilePosition lastComma;
 
@@ -206,8 +181,13 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
     /**
      * Returns the refactor changes which account for size mismatches in the two lists of arguments.
      */
-    private static List<RefactorChange> changesSizeMismatch(int oldSize, List<String> newArgs,
-            List<FilePosition> commas, FilePosition lParen, FilePosition rParen, Path path, int lineNumber) {
+    private static List<RefactorChange> changesSizeMismatch(ChangeableParameters cp, int oldSize, List<String> newArgs) {
+        Path path = cp.getPath();
+        FilePosition lParen = cp.getLeftParenFilePosition();
+        FilePosition rParen = cp.getRightParenFilePosition();
+        List<FilePosition> commas = cp.getCommaFilePositions();
+        int lineNumber = cp.getLineNumber();
+
         List<RefactorChange> changes = new ArrayList<>();
         int newSize = newArgs.size();
 

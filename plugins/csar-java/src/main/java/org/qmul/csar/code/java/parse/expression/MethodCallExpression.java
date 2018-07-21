@@ -3,6 +3,8 @@ package org.qmul.csar.code.java.parse.expression;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
+import org.qmul.csar.code.java.refactor.ChangeableParameters;
+import org.qmul.csar.code.java.refactor.Renamable;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.util.FilePosition;
 import org.qmul.csar.util.StringUtils;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class MethodCallExpression implements Expression {
+public class MethodCallExpression implements Expression, Renamable, ChangeableParameters {
 
     private final Expression methodName;
     private final List<Expression> arguments;
@@ -81,6 +83,10 @@ public class MethodCallExpression implements Expression {
         return path;
     }
 
+    public String getIdentifierName() {
+        return getMethodIdentifier();
+    }
+
     public void setMethodSource(TypeInstance methodSource) {
         this.methodSource = methodSource;
     }
@@ -115,6 +121,19 @@ public class MethodCallExpression implements Expression {
 
     public String getMethodIdentifier() { // TODO remove this
         return methodIdentifier(methodName);
+    }
+
+    public FilePosition getLeftParenFilePosition() {
+        return leftParenthesisPosition;
+    }
+
+    public FilePosition getRightParenFilePosition() {
+        return rightParenthesisPosition;
+    }
+
+    @Override
+    public int getLineNumber() {
+        return identifierFilePosition.getLineNumber();
     }
 
     public static String methodIdentifier(Expression expr) { // TODO remove this

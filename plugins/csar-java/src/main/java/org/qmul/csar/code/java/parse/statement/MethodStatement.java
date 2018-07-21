@@ -5,6 +5,8 @@ import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.refactor.ChangeableParameters;
+import org.qmul.csar.code.java.refactor.Renamable;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * A method type declaration.
  */
-public class MethodStatement implements Statement {
+public class MethodStatement implements Statement, Renamable, ChangeableParameters {
 
     private final MethodDescriptor descriptor;
     private final List<ParameterVariableStatement> params;
@@ -101,8 +103,16 @@ public class MethodStatement implements Statement {
         return commaFilePositions;
     }
 
+    public int getLineNumber() {
+        return identifierFilePosition.getLineNumber();
+    }
+
     public Path getPath() {
         return path;
+    }
+
+    public String getIdentifierName() {
+        return getDescriptor().getIdentifierName().toString();
     }
 
     @Override

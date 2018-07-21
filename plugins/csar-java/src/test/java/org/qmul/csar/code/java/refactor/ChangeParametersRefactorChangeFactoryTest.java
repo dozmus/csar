@@ -3,7 +3,6 @@ package org.qmul.csar.code.java.refactor;
 import org.junit.Test;
 import org.qmul.csar.code.java.TestUtils;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
-import org.qmul.csar.code.java.parse.statement.ConstructorStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.parse.statement.ParameterVariableStatement;
 import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
@@ -1163,11 +1162,6 @@ public class ChangeParametersRefactorChangeFactoryTest {
         // TODO impl: subtype args
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidArgument() {
-        factory.changes(mock(ConstructorStatement.class), Collections.emptyList());
-    }
-
     private static MethodStatement mockMethodStatement(Path path, int lineNumber, int lParenOffset, int rParenOffset) {
         return mockMethodStatement(path, lineNumber, lParenOffset, rParenOffset, Collections.emptyList(),
                 Collections.emptyList());
@@ -1206,8 +1200,8 @@ public class ChangeParametersRefactorChangeFactoryTest {
         MethodCallExpression mce = mock(MethodCallExpression.class);
         when(mce.getPath()).thenReturn(path);
         when(mce.getIdentifierFilePosition()).thenReturn(new FilePosition(lineNumber, 100));
-        when(mce.getLeftParenthesisPosition()).thenReturn(new FilePosition(lineNumber, startOffset));
-        when(mce.getRightParenthesisPosition()).thenReturn(new FilePosition(lineNumber, endOffset));
+        when(mce.getLeftParenFilePosition()).thenReturn(new FilePosition(lineNumber, startOffset));
+        when(mce.getRightParenFilePosition()).thenReturn(new FilePosition(lineNumber, endOffset));
         when(mce.getCommaFilePositions()).thenReturn(commaPositions);
         when(mce.getArgumentTypes()).thenReturn(parameters.stream()
                 .map(ParameterVariableStatement::getDescriptor)

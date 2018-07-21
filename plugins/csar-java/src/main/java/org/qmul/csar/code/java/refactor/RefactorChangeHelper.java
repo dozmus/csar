@@ -41,14 +41,14 @@ public final class RefactorChangeHelper {
     private static List<RefactorChange> changesFromRefactorTarget(RefactorDescriptor refactorDescriptor,
             SerializableCode target, TypeHierarchyResolver thr) {
         if (refactorDescriptor instanceof RefactorDescriptor.Rename) {
-            RefactorChangeFactory<String> factory = createRefactorChangeFactory(refactorDescriptor, thr);
+            RefactorChangeFactory<Renamable, String> factory = createRefactorChangeFactory(refactorDescriptor, thr);
             RefactorDescriptor.Rename r = (RefactorDescriptor.Rename) refactorDescriptor;
-            return factory.changes(target, r.getIdentifierName());
+            return factory.changes((Renamable)target, r.getIdentifierName());
         } else if (refactorDescriptor instanceof RefactorDescriptor.ChangeParameters) {
-            RefactorChangeFactory<List<ParameterVariableDescriptor>> factory
+            RefactorChangeFactory<ChangeableParameters, List<ParameterVariableDescriptor>> factory
                     = createRefactorChangeFactory(refactorDescriptor, thr);
             RefactorDescriptor.ChangeParameters r = (RefactorDescriptor.ChangeParameters) refactorDescriptor;
-            return factory.changes(target, r.getDescriptors());
+            return factory.changes((ChangeableParameters)target, r.getDescriptors());
         }
         throw new RuntimeException("invalid refactor type: " + refactorDescriptor.getClass());
     }
@@ -56,14 +56,14 @@ public final class RefactorChangeHelper {
     /**
      * Returns a suitable {@link RefactorChangeFactory} instance for the refactor type.
      */
-    public static RefactorChangeFactory createRefactorChangeFactory(RefactorDescriptor refactorDescriptor,
+    public static RefactorChangeFactory createRefactorChangeFactory(RefactorDescriptor refactor,
             TypeHierarchyResolver thr) {
-        if (refactorDescriptor instanceof RefactorDescriptor.Rename) {
+        if (refactor instanceof RefactorDescriptor.Rename) {
             return new RenameRefactorChangeFactory();
-        } else if (refactorDescriptor instanceof RefactorDescriptor.ChangeParameters) {
+        } else if (refactor instanceof RefactorDescriptor.ChangeParameters) {
             return new ChangeParametersRefactorChangeFactory(thr);
         }
-        throw new RuntimeException("invalid refactor type: " + refactorDescriptor.getClass());
+        throw new RuntimeException("invalid refactor type: " + refactor.getClass());
     }
 }
 
