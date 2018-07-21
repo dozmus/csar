@@ -843,6 +843,7 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
 
             // Method identifier position
             // XXX getStop() returns the last sequential token in methodExprCtx, which is the method identifier
+            String methodIdentifierName = methodExprCtx.getStop().getText();
             FilePosition identifierPos = new FilePosition(methodExprCtx.getStop());
 
             // Parameters
@@ -855,8 +856,8 @@ public final class JavaCodeParser extends JavaParserBaseListener implements Code
                         .map(c -> new FilePosition(c.getSymbol()))
                         .collect(Collectors.toList());
             }
-            return new MethodCallExpression(method, parameters, path, identifierPos, lParenPos, rParenPos,
-                    commaFilePositions);
+            return new MethodCallExpression(methodIdentifierName, method, parameters, path, identifierPos, lParenPos,
+                    rParenPos, commaFilePositions);
         }
         throw new IllegalArgumentException("invalid context: " + ctx.getText());
     }

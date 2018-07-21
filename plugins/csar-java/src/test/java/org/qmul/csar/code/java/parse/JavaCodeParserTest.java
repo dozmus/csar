@@ -169,8 +169,8 @@ public final class JavaCodeParserTest {
         // Method #1
         Expression methodName = systemOutPrintln();
         List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "s"));
-        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(methodName, arguments, path,
-                new FilePosition(8, 183), new FilePosition(8, 190), new FilePosition(8, 192)));
+        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression("println", methodName,
+                arguments, path, new FilePosition(8, 183), new FilePosition(8, 190), new FilePosition(8, 192)));
 
         ParameterVariableStatement param1 = createParameter("String", "s", false);
         MethodStatement method1 = new MethodStatement(MethodDescriptor.Builder.allFalse("print")
@@ -210,7 +210,7 @@ public final class JavaCodeParserTest {
                 .staticModifier(false)
                 .finalModifier(false)
                 .build(),
-                new ArrayList<>(), Optional.of(new MethodCallExpression(methodName2, methodArgs, path,
+                new ArrayList<>(), Optional.of(new MethodCallExpression("generateName", methodName2, methodArgs, path,
                 new FilePosition(13, 270), new FilePosition(13, 282), new FilePosition(13, 296))));
 
         // Method #3
@@ -276,8 +276,9 @@ public final class JavaCodeParserTest {
         LocalVariableStatements locals = createLocals(local);
 
         List<Expression> arguments = Arrays.asList(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "x"));
-        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression(systemOutPrintln(), arguments,
-                path, new FilePosition(11, 241), new FilePosition(11, 248), new FilePosition(11, 250)));
+        ExpressionStatement methodCall1 = new ExpressionStatement(new MethodCallExpression("println",
+                systemOutPrintln(), arguments, path, new FilePosition(11, 241), new FilePosition(11, 248),
+                new FilePosition(11, 250)));
 
         MethodStatement innerClassMethod = new MethodStatement(MethodDescriptor.Builder.allFalse("run")
                 .visibilityModifier(VisibilityModifier.PUBLIC)
@@ -303,9 +304,9 @@ public final class JavaCodeParserTest {
         LocalVariableStatements locals2 = createLocals(local2);
 
         // Method call
-        ExpressionStatement methodCall2 = new ExpressionStatement(new MethodCallExpression(new BinaryExpression(
-                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "worker"), BinaryOperation.DOT,
-                new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "run")),
+        ExpressionStatement methodCall2 = new ExpressionStatement(new MethodCallExpression("run",
+                new BinaryExpression(new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "worker"),
+                        BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "run")),
                 new ArrayList<>(), path, new FilePosition(15, 324), new FilePosition(15, 327),
                 new FilePosition(15, 328), Collections.emptyList()));
 
@@ -576,8 +577,8 @@ public final class JavaCodeParserTest {
                 new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "variables"), BinaryOperation.DOT,
                 new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "stream"));
 
-        ExpressionStatement streamApiCall = new ExpressionStatement(new MethodCallExpression(
-                new BinaryExpression(new MethodCallExpression(bexp, new ArrayList<>(), path,
+        ExpressionStatement streamApiCall = new ExpressionStatement(new MethodCallExpression("map",
+                new BinaryExpression(new MethodCallExpression("stream", bexp, new ArrayList<>(), path,
                         new FilePosition(17, 492), new FilePosition(17, 498), new FilePosition(17, 499),
                         Collections.emptyList()),
                         BinaryOperation.DOT, new UnitExpression(UnitExpression.ValueType.IDENTIFIER, "map")),
@@ -696,7 +697,7 @@ public final class JavaCodeParserTest {
                 .identifierType("String")
                 .finalModifier(false)
                 .build(), Optional.empty(), new ArrayList<>()), identifierUnit("list"),
-                createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
+                createBlock(new ExpressionStatement(new MethodCallExpression("println", systemOutPrintln(),
                         Arrays.asList(identifierUnit("s")), path, new FilePosition(79, 1410),
                         new FilePosition(79, 1417), new FilePosition(79, 1419))))));
 
@@ -705,8 +706,8 @@ public final class JavaCodeParserTest {
                 .finalModifier(true)
                 .build(), Optional.empty(), new ArrayList<>()), new MethodCallExpression(identifierUnit("getTypes"),
                 Arrays.asList(literalUnit("3")), path, new FilePosition(82, 1467), new FilePosition(82, 1475),
-                new FilePosition(82, 1477),
-                Collections.emptyList()), createBlock(createMethodCallStatement("a", path, 83, 1495, 1496, 1497))));
+                new FilePosition(82, 1477), Collections.emptyList()),
+                createBlock(createMethodCallStatement("a", path, 83, 1495, 1496, 1497))));
 
         // Try
         b1.add(new TryStatement(createBlock(createMethodCallStatement("a", path, 88, 1563, 1564, 1565)),
@@ -736,8 +737,8 @@ public final class JavaCodeParserTest {
                 catches2, Optional.empty()));
 
         // Try-with-resources
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
-                Arrays.asList(identifierUnit("s")), path, new FilePosition(109, 1982),
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression("println",
+                systemOutPrintln(), Arrays.asList(identifierUnit("s")), path, new FilePosition(109, 1982),
                 new FilePosition(109, 1989), new FilePosition(109, 1991),
                 Collections.emptyList()))), new ArrayList<>(), Optional.empty(),
                 createLocals(new LocalVariableStatement(new LocalVariableDescriptor.Builder("s")
@@ -745,8 +746,8 @@ public final class JavaCodeParserTest {
                         .finalModifier(false)
                         .build(), Optional.of(createMethodCall("supplier", path, 108, 1944, 1952, 1953)),
                         new ArrayList<>()))));
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
-                Arrays.asList(identifierUnit("s")), path, new FilePosition(113, 2078),
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression("println",
+                systemOutPrintln(), Arrays.asList(identifierUnit("s")), path, new FilePosition(113, 2078),
                 new FilePosition(113, 2085), new FilePosition(113, 2087), Collections.emptyList()))),
                 Arrays.asList(new CatchStatement(createLocals(new LocalVariableStatement(
                         new LocalVariableDescriptor.Builder("e")
@@ -759,9 +760,9 @@ public final class JavaCodeParserTest {
                 .finalModifier(false)
                 .build(), Optional.of(createMethodCall("supplier", path, 112, 2040, 2048, 2049)),
                 new ArrayList<>()))));
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
-                Arrays.asList(identifierUnit("s")), path, new FilePosition(119, 2229), new FilePosition(119, 2236),
-                new FilePosition(119, 2238)))),
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression("println",
+                systemOutPrintln(), Arrays.asList(identifierUnit("s")), path, new FilePosition(119, 2229),
+                new FilePosition(119, 2236), new FilePosition(119, 2238)))),
                 Arrays.asList(new CatchStatement(createLocals(
                         new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                                 .identifierType("Exception")
@@ -778,10 +779,9 @@ public final class JavaCodeParserTest {
                         .finalModifier(false)
                         .build(), Optional.of(createMethodCall("supplier", path, 118, 2191, 2199, 2200)),
                         new ArrayList<>()))));
-        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
-                Arrays.asList(identifierUnit("s")), path, new FilePosition(125, 2399),
-                new FilePosition(125, 2406), new FilePosition(125, 2408),
-                Collections.emptyList()))),
+        b1.add(new TryWithResourcesStatement(createBlock(new ExpressionStatement(new MethodCallExpression("println",
+                systemOutPrintln(), Arrays.asList(identifierUnit("s")), path, new FilePosition(125, 2399),
+                new FilePosition(125, 2406), new FilePosition(125, 2408)))),
                 Arrays.asList(new CatchStatement(createLocals(
                         new LocalVariableStatement(new LocalVariableDescriptor.Builder("e")
                                 .identifierType("Exception")
@@ -1011,10 +1011,9 @@ public final class JavaCodeParserTest {
 
     private static ExpressionStatement printlnHelloWorld(Path path, int lineNumber, int identifierOffset,
             int lParenOffset, int rParenOffset) {
-        return new ExpressionStatement(new MethodCallExpression(systemOutPrintln(),
+        return new ExpressionStatement(new MethodCallExpression("println", systemOutPrintln(),
                 Arrays.asList(literalUnit("\"Hello World\"")), path, new FilePosition(lineNumber, identifierOffset),
-                new FilePosition(lineNumber, lParenOffset),
-                new FilePosition(lineNumber, rParenOffset), Collections.emptyList()));
+                new FilePosition(lineNumber, lParenOffset), new FilePosition(lineNumber, rParenOffset)));
     }
 
     private static ExpressionStatement createMethodCallStatement(String identifier, Path path, int lineNumber,

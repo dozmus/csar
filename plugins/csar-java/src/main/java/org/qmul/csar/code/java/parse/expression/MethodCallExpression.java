@@ -34,12 +34,14 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
     private final FilePosition leftParenthesisPosition;
     private final FilePosition rightParenthesisPosition;
     private final List<FilePosition> commaFilePositions;
-    private Optional<List<TypeArgument>> typeArguments;
+    private final String methodIdentifierName;
+    private Optional<List<TypeArgument>> typeArguments; // TODO set
 
-    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path,
+    public MethodCallExpression(String methodIdentifierName, Expression methodName, List<Expression> arguments, Path path,
             FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
             FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions,
             Optional<List<TypeArgument>> typeArguments) {
+        this.methodIdentifierName = methodIdentifierName;
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);
         this.path = path;
@@ -54,21 +56,42 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
      * Creates a new MethodCallExpression instance with an empty list for {@link #commaFilePositions}, and with
      * no type arguments.
      */
-    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path,
-            FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
+    public MethodCallExpression(String methodIdentifierName, Expression methodName, List<Expression> arguments,
+            Path path, FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
             FilePosition rightParenthesisPosition) {
-        this(methodName, arguments, path, identifierFilePosition, leftParenthesisPosition, rightParenthesisPosition,
-                Collections.emptyList(), Optional.empty());
+        this(methodIdentifierName, methodName, arguments, path, identifierFilePosition, leftParenthesisPosition,
+                rightParenthesisPosition, Collections.emptyList(), Optional.empty());
+    }
+
+    /**
+     * Creates a new MethodCallExpression instance with an empty list for {@link #commaFilePositions}, and with
+     * no type arguments.
+     */
+    public MethodCallExpression(UnitExpression methodName, List<Expression> arguments,
+            Path path, FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
+            FilePosition rightParenthesisPosition) {
+        this(methodName.getValue(), methodName, arguments, path, identifierFilePosition, leftParenthesisPosition,
+                rightParenthesisPosition, Collections.emptyList(), Optional.empty());
     }
 
     /**
      * Creates a new MethodCallExpression instance with no type arguments.
      */
-    public MethodCallExpression(Expression methodName, List<Expression> arguments, Path path,
-            FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
+    public MethodCallExpression(String methodIdentifierName, Expression methodName, List<Expression> arguments,
+            Path path, FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
             FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions) {
-        this(methodName, arguments, path, identifierFilePosition, leftParenthesisPosition, rightParenthesisPosition,
-                commaFilePositions, Optional.empty());
+        this(methodIdentifierName, methodName, arguments, path, identifierFilePosition, leftParenthesisPosition,
+                rightParenthesisPosition, commaFilePositions, Optional.empty());
+    }
+
+    /**
+     * Creates a new MethodCallExpression instance with no type arguments.
+     */
+    public MethodCallExpression(UnitExpression methodName, List<Expression> arguments,
+            Path path, FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
+            FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions) {
+        this(methodName.getValue(), methodName, arguments, path, identifierFilePosition, leftParenthesisPosition,
+                rightParenthesisPosition, commaFilePositions, Optional.empty());
     }
 
     public Expression getMethodName() {
@@ -84,7 +107,7 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
     }
 
     public String getIdentifierName() {
-        return getMethodIdentifier();
+        return methodIdentifierName;
     }
 
     public void setMethodSource(TypeInstance methodSource) {
@@ -111,10 +134,6 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
         return commaFilePositions;
     }
 
-    public String getMethodIdentifier() { // TODO remove this
-        return methodIdentifier(methodName);
-    }
-
     public FilePosition getLeftParenthesisPosition() {
         return leftParenthesisPosition;
     }
@@ -123,25 +142,8 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
         return rightParenthesisPosition;
     }
 
-    @Override
     public int getLineNumber() {
         return identifierFilePosition.getLineNumber();
-    }
-
-    public static String methodIdentifier(Expression expr) { // TODO remove this
-        return ((UnitExpression) methodIdentifierExpression(expr)).getValue();
-    }
-
-    public static Expression methodIdentifierExpression(Expression expr) { // TODO remove this
-        if (expr instanceof ParenthesisExpression) { // unwind any parentheses it may be in
-            return methodIdentifierExpression(((ParenthesisExpression) expr).getExpression());
-        } else if (expr instanceof BinaryExpression) { // java grammar is left-recursive, so we take rhs
-            return methodIdentifierExpression(((BinaryExpression) expr).getRight());
-        } else if (expr instanceof UnitExpression) {
-            return expr;
-        } else {
-            throw new IllegalArgumentException("invalid expr");
-        }
     }
 
     @Override
@@ -156,18 +158,20 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
                 && Objects.equals(leftParenthesisPosition, that.leftParenthesisPosition)
                 && Objects.equals(rightParenthesisPosition, that.rightParenthesisPosition)
                 && Objects.equals(commaFilePositions, that.commaFilePositions)
+                && Objects.equals(methodIdentifierName, that.methodIdentifierName)
                 && Objects.equals(typeArguments, that.typeArguments);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(methodName, arguments, path, identifierFilePosition, leftParenthesisPosition,
-                rightParenthesisPosition, commaFilePositions, typeArguments);
+                rightParenthesisPosition, commaFilePositions, methodIdentifierName, typeArguments);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyles.SHORT_DEFAULT_STYLE)
+                .append("methodIdentifierName", methodIdentifierName)
                 .append("methodName", methodName)
                 .append("arguments", arguments)
                 .append("path", path)

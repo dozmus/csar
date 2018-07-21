@@ -133,8 +133,8 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "V.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add2"), args,
-                path, new FilePosition(7, 124), new FilePosition(7, 128), new FilePosition(7, 133),
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add2", identifierDotIdentifier("u", "add2"),
+                args, path, new FilePosition(7, 124), new FilePosition(7, 128), new FilePosition(7, 133),
                 Arrays.asList(new FilePosition(7, 130)));
 
         // Assert
@@ -146,8 +146,8 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "V.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add3"), args,
-                path, new FilePosition(11, 219), new FilePosition(11, 223), new FilePosition(11, 228),
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add3", identifierDotIdentifier("u", "add3"),
+                args, path, new FilePosition(11, 219), new FilePosition(11, 223), new FilePosition(11, 228),
                 Arrays.asList(new FilePosition(11, 225)));
 
         // Assert
@@ -159,8 +159,8 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "W.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(identifierDotIdentifier("u", "add4"), args,
-                path, new FilePosition(8, 119), new FilePosition(8, 123), new FilePosition(8, 128),
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add4", identifierDotIdentifier("u", "add4"),
+                args, path, new FilePosition(8, 119), new FilePosition(8, 123), new FilePosition(8, 128),
                 Arrays.asList(new FilePosition(8, 125)));
 
         // Assert
@@ -173,7 +173,7 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         BinaryExpression call = new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("add5"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path,
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add5", call, args, path,
                 new FilePosition(6, 102), new FilePosition(6, 106), new FilePosition(6, 111),
                 Arrays.asList(new FilePosition(6, 108)));
 
@@ -187,7 +187,7 @@ public class MethodUseResolverTest {
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
         List<Expression> args = Arrays.asList(literal("1"), literal("2"));
         BinaryExpression call = new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("add6"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(call, args, path,
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add6", call, args, path,
                 new FilePosition(10, 177), new FilePosition(10, 181), new FilePosition(10, 186),
                 Arrays.asList(new FilePosition(10, 183)));
 
@@ -199,7 +199,7 @@ public class MethodUseResolverTest {
     public void testSuperVariableMethodCall() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("test1",
                 new BinaryExpression(new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("z")),
                         BinaryOperation.DOT, identifier("test1")), new ArrayList<>(), path,
                 new FilePosition(14, 264), new FilePosition(14, 269), new FilePosition(14, 270),
@@ -213,7 +213,7 @@ public class MethodUseResolverTest {
     public void testThisVariableMethodCall() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "Y.java");
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("test2",
                 new BinaryExpression(new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("z")),
                         BinaryOperation.DOT, identifier("test2")), new ArrayList<>(), path,
                 new FilePosition(18, 346), new FilePosition(18, 351), new FilePosition(18, 352),
@@ -240,7 +240,7 @@ public class MethodUseResolverTest {
         assertContainsMethodCall("Z.java", "U otherAdd1()", expectedMethodCall);
 
         // Prepare for the latter method call
-        expectedMethodCall = new MethodCallExpression(call, args, path, new FilePosition(10, 164),
+        expectedMethodCall = new MethodCallExpression("add7", call, args, path, new FilePosition(10, 164),
                 new FilePosition(10, 168), new FilePosition(10, 173),
                 Arrays.asList(new FilePosition(10, 170)));
 
@@ -253,7 +253,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A0.java");
         List<Expression> args = Arrays.asList(identifier("b"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("method2",
                 new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")), args, path,
                 new FilePosition(8, 164), new FilePosition(8, 171), new FilePosition(8, 173),
                 Collections.emptyList());
@@ -269,7 +269,7 @@ public class MethodUseResolverTest {
         List<Expression> args = Arrays.asList(new MethodCallExpression(identifier("getB"), new ArrayList<>(), path,
                 new FilePosition(13, 299), new FilePosition(13, 303), new FilePosition(13, 304),
                 Collections.emptyList()));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("method2",
                 new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")), args, path,
                 new FilePosition(13, 291), new FilePosition(13, 298 ), new FilePosition(13, 305),
                 Collections.emptyList());
@@ -283,11 +283,11 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A0.java");
         List<Expression> args = Arrays.asList(
-                new MethodCallExpression(new BinaryExpression(thisKeyword(), BinaryOperation.DOT, identifier("getB")),
-                        new ArrayList<>(), path, new FilePosition(18, 436), new FilePosition(18, 440),
-                        new FilePosition(18, 441), Collections.emptyList())
+                new MethodCallExpression("getB", new BinaryExpression(thisKeyword(), BinaryOperation.DOT,
+                        identifier("getB")), new ArrayList<>(), path, new FilePosition(18, 436),
+                        new FilePosition(18, 440), new FilePosition(18, 441), Collections.emptyList())
         );
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("method2",
                 new BinaryExpression(identifier("c"), BinaryOperation.DOT, identifier("method2")),
                 args, path, new FilePosition(18, 423), new FilePosition(18, 430), new FilePosition(18, 442),
                 Collections.emptyList());
@@ -300,7 +300,7 @@ public class MethodUseResolverTest {
     public void testStaticMethodCallOnClassName() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("testLocalVariableMethodCall",
                 new BinaryExpression(identifier("V"), BinaryOperation.DOT, identifier("testLocalVariableMethodCall")),
                 new ArrayList<>(), path, new FilePosition(6, 101), new FilePosition(6, 128),
                 new FilePosition(6, 129), Collections.emptyList());
@@ -313,7 +313,7 @@ public class MethodUseResolverTest {
     public void testStaticMethodCallOnFullyQualifiedName() {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("testLocalVariableMethodCall",
                 new BinaryExpression(new BinaryExpression(identifier("base"), BinaryOperation.DOT, identifier("V")),
                         BinaryOperation.DOT, identifier("testLocalVariableMethodCall")),
                 new ArrayList<>(), path, new FilePosition(10, 219), new FilePosition(10, 246),
@@ -328,7 +328,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         List<Expression> args = Arrays.asList(identifier("a"), identifier("b"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add",
                 new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path,
                 new FilePosition(18, 455), new FilePosition(18, 458), new FilePosition(18, 463),
                 Arrays.asList(new FilePosition(18, 460)));
@@ -346,7 +346,7 @@ public class MethodUseResolverTest {
                 .local(true)
                 .build(),
                 Optional.empty(), new ArrayList<>(), new ArrayList<>(), false);
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add",
                 new BinaryExpression(classDef, BinaryOperation.DOT, identifier("add")), args, path,
                 new FilePosition(24, 574), new FilePosition(24, 577), new FilePosition(24, 582),
                 Arrays.asList(new FilePosition(24, 579)));
@@ -360,7 +360,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         List<Expression> args = Arrays.asList(identifier("a"), identifier("d"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add",
                 new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path,
                 new FilePosition(33, 795), new FilePosition(33, 798), new FilePosition(33, 803),
                 Arrays.asList(new FilePosition(33, 800)));
@@ -374,7 +374,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "A1.java");
         List<Expression> args = Arrays.asList(identifier("i"), literal("5"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("add",
                 new BinaryExpression(identifier("adder"), BinaryOperation.DOT, identifier("add")), args, path,
                 new FilePosition(42, 1000), new FilePosition(42, 1003), new FilePosition(42, 1008),
                 Arrays.asList(new FilePosition(42, 1005)));
@@ -427,7 +427,7 @@ public class MethodUseResolverTest {
         // Expected method call
         Path path = Paths.get(SAMPLES_DIRECTORY, "Z.java");
         List<Expression> args = Arrays.asList(literal("100"));
-        MethodCallExpression expectedMethodCall = new MethodCallExpression(
+        MethodCallExpression expectedMethodCall = new MethodCallExpression("test4",
                 new BinaryExpression(superKeyword(), BinaryOperation.DOT, identifier("test4")), args, path,
                 new FilePosition(46, 853), new FilePosition(46, 858), new FilePosition(46, 862),
                 Collections.emptyList());
@@ -453,7 +453,7 @@ public class MethodUseResolverTest {
         return null;
     }
 
-    private static Expression identifier(String value) {
+    private static UnitExpression identifier(String value) {
         return new UnitExpression(UnitExpression.ValueType.IDENTIFIER, value);
     }
 
