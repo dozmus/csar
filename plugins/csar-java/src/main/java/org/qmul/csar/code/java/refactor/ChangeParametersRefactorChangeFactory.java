@@ -148,8 +148,8 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
     private static RefactorChange replaceArgument(ChangeableParameters cp, int oldSize, int i,
             String replacement) {
         Path path = cp.getPath();
-        FilePosition lParen = cp.getLeftParenFilePosition();
-        FilePosition rParen = cp.getRightParenFilePosition();
+        FilePosition lParen = cp.getLeftParenthesisPosition();
+        FilePosition rParen = cp.getRightParenthesisPosition();
         List<FilePosition> commas = cp.getCommaFilePositions();
         int lineNumber = cp.getLineNumber();
 
@@ -183,8 +183,8 @@ public class ChangeParametersRefactorChangeFactory implements RefactorChangeFact
      */
     private static List<RefactorChange> changesSizeMismatch(ChangeableParameters cp, int oldSize, List<String> newArgs) {
         Path path = cp.getPath();
-        FilePosition lParen = cp.getLeftParenFilePosition();
-        FilePosition rParen = cp.getRightParenFilePosition();
+        FilePosition lParen = cp.getLeftParenthesisPosition();
+        FilePosition rParen = cp.getRightParenthesisPosition();
         List<FilePosition> commas = cp.getCommaFilePositions();
         int lineNumber = cp.getLineNumber();
 

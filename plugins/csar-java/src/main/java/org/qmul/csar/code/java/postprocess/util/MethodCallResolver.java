@@ -194,7 +194,7 @@ public class MethodCallResolver {
 
         if (statements.size() == 0)
             return null;
-        String methodName = methodCall.getMethodIdentifier();
+        String methodName = methodCall.getIdentifierName();
         boolean isCurrentCtxStatic = traversalHierarchy.isCurrentLocalContextStatic();
         return statements.stream()
                 .filter(s -> s instanceof MethodStatement)

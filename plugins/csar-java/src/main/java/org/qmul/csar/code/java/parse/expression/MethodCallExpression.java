@@ -107,14 +107,6 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
         return identifierFilePosition;
     }
 
-    public FilePosition getLeftParenthesisPosition() {
-        return leftParenthesisPosition;
-    }
-
-    public FilePosition getRightParenthesisPosition() {
-        return rightParenthesisPosition;
-    }
-
     public List<FilePosition> getCommaFilePositions() {
         return commaFilePositions;
     }
@@ -123,11 +115,11 @@ public class MethodCallExpression implements Expression, Renamable, ChangeablePa
         return methodIdentifier(methodName);
     }
 
-    public FilePosition getLeftParenFilePosition() {
+    public FilePosition getLeftParenthesisPosition() {
         return leftParenthesisPosition;
     }
 
-    public FilePosition getRightParenFilePosition() {
+    public FilePosition getRightParenthesisPosition() {
         return rightParenthesisPosition;
     }
 

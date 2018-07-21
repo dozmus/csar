@@ -32,8 +32,8 @@ public class MethodStatement implements Statement, Renamable, ChangeableParamete
     private final BlockStatement block;
     private final List<Annotation> annotations;
     private final FilePosition identifierFilePosition;
-    private final FilePosition leftParenFilePosition;
-    private final FilePosition rightParenFilePosition;
+    private final FilePosition leftParenthesisPosition;
+    private final FilePosition rightParenthesisPosition;
     private final List<FilePosition> commaFilePositions;
     private final Path path;
     /**
@@ -46,15 +46,15 @@ public class MethodStatement implements Statement, Renamable, ChangeableParamete
     private final List<MethodCallExpression> methodUsages = new ArrayList<>();
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations, FilePosition identifierFilePosition, FilePosition leftParenFilePosition,
-            FilePosition rightParenFilePosition, List<FilePosition> commaFilePositions, Path path) {
+            List<Annotation> annotations, FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
+            FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions, Path path) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;
         this.annotations = Collections.unmodifiableList(annotations);
         this.identifierFilePosition = identifierFilePosition;
-        this.leftParenFilePosition = leftParenFilePosition;
-        this.rightParenFilePosition = rightParenFilePosition;
+        this.leftParenthesisPosition = leftParenthesisPosition;
+        this.rightParenthesisPosition = rightParenthesisPosition;
         this.commaFilePositions = commaFilePositions;
         this.path = path;
     }
@@ -91,12 +91,12 @@ public class MethodStatement implements Statement, Renamable, ChangeableParamete
         return identifierFilePosition;
     }
 
-    public FilePosition getLeftParenFilePosition() {
-        return leftParenFilePosition;
+    public FilePosition getLeftParenthesisPosition() {
+        return leftParenthesisPosition;
     }
 
-    public FilePosition getRightParenFilePosition() {
-        return rightParenFilePosition;
+    public FilePosition getRightParenthesisPosition() {
+        return rightParenthesisPosition;
     }
 
     public List<FilePosition> getCommaFilePositions() {
@@ -125,8 +125,8 @@ public class MethodStatement implements Statement, Renamable, ChangeableParamete
                 && Objects.equals(block, that.block)
                 && Objects.equals(annotations, that.annotations)
                 && Objects.equals(identifierFilePosition, that.identifierFilePosition)
-                && Objects.equals(leftParenFilePosition, that.leftParenFilePosition)
-                && Objects.equals(rightParenFilePosition, that.rightParenFilePosition)
+                && Objects.equals(leftParenthesisPosition, that.leftParenthesisPosition)
+                && Objects.equals(rightParenthesisPosition, that.rightParenthesisPosition)
                 && Objects.equals(commaFilePositions, that.commaFilePositions)
                 && Objects.equals(path, that.path)
                 && Objects.equals(returnQualifiedType, that.returnQualifiedType)
@@ -136,7 +136,7 @@ public class MethodStatement implements Statement, Renamable, ChangeableParamete
     @Override
     public int hashCode() {
         return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages,
-                identifierFilePosition, leftParenFilePosition, rightParenFilePosition, commaFilePositions, path);
+                identifierFilePosition, leftParenthesisPosition, rightParenthesisPosition, commaFilePositions, path);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class MethodStatement implements Statement, Renamable, ChangeableParamete
                 .append("returnQualifiedType", returnQualifiedType)
                 .append("methodUsages", methodUsages)
                 .append("identifierFilePosition", identifierFilePosition)
-                .append("leftParenFilePosition", leftParenFilePosition)
-                .append("rightParenFilePosition", rightParenFilePosition)
+                .append("leftParenFilePosition", leftParenthesisPosition)
+                .append("rightParenFilePosition", rightParenthesisPosition)
                 .append("commaFilePositions", commaFilePositions)
                 .append("path", path)
                 .toString();

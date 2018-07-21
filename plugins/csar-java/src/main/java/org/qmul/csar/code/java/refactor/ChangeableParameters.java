@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface ChangeableParameters {
 
-    FilePosition getLeftParenFilePosition();
+    FilePosition getLeftParenthesisPosition();
 
-    FilePosition getRightParenFilePosition();
+    FilePosition getRightParenthesisPosition();
 
     List<FilePosition> getCommaFilePositions();
 

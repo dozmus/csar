@@ -1177,8 +1177,8 @@ public class ChangeParametersRefactorChangeFactoryTest {
         MethodStatement ms = mock(MethodStatement.class);
         when(ms.getPath()).thenReturn(path);
         when(ms.getIdentifierFilePosition()).thenReturn(new FilePosition(lineNumber, 0));
-        when(ms.getLeftParenFilePosition()).thenReturn(new FilePosition(lineNumber, lParenOffset));
-        when(ms.getRightParenFilePosition()).thenReturn(new FilePosition(lineNumber, rParenOffset));
+        when(ms.getLeftParenthesisPosition()).thenReturn(new FilePosition(lineNumber, lParenOffset));
+        when(ms.getRightParenthesisPosition()).thenReturn(new FilePosition(lineNumber, rParenOffset));
         when(ms.getCommaFilePositions()).thenReturn(commaPositions);
         when(ms.getParameters()).thenReturn(parameters);
         return ms;
@@ -1200,8 +1200,8 @@ public class ChangeParametersRefactorChangeFactoryTest {
         MethodCallExpression mce = mock(MethodCallExpression.class);
         when(mce.getPath()).thenReturn(path);
         when(mce.getIdentifierFilePosition()).thenReturn(new FilePosition(lineNumber, 100));
-        when(mce.getLeftParenFilePosition()).thenReturn(new FilePosition(lineNumber, startOffset));
-        when(mce.getRightParenFilePosition()).thenReturn(new FilePosition(lineNumber, endOffset));
+        when(mce.getLeftParenthesisPosition()).thenReturn(new FilePosition(lineNumber, startOffset));
+        when(mce.getRightParenthesisPosition()).thenReturn(new FilePosition(lineNumber, endOffset));
         when(mce.getCommaFilePositions()).thenReturn(commaPositions);
         when(mce.getArgumentTypes()).thenReturn(parameters.stream()
                 .map(ParameterVariableStatement::getDescriptor)
