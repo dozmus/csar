@@ -123,6 +123,8 @@ public final class Main {
     private static void printUsage() {
         String usage = "Usage: java -jar csar.jar [options] search-query\n"
                 + "  Options:\n"
+                + "    --directory, -d\n"
+                + "      Target directory (default: .)\n"
                 + "    --threads, -t\n"
                 + "      Thread count (default: 1)\n"
                 + "    --log-level\n"

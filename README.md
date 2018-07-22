@@ -22,8 +22,10 @@ All source code in the working directory will be searched, if the current direct
 This can be toggled using the `--narrow-search` CLI flag.
 
 ```
-Usage: java -jar csar.jar [options] Search query
+Usage: java -jar csar.jar [options] search-query
   Options:
+    --directory, -d
+      Target directory (default: .)
     --threads, -t
       Thread count (default: 1)
     --log-level

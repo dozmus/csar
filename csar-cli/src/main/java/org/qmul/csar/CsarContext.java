@@ -22,12 +22,14 @@ import java.util.List;
  */
 class CsarContext {
 
+    @Parameter(description = "Search query", required = true, order = 0)
+    private List<String> query = new ArrayList<>();
     /**
      * The root directory of the project.
      */
-    private final Path projectDirectory;
-    @Parameter(description = "Search query", required = true, order = 1)
-    private List<String> query = new ArrayList<>();
+    @Parameter(names = {"--directory", "-d"}, description = "Target directory", order = 1,
+            converter = PathConverter.class)
+    private Path projectDirectory = Paths.get(".");
     @Parameter(names = {"--threads", "-t"}, description = "Thread count", order = 2)
     private int threads = 1;
     @Parameter(names = {"--log-level"}, description = "Log level", order = 3, converter = Slf4jLevelConverter.class)
@@ -38,31 +40,12 @@ class CsarContext {
     @Parameter(names = {"--narrow-search"}, description = "Narrow search domain", order = 6)
     private boolean narrowSearch = true;
     @Parameter(names = {"--ignore-file"}, description = "Ignore file", order = 7, converter = PathConverter.class)
-    private Path ignoreFile;
+    private Path ignoreFile = Paths.get(".csarignore");
     @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 9)
     private boolean printProjectUrl;
     @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 10, help = true)
     private boolean printHelp;
     private CliCsarErrorListener errorListener;
-
-    /**
-     * Creates a new {@link CsarContext} with {@link #projectDirectory} set to <tt>Paths.get(".")</tt> and
-     * {@link #ignoreFile} set to <tt>Paths.get(".csarignore")</tt>.
-     */
-    public CsarContext() {
-        this(Paths.get("."), Paths.get(".csarignore"));
-    }
-
-    /**
-     * Creates a new {@link CsarContext} with the project base directory set to the argument.
-     *
-     * @param projectDirectory the project base directory
-     * @param ignoreFile the ignore file
-     */
-    private CsarContext(Path projectDirectory, Path ignoreFile) {
-        this.projectDirectory = projectDirectory;
-        this.ignoreFile = ignoreFile;
-    }
 
     /**
      * Returns the result of joining together {@link #query} with the space delimiter.
