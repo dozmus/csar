@@ -56,7 +56,7 @@ public class OverriddenMethodsResolver extends MultiThreadedTaskProcessor implem
     }
 
     public OverriddenMethodsResolver(int threadCount, QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
-        super(threadCount, "omr");
+        super(threadCount, "csar-omr");
         this.qnr = qnr;
         this.thr = thr;
         setRunnable(new Task());
