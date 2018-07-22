@@ -2,15 +2,18 @@ package org.qmul.csar.result.formatter;
 
 import org.qmul.csar.code.Result;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
- * A plain-text formatter.
+ * A plain-text formatter, this sorts the results by Path and then by line number.
  */
 public final class PlainTextResultFormatter implements ResultFormatter {
 
     @Override
     public String format(List<Result> results) {
+        results.sort(Comparator.comparing(Result::getPath).thenComparing(Result::getLineNumber));
+
         if (results.size() > 0) {
             StringBuilder sb = new StringBuilder();
 

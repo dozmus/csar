@@ -41,7 +41,7 @@ public final class PlainTextResultFormatterTest {
         int lineNumber2 = 1;
         String codeFragment2 = "    for (int i = 0; i < 100; i++)  {";
         String expected2 = String.format("%s:%s %s", path2.toString(), lineNumber2, codeFragment2);
-        String expected = expected1 + System.lineSeparator() + expected2;
+        String expected = expected2 + System.lineSeparator() + expected1;
 
         // Assert
         Result result1 = new Result(path1, lineNumber1, codeFragment1);

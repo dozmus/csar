@@ -44,13 +44,13 @@ public final class JsonResultFormatterTest {
         int lineNumber2 = 1;
         String codeFragment2 = "    for (int i = 0; i < 100; i++)  {";
         String expected = "[ {" + System.lineSeparator()
-                + "  \"path\" : \"" + path1.toUri().toString() + "\"," + System.lineSeparator()
-                + "  \"lineNumber\" : 36," + System.lineSeparator()
-                + "  \"codeFragment\" : \"new Object();\"" + System.lineSeparator()
-                + "}, {" + System.lineSeparator()
                 + "  \"path\" : \"" + path2.toUri().toString() + "\"," + System.lineSeparator()
                 + "  \"lineNumber\" : 1," + System.lineSeparator()
                 + "  \"codeFragment\" : \"    for (int i = 0; i < 100; i++)  {\"" + System.lineSeparator()
+                + "}, {" + System.lineSeparator()
+                + "  \"path\" : \"" + path1.toUri().toString() + "\"," + System.lineSeparator()
+                + "  \"lineNumber\" : 36," + System.lineSeparator()
+                + "  \"codeFragment\" : \"new Object();\"" + System.lineSeparator()
                 + "} ]";
 
         // Assert
