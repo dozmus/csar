@@ -1,9 +1,9 @@
 package org.qmul.csar.plugin;
 
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.Result;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.query.CsarQuery;
-import org.qmul.csar.code.Result;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -29,8 +29,9 @@ public interface CsarPlugin {
      * Post-processes the code.
      *
      * @param threadCount the amount of threads to use
+     * @param csarQuery the csar query to search for
      */
-    void postprocess(int threadCount);
+    void postprocess(int threadCount, CsarQuery csarQuery);
 
     /**
      * Returns the results of searching the project code.

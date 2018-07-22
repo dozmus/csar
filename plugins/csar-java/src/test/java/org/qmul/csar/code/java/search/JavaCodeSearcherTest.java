@@ -115,7 +115,7 @@ public class JavaCodeSearcherTest {
         CsarQuery query = CsarQueryFactory.parse(csarQuery);
         CsarPlugin csarPlugin = new CsarJavaPlugin();
         csarPlugin.parse(Paths.get(directory), false, Paths.get("."), 1);
-        csarPlugin.postprocess(1);
+        csarPlugin.postprocess(1, query);
         return csarPlugin.search(query, 1);
     }
 }

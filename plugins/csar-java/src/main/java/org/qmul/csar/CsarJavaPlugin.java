@@ -4,8 +4,8 @@ import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
-import org.qmul.csar.code.java.postprocess.methods.overridden.DefaultOverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
+import org.qmul.csar.code.java.postprocess.methods.overridden.SelectiveOverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -21,6 +21,7 @@ import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
+import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.RefactorDescriptor;
@@ -65,13 +66,13 @@ public class CsarJavaPlugin implements CsarPlugin {
     }
 
     @Override
-    public void postprocess(int threadCount) {
+    public void postprocess(int threadCount, CsarQuery csarQuery) {
         // Create components
         QualifiedNameResolver qnr = new QualifiedNameResolver();
         thr = new DefaultTypeHierarchyResolver(qnr);
         MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver(qnr);
-        // TODO use selectiveomr
-        OverriddenMethodsResolver omr = new DefaultOverriddenMethodsResolver(threadCount, qnr, thr);
+        OverriddenMethodsResolver omr = new SelectiveOverriddenMethodsResolver(threadCount, qnr, thr,
+                (MethodDescriptor) csarQuery.getSearchTarget().getDescriptor());
         MethodUseResolver mur = new MethodUseResolver(qnr, thr);
         MethodCallTypeInstanceResolver mctir = new MethodCallTypeInstanceResolver(qnr, thr);
 

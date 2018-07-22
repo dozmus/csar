@@ -117,7 +117,7 @@ public class Csar {
     public void postprocess() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
-        pluginLoader.forEachPlugin(p -> p.postprocess(threadCount));
+        pluginLoader.forEachPlugin(p -> p.postprocess(threadCount, csarQuery));
     }
 
     /**
