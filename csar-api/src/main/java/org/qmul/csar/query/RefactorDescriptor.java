@@ -7,6 +7,8 @@ import org.qmul.csar.lang.descriptors.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A description of a refactor.
@@ -89,7 +91,11 @@ public interface RefactorDescriptor {
 
         @Override
         public boolean validate(TargetDescriptor desc) {
-            return desc.getDescriptor() instanceof MethodDescriptor;
+            // Check no parameter identifier has been used twice
+            Set<String> identifiers = descriptors.stream()
+                    .map(d -> d.getIdentifierName().get().toString())
+                    .collect(Collectors.toSet());
+            return desc.getDescriptor() instanceof MethodDescriptor && identifiers.size() == descriptors.size();
         }
 
         @Override

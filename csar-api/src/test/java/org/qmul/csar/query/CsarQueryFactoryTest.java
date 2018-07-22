@@ -390,6 +390,11 @@ public final class CsarQueryFactoryTest {
         parse("switch(test(");
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testInvalidChangeParametersArguments() {
+        parse("method:def:static boolean add(int a, int b) REFACTOR changeparam: int a, int a");
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyQuery() {
         parse("");
