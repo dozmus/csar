@@ -1,11 +1,10 @@
 package org.qmul.csar;
 
-import org.qmul.csar.code.postprocess.CodePostProcessor;
-import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
+import org.qmul.csar.code.java.postprocess.methods.overridden.DefaultOverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
@@ -16,7 +15,9 @@ import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
+import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.SerializableCode;
 import org.qmul.csar.lang.Statement;
@@ -69,7 +70,7 @@ public class CsarJavaPlugin implements CsarPlugin {
         QualifiedNameResolver qnr = new QualifiedNameResolver();
         thr = new DefaultTypeHierarchyResolver(qnr);
         MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver(qnr);
-        OverriddenMethodsResolver omr = new OverriddenMethodsResolver(threadCount, qnr, thr);
+        OverriddenMethodsResolver omr = new DefaultOverriddenMethodsResolver(threadCount, qnr, thr);
         MethodUseResolver mur = new MethodUseResolver(qnr, thr);
         MethodCallTypeInstanceResolver mctir = new MethodCallTypeInstanceResolver(qnr, thr);
 

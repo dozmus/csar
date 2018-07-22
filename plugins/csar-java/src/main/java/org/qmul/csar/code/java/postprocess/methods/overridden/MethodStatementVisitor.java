@@ -66,7 +66,7 @@ final class MethodStatementVisitor extends StatementVisitor {
         if (omr.calculateOverridden(code, path, packageStatement, imports, traversedTypeStatements.getLast(),
                 traversedTypeStatements.getFirst(), method)) {
             method.getDescriptor().setOverridden(Optional.of(true));
-            omr.getMap().put(createSignature(), true);
+            omr.setOverridden(createSignature(), true);
         } else {
             method.getDescriptor().setOverridden(Optional.of(false));
         }

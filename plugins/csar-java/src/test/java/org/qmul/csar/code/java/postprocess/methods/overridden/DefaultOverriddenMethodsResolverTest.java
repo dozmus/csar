@@ -20,14 +20,14 @@ import java.util.Map;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OverriddenMethodsResolverTest {
+public class DefaultOverriddenMethodsResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
     private static final TypeHierarchyResolver typeHierarchyResolver = new DefaultTypeHierarchyResolver(qualifiedNameResolver);
     private static final MethodQualifiedTypeResolver methodQualifiedTypeResolver
             = new MethodQualifiedTypeResolver(qualifiedNameResolver);
-    private static final OverriddenMethodsResolver resolver = new OverriddenMethodsResolver(qualifiedNameResolver,
+    private static final OverriddenMethodsResolver resolver = new DefaultOverriddenMethodsResolver(qualifiedNameResolver,
             typeHierarchyResolver);
 
     @BeforeClass
