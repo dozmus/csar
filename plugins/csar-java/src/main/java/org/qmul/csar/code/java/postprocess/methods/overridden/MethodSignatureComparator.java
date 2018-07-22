@@ -74,38 +74,39 @@ public final class MethodSignatureComparator {
      * potential superclass. So the argument descriptor is accepted if its return type or parameter types are
      * subtypes of the super's.
      */
-    public static boolean signatureEquals(MethodStatement method, MethodStatement oMethod,
-            TypeHierarchyResolver typeHierarchyResolver) {
+    public static boolean signatureEquals(MethodStatement method, MethodStatement oMethod, TypeHierarchyResolver thr) {
         // TODO ensure correctness: may breakdown
         MethodDescriptor descriptor = method.getDescriptor();
         MethodDescriptor oDescriptor = oMethod.getDescriptor();
-        boolean returnTypeEquals;
-        boolean parameterTypeEquals;
+
+        // Name
+        if (!descriptor.getIdentifierName().equals(oDescriptor.getIdentifierName()))
+            return false;
 
         // Return type
+        if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent()) {
+            return false;
+        }
+        boolean returnTypeEquals;
+
         String type1 = descriptor.getReturnType().get();
         String type2 = oDescriptor.getReturnType().get();
         type1 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type1), descriptor.getTypeParameters());
         type2 = TypeHelper.resolveGenericTypes(TypeHelper.normalizeVarArgs(type2), oDescriptor.getTypeParameters());
 
         if (method.getReturnQualifiedType() != null && oMethod.getReturnQualifiedType() != null) {
-            returnTypeEquals = typeHierarchyResolver.isSubtype(method.getReturnQualifiedType().getQualifiedName(),
-                    oMethod.getReturnQualifiedType().getQualifiedName())
-                    && TypeHelper.dimensionsEquals(type1, type2);
-        } else { // assume they can be from java api, so we don't check for correctness
+            returnTypeEquals = thr.isSubtype(method.getReturnQualifiedType().getQualifiedName(),
+                    oMethod.getReturnQualifiedType().getQualifiedName()) && TypeHelper.dimensionsEquals(type1, type2);
+        } else { // XXX they can be from java api, so we don't check for very strict correctness
             returnTypeEquals = type1.equals(type2) && TypeHelper.dimensionsEquals(type1, type2);
         }
 
-        if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent()) {
+        if (!returnTypeEquals) {
             return false;
         }
 
         // Parameter type
-        parameterTypeEquals = parametersSignatureEquals(method.getParameters(),
-                descriptor.getTypeParameters(), oMethod.getParameters(), oDescriptor.getTypeParameters(),
-                typeHierarchyResolver);
-        return descriptor.getIdentifierName().equals(oDescriptor.getIdentifierName())
-                && returnTypeEquals
-                && parameterTypeEquals;
+        return parametersSignatureEquals(method.getParameters(), descriptor.getTypeParameters(),
+                oMethod.getParameters(), oDescriptor.getTypeParameters(), thr);
     }
 }
