@@ -199,10 +199,10 @@ public class MethodDescriptor implements Descriptor, Cloneable {
     public static boolean lenientEqualsParametersList(Optional<Boolean> present,
             List<ParameterVariableDescriptor> elements, Optional<Boolean> otherPresent,
             List<ParameterVariableDescriptor> otherElements) {
-        if (!present.isPresent())
-            return false;
         if (!otherPresent.isPresent() || otherElements.size() == 0)
             return true;
+        if (!present.isPresent())
+            return false;
         if (elements.size() != otherElements.size())
             return false;
 
