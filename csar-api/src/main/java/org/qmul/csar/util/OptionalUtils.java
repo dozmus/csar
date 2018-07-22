@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Miscellaneous utility methods for interacting with <tt>Optional<T></tt>.
+ * Miscellaneous utility methods for interacting with {@link Optional}.
  */
 public class OptionalUtils {
 
@@ -17,7 +17,6 @@ public class OptionalUtils {
      * @param o2 the element to leniently compare
      * @param <T> the type of the optionals
      * @return <tt>true</tt> if the lenient comparison is successful, otherwise <tt>false</tt>
-     * @see OptionalUtils#lenientEquals(Optional, Optional)
      */
     public static <T> boolean lenientEquals(Optional<T> o1, Optional<T> o2) {
         return !o2.isPresent() || (o1.isPresent() && o1.get().equals(o2.get()));

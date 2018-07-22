@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
 
 public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor implements OverriddenMethodsResolver {
 
@@ -42,6 +44,10 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
      * The type hierarchy resolver to use.
      */
     private final TypeHierarchyResolver thr;
+    /**
+     * The method filter, this determines which methods are post-processed.
+     */
+    private final Predicate<MethodStatement> methodFilter;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private Map<Path, Statement> code;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
@@ -51,9 +57,15 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
     }
 
     public DefaultOverriddenMethodsResolver(int threadCount, QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
+        this(threadCount, qnr, thr, m -> true);
+    }
+
+    public DefaultOverriddenMethodsResolver(int threadCount, QualifiedNameResolver qnr, TypeHierarchyResolver thr,
+            Predicate<MethodStatement> methodFilter) {
         super(threadCount, "csar-omr");
         this.qnr = qnr;
         this.thr = thr;
+        this.methodFilter = methodFilter;
         setRunnable(new Task());
     }
 
@@ -187,7 +199,8 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
         @Override
         public void run() {
             Map.Entry<Path, Statement> entry;
-            MethodStatementVisitor visitor = new MethodStatementVisitor(code, DefaultOverriddenMethodsResolver.this);
+            MethodStatementVisitor visitor = new MethodStatementVisitor(code, DefaultOverriddenMethodsResolver.this,
+                    methodFilter);
 
             try {
                 while (it.hasNext() && !Thread.currentThread().isInterrupted()) {

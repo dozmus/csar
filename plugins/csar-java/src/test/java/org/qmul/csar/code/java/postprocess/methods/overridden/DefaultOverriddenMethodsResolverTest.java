@@ -1,7 +1,8 @@
 package org.qmul.csar.code.java.postprocess.methods.overridden;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -14,24 +15,27 @@ import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@RunWith(Parameterized.class)
 public class DefaultOverriddenMethodsResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
-    private static final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
-    private static final TypeHierarchyResolver typeHierarchyResolver = new DefaultTypeHierarchyResolver(qualifiedNameResolver);
-    private static final MethodQualifiedTypeResolver methodQualifiedTypeResolver
-            = new MethodQualifiedTypeResolver(qualifiedNameResolver);
-    private static final OverriddenMethodsResolver resolver = new DefaultOverriddenMethodsResolver(qualifiedNameResolver,
-            typeHierarchyResolver);
+    private static final QualifiedNameResolver qnr = new QualifiedNameResolver();
+    private DefaultOverriddenMethodsResolver resolver;
 
-    @BeforeClass
-    public static void setUp() throws IllegalAccessException, InstantiationException {
+    @Parameterized.Parameters
+    public static Collection threadCounts() {
+        return Arrays.asList(1, 2, 3, 4);
+    }
+
+    public DefaultOverriddenMethodsResolverTest(int threadCount) throws IllegalAccessException, InstantiationException {
         // Parse sample directory
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false, factory);
@@ -39,20 +43,22 @@ public class DefaultOverriddenMethodsResolverTest {
         Map<Path, Statement> code = parser.results();
 
         // Resolve type hierarchy
-        typeHierarchyResolver.postprocess(code);
+        TypeHierarchyResolver thr = new DefaultTypeHierarchyResolver(qnr);
+        thr.postprocess(code);
 
         // Resolve method types
-        methodQualifiedTypeResolver.postprocess(code);
+        new MethodQualifiedTypeResolver(qnr).postprocess(code);
 
         // Resolve overridden methods
+        resolver = new DefaultOverriddenMethodsResolver(threadCount, qnr, thr);
         resolver.postprocess(code);
     }
 
-    private static void assertIsOverridden(String methodSignature) {
+    private void assertIsOverridden(String methodSignature) {
         assertTrue(resolver.isOverridden(methodSignature));
     }
 
-    private static void assertIsNotOverridden(String methodSignature) {
+    private void assertIsNotOverridden(String methodSignature) {
         assertFalse(resolver.isOverridden(methodSignature));
     }
 

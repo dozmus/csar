@@ -70,6 +70,7 @@ public class CsarJavaPlugin implements CsarPlugin {
         QualifiedNameResolver qnr = new QualifiedNameResolver();
         thr = new DefaultTypeHierarchyResolver(qnr);
         MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver(qnr);
+        // TODO use selectiveomr
         OverriddenMethodsResolver omr = new DefaultOverriddenMethodsResolver(threadCount, qnr, thr);
         MethodUseResolver mur = new MethodUseResolver(qnr, thr);
         MethodCallTypeInstanceResolver mctir = new MethodCallTypeInstanceResolver(qnr, thr);

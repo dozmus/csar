@@ -7,6 +7,7 @@ import org.qmul.csar.lang.TypeStatement;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 
 final class MethodStatementVisitor extends StatementVisitor {
 
@@ -14,13 +15,16 @@ final class MethodStatementVisitor extends StatementVisitor {
     private final OverriddenMethodsResolver omr;
     private final Deque<String> traversalHierarchy = new ArrayDeque<>();
     private final Deque<TypeStatement> traversedTypeStatements = new ArrayDeque<>();
+    private final Predicate<MethodStatement> methodFilter;
     private Path path;
     private Optional<PackageStatement> packageStatement;
     private List<ImportStatement> imports;
 
-    public MethodStatementVisitor(Map<Path, Statement> code, OverriddenMethodsResolver omr) {
+    public MethodStatementVisitor(Map<Path, Statement> code, OverriddenMethodsResolver omr,
+            Predicate<MethodStatement> methodFilter) {
         this.omr = omr;
         this.code = code;
+        this.methodFilter = methodFilter;
     }
 
     public void reset() {
@@ -57,7 +61,9 @@ final class MethodStatementVisitor extends StatementVisitor {
     @Override
     public void visitMethodStatement(MethodStatement statement) {
         traversalHierarchy.addLast("#" + statement.getDescriptor().signature());
-        mapOverridden(statement);
+
+        if (methodFilter.test(statement))
+            mapOverridden(statement);
         super.visitMethodStatement(statement);
         traversalHierarchy.removeLast();
     }

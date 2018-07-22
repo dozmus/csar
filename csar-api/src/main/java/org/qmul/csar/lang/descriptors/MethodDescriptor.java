@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class MethodDescriptor implements Descriptor {
+public class MethodDescriptor implements Descriptor, Cloneable {
 
     private final IdentifierName identifierName;
     private final Optional<String> returnType;
@@ -274,6 +274,17 @@ public class MethodDescriptor implements Descriptor {
                 .append("thrownExceptions", thrownExceptions)
                 .append("typeParameters", typeParameters)
                 .toString();
+    }
+
+    /**
+     * Returns a shallow copy of this instance.
+     */
+    @Override
+    public MethodDescriptor clone() {
+        return new MethodDescriptor(identifierName, returnType, visibilityModifier, staticModifier, finalModifier,
+                abstractModifier, strictfpModifier, synchronizedModifier, nativeModifier, defaultModifier,
+                overridden, hasTypeArguments, parameterCount, parameters, thrownExceptions, typeParameters,
+                hasParameters, hasThrownExceptions, stub);
     }
 
     public static class Builder {

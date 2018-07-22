@@ -133,6 +133,23 @@ public class MethodStatement implements Statement, Renamable, ChangeableParamete
                 && Objects.equals(methodUsages, that.methodUsages);
     }
 
+    public boolean equalsIgnoreOverridden(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MethodStatement that = (MethodStatement) o;
+        return Objects.equals(descriptor, that.descriptor)
+                && Objects.equals(params, that.params)
+                && Objects.equals(block, that.block)
+                && Objects.equals(annotations, that.annotations)
+                && Objects.equals(identifierFilePosition, that.identifierFilePosition)
+                && Objects.equals(leftParenthesisPosition, that.leftParenthesisPosition)
+                && Objects.equals(rightParenthesisPosition, that.rightParenthesisPosition)
+                && Objects.equals(commaFilePositions, that.commaFilePositions)
+                && Objects.equals(path, that.path)
+                && Objects.equals(returnQualifiedType, that.returnQualifiedType)
+                && Objects.equals(methodUsages, that.methodUsages);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(descriptor, params, block, annotations, returnQualifiedType, methodUsages,
