@@ -131,8 +131,6 @@ public final class Main {
                 + "    --format, -f\n"
                 + "      Output format (default: PlainText)\n"
                 + "      Possible Values: PlainText, JSON\n"
-                + "    --output, -o\n"
-                + "      Output file name\n"
                 + "    --narrow-search\n"
                 + "      Narrow search domain (default: true)\n"
                 + "    --ignore-file\n"
