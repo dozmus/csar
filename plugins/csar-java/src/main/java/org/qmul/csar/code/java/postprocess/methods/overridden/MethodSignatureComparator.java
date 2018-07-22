@@ -61,7 +61,8 @@ public final class MethodSignatureComparator {
                     return false;
                 }
             } else {
-                if (!namesEqual || !genericTypesEqual || !dimensionEquals) { // fall-back comparison, to support java api)
+                // XXX fall-back comparison, to partially support java api
+                if (!namesEqual || !genericTypesEqual || !dimensionEquals) {
                     return false;
                 }
             }
