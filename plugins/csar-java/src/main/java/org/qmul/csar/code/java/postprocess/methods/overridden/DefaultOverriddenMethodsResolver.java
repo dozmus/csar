@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
@@ -18,24 +19,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 
+/**
+ * A {@link OverriddenMethodsResolver} which supports multi-threading, and filtering methods processed by a
+ * {@link Predicate}.
+ */
 public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor implements OverriddenMethodsResolver {
 
     // TODO handle methods overridden from java api classes?
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OverriddenMethodsResolver.class);
-    /**
-     * Maps a method's full signature to whether it's overridden or not. e.g. 'com.example.MyClass#int add(int,int)' ->
-     * 'true'.
-     */
-    private final ConcurrentHashMap<String, Boolean> map = new ConcurrentHashMap<>();
     /**
      * The qualified name resolver to use.
      */
@@ -49,6 +46,7 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
      */
     private final Predicate<MethodStatement> methodFilter;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final AtomicInteger overriddenMethods = new AtomicInteger();
     private Map<Path, Statement> code;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
 
@@ -79,7 +77,7 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
         run();
 
         // Log completion message
-        LOGGER.debug("Found {} overridden methods in {}ms", map.size(), stopwatch.elapsedMillis());
+        LOGGER.debug("Found {} overridden methods in {}ms", overriddenMethods.get(), stopwatch.elapsedMillis());
         LOGGER.debug("Statistics: " + qnr.getStatistics().toString());
         LOGGER.info("Finished");
     }
@@ -184,23 +182,13 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
         return false;
     }
 
-    @Override
-    public boolean isOverridden(String methodSignature) {
-        return map.getOrDefault(methodSignature, false);
-    }
-
-    @Override
-    public void setOverridden(String methodSignature, boolean overridden) {
-        map.put(methodSignature, overridden);
-    }
-
     private final class Task implements Runnable {
 
         @Override
         public void run() {
             Map.Entry<Path, Statement> entry;
-            MethodStatementVisitor visitor = new MethodStatementVisitor(code, DefaultOverriddenMethodsResolver.this,
-                    methodFilter);
+            MethodStatementProcessor processor = new MethodStatementProcessor(code,
+                    DefaultOverriddenMethodsResolver.this, methodFilter, overriddenMethods);
 
             try {
                 while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
@@ -212,16 +200,90 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
                     if (statement instanceof CompilationUnitStatement) {
                         CompilationUnitStatement compilationUnitStatement = (CompilationUnitStatement) statement;
 
-                        visitor.reset();
-                        visitor.setPath(path);
-                        visitor.setCompilationUnitStatement(compilationUnitStatement);
-                        visitor.visitStatement(compilationUnitStatement);
+                        processor.reset();
+                        processor.setPath(path);
+                        processor.setCompilationUnitStatement(compilationUnitStatement);
+                        processor.visitStatement(compilationUnitStatement);
                     }
                 }
             } catch (Exception ex) {
                 errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
                 terminate();
             }
+        }
+    }
+
+    private final class MethodStatementProcessor extends StatementVisitor {
+
+        private final Map<Path, Statement> code;
+        private final OverriddenMethodsResolver omr;
+        private final Deque<TypeStatement> traversedTypeStatements = new ArrayDeque<>();
+        private final Predicate<MethodStatement> methodFilter;
+        private final AtomicInteger overriddenMethods;
+        private Path path;
+        private Optional<PackageStatement> packageStatement;
+        private List<ImportStatement> imports;
+
+        public MethodStatementProcessor(Map<Path, Statement> code, OverriddenMethodsResolver omr,
+                Predicate<MethodStatement> methodFilter, AtomicInteger overriddenMethods) {
+            this.omr = omr;
+            this.code = code;
+            this.methodFilter = methodFilter;
+            this.overriddenMethods = overriddenMethods;
+        }
+
+        public void reset() {
+            traversedTypeStatements.clear();
+        }
+
+        @Override
+        public void visitEnumStatement(EnumStatement statement) {
+            traversedTypeStatements.addLast(statement);
+            super.visitEnumStatement(statement);
+        }
+
+        @Override
+        public void exitEnumStatement(EnumStatement statement) {
+            traversedTypeStatements.removeLast();
+        }
+
+        @Override
+        public void visitClassStatement(ClassStatement statement) {
+            traversedTypeStatements.addLast(statement);
+            super.visitClassStatement(statement);
+        }
+
+        @Override
+        public void exitClassStatement(ClassStatement statement) {
+            traversedTypeStatements.removeLast();
+        }
+
+        @Override
+        public void visitMethodStatement(MethodStatement statement) {
+            if (methodFilter.test(statement))
+                mapOverridden(statement);
+            super.visitMethodStatement(statement);
+        }
+
+        private void mapOverridden(MethodStatement method) {
+            if (omr.calculateOverridden(code, path, packageStatement, imports, traversedTypeStatements.getLast(),
+                    traversedTypeStatements.getFirst(), method)) {
+                overriddenMethods.incrementAndGet();
+                method.getDescriptor().setOverridden(Optional.of(true));
+            } else {
+                method.getDescriptor().setOverridden(Optional.of(false));
+            }
+        }
+
+        public void setPath(Path path) {
+            this.path = path;
+        }
+
+        public void setCompilationUnitStatement(CompilationUnitStatement topLevelParent) {
+            traversedTypeStatements.clear();
+            traversedTypeStatements.addLast(topLevelParent);
+            packageStatement = topLevelParent.getPackageStatement();
+            imports = topLevelParent.getImports();
         }
     }
 }

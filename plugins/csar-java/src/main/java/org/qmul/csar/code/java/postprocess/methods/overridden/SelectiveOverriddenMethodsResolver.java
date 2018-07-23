@@ -8,7 +8,8 @@ import java.util.Optional;
 
 /**
  * A {@link DefaultOverriddenMethodsResolver} which filters the methods it processes.
- * It only processes them if they match the search target descriptor, except for {@link MethodDescriptor#overridden}.
+ * It only processes them if they match the search target descriptor, except for {@link MethodDescriptor#overridden}
+ * field.
  */
 public class SelectiveOverriddenMethodsResolver extends DefaultOverriddenMethodsResolver {
 

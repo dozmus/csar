@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import org.junit.Test;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
+import org.qmul.csar.code.java.postprocess.methods.MethodTestUtils;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
@@ -25,6 +26,7 @@ public class SelectiveOverriddenMethodsResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final QualifiedNameResolver qnr = new QualifiedNameResolver();
+    private static Map<Path, Statement> code;
     private SelectiveOverriddenMethodsResolver resolver;
 
     public SelectiveOverriddenMethodsResolverTest() throws IllegalAccessException, InstantiationException {
@@ -35,7 +37,7 @@ public class SelectiveOverriddenMethodsResolverTest {
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false, factory);
         DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it);
-        Map<Path, Statement> code = parser.results();
+        code = parser.results();
 
         // Resolve type hierarchy
         TypeHierarchyResolver thr = new DefaultTypeHierarchyResolver(qnr);
@@ -49,12 +51,12 @@ public class SelectiveOverriddenMethodsResolverTest {
         resolver.postprocess(code);
     }
 
-    private void assertIsOverridden(String methodSignature) {
-        assertTrue(resolver.isOverridden(methodSignature));
+    private void assertIsOverridden(String fileName, String signature) {
+        MethodTestUtils.assertIsOverridden(code, SAMPLES_DIRECTORY, fileName, signature);
     }
 
-    private void assertIsNotOverridden(String methodSignature) {
-        assertFalse(resolver.isOverridden(methodSignature));
+    private void assertIsNotOverridden(String fileName, String signature) {
+        MethodTestUtils.assertIsNotOverridden(code, SAMPLES_DIRECTORY, fileName, signature);
     }
 
     private static void assertIsIgnored(MethodDescriptor other, MethodDescriptor target) {
@@ -69,34 +71,35 @@ public class SelectiveOverriddenMethodsResolverTest {
 
     @Test
     public void testOverriddenForSelectedMethods() {
-        assertIsOverridden("base.SumImpl1#int add(int,int)");
-        assertIsOverridden("base.SumImpl2#int add(int,int)");
-        assertIsOverridden("base.SumImpl3#int add(int,int)");
-        assertIsOverridden("base.base2.D4#int add(int,int)");
-        assertIsOverridden("base.SumImpl4$InnerImpl#int add(int,int)");
-        assertIsOverridden("base.SumImpl5#void method()$InnerImpl#int add(int,int)");
+        assertIsOverridden("SumImpl1.java", "int add(int,int)");
+        assertIsOverridden("SumImpl2.java", "int add(int,int)");
+        assertIsOverridden("SumImpl3.java", "int add(int,int)");
+        assertIsOverridden("base2/D4.java", "int add(int,int)");
 
-        assertIsNotOverridden("base.A#int add(int,int)");
-        assertIsNotOverridden("base.base2.D3#int add(int,int)");
-        assertIsNotOverridden("base.SumImpl1#String add(int,int)");
-        assertIsNotOverridden("base.SumImpl1#int add(String,String)");
+        assertIsOverridden("SumImpl4.java", "InnerImpl#int add(int,int)");
+        assertIsOverridden("SumImpl5.java", "void method()$InnerImpl#int add(int,int)");
+
+        assertIsNotOverridden("A.java", "int add(int,int)");
+        assertIsNotOverridden("base2/D3.java", "int add(int,int)");
+        assertIsNotOverridden("SumImpl1.java", "String add(int,int)");
+        assertIsNotOverridden("SumImpl1.java", "int add(String,String)");
     }
 
     @Test
     public void testOverriddenForNonSelectedMethods() {
-        assertIsNotOverridden("base.GenericFnArgInterfaceImpl1#void sort2(List)");
-        assertIsNotOverridden("base.GenericFnArgInterfaceImpl1#int time()");
-        assertIsNotOverridden("base.GenericFnArgInterfaceImpl1#void sort(List<String>)");
-        assertIsNotOverridden("base.GenericFnArgInterfaceImpl2#void sort(List)");
-        assertIsNotOverridden("base.GenericFnArgInterfaceImpl3#void sort(List<? super String>)");
-        assertIsNotOverridden("base.GenericFnArgInterfaceImpl4#void sort(List<? extends String>)");
-        assertIsNotOverridden("base.GenericFnArgInterfaceImpl5#void sort(List<?>)");
-        assertIsNotOverridden("base.VarArgsInterfaceImpl1#void print(String...)");
-        assertIsNotOverridden("base.VarArgsInterfaceImpl2#void print(String[])");
-        assertIsNotOverridden("base.Class1#void method2(A)");
-        assertIsNotOverridden("base.Class2#void method2(B)");
-        assertIsNotOverridden("base.Class1#A method()");
-        assertIsNotOverridden("base.Class2#B method()");
+        assertIsNotOverridden("GenericFnArgInterfaceImpl1.java", "void sort2(List)");
+        assertIsNotOverridden("GenericFnArgInterfaceImpl1.java", "int time()");
+        assertIsNotOverridden("GenericFnArgInterfaceImpl1.java", "void sort(List<String>)");
+        assertIsNotOverridden("GenericFnArgInterfaceImpl2.java", "void sort(List)");
+        assertIsNotOverridden("GenericFnArgInterfaceImpl3.java", "void sort(List<?superString>)");
+        assertIsNotOverridden("GenericFnArgInterfaceImpl4.java", "void sort(List<?extendsString>)");
+        assertIsNotOverridden("GenericFnArgInterfaceImpl5.java", "void sort(List<?>)");
+        assertIsNotOverridden("VarArgsInterfaceImpl1.java", "void print(String...)");
+        assertIsNotOverridden("VarArgsInterfaceImpl2.java", "void print(String[])");
+        assertIsNotOverridden("Class1.java", "void method2(A)");
+        assertIsNotOverridden("Class2.java", "void method2(B)");
+        assertIsNotOverridden("Class1.java", "A method()");
+        assertIsNotOverridden("Class2.java", "B method()");
     }
 
     @Test

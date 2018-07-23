@@ -24,7 +24,6 @@ public final class MethodSignatureComparator {
             List<String> typeParameters1, List<ParameterVariableStatement> list2, List<String> typeParameters2,
             TypeHierarchyResolver typeHierarchyResolver) {
         // TODO ensure correctness: may breakdown
-        // XXX list1 is potential superclass, list2 is potential child
         if (list1.size() != list2.size())
             return false;
 
@@ -85,9 +84,8 @@ public final class MethodSignatureComparator {
             return false;
 
         // Return type
-        if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent()) {
+        if (!descriptor.getReturnType().isPresent() || !oDescriptor.getReturnType().isPresent())
             return false;
-        }
         boolean returnTypeEquals;
 
         String type1 = descriptor.getReturnType().get();
@@ -102,9 +100,8 @@ public final class MethodSignatureComparator {
             returnTypeEquals = type1.equals(type2) && TypeHelper.dimensionsEquals(type1, type2);
         }
 
-        if (!returnTypeEquals) {
+        if (!returnTypeEquals)
             return false;
-        }
 
         // Parameter type
         return parametersSignatureEquals(method.getParameters(), descriptor.getTypeParameters(),

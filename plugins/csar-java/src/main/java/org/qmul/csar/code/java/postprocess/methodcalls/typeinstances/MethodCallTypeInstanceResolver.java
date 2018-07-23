@@ -128,7 +128,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
             List<Expression> args = expression.getArguments();
 
             // Set method source if applicable
-            if (name instanceof BinaryExpression) {
+            if (name instanceof BinaryExpression) { // XXX if name is not a UnitExpression, then process it
                 LOGGER.trace("Found binary expression method name");
                 BinaryExpression exp = (BinaryExpression) name;
                 TypeInstance methodSource = resolve(exp, true);

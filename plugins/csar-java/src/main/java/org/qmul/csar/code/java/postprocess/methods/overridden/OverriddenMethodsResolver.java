@@ -20,20 +20,9 @@ import java.util.Optional;
 public interface OverriddenMethodsResolver extends CodePostProcessor {
 
     /**
-     * Returns true if the argument method is an overridden method.
+     * Returns true if the argument method is an overridden method, and sets {@link MethodDescriptor#overridden} on the
+     * argument method.
      */
     boolean calculateOverridden(Map<Path, Statement> code, Path path, Optional<PackageStatement> pkg,
             List<ImportStatement> imports, TypeStatement typeStatement, TypeStatement parent, MethodStatement method);
-
-    /**
-     * Returns true if the argument method signature is an overridden method.
-     */
-    boolean isOverridden(String methodSignature);
-
-    /**
-     * Sets whether or not the argument method signature is an overridden method.
-     * @param methodSignature
-     * @param overridden
-     */
-    void setOverridden(String methodSignature, boolean overridden);
 }
