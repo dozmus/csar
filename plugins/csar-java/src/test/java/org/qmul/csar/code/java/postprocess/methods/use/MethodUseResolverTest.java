@@ -34,7 +34,7 @@ public class MethodUseResolverTest {
     public static void setUp() throws IllegalAccessException, InstantiationException {
         // Parse sample directory
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);
-        Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false, factory);
+        Iterator<Path> it = ProjectIteratorFactory.createFiltered(Paths.get(SAMPLES_DIRECTORY), false, factory);
         DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it);
         code = parser.results();
 

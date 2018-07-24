@@ -12,8 +12,11 @@ import java.util.Objects;
  */
 public class LabelStatement implements Statement {
 
-    private final String identifier;
-    private final Statement statement;
+    private String identifier;
+    private Statement statement;
+
+    public LabelStatement() {
+    }
 
     public LabelStatement(String identifier, Statement statement) {
         this.identifier = identifier;

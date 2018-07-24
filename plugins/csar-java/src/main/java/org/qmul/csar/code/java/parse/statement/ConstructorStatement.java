@@ -15,19 +15,22 @@ import java.util.stream.Collectors;
  */
 public class ConstructorStatement implements Statement {
 
-    private final String identifierName;
-    private final Optional<VisibilityModifier> visibilityModifier;
-    private final Optional<Integer> parameterCount;
-    private final List<ParameterVariableStatement> parameters;
-    private final List<String> thrownExceptions;
-    private final List<String> typeParameters;
-    private final BlockStatement block;
-    private final List<Annotation> annotations;
+    private String identifierName;
+    private Optional<VisibilityModifier> visibilityModifier;
+    private Optional<Integer> parameterCount;
+    private List<ParameterVariableStatement> parameters;
+    private List<String> thrownExceptions;
+    private List<String> typeParameters;
+    private BlockStatement block;
+    private List<Annotation> annotations;
+
+    public ConstructorStatement() {
+    }
 
     public ConstructorStatement(String identifierName, Optional<VisibilityModifier> visibilityModifier,
-            Optional<Integer> parameterCount, List<ParameterVariableStatement> parameters,
-            List<String> thrownExceptions, List<String> typeParameters, BlockStatement block,
-            List<Annotation> annotations) {
+                                Optional<Integer> parameterCount, List<ParameterVariableStatement> parameters,
+                                List<String> thrownExceptions, List<String> typeParameters, BlockStatement block,
+                                List<Annotation> annotations) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.parameterCount = parameterCount;

@@ -17,12 +17,15 @@ import java.util.Objects;
  */
 public class ParameterVariableStatement implements Statement {
 
-    private final ParameterVariableDescriptor descriptor;
-    private final List<Annotation> annotations;
+    private ParameterVariableDescriptor descriptor;
+    private List<Annotation> annotations;
     /**
      * Updated by {@link MethodQualifiedTypeResolver} in post-processing.
      */
-    private TypeInstance typeInstance;
+    private transient TypeInstance typeInstance;
+
+    public ParameterVariableStatement() {
+    }
 
     public ParameterVariableStatement(ParameterVariableDescriptor descriptor, List<Annotation> annotations) {
         this.descriptor = descriptor;

@@ -11,12 +11,15 @@ import java.util.Optional;
 
 public abstract class AbstractVariableDescriptor implements Descriptor {
 
-    private final IdentifierName identifierName;
-    private final Optional<String> identifierType;
-    private final Optional<Boolean> finalModifier;
+    private IdentifierName identifierName;
+    private Optional<String> identifierType;
+    private Optional<Boolean> finalModifier;
+
+    public AbstractVariableDescriptor() {
+    }
 
     public AbstractVariableDescriptor(IdentifierName identifierName, Optional<String> identifierType,
-            Optional<Boolean> finalModifier) {
+                                      Optional<Boolean> finalModifier) {
         this.identifierName = identifierName;
         this.identifierType = identifierType;
         this.finalModifier = finalModifier;

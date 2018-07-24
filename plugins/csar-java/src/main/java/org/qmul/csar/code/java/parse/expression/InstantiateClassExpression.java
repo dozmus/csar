@@ -15,14 +15,17 @@ import java.util.Optional;
 
 public class InstantiateClassExpression implements Expression {
 
-    private final ClassDescriptor descriptor;
-    private final Optional<BlockStatement> block;
-    private final List<Expression> arguments;
-    private final List<String> typeArguments;
-    private final boolean hasTypeArguments;
+    private ClassDescriptor descriptor;
+    private Optional<BlockStatement> block;
+    private List<Expression> arguments;
+    private List<String> typeArguments;
+    private boolean hasTypeArguments;
+
+    public InstantiateClassExpression() {
+    }
 
     public InstantiateClassExpression(ClassDescriptor descriptor, Optional<BlockStatement> block,
-            List<Expression> arguments, List<String> typeArguments, boolean hasTypeArguments) {
+                                      List<Expression> arguments, List<String> typeArguments, boolean hasTypeArguments) {
         this.descriptor = descriptor;
         this.block = block;
         this.arguments = Collections.unmodifiableList(arguments);

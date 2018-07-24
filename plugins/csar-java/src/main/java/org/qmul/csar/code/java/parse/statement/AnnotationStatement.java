@@ -18,9 +18,12 @@ import java.util.Optional;
  */
 public class AnnotationStatement implements TypeStatement {
 
-    private final AnnotationDescriptor descriptor;
-    private final BlockStatement block;
-    private final List<Annotation> annotations;
+    private AnnotationDescriptor descriptor;
+    private BlockStatement block;
+    private List<Annotation> annotations;
+
+    public AnnotationStatement() {
+    }
 
     public AnnotationStatement(AnnotationDescriptor descriptor, BlockStatement block, List<Annotation> annotations) {
         this.descriptor = descriptor;
@@ -103,14 +106,17 @@ public class AnnotationStatement implements TypeStatement {
 
     public static class AnnotationMethod implements Statement {
 
-        private final VisibilityModifier visibilityModifier;
-        private final boolean abstractModifier;
-        private final String identifierName;
-        private final Optional<Annotation.Value> defaultValue;
-        private final List<Annotation> annotations;
+        private VisibilityModifier visibilityModifier;
+        private boolean abstractModifier;
+        private String identifierName;
+        private Optional<Annotation.Value> defaultValue;
+        private List<Annotation> annotations;
+
+        public AnnotationMethod() {
+        }
 
         public AnnotationMethod(VisibilityModifier visibilityModifier, boolean abstractModifier,
-                String identifierName, Optional<Annotation.Value> defaultValue, List<Annotation> annotations) {
+                                String identifierName, Optional<Annotation.Value> defaultValue, List<Annotation> annotations) {
             this.visibilityModifier = visibilityModifier;
             this.abstractModifier = abstractModifier;
             this.identifierName = identifierName;

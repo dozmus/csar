@@ -3,6 +3,7 @@ package org.qmul.csar;
 import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
+import org.qmul.csar.code.java.parse.code.cache.PhysicalProjectCodeCache;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
@@ -16,6 +17,8 @@ import org.qmul.csar.code.java.search.JavaCodeSearcher;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.code.parse.ProjectCodeParser;
+import org.qmul.csar.code.parse.cache.DummyProjectCodeCache;
+import org.qmul.csar.code.parse.cache.ProjectCodeCache;
 import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
@@ -26,12 +29,12 @@ import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.RefactorDescriptor;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * The Java language csar plugin.
@@ -44,9 +47,9 @@ public class CsarJavaPlugin implements CsarPlugin {
     private DefaultTypeHierarchyResolver thr;
 
     @Override
-    public CodeBase parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
-            throws Exception {
-        // Create iterator
+    public CodeBase parse(Path projectDirectory, Path csarDirectory, boolean narrowSearch, Path ignoreFile,
+            boolean noCache, int threadCount) throws Exception {
+        // Create code parser instance
         CodeParserFactory factory;
 
         try {
@@ -55,10 +58,15 @@ public class CsarJavaPlugin implements CsarPlugin {
             errorListeners.forEach(l -> l.fatalErrorInitializingParsing(ex));
             throw ex;
         }
-        Iterator<Path> it = iterator(projectDirectory, narrowSearch, ignoreFile, factory);
 
-        // Create parser
-        ProjectCodeParser parser = new DefaultProjectCodeParser(factory, it, threadCount);
+        // Create iterator
+        Iterator<Path> it = ProjectIteratorFactory.create(projectDirectory, csarDirectory, narrowSearch, ignoreFile,
+                factory);
+
+        // Create project-wide code parser
+        Supplier<ProjectCodeCache> cacheSupplier = noCache ? DummyProjectCodeCache::new
+                : () -> new PhysicalProjectCodeCache(csarDirectory, projectDirectory);
+        ProjectCodeParser parser = new DefaultProjectCodeParser(factory, it, cacheSupplier, threadCount);
         errorListeners.forEach(parser::addErrorListener);
         code = parser.results();
         return code;
@@ -104,9 +112,7 @@ public class CsarJavaPlugin implements CsarPlugin {
     }
 
     /**
-     * Adds an error listener. Make sure you add all the error listeners before invoking methods of this class.
-     *
-     * @param errorListener the error listener
+     * Adds an error listener. Make sure you add any error listeners before invoking methods of this class.
      */
     @Override
     public void addErrorListener(CsarErrorListener errorListener) {
@@ -114,24 +120,10 @@ public class CsarJavaPlugin implements CsarPlugin {
     }
 
     /**
-     * Remove an error listener. Make sure you remove all the error listeners before invoking methods of this class.
-     *
-     * @param errorListener the error listener
+     * Remove an error listener. Make sure you remove any error listeners before invoking methods of this class.
      */
     @Override
     public void removeErrorListener(CsarErrorListener errorListener) {
         errorListeners.remove(errorListener);
-    }
-
-    private static Iterator<Path> iterator(Path projectDirectory, boolean narrowSearch, Path ignoreFile,
-            CodeParserFactory factory) {
-        if (Files.exists(ignoreFile)) {
-            try {
-                return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, ignoreFile,
-                        factory);
-            } catch (IOException ignored) {
-            }
-        }
-        return ProjectIteratorFactory.createFilteredIterator(projectDirectory, narrowSearch, factory);
     }
 }

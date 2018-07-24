@@ -14,7 +14,10 @@ import java.util.Objects;
  */
 public class SwitchLabelStatement implements Statement {
 
-    private final Expression labelExpression;
+    private Expression labelExpression;
+
+    public SwitchLabelStatement() {
+    }
 
     public SwitchLabelStatement(String literal) { // Note: 'default' is placed here, with no single quotes, if necessary
         this(new UnitExpression(UnitExpression.ValueType.LITERAL, literal));

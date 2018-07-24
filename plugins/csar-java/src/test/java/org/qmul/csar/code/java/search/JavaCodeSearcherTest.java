@@ -1,12 +1,12 @@
 package org.qmul.csar.code.java.search;
 
 import org.junit.Test;
-import org.qmul.csar.CsarJavaPlugin;
+import org.qmul.csar.code.Result;
+import org.qmul.csar.code.java.JavaTestCsarPlugin;
 import org.qmul.csar.code.java.TestUtils;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
-import org.qmul.csar.code.Result;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -113,8 +113,8 @@ public class JavaCodeSearcherTest {
      */
     private List<Result> search(String csarQuery, String directory) throws Exception {
         CsarQuery query = CsarQueryFactory.parse(csarQuery);
-        CsarPlugin csarPlugin = new CsarJavaPlugin();
-        csarPlugin.parse(Paths.get(directory), false, Paths.get("."), 1);
+        CsarPlugin csarPlugin = new JavaTestCsarPlugin();
+        csarPlugin.parse(Paths.get(directory), null, false, Paths.get("."), true, 1);
         csarPlugin.postprocess(1, query);
         return csarPlugin.search(query, 1);
     }

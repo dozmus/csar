@@ -9,8 +9,11 @@ import java.util.Objects;
 
 public class PostfixedExpression implements Expression {
 
-    private final Expression expression;
-    private final Postfix postfix;
+    private Expression expression;
+    private Postfix postfix;
+
+    public PostfixedExpression() {
+    }
 
     public PostfixedExpression(Expression expression, Postfix postfix) {
         this.expression = expression;

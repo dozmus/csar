@@ -18,8 +18,11 @@ public class MethodReferenceExpression implements Expression {
      */
     private String identifier;
 
+    public MethodReferenceExpression() {
+    }
+
     public MethodReferenceExpression(Expression qualifier, String identifier,
-            Optional<List<TypeArgument>> typeArguments) {
+                                     Optional<List<TypeArgument>> typeArguments) {
         this.qualifier = qualifier;
         this.typeArguments = typeArguments;
         this.identifier = identifier;

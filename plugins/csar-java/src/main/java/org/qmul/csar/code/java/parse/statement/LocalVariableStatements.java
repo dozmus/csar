@@ -14,7 +14,10 @@ import java.util.*;
  */
 public class LocalVariableStatements implements Statement {
 
-    private final List<LocalVariableStatement> locals;
+    private List<LocalVariableStatement> locals;
+
+    public LocalVariableStatements() {
+    }
 
     /**
      * Constructs a new {@link LocalVariableStatements} containing the argument list.

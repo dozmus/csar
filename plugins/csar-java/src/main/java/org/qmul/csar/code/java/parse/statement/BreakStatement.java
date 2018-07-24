@@ -13,7 +13,10 @@ import java.util.Optional;
  */
 public class BreakStatement implements Statement {
 
-    private final Optional<String> identifier;
+    private Optional<String> identifier;
+
+    public BreakStatement() {
+    }
 
     public BreakStatement(Optional<String> identifier) {
         this.identifier = identifier;

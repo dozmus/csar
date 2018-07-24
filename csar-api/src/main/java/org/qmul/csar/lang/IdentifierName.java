@@ -22,7 +22,10 @@ public abstract class IdentifierName {
      */
     public static class Static extends IdentifierName {
 
-        private final String identifierName;
+        private String identifierName;
+
+        public Static() {
+        }
 
         public Static(String identifierName) {
             this.identifierName = identifierName;
@@ -70,7 +73,10 @@ public abstract class IdentifierName {
      */
     public static class Regex extends IdentifierName {
 
-        private final Pattern pattern;
+        private Pattern pattern;
+
+        public Regex() {
+        }
 
         public Regex(String pattern) {
             this.pattern = Pattern.compile(pattern);

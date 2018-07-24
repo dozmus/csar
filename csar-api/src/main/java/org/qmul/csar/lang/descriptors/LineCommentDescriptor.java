@@ -4,6 +4,9 @@ import java.util.Optional;
 
 public class LineCommentDescriptor extends AbstractCommentDescriptor {
 
+    public LineCommentDescriptor() {
+    }
+
     public LineCommentDescriptor(Optional<String> content) {
         super(content);
     }

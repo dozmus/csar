@@ -9,9 +9,12 @@ import java.util.Objects;
 
 public class BinaryExpression implements Expression {
 
-    private final Expression left;
-    private final BinaryOperation op;
-    private final Expression right;
+    private Expression left;
+    private BinaryOperation op;
+    private Expression right;
+
+    public BinaryExpression() {
+    }
 
     public BinaryExpression(Expression left, BinaryOperation op, Expression right) {
         this.left = left;

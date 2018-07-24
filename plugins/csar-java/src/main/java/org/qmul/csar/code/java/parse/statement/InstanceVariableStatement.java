@@ -18,12 +18,15 @@ import java.util.Optional;
  */
 public class InstanceVariableStatement implements Statement {
 
-    private final InstanceVariableDescriptor descriptor;
-    private final List<Annotation> annotations;
-    private final Optional<Expression> valueExpression;
+    private InstanceVariableDescriptor descriptor;
+    private List<Annotation> annotations;
+    private Optional<Expression> valueExpression;
+
+    public InstanceVariableStatement() {
+    }
 
     public InstanceVariableStatement(InstanceVariableDescriptor descriptor, List<Annotation> annotations,
-            Optional<Expression> valueExpression) {
+                                     Optional<Expression> valueExpression) {
         this.descriptor = descriptor;
         this.annotations = Collections.unmodifiableList(annotations);
         this.valueExpression = valueExpression;

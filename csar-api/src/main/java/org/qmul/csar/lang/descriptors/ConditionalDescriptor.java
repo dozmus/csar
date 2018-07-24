@@ -11,12 +11,15 @@ import java.util.Optional;
 
 public class ConditionalDescriptor implements Descriptor {
 
-    private final Type controlFlowType;
-    private final Optional<String> expression;
-    private final Optional<IdentifierName> identifierName;
+    private Type controlFlowType;
+    private Optional<String> expression;
+    private Optional<IdentifierName> identifierName;
+
+    public ConditionalDescriptor() {
+    }
 
     public ConditionalDescriptor(Type controlFlowType, Optional<IdentifierName> identifierName,
-            Optional<String> expression) {
+                                 Optional<String> expression) {
         this.controlFlowType = controlFlowType;
         this.identifierName = identifierName;
         this.expression = expression;

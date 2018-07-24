@@ -7,10 +7,12 @@ import org.qmul.csar.code.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A code search and refactor tool instance.
@@ -20,10 +22,13 @@ public class Csar {
     private static final Logger LOGGER = LoggerFactory.getLogger(Csar.class);
     private final String query;
     private final int threadCount;
+    private final Path csarDirectory;
     private final Path projectDirectory;
     private final boolean narrowSearch;
     private final Path ignoreFile;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final boolean noCache;
+    private final boolean clearCache;
     private CsarQuery csarQuery;
     private CsarPluginLoader pluginLoader;
     private List<Result> searchResults;
@@ -36,16 +41,23 @@ public class Csar {
      *
      * @param query the csar query to perform
      * @param threadCount the amount of threads to use
+     * @param csarDirectory the csar directory
      * @param projectDirectory the project directory
      * @param narrowSearch if the search domain should be narrowed
      * @param ignoreFile the csar ignore file to use
+     * @param noCache if caching should not be used
+     * @param clearCache if the cache should be cleared
      */
-    public Csar(String query, int threadCount, Path projectDirectory, boolean narrowSearch, Path ignoreFile) {
+    public Csar(String query, int threadCount, Path csarDirectory, Path projectDirectory, boolean narrowSearch,
+            Path ignoreFile, boolean noCache, boolean clearCache) {
         this.query = Objects.requireNonNull(query);
         this.threadCount = threadCount;
+        this.csarDirectory = Objects.requireNonNull(csarDirectory);
         this.projectDirectory = Objects.requireNonNull(projectDirectory);
         this.narrowSearch = narrowSearch;
         this.ignoreFile = Objects.requireNonNull(ignoreFile);
+        this.noCache = noCache;
+        this.clearCache = clearCache;
 
         // Add default error listener, which sets errorOccurred
         addErrorListener(new DefaultCsarErrorListener(this));
@@ -64,11 +76,53 @@ public class Csar {
     }
 
     /**
-     * Initializes Csar by loading plugins.
+     * Initializes Csar by loading plugins, and clearing the cache if requested.
      */
     public void init() {
         if (errorOccurred)
             throw new IllegalStateException("an error has occurred, csar cannot continue");
+
+        // Clear cache
+        if (clearCache) {
+            // TODO test
+            LOGGER.info("Clearing cache directory {}", csarDirectory);
+
+            // Try delete directory
+            if (Files.exists(csarDirectory)) {
+                // Source: https://www.baeldung.com/java-delete-directory
+                Iterator<File> it = null;
+
+                try {
+                    it = Files.walk(csarDirectory)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile).iterator();
+                } catch (IOException e) {
+                    errorListeners.forEach(CsarErrorListener::fatalErrorInitializing);
+                }
+                int maxTries = 3;
+
+                while (it.hasNext()) {
+                    File f = it.next();
+
+                    while (!f.delete()) {
+                        maxTries--;
+
+                        if (maxTries == 0) {
+                            errorListeners.forEach(CsarErrorListener::fatalErrorInitializing);
+                            return;
+                        }
+                    }
+                    maxTries = 3;
+                }
+            }
+
+            // Check if delete worked
+            if (Files.exists(csarDirectory)) {
+                errorListeners.forEach(CsarErrorListener::fatalErrorInitializing);
+            }
+        }
+
+        // Load plugins
         LOGGER.info("Loading plugins...");
 
         // Create the plugin loader
@@ -104,7 +158,7 @@ public class Csar {
             throw new IllegalStateException("an error has occurred, csar cannot continue");
         pluginLoader.forEachPlugin(p -> {
             try {
-                p.parse(projectDirectory, narrowSearch, ignoreFile, threadCount);
+                p.parse(projectDirectory, csarDirectory, narrowSearch, ignoreFile, noCache, threadCount);
             } catch (Exception e) {
                 // do nothing, this is handled in the error listeners
             }

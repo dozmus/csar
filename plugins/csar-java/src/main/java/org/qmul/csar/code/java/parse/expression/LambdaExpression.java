@@ -12,8 +12,11 @@ import java.util.Objects;
 
 public class LambdaExpression implements Expression {
 
-    private final LambdaParameter parameter;
-    private final Statement value;
+    private LambdaParameter parameter;
+    private Statement value;
+
+    public LambdaExpression() {
+    }
 
     public LambdaExpression(LambdaParameter parameter, ExpressionStatement value) {
         this.parameter = parameter;

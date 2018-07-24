@@ -13,20 +13,23 @@ import java.util.Optional;
 
 public class EnumDescriptor implements Descriptor {
 
-    private final IdentifierName identifierName;
-    private final Optional<VisibilityModifier> visibilityModifier;
-    private final Optional<Boolean> staticModifier;
-    private final Optional<Boolean> finalModifier;
-    private final Optional<Boolean> abstractModifier;
-    private final Optional<Boolean> strictfpModifier;
-    private final Optional<Boolean> inner;
-    private final List<String> superClasses;
-    private final Optional<Boolean> hasSuperClasses;
+    private IdentifierName identifierName;
+    private Optional<VisibilityModifier> visibilityModifier;
+    private Optional<Boolean> staticModifier;
+    private Optional<Boolean> finalModifier;
+    private Optional<Boolean> abstractModifier;
+    private Optional<Boolean> strictfpModifier;
+    private Optional<Boolean> inner;
+    private List<String> superClasses;
+    private Optional<Boolean> hasSuperClasses;
+
+    public EnumDescriptor() {
+    }
 
     public EnumDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
-            Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
-            Optional<Boolean> strictfpModifier, Optional<Boolean> inner,
-            Optional<Boolean> hasSuperClasses, List<String> superClasses) {
+                          Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
+                          Optional<Boolean> strictfpModifier, Optional<Boolean> inner,
+                          Optional<Boolean> hasSuperClasses, List<String> superClasses) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;

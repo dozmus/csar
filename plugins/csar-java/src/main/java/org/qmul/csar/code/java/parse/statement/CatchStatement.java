@@ -15,8 +15,11 @@ import java.util.Objects;
  */
 public class CatchStatement implements Statement {
 
-    private final LocalVariableStatements variable; // TODO replace with custom variable
-    private final BlockStatement block;
+    private LocalVariableStatements variable; // TODO replace with custom variable
+    private BlockStatement block;
+
+    public CatchStatement() {
+    }
 
     public CatchStatement(LocalVariableStatements variable, BlockStatement block) {
         this.variable = variable;

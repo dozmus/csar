@@ -16,9 +16,12 @@ import java.util.Objects;
  */
 public class ClassStatement implements TypeStatement {
 
-    private final ClassDescriptor descriptor;
-    private final BlockStatement block;
-    private final List<Annotation> annotations;
+    private ClassDescriptor descriptor;
+    private BlockStatement block;
+    private List<Annotation> annotations;
+
+    public ClassStatement() {
+    }
 
     public ClassStatement(ClassDescriptor descriptor, BlockStatement block, List<Annotation> annotations) {
         this.descriptor = descriptor;

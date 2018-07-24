@@ -1,5 +1,6 @@
 package org.qmul.csar.util;
 
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -73,5 +74,14 @@ public final class StringUtils {
             }
         }
         return count;
+    }
+
+    /**
+     * Returns the argument byte array, as a string of lowercase hex digits.
+     */
+    public static String toHex(byte[] bytes) {
+        // Source: https://stackoverflow.com/a/943963
+        BigInteger i = new BigInteger(1, bytes);
+        return String.format("%0" + (bytes.length << 1) + "x", i);
     }
 }

@@ -19,14 +19,26 @@ import java.util.function.Predicate;
 
 public final class ProjectIteratorFactory {
 
+    public static Iterator<Path> create(Path projectDirectory, Path csarDirectory, boolean narrowSearch,
+            Path ignoreFile, CodeParserFactory factory) {
+        if (Files.exists(ignoreFile)) {
+            try {
+                return ProjectIteratorFactory.createFiltered(projectDirectory, csarDirectory, narrowSearch, ignoreFile,
+                        factory);
+            } catch (IOException ignored) {
+            }
+        }
+        return ProjectIteratorFactory.createFiltered(projectDirectory, csarDirectory, narrowSearch, factory);
+    }
+
     /**
      * Returns a new {@link DirectoryFileIterator} for the provided arguments.
      * <p>
      * This results will be filtered if the directory is a supported version control system repository
      * (currently supported: Git) if <tt>narrowSearch</tt> is <tt>true</tt>.
      * <p>
-     * If an exception occurs while calling {@link DirectoryFileIterator#init()} for a given iterator, an instance of
-     * {@link DirectoryFileIterator} will be returned instead which will recursively iterate the entire argument directory.
+     * If an exception occurs while creating an iterator, an default iterator recursively iterates the entire argument
+     * directory will be returned.
      *
      * @param directory the directory to search for files in
      * @param narrowSearch if the directory is home to a supported version control repository
@@ -73,11 +85,36 @@ public final class ProjectIteratorFactory {
      * {@link DirectoryFileIterator} will be returned instead which will recursively iterate the entire argument directory.
      *
      * @param directory the directory to search for files in
+     * @param csarDirectory the csar directory, files in here will be ignored
      * @param narrowSearch if the directory is home to a supported version control repository
      * @return an instance of {@link FilterableIterator} for the argument directory
      * @see CodeParserFactory#accepts(Path)
      */
-    public static Iterator<Path> createFilteredIterator(Path directory, boolean narrowSearch,
+    public static Iterator<Path> createFiltered(Path directory, Path csarDirectory, boolean narrowSearch,
+            CodeParserFactory factory) {
+        Iterator<Path> it = createProjectIterator(directory, narrowSearch);
+
+        // Create and return iterator
+        Predicate<Path> acceptor = path -> factory.accepts(path) && !path.startsWith(csarDirectory);
+        return new FilterableIterator<>(it, acceptor);
+    }
+
+    /**
+     * Returns a new {@link FilterableIterator} for the provided arguments, whose results are filtered by
+     * {@link CodeParserFactory#accepts(Path)}.
+     * <p>
+     * This results will be filtered further if <tt>narrowSearch</tt> is <tt>true</tt> and if the directory is a
+     * supported version control system repository (currently supported: Git).
+     * <p>
+     * If an exception occurs while calling {@link DirectoryFileIterator#init()} for a given iterator, an instance of
+     * {@link DirectoryFileIterator} will be returned instead which will recursively iterate the entire argument directory.
+     *
+     * @param directory the directory to search for files in
+     * @param narrowSearch if the directory is home to a supported version control repository
+     * @return an instance of {@link FilterableIterator} for the argument directory
+     * @see CodeParserFactory#accepts(Path)
+     */
+    public static Iterator<Path> createFiltered(Path directory, boolean narrowSearch,
             CodeParserFactory factory) {
         Iterator<Path> it = createProjectIterator(directory, narrowSearch);
         return new FilterableIterator<>(it, factory::accepts);
@@ -95,6 +132,7 @@ public final class ProjectIteratorFactory {
      * {@link DirectoryFileIterator} will be returned instead which will recursively iterate the entire argument directory.
      *
      * @param directory the directory to search for files in
+     * @param csarDirectory the csar directory, files in here will be ignored
      * @param narrowSearch if the directory is home to a supported version control repository
      * @param ignoreFile the ignore file to parse rules from
      * @return an instance of {@link FilterableIterator} for the argument directory
@@ -102,14 +140,14 @@ public final class ProjectIteratorFactory {
      * @see CodeParserFactory#accepts(Path)
      * @see IgnoreFile#ignored(Path, List)
      */
-    public static Iterator<Path> createFilteredIterator(Path directory, boolean narrowSearch, Path ignoreFile,
-            CodeParserFactory factory)
-            throws IOException {
+    public static Iterator<Path> createFiltered(Path directory, Path csarDirectory, boolean narrowSearch,
+            Path ignoreFile, CodeParserFactory factory) throws IOException {
         Iterator<Path> it = createProjectIterator(directory, narrowSearch);
         List<Rule> rules = IgnoreFile.read(ignoreFile.toAbsolutePath().getParent().toString(), ignoreFile);
 
         // Create and return iterator
-        Predicate<Path> acceptor = path -> !IgnoreFile.ignored(path, rules) && factory.accepts(path);
+        Predicate<Path> acceptor = path -> !IgnoreFile.ignored(path, rules) && factory.accepts(path)
+                && !path.startsWith(csarDirectory);
         return new FilterableIterator<>(it, acceptor);
     }
 }

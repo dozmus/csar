@@ -15,14 +15,14 @@ public interface CsarPlugin {
 
     /**
      * Returns the parsed project code.
-     *
      * @param projectDirectory the project directory
      * @param narrowSearch if the search domain should be narrowed
      * @param ignoreFile the csar ignore file to use
+     * @param noCache if caching should be used
      * @param threadCount the amount of threads to use
      */
-    CodeBase parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
-            throws Exception;
+    CodeBase parse(Path projectDirectory, Path csarDirectory, boolean narrowSearch, Path ignoreFile, boolean noCache,
+                   int threadCount) throws Exception;
 
     /**
      * Post-processes the code.

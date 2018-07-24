@@ -14,7 +14,10 @@ import java.util.Optional;
  */
 public class ReturnStatement implements Statement {
 
-    private final Optional<Expression> expression;
+    private Optional<Expression> expression;
+
+    public ReturnStatement() {
+    }
 
     public ReturnStatement(Optional<Expression> expression) {
         this.expression = expression;

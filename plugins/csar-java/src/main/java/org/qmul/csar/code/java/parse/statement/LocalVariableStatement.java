@@ -17,12 +17,15 @@ import java.util.Optional;
  */
 public class LocalVariableStatement implements Statement {
 
-    private final LocalVariableDescriptor descriptor;
-    private final Optional<Expression> valueExpression;
-    private final List<Annotation> annotations;
+    private LocalVariableDescriptor descriptor;
+    private Optional<Expression> valueExpression;
+    private List<Annotation> annotations;
+
+    public LocalVariableStatement() {
+    }
 
     public LocalVariableStatement(LocalVariableDescriptor descriptor, Optional<Expression> valueExpression,
-            List<Annotation> annotations) {
+                                  List<Annotation> annotations) {
         this.descriptor = descriptor;
         this.valueExpression = valueExpression;
         this.annotations = Collections.unmodifiableList(annotations);

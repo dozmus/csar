@@ -16,8 +16,11 @@ import java.util.Optional;
  */
 public class Annotation implements Statement {
 
-    private final String identifierName;
-    private final Optional<Value> value;
+    private String identifierName;
+    private Optional<Value> value;
+
+    public Annotation() {
+    }
 
     public Annotation(String identifierName, Optional<Value> value) {
         this.identifierName = identifierName;
@@ -64,8 +67,11 @@ public class Annotation implements Statement {
 
     public static class ExpressionValue implements Value {
 
-        private final String identifierName;
-        private final Expression value;
+        private String identifierName;
+        private Expression value;
+
+        public ExpressionValue() {
+        }
 
         public ExpressionValue(String identifierName, Expression value) {
             this.identifierName = identifierName;
@@ -110,8 +116,11 @@ public class Annotation implements Statement {
 
     public static class AnnotationValue implements Value {
 
-        private final String identifierName;
-        private final Annotation value;
+        private String identifierName;
+        private Annotation value;
+
+        public AnnotationValue() {
+        }
 
         public AnnotationValue(String identifierName, Annotation value) {
             this.identifierName = identifierName;
@@ -156,8 +165,11 @@ public class Annotation implements Statement {
 
     public static class Values implements Value {
 
-        private final String identifierName;
-        private final List<Value> values;
+        private String identifierName;
+        private List<Value> values;
+
+        public Values() {
+        }
 
         public Values(String identifierName, List<Value> values) {
             this.identifierName = identifierName;

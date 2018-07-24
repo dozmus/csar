@@ -20,7 +20,10 @@ public class BlockStatement implements Statement {
      */
     public static final BlockStatement EMPTY = new BlockStatement(new ArrayList<>());
 
-    private final List<Statement> statements;
+    private List<Statement> statements;
+
+    public BlockStatement() {
+    }
 
     /**
      * Constructs a new {@link BlockStatement} containing the argument list.

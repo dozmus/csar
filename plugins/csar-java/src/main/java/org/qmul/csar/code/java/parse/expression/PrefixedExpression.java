@@ -9,8 +9,11 @@ import java.util.Objects;
 
 public class PrefixedExpression implements Expression {
 
-    private final Expression expression;
-    private final Prefix prefix;
+    private Expression expression;
+    private Prefix prefix;
+
+    public PrefixedExpression() {
+    }
 
     public PrefixedExpression(Expression expression, Prefix prefix) {
         this.expression = expression;

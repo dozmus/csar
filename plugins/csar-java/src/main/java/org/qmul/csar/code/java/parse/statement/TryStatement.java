@@ -16,9 +16,12 @@ import java.util.Optional;
  */
 public class TryStatement implements Statement {
 
-    private final BlockStatement block;
-    private final List<CatchStatement> catches;
-    private final Optional<BlockStatement> finallyBlock;
+    private BlockStatement block;
+    private List<CatchStatement> catches;
+    private Optional<BlockStatement> finallyBlock;
+
+    public TryStatement() {
+    }
 
     public TryStatement(BlockStatement block, List<CatchStatement> catches, Optional<BlockStatement> finallyBlock) {
         this.block = block;

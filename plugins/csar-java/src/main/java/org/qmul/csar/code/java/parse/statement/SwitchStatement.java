@@ -18,8 +18,11 @@ public class SwitchStatement implements Statement {
      * This is a {@link ParenthesisExpression}, since the argument is expressed
      * within parentheses.
      */
-    private final Expression argument;
-    private final BlockStatement block;
+    private Expression argument;
+    private BlockStatement block;
+
+    public SwitchStatement() {
+    }
 
     public SwitchStatement(Expression argument, BlockStatement block) {
         this.argument = argument;

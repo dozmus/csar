@@ -14,8 +14,11 @@ import java.util.Optional;
  */
 public class AssertStatement implements Statement {
 
-    private final Expression expression;
-    private final Optional<Expression> errorMessageExpression;
+    private Expression expression;
+    private Optional<Expression> errorMessageExpression;
+
+    public AssertStatement() {
+    }
 
     public AssertStatement(Expression expression, Optional<Expression> errorMessageExpression) {
         this.expression = expression;

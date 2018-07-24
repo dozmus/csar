@@ -11,14 +11,17 @@ import java.util.Optional;
 
 public class AnnotationDescriptor implements Descriptor {
 
-    private final IdentifierName identifierName;
-    private final Optional<VisibilityModifier> visibilityModifier;
-    private final Optional<Boolean> abstractModifier;
-    private final Optional<Boolean> strictfpModifier;
-    private final Optional<Boolean> inner;
+    private IdentifierName identifierName;
+    private Optional<VisibilityModifier> visibilityModifier;
+    private Optional<Boolean> abstractModifier;
+    private Optional<Boolean> strictfpModifier;
+    private Optional<Boolean> inner;
+
+    public AnnotationDescriptor() {
+    }
 
     public AnnotationDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
-            Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier, Optional<Boolean> inner) {
+                                Optional<Boolean> abstractModifier, Optional<Boolean> strictfpModifier, Optional<Boolean> inner) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.abstractModifier = abstractModifier;

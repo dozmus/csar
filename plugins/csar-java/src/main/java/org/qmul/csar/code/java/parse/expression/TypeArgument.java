@@ -9,7 +9,10 @@ public interface TypeArgument extends Expression {
 
     class Type implements TypeArgument {
 
-        private final String identifierType;
+        private String identifierType;
+
+        public Type() {
+        }
 
         public Type(String identifierType) {
             this.identifierType = identifierType;
@@ -27,8 +30,11 @@ public interface TypeArgument extends Expression {
 
     class Bounds implements TypeArgument {
 
-        private final Optional<String> identifierType;
-        private final Type type;
+        private Optional<String> identifierType;
+        private Type type;
+
+        public Bounds() {
+        }
 
         public Bounds(Optional<String> identifierType, Type type) {
             this.identifierType = identifierType;

@@ -17,7 +17,10 @@ public interface LambdaParameter extends Expression {
     
     class Identifier implements LambdaParameter {
 
-        private final String identifier;
+        private String identifier;
+
+        public Identifier() {
+        }
 
         public Identifier(String identifier) {
             this.identifier = identifier;
@@ -55,7 +58,10 @@ public interface LambdaParameter extends Expression {
 
     class Identifiers implements LambdaParameter {
 
-        private final List<String> identifiers;
+        private List<String> identifiers;
+
+        public Identifiers() {
+        }
 
         public Identifiers(List<String> identifiers) {
             this.identifiers = Collections.unmodifiableList(identifiers);

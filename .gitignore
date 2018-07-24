@@ -18,6 +18,7 @@ csar-cli/*.jar
 
 # Csar files
 .csarignore
+.csar/
 
 # LaTeX Output files
 design-docs/*.pdf

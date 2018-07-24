@@ -16,13 +16,16 @@ import java.util.Optional;
  */
 public class EnumConstantStatement implements Statement {
 
-    private final String identifierName;
-    private final List<Expression> arguments;
-    private final Optional<BlockStatement> block;
-    private final List<Annotation> annotations;
+    private String identifierName;
+    private List<Expression> arguments;
+    private Optional<BlockStatement> block;
+    private List<Annotation> annotations;
+
+    public EnumConstantStatement() {
+    }
 
     public EnumConstantStatement(String identifierName, List<Expression> arguments, Optional<BlockStatement> block,
-            List<Annotation> annotations) {
+                                 List<Annotation> annotations) {
         this.identifierName = identifierName;
         this.arguments = Collections.unmodifiableList(arguments);
         this.block = block;

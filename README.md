@@ -18,8 +18,11 @@ You can find more information in the project report and the [use guide](USEGUIDE
    This will find and replace the parameter's of this method to be just `int a`.
 
 ### Usage
-All source code in the working directory will be searched, if the current directory is a git repository then only source code in the repository (and staging area) will be searched.
+All source code in the working directory will be searched, if the current directory is a git repository then only
+source code in the repository (and staging area) will be searched.
 This can be toggled using the `--narrow-search` CLI flag.
+
+Note: Files in the csar cache `.csar` will always be ignored.
 
 ```
 Usage: java -jar csar.jar [options] search-query
@@ -38,6 +41,10 @@ Usage: java -jar csar.jar [options] search-query
       Narrow search domain (default: true)
     --ignore-file
       Ignore file (default: .csarignore)
+    --no-cache
+      Do not use caching (default: false)
+    --clear-cache
+      Clears the cache (default: false)
     --project-url, --url
       Print project URL
     --help, -h

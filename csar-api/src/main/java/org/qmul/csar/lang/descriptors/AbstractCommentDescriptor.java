@@ -10,7 +10,10 @@ import java.util.Optional;
 
 public abstract class AbstractCommentDescriptor implements Descriptor {
 
-    private final Optional<String> content;
+    private Optional<String> content;
+
+    public AbstractCommentDescriptor() {
+    }
 
     public AbstractCommentDescriptor(Optional<String> content) {
         this.content = content;

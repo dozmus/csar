@@ -6,8 +6,11 @@ import java.util.Optional;
 
 public class LocalVariableDescriptor extends AbstractVariableDescriptor {
 
+    public LocalVariableDescriptor() {
+    }
+
     public LocalVariableDescriptor(IdentifierName identifierName, Optional<String> identifierType,
-            Optional<Boolean> finalModifier) {
+                                   Optional<Boolean> finalModifier) {
         super(identifierName, identifierType, finalModifier);
     }
 

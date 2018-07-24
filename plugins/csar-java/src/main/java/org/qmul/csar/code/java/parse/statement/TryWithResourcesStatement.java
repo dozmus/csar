@@ -13,10 +13,13 @@ import java.util.Optional;
  */
 public class TryWithResourcesStatement extends TryStatement {
 
-    private final LocalVariableStatements resources;
+    private LocalVariableStatements resources;
+
+    public TryWithResourcesStatement() {
+    }
 
     public TryWithResourcesStatement(BlockStatement block, List<CatchStatement> catches,
-            Optional<BlockStatement> finallyBlock, LocalVariableStatements resources) {
+                                     Optional<BlockStatement> finallyBlock, LocalVariableStatements resources) {
         super(block, catches, finallyBlock);
         this.resources = resources;
     }

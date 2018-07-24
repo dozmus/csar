@@ -17,17 +17,20 @@ public class ForStatement implements Statement {
     /**
      * Initialization variable (empty if we have multiple initialization expressions list instead).
      */
-    private final Optional<LocalVariableStatements> initVariables;
+    private Optional<LocalVariableStatements> initVariables;
     /**
      * Multiple initialization expressions (empty if we have an initialization variable instead).
      */
-    private final List<Expression> initExpressions;
-    private final Optional<Expression> condition;
-    private final List<Expression> updateExpressions;
-    private final Statement statement;
+    private List<Expression> initExpressions;
+    private Optional<Expression> condition;
+    private List<Expression> updateExpressions;
+    private Statement statement;
+
+    public ForStatement() {
+    }
 
     public ForStatement(Optional<LocalVariableStatements> initVariables, List<Expression> initExpressions,
-            Optional<Expression> condition, List<Expression> updateExpressions, Statement statement) {
+                        Optional<Expression> condition, List<Expression> updateExpressions, Statement statement) {
         this.initVariables = initVariables;
         this.initExpressions = Collections.unmodifiableList(initExpressions);
         this.condition = condition;

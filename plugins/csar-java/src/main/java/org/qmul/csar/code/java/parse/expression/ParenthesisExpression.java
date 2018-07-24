@@ -9,7 +9,10 @@ import java.util.Objects;
 
 public class ParenthesisExpression implements Expression {
 
-    private final Expression expression;
+    private Expression expression;
+
+    public ParenthesisExpression() {
+    }
 
     public ParenthesisExpression(Expression expression) {
         this.expression = expression;

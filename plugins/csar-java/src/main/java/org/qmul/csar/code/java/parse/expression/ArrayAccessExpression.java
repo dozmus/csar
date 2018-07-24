@@ -9,8 +9,11 @@ import java.util.Objects;
 
 public class ArrayAccessExpression implements Expression {
 
-    private final Expression array;
-    private final Expression index;
+    private Expression array;
+    private Expression index;
+
+    public ArrayAccessExpression() {
+    }
 
     public ArrayAccessExpression(Expression array, Expression index) {
         this.array = array;

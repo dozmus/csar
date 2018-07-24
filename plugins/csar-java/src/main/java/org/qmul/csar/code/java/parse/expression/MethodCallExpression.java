@@ -18,29 +18,32 @@ import java.util.Optional;
 
 public class MethodCallExpression implements Expression, Renamable, ChangeableParameters {
 
-    private final Expression methodName;
-    private final List<Expression> arguments;
-    private final Path path;
+    private Expression methodName;
+    private List<Expression> arguments;
+    private Path path;
     /**
      * Set during post-processing by {@link MethodCallTypeInstanceResolver}.
      * This is null if unset, or if the source is the same class as the method call is in.
      */
-    private TypeInstance methodSource;
+    private transient TypeInstance methodSource;
     /**
      * Set during post-processing by {@link MethodCallTypeInstanceResolver}.
      */
-    private List<TypeInstance> argumentTypes;
-    private final FilePosition identifierFilePosition;
-    private final FilePosition leftParenthesisPosition;
-    private final FilePosition rightParenthesisPosition;
-    private final List<FilePosition> commaFilePositions;
-    private final String methodIdentifierName;
+    private transient List<TypeInstance> argumentTypes;
+    private FilePosition identifierFilePosition;
+    private FilePosition leftParenthesisPosition;
+    private FilePosition rightParenthesisPosition;
+    private List<FilePosition> commaFilePositions;
+    private String methodIdentifierName;
     private Optional<List<TypeArgument>> typeArguments; // TODO set
 
+    public MethodCallExpression() {
+    }
+
     public MethodCallExpression(String methodIdentifierName, Expression methodName, List<Expression> arguments, Path path,
-            FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
-            FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions,
-            Optional<List<TypeArgument>> typeArguments) {
+                                FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
+                                FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions,
+                                Optional<List<TypeArgument>> typeArguments) {
         this.methodIdentifierName = methodIdentifierName;
         this.methodName = methodName;
         this.arguments = Collections.unmodifiableList(arguments);

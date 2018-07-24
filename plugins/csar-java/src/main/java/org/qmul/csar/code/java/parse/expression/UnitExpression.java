@@ -12,8 +12,11 @@ import java.util.Objects;
  */
 public class UnitExpression implements Expression {
 
-    private final ValueType valueType;
-    private final String value;
+    private ValueType valueType;
+    private String value;
+
+    public UnitExpression() {
+    }
 
     public UnitExpression(ValueType valueType, String value) {
         this.valueType = valueType;

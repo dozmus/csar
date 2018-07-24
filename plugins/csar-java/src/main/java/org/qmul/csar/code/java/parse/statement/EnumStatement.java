@@ -16,9 +16,12 @@ import java.util.Objects;
  */
 public class EnumStatement implements TypeStatement {
 
-    private final EnumDescriptor descriptor;
-    private final BlockStatement block;
-    private final List<Annotation> annotations;
+    private EnumDescriptor descriptor;
+    private BlockStatement block;
+    private List<Annotation> annotations;
+
+    public EnumStatement() {
+    }
 
     public EnumStatement(EnumDescriptor descriptor, BlockStatement block, List<Annotation> annotations) {
         this.descriptor = descriptor;

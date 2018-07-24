@@ -11,12 +11,15 @@ import java.util.Optional;
 
 public class InstanceVariableDescriptor extends AbstractVariableDescriptor {
 
-    private final Optional<VisibilityModifier> visibilityModifier;
-    private final Optional<Boolean> staticModifier;
+    private Optional<VisibilityModifier> visibilityModifier;
+    private Optional<Boolean> staticModifier;
+
+    public InstanceVariableDescriptor() {
+    }
 
     public InstanceVariableDescriptor(IdentifierName identifierName, Optional<String> identifierType,
-            Optional<Boolean> finalModifier, Optional<VisibilityModifier> visibilityModifier,
-            Optional<Boolean> staticModifier) {
+                                      Optional<Boolean> finalModifier, Optional<VisibilityModifier> visibilityModifier,
+                                      Optional<Boolean> staticModifier) {
         super(identifierName, identifierType, finalModifier);
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;

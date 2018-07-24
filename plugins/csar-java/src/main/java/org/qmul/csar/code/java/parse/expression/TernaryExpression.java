@@ -9,9 +9,12 @@ import java.util.Objects;
 
 public class TernaryExpression implements Expression {
 
-    private final Expression condition;
-    private final Expression valueIfTrue;
-    private final Expression valueIfFalse;
+    private Expression condition;
+    private Expression valueIfTrue;
+    private Expression valueIfFalse;
+
+    public TernaryExpression() {
+    }
 
     public TernaryExpression(Expression condition, Expression valueIfTrue, Expression valueIfFalse) {
         this.condition = condition;

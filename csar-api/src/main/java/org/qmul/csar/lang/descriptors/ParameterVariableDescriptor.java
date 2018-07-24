@@ -11,12 +11,15 @@ import java.util.Optional;
 
 public class ParameterVariableDescriptor implements Descriptor {
 
-    private final Optional<IdentifierName> identifierName;
-    private final Optional<String> identifierType;
-    private final Optional<Boolean> finalModifier;
+    private Optional<IdentifierName> identifierName;
+    private Optional<String> identifierType;
+    private Optional<Boolean> finalModifier;
+
+    public ParameterVariableDescriptor() {
+    }
 
     public ParameterVariableDescriptor(Optional<IdentifierName> identifierName, Optional<String> identifierType,
-            Optional<Boolean> finalModifier) {
+                                       Optional<Boolean> finalModifier) {
         this.identifierName = identifierName;
         this.identifierType = identifierType; // NOTE can end with '...' (varargs) or '<...>' (generic typing)
         this.finalModifier = finalModifier;

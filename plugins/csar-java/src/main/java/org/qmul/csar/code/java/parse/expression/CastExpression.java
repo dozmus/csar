@@ -9,8 +9,11 @@ import java.util.Objects;
 
 public class CastExpression implements Expression {
 
-    private final String apparentType;
-    private final Expression expression;
+    private String apparentType;
+    private Expression expression;
+
+    public CastExpression() {
+    }
 
     public CastExpression(String apparentType, Expression expression) {
         this.apparentType = apparentType;

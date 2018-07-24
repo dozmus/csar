@@ -13,7 +13,10 @@ import java.util.Optional;
  */
 public class ContinueStatement implements Statement {
 
-    private final Optional<String> identifier;
+    private Optional<String> identifier;
+
+    public ContinueStatement() {
+    }
 
     public ContinueStatement(Optional<String> identifier) {
         this.identifier = identifier;

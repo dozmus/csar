@@ -13,7 +13,10 @@ import java.util.Objects;
  */
 public class ExpressionStatement implements Statement {
 
-    private final Expression expression;
+    private Expression expression;
+
+    public ExpressionStatement() {
+    }
 
     public ExpressionStatement(Expression expression) {
         this.expression = expression;

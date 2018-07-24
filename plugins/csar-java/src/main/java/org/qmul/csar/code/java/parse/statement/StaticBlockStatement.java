@@ -12,7 +12,10 @@ import java.util.Objects;
  */
 public class StaticBlockStatement implements Statement {
 
-    private final BlockStatement block;
+    private BlockStatement block;
+
+    public StaticBlockStatement() {
+    }
 
     public StaticBlockStatement(BlockStatement block) {
         this.block = block;

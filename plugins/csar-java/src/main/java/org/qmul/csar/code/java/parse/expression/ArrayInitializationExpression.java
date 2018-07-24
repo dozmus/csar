@@ -12,8 +12,11 @@ import java.util.stream.Collectors;
 
 public class ArrayInitializationExpression implements Expression {
 
-    private final List<Expression> expressions;
-    private final String typeName;
+    private List<Expression> expressions;
+    private String typeName;
+
+    public ArrayInitializationExpression() {
+    }
 
     public ArrayInitializationExpression(String typeName, List<Expression> expressions) {
         this.typeName = typeName;

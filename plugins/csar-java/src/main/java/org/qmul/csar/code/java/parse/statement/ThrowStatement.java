@@ -8,6 +8,9 @@ import org.qmul.csar.util.StringUtils;
  */
 public class ThrowStatement extends ExpressionStatement {
 
+    public ThrowStatement() {
+    }
+
     public ThrowStatement(Expression expression) {
         super(expression);
     }

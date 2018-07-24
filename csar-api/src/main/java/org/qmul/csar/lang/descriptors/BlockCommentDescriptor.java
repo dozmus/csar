@@ -10,7 +10,10 @@ import java.util.Optional;
 
 public class BlockCommentDescriptor extends AbstractCommentDescriptor {
 
-    private final Optional<Boolean> javadoc;
+    private Optional<Boolean> javadoc;
+
+    public BlockCommentDescriptor() {
+    }
 
     public BlockCommentDescriptor(Optional<String> content, Optional<Boolean> javadoc) {
         super(content);

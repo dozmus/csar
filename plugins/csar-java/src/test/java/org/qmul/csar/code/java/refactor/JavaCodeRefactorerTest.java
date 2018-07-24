@@ -1,30 +1,13 @@
 package org.qmul.csar.code.java.refactor;
 
 import org.junit.Test;
-import org.qmul.csar.CsarJavaPlugin;
-import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.Result;
+import org.qmul.csar.code.java.JavaTestCsarPlugin;
 import org.qmul.csar.code.java.TestUtils;
-import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
-import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
-import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
-import org.qmul.csar.code.java.postprocess.methods.overridden.SelectiveOverriddenMethodsResolver;
-import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
-import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
-import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
-import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
-import org.qmul.csar.code.java.search.JavaCodeSearcher;
-import org.qmul.csar.code.postprocess.CodePostProcessor;
-import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
-import org.qmul.csar.code.refactor.writer.DummyRefactorChangeWriter;
-import org.qmul.csar.code.search.ProjectCodeSearcher;
-import org.qmul.csar.lang.SerializableCode;
-import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
 import org.qmul.csar.query.CsarQueryFactory;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -190,63 +173,10 @@ public class JavaCodeRefactorerTest {
      */
     private static List<Result> refactor(String csarQuery, String directory) throws Exception {
         CsarQuery query = CsarQueryFactory.parse(csarQuery);
-        CsarPlugin csarPlugin = new DummyJavaPlugin();
-        csarPlugin.parse(Paths.get(directory), false, Paths.get("."), 1);
+        CsarPlugin csarPlugin = new JavaTestCsarPlugin();
+        csarPlugin.parse(Paths.get(directory), null, false, Paths.get("."), true, 1);
         csarPlugin.postprocess(1, query);
         List<Result> searchResults = csarPlugin.search(query, 1);
         return csarPlugin.refactor(query, searchResults, 1);
-    }
-
-    /**
-     * A java plugin which doesn't write the refactor results to the files.
-     * This is so that the tests will continue to work afterwards (if they change these tests will only work once).
-     */
-    private static final class DummyJavaPlugin extends CsarJavaPlugin {
-
-        private CodeBase code;
-        private List<SerializableCode> searchResultObjects;
-        private DefaultTypeHierarchyResolver thr;
-
-        @Override
-        public CodeBase parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
-                throws Exception {
-            code = super.parse(projectDirectory, narrowSearch, ignoreFile, threadCount);
-            return code;
-        }
-
-        @Override
-        public void postprocess(int threadCount, CsarQuery csarQuery) {
-            // Create components
-            QualifiedNameResolver qnr = new QualifiedNameResolver();
-            thr = new DefaultTypeHierarchyResolver(qnr);
-            MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver();
-            OverriddenMethodsResolver omr = new SelectiveOverriddenMethodsResolver(threadCount, qnr, thr,
-                    (MethodDescriptor) csarQuery.getSearchTarget().getDescriptor());
-            MethodUseResolver mur = new MethodUseResolver(qnr, thr);
-            MethodCallTypeInstanceResolver mctir = new MethodCallTypeInstanceResolver(qnr, thr);
-
-            // Create post-processor
-            CodePostProcessor processor = new JavaPostProcessor(thr, mqtr, omr, mctir, mur);
-            processor.postprocess(code);
-        }
-
-        @Override
-        public List<Result> search(CsarQuery csarQuery, int threadCount) {
-            ProjectCodeSearcher searcher = new JavaCodeSearcher(threadCount);
-            searcher.setCsarQuery(csarQuery);
-            searcher.setIterator(code.iterator());
-            searchResultObjects = searcher.resultObjects();
-            return searcher.results();
-        }
-
-        @Override
-        public List<Result> refactor(CsarQuery csarQuery, List<Result> searchResults, int threadCount) {
-            ProjectCodeRefactorer refactorer = new JavaCodeRefactorer(threadCount, thr,
-                    new DummyRefactorChangeWriter());
-            refactorer.setRefactorDescriptor(csarQuery.getRefactorDescriptor().
-                    orElseThrow(IllegalArgumentException::new));
-            refactorer.setSearchResultObjects(searchResultObjects);
-            return refactorer.results();
-        }
     }
 }

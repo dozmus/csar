@@ -13,41 +13,44 @@ import java.util.Optional;
 
 public class MethodDescriptor implements Descriptor, Cloneable {
 
-    private final IdentifierName identifierName;
-    private final Optional<String> returnType;
-    private final Optional<VisibilityModifier> visibilityModifier;
-    private final Optional<Boolean> staticModifier;
-    private final Optional<Boolean> finalModifier;
-    private final Optional<Boolean> abstractModifier;
-    private final Optional<Boolean> strictfpModifier;
-    private final Optional<Boolean> synchronizedModifier;
-    private final Optional<Boolean> nativeModifier;
-    private final Optional<Boolean> defaultModifier;
+    private IdentifierName identifierName;
+    private Optional<String> returnType;
+    private Optional<VisibilityModifier> visibilityModifier;
+    private Optional<Boolean> staticModifier;
+    private Optional<Boolean> finalModifier;
+    private Optional<Boolean> abstractModifier;
+    private Optional<Boolean> strictfpModifier;
+    private Optional<Boolean> synchronizedModifier;
+    private Optional<Boolean> nativeModifier;
+    private Optional<Boolean> defaultModifier;
     /**
      * Must be set during post-processing.
      */
     private Optional<Boolean> overridden;
-    private final Optional<Boolean> stub;
-    private final Optional<Boolean> hasTypeArguments;
-    private final Optional<Boolean> hasParameters;
-    private final Optional<Boolean> hasThrownExceptions;
-    private final Optional<Integer> parameterCount;
-    private final List<ParameterVariableDescriptor> parameters;
-    private final List<String> thrownExceptions;
-    private final List<String> typeParameters;
+    private Optional<Boolean> stub;
+    private Optional<Boolean> hasTypeArguments;
+    private Optional<Boolean> hasParameters;
+    private Optional<Boolean> hasThrownExceptions;
+    private Optional<Integer> parameterCount;
+    private List<ParameterVariableDescriptor> parameters;
+    private List<String> thrownExceptions;
+    private List<String> typeParameters;
     /**
      * Lazily initialized when {@link #signature()} is first called.
      */
     private String signature;
 
+    public MethodDescriptor() {
+    }
+
     public MethodDescriptor(IdentifierName identifierName, Optional<String> returnType,
-            Optional<VisibilityModifier> visibilityModifier, Optional<Boolean> staticModifier,
-            Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
-            Optional<Boolean> strictfpModifier, Optional<Boolean> synchronizedModifier,
-            Optional<Boolean> nativeModifier, Optional<Boolean> defaultModifier,
-            Optional<Boolean> overridden, Optional<Boolean> hasTypeArguments, Optional<Integer> parameterCount,
-            List<ParameterVariableDescriptor> parameters, List<String> thrownExceptions, List<String> typeParameters,
-            Optional<Boolean> hasParameters, Optional<Boolean> hasThrownExceptions, Optional<Boolean> stub) {
+                            Optional<VisibilityModifier> visibilityModifier, Optional<Boolean> staticModifier,
+                            Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
+                            Optional<Boolean> strictfpModifier, Optional<Boolean> synchronizedModifier,
+                            Optional<Boolean> nativeModifier, Optional<Boolean> defaultModifier,
+                            Optional<Boolean> overridden, Optional<Boolean> hasTypeArguments, Optional<Integer> parameterCount,
+                            List<ParameterVariableDescriptor> parameters, List<String> thrownExceptions, List<String> typeParameters,
+                            Optional<Boolean> hasParameters, Optional<Boolean> hasThrownExceptions, Optional<Boolean> stub) {
         this.identifierName = identifierName;
         this.returnType = returnType;
         this.visibilityModifier = visibilityModifier;

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A representation of the tasks Csar should carry out. This is also used to represent command-line arguments.
+ * The command-line arguments of Csar, these define what it should do.
  *
  * @see Main#main(String[])
  * @see Main#printUsage()
@@ -22,42 +22,42 @@ import java.util.List;
  */
 class CsarContext {
 
-    @Parameter(description = "Search query", required = true, order = 0)
+    @Parameter(description = "Search query", required = true)
     private List<String> query = new ArrayList<>();
     /**
      * The root directory of the project.
      */
-    @Parameter(names = {"--directory", "-d"}, description = "Target directory", order = 1,
-            converter = PathConverter.class)
+    @Parameter(names = {"--directory", "-d"}, description = "Target directory", converter = PathConverter.class)
     private Path projectDirectory = Paths.get(".");
-    @Parameter(names = {"--threads", "-t"}, description = "Thread count", order = 2)
+    /**
+     * The csar directory.
+     */
+    @Parameter(names = {"--csardirectory", "-c"}, description = "Target directory", converter = PathConverter.class)
+    private Path csarDirectory = Paths.get(".csar");
+    @Parameter(names = {"--threads", "-t"}, description = "Thread count")
     private int threads = 1;
-    @Parameter(names = {"--log-level"}, description = "Log level", order = 3, converter = Slf4jLevelConverter.class)
+    @Parameter(names = {"--log-level"}, description = "Log level", converter = Slf4jLevelConverter.class)
     private Level logLevel = Level.INFO;
-    @Parameter(names = {"--format", "-f"}, description = "Output format", order = 4,
-            converter = ResultFormatterConverter.class)
+    @Parameter(names = {"--format", "-f"}, description = "Output format", converter = ResultFormatterConverter.class)
     private ResultFormatter resultFormatter = new PlainTextResultFormatter();
-    @Parameter(names = {"--narrow-search"}, description = "Narrow search domain", order = 6)
+    @Parameter(names = {"--narrow-search"}, description = "Narrow search domain")
     private boolean narrowSearch = true;
-    @Parameter(names = {"--ignore-file"}, description = "Ignore file", order = 7, converter = PathConverter.class)
+    @Parameter(names = {"--ignore-file"}, description = "Ignore file", converter = PathConverter.class)
     private Path ignoreFile = Paths.get(".csarignore");
-    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL", order = 9)
+    @Parameter(names = {"--no-cache"}, description = "Do not use caching")
+    private boolean noCache;
+    @Parameter(names = {"--clear-cache"}, description = "Clears the cache")
+    private boolean clearCache;
+    @Parameter(names = {"--project-url", "--url"}, description = "Print project URL")
     private boolean printProjectUrl;
-    @Parameter(names = {"--help", "-h"}, description = "Print help information", order = 10, help = true)
+    @Parameter(names = {"--help", "-h"}, description = "Print help information", help = true)
     private boolean printHelp;
-    private CliCsarErrorListener errorListener;
 
     /**
      * Returns the result of joining together {@link #query} with the space delimiter.
-     *
-     * @return {@link #query} joined together with the space delimiter
      */
     public String getQuery() {
         return String.join(" ", query);
-    }
-
-    public int getThreads() {
-        return threads;
     }
 
     public Level getLogLevel() {
@@ -66,14 +66,6 @@ class CsarContext {
 
     public ResultFormatter getResultFormatter() {
         return resultFormatter;
-    }
-
-    public boolean isNarrowSearch() {
-        return narrowSearch;
-    }
-
-    public Path getIgnoreFile() {
-        return ignoreFile;
     }
 
     public boolean isPrintHelp() {
@@ -85,18 +77,12 @@ class CsarContext {
     }
 
     /**
-     * Returns the base project directory.
-     */
-    public Path getProjectDirectory() {
-        return projectDirectory;
-    }
-
-    /**
      * Returns a new instance of {@link Csar} with the details contained in this class, and with the standard
      * {@link CliCsarErrorListener}.
      */
     public Csar createCsar() {
-        Csar csar = new Csar(getQuery(), threads, projectDirectory, narrowSearch, ignoreFile);
+        Csar csar = new Csar(getQuery(), threads, csarDirectory, projectDirectory, narrowSearch, ignoreFile, noCache,
+                clearCache);
         csar.addErrorListener(new CliCsarErrorListener());
         return csar;
     }

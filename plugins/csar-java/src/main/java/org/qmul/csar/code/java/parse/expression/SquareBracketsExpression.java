@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class SquareBracketsExpression implements Expression {
 
-    private final Optional<Expression> expression;
+    private Optional<Expression> expression;
 
     public SquareBracketsExpression(Optional<Expression> expression) {
         this.expression = expression;

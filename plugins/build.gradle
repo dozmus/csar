@@ -1,5 +1,14 @@
 build.dependsOn.add ':plugins:jar'
 
+// Global sub-project configuration
+subprojects {
+    jar {
+        from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
+}
+
 jar { // don't create plugins.jar which happens because plugins project is a 'java' project
     actions = []
 }
@@ -24,7 +33,7 @@ task copyJars(type: Copy) {
         into file(project.project(':csar-cli').projectDir.toPath())
     }
 
-    copy { // copy jars into csar-cli root folder for :csar-cli:run
+    copy { // copy jars into csar-cli/distributions
         from jars
         into file(project.project(':csar-cli').buildDir.toPath().toString() + '/distributions/')
     }

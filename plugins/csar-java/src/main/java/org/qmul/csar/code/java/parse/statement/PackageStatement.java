@@ -10,8 +10,11 @@ import java.util.Objects;
 
 public class PackageStatement implements Statement {
 
-    private final String packageName;
-    private final List<Annotation> annotations;
+    private String packageName;
+    private List<Annotation> annotations;
+
+    public PackageStatement() {
+    }
 
     public PackageStatement(String packageName, List<Annotation> annotations) {
         this.packageName = packageName;

@@ -13,8 +13,11 @@ import java.util.Objects;
  */
 public class WhileStatement implements Statement {
 
-    private final Expression condition;
-    private final Statement statement;
+    private Expression condition;
+    private Statement statement;
+
+    public WhileStatement() {
+    }
 
     public WhileStatement(Expression condition, Statement statement) {
         this.condition = condition;

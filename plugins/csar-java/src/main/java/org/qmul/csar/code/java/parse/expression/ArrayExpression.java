@@ -11,7 +11,10 @@ import java.util.Objects;
 
 public class ArrayExpression implements Expression {
 
-    private final List<Expression> expressions;
+    private List<Expression> expressions;
+
+    public ArrayExpression() {
+    }
 
     public ArrayExpression(List<Expression> expressions) {
         this.expressions = Collections.unmodifiableList(expressions);

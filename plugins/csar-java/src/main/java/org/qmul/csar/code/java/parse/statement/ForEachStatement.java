@@ -13,9 +13,12 @@ import java.util.Objects;
  */
 public class ForEachStatement implements Statement {
 
-    private final LocalVariableStatement variable;
-    private final Expression collection;
-    private final Statement statement;
+    private LocalVariableStatement variable;
+    private Expression collection;
+    private Statement statement;
+
+    public ForEachStatement() {
+    }
 
     public ForEachStatement(LocalVariableStatement variable, Expression collection, Statement statement) {
         this.variable = variable;

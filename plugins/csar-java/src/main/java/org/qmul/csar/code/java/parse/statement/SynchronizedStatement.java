@@ -18,8 +18,11 @@ public class SynchronizedStatement implements Statement {
      * This is a {@link ParenthesisExpression}, since the element to lock is
      * expressed within parentheses.
      */
-    private final Expression element;
-    private final BlockStatement block;
+    private Expression element;
+    private BlockStatement block;
+
+    public SynchronizedStatement() {
+    }
 
     public SynchronizedStatement(Expression element, BlockStatement block) {
         this.element = element;

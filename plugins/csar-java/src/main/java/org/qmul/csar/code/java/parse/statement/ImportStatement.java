@@ -9,8 +9,11 @@ import java.util.Objects;
 
 public class ImportStatement implements Statement {
 
-    private final String qualifiedName;
-    private final boolean staticImport;
+    private String qualifiedName;
+    private boolean staticImport;
+
+    public ImportStatement() {
+    }
 
     public ImportStatement(String qualifiedName, boolean staticImport) {
         this.qualifiedName = qualifiedName;

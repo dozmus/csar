@@ -13,8 +13,11 @@ import java.util.Objects;
  */
 public class DoWhileStatement implements Statement {
 
-    private final Expression condition;
-    private final Statement statement;
+    private Expression condition;
+    private Statement statement;
+
+    public DoWhileStatement() {
+    }
 
     public DoWhileStatement(Expression condition, Statement statement) {
         this.condition = condition;

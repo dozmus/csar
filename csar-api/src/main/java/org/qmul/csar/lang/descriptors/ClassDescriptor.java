@@ -13,28 +13,31 @@ import java.util.Optional;
 
 public class ClassDescriptor implements Descriptor {
 
-    private final IdentifierName identifierName;
-    private final Optional<VisibilityModifier> visibilityModifier;
-    private final Optional<Boolean> staticModifier;
-    private final Optional<Boolean> finalModifier;
-    private final Optional<Boolean> abstractModifier;
-    private final Optional<Boolean> strictfpModifier;
-    private final Optional<Boolean> interfaceModifier;
-    private final Optional<Boolean> inner;
-    private final Optional<Boolean> local;
-    private final Optional<Boolean> anonymous;
-    private final Optional<String> extendedClass;
-    private final Optional<Boolean> hasTypeArguments;
-    private final Optional<Boolean> hasImplementedInterfaces;
-    private final List<String> typeParameters;
-    private final List<String> implementedInterfaces;
+    private IdentifierName identifierName;
+    private Optional<VisibilityModifier> visibilityModifier;
+    private Optional<Boolean> staticModifier;
+    private Optional<Boolean> finalModifier;
+    private Optional<Boolean> abstractModifier;
+    private Optional<Boolean> strictfpModifier;
+    private Optional<Boolean> interfaceModifier;
+    private Optional<Boolean> inner;
+    private Optional<Boolean> local;
+    private Optional<Boolean> anonymous;
+    private Optional<String> extendedClass;
+    private Optional<Boolean> hasTypeArguments;
+    private Optional<Boolean> hasImplementedInterfaces;
+    private List<String> typeParameters;
+    private List<String> implementedInterfaces;
+
+    public ClassDescriptor() {
+    }
 
     public ClassDescriptor(IdentifierName identifierName, Optional<VisibilityModifier> visibilityModifier,
-            Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
-            Optional<Boolean> strictfpModifier, Optional<Boolean> interfaceModifier, Optional<Boolean> inner,
-            Optional<Boolean> local, Optional<Boolean> anonymous, Optional<Boolean> hasTypeArguments,
-            List<String> typeParameters, Optional<Boolean> hasImplementedInterfaces, List<String> implementedInterfaces,
-            Optional<String> extendedClass) {
+                           Optional<Boolean> staticModifier, Optional<Boolean> finalModifier, Optional<Boolean> abstractModifier,
+                           Optional<Boolean> strictfpModifier, Optional<Boolean> interfaceModifier, Optional<Boolean> inner,
+                           Optional<Boolean> local, Optional<Boolean> anonymous, Optional<Boolean> hasTypeArguments,
+                           List<String> typeParameters, Optional<Boolean> hasImplementedInterfaces, List<String> implementedInterfaces,
+                           Optional<String> extendedClass) {
         this.identifierName = identifierName;
         this.visibilityModifier = visibilityModifier;
         this.staticModifier = staticModifier;

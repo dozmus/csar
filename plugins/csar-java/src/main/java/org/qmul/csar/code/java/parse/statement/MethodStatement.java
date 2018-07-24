@@ -27,27 +27,30 @@ import java.util.stream.Collectors;
  */
 public class MethodStatement implements Statement, Renamable, ChangeableParameters {
 
-    private final MethodDescriptor descriptor;
-    private final List<ParameterVariableStatement> params;
-    private final BlockStatement block;
-    private final List<Annotation> annotations;
-    private final FilePosition identifierFilePosition;
-    private final FilePosition leftParenthesisPosition;
-    private final FilePosition rightParenthesisPosition;
-    private final List<FilePosition> commaFilePositions;
-    private final Path path;
+    private MethodDescriptor descriptor;
+    private List<ParameterVariableStatement> params;
+    private BlockStatement block;
+    private List<Annotation> annotations;
+    private FilePosition identifierFilePosition;
+    private FilePosition leftParenthesisPosition;
+    private FilePosition rightParenthesisPosition;
+    private List<FilePosition> commaFilePositions;
+    private Path path;
     /**
      * Updated by {@link MethodQualifiedTypeResolver} in post-processing.
      */
-    private QualifiedType returnQualifiedType;
+    private transient QualifiedType returnQualifiedType;
     /**
      * Updated by {@link MethodUseResolver} in post-processing.
      */
-    private final List<MethodCallExpression> methodUsages = new ArrayList<>();
+    private transient List<MethodCallExpression> methodUsages = new ArrayList<>();
+
+    public MethodStatement() {
+    }
 
     public MethodStatement(MethodDescriptor descriptor, List<ParameterVariableStatement> params, BlockStatement block,
-            List<Annotation> annotations, FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
-            FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions, Path path) {
+                           List<Annotation> annotations, FilePosition identifierFilePosition, FilePosition leftParenthesisPosition,
+                           FilePosition rightParenthesisPosition, List<FilePosition> commaFilePositions, Path path) {
         this.descriptor = descriptor;
         this.params = Collections.unmodifiableList(params);
         this.block = block;

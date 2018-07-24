@@ -11,12 +11,15 @@ import java.util.Optional;
 
 public class CompilationUnitStatement implements TypeStatement {
 
-    private final Optional<PackageStatement> packageStatement;
-    private final List<ImportStatement> imports;
-    private final TypeStatement typeStatement;
+    private Optional<PackageStatement> packageStatement;
+    private List<ImportStatement> imports;
+    private TypeStatement typeStatement;
+
+    public CompilationUnitStatement() {
+    }
 
     public CompilationUnitStatement(Optional<PackageStatement> packageStatement, List<ImportStatement> imports,
-            TypeStatement typeStatement) {
+                                    TypeStatement typeStatement) {
         this.packageStatement = packageStatement;
         this.imports = imports;
         this.typeStatement = typeStatement;
