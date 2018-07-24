@@ -33,7 +33,7 @@ public class MethodTestUtils {
     /**
      * Returns the method if found, or null otherwise.
      */
-    private static MethodStatement findMethod(Map<Path, Statement> code, String baseDirectory, String path,
+    public static MethodStatement findMethod(Map<Path, Statement> code, String baseDirectory, String path,
             String signature) throws RuntimeException {
         Statement statement = code.get(Paths.get(baseDirectory + path));
         CompilationUnitStatement cus = (CompilationUnitStatement) statement;

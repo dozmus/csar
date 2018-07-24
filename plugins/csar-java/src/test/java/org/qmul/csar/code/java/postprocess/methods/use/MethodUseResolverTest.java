@@ -4,10 +4,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.parse.expression.*;
-import org.qmul.csar.code.java.parse.statement.ClassStatement;
-import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
+import org.qmul.csar.code.java.postprocess.methods.MethodTestUtils;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.DefaultTypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
@@ -58,8 +57,8 @@ public class MethodUseResolverTest {
      * Attempts to find the method in the argument path with the argument signature, and asserts that the method is not
      * null and that its method called contains the argument expected.
      */
-    private static void assertContainsMethodCall(String path, String methodSignature, MethodCallExpression expected) {
-        MethodStatement methodStatement = findMethod(path, methodSignature);
+    private static void assertContainsMethodCall(String fileName, String signature, MethodCallExpression expected) {
+        MethodStatement methodStatement = MethodTestUtils.findMethod(code, SAMPLES_DIRECTORY, fileName, signature);
         assertNotNull(methodStatement);
         List<MethodCallExpression> calls = methodStatement.getMethodUsages();
         assertTrue(calls.contains(expected));
@@ -434,23 +433,6 @@ public class MethodUseResolverTest {
 
         // Assert
         assertContainsMethodCall("Z.java", "void test4(int)", expectedMethodCall);
-    }
-
-    private static MethodStatement findMethod(String path, String methodSignature) {
-        // XXX this wont pick up interface methods, or inner methods!
-        Statement code = MethodUseResolverTest.code.get(Paths.get(SAMPLES_DIRECTORY + path));
-        CompilationUnitStatement cus = (CompilationUnitStatement)code;
-
-        if (cus.getTypeStatement() instanceof ClassStatement) {
-            ClassStatement clazz = (ClassStatement) cus.getTypeStatement();
-
-            return clazz.getBlock().getStatements().stream()
-                    .filter(s -> s instanceof MethodStatement)
-                    .map(s -> (MethodStatement)s)
-                    .filter(m -> m.getDescriptor().signature().equals(methodSignature))
-                    .findFirst().orElse(null);
-        }
-        return null;
     }
 
     private static UnitExpression identifier(String value) {
