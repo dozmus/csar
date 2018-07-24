@@ -220,7 +220,7 @@ public class JavaCodeRefactorerTest {
             // Create components
             QualifiedNameResolver qnr = new QualifiedNameResolver();
             thr = new DefaultTypeHierarchyResolver(qnr);
-            MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver(qnr);
+            MethodQualifiedTypeResolver mqtr = new MethodQualifiedTypeResolver();
             OverriddenMethodsResolver omr = new SelectiveOverriddenMethodsResolver(threadCount, qnr, thr,
                     (MethodDescriptor) csarQuery.getSearchTarget().getDescriptor());
             MethodUseResolver mur = new MethodUseResolver(qnr, thr);

@@ -44,7 +44,7 @@ public class SelectiveOverriddenMethodsResolverTest {
         thr.postprocess(code);
 
         // Resolve method types
-        new MethodQualifiedTypeResolver(qnr).postprocess(code);
+        new MethodQualifiedTypeResolver().postprocess(code);
 
         // Resolve overridden methods
         resolver = new SelectiveOverriddenMethodsResolver(qnr, thr, searchTarget);

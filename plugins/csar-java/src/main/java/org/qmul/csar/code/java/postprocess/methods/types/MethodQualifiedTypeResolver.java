@@ -1,17 +1,19 @@
 package org.qmul.csar.code.java.postprocess.methods.types;
 
+import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
-import org.qmul.csar.code.java.postprocess.util.TypeHelper;
-import org.qmul.csar.code.java.postprocess.util.TypeInstance;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedType;
+import org.qmul.csar.code.java.postprocess.util.TypeHelper;
+import org.qmul.csar.code.java.postprocess.util.TypeInstance;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.lang.descriptors.ParameterVariableDescriptor;
+import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.qmul.csar.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,23 +23,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A post-processor which attaches to each {@link MethodStatement} a {@link QualifiedType} for its return type and
  * all of its parameters.
  */
-public class MethodQualifiedTypeResolver implements CodePostProcessor {
+public class MethodQualifiedTypeResolver extends MultiThreadedTaskProcessor implements CodePostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodQualifiedTypeResolver.class);
-    private final QualifiedNameResolver qualifiedNameResolver;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
+    private final AtomicInteger methodsProcessed = new AtomicInteger();
+    private Map<Path, Statement> code;
+    private ConcurrentIterator<Map.Entry<Path, Statement>> it;
 
-    public MethodQualifiedTypeResolver(QualifiedNameResolver qualifiedNameResolver) {
-        this.qualifiedNameResolver = qualifiedNameResolver;
+    public MethodQualifiedTypeResolver(int threadCount) {
+        super(threadCount, "csar-mqtr");
+        setRunnable(new Task());
     }
 
     public MethodQualifiedTypeResolver() {
-        this(new QualifiedNameResolver());
+        this(1);
     }
 
     /**
@@ -47,39 +53,16 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
      */
     public void postprocess(Map<Path, Statement> code) {
         LOGGER.info("Starting...");
+
+        // Execute and return results
+        this.code = code;
+        LOGGER.trace("Code size = {}", code.size());
+        it = new ConcurrentIterator<>(code.entrySet().iterator());
         Stopwatch stopwatch = new Stopwatch();
-        int methodsProcessed = 0;
-
-        try {
-            MethodStatementVisitor visitor = new MethodStatementVisitor(qualifiedNameResolver, code);
-
-            // Iterate all code files
-            for (Map.Entry<Path, Statement> entry : code.entrySet()) {
-                Path path = entry.getKey();
-                Statement statement = entry.getValue();
-
-                if (!(statement instanceof CompilationUnitStatement))
-                    continue;
-                CompilationUnitStatement topLevelParent = (CompilationUnitStatement) statement;
-                TypeStatement typeStatement = topLevelParent.getTypeStatement();
-
-                if (typeStatement instanceof AnnotationStatement)
-                    continue;
-
-                // Visit file
-                visitor.reset();
-                visitor.setPath(path);
-                visitor.setCompilationUnitStatement(topLevelParent);
-                visitor.visitStatement(statement);
-                methodsProcessed += visitor.methodsProcessed;
-            }
-        } catch (Exception ex) {
-            errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
-        }
+        run();
 
         // Log completion message
         LOGGER.debug("Processed {} methods in: {}ms", methodsProcessed, stopwatch.elapsedMillis());
-        LOGGER.debug("Statistics: " + qualifiedNameResolver.getStatistics().toString());
         LOGGER.info("Finished");
     }
 
@@ -93,13 +76,48 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
         errorListeners.remove(errorListener);
     }
 
+    private final class Task implements Runnable {
+
+        @Override
+        public void run() {
+            Map.Entry<Path, Statement> entry;
+            MethodStatementProcessor processor = new MethodStatementProcessor(code);
+
+            try {
+                while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
+                    // Get the next entry
+                    entry = it.next();
+                    Path path = entry.getKey();
+                    Statement statement = entry.getValue();
+
+                    if (statement instanceof CompilationUnitStatement) {
+                        CompilationUnitStatement cus = (CompilationUnitStatement) statement;
+                        TypeStatement typeStatement = cus.getTypeStatement();
+
+                        if (typeStatement instanceof AnnotationStatement)
+                            continue;
+
+                        // Visit file
+                        processor.prepare(path, cus);
+                        processor.visitStatement(statement);
+                        methodsProcessed.addAndGet(processor.methodsProcessed);
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                errorListeners.forEach(l -> l.fatalErrorPostProcessing(ex));
+                terminate();
+            }
+        }
+    }
+
     /**
      * Traverses a {@link CompilationUnitStatement} and resolves the qualified types for method return types and method
      * parameter types.
      */
-    public static class MethodStatementVisitor extends StatementVisitor {
+    public static class MethodStatementProcessor extends StatementVisitor {
 
-        private final QualifiedNameResolver qualifiedNameResolver;
+        private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
         private final Map<Path, Statement> code;
         private Path path;
         private TypeStatement topLevelParent;
@@ -108,20 +126,13 @@ public class MethodQualifiedTypeResolver implements CodePostProcessor {
         private TypeStatement parent;
         private int methodsProcessed;
 
-        public MethodStatementVisitor(QualifiedNameResolver qualifiedNameResolver, Map<Path, Statement> code) {
-            this.qualifiedNameResolver = qualifiedNameResolver;
+        public MethodStatementProcessor(Map<Path, Statement> code) {
             this.code = code;
         }
 
-        public void reset() {
+        public void prepare(Path path, CompilationUnitStatement topLevelParent) {
             methodsProcessed = 0;
-        }
-
-        public void setPath(Path path) {
             this.path = path;
-        }
-
-        public void setCompilationUnitStatement(CompilationUnitStatement topLevelParent) {
             this.topLevelParent = topLevelParent;
             this.currentPackage = topLevelParent.getPackageStatement();
             this.imports = topLevelParent.getImports();
