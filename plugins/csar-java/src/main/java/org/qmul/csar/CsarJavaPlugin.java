@@ -1,5 +1,6 @@
 package org.qmul.csar;
 
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
@@ -20,7 +21,6 @@ import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.SerializableCode;
-import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The Java language csar plugin.
@@ -40,12 +39,12 @@ import java.util.Map;
 public class CsarJavaPlugin implements CsarPlugin {
 
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
-    private Map<Path, Statement> code;
+    private CodeBase code;
     private List<SerializableCode> searchResultObjects;
     private DefaultTypeHierarchyResolver thr;
 
     @Override
-    public Map<Path, Statement> parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
+    public CodeBase parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
             throws Exception {
         // Create iterator
         CodeParserFactory factory;
@@ -86,7 +85,7 @@ public class CsarJavaPlugin implements CsarPlugin {
     public List<Result> search(CsarQuery csarQuery, int threadCount) {
         ProjectCodeSearcher searcher = new JavaCodeSearcher(threadCount);
         searcher.setCsarQuery(csarQuery);
-        searcher.setIterator(code.entrySet().iterator());
+        searcher.setIterator(code.iterator());
         errorListeners.forEach(searcher::addErrorListener);
         searchResultObjects = searcher.resultObjects();
         return searcher.results();

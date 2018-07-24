@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.util;
 
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.methods.use.TraversalHierarchy;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -26,7 +26,7 @@ public class MethodCallResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodCallResolver.class);
     private final Path path;
-    private final Map<Path, Statement> code;
+    private final CodeBase code;
     private final QualifiedNameResolver qualifiedNameResolver;
     private final TypeHierarchyResolver typeHierarchyResolver;
     private MethodCallExpression methodCall;
@@ -34,7 +34,7 @@ public class MethodCallResolver {
     private TraversalHierarchy traversalHierarchy;
     private boolean onVariable;
 
-    public MethodCallResolver(Path path, Map<Path, Statement> code, QualifiedNameResolver qualifiedNameResolver,
+    public MethodCallResolver(Path path, CodeBase code, QualifiedNameResolver qualifiedNameResolver,
             TypeHierarchyResolver typeHierarchyResolver) {
         this.path = path;
         this.code = code;

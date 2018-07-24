@@ -2,16 +2,15 @@ package org.qmul.csar.code.java.postprocess.typehierarchy;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.qmul.csar.code.CodeBase;
+import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
-import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
-import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
-import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +26,7 @@ public class DefaultTypeHierarchyResolverTest {
         CodeParserFactory factory = new CodeParserFactory(JavaCodeParser.class);
         Iterator<Path> it = ProjectIteratorFactory.createFilteredIterator(Paths.get(SAMPLES_DIRECTORY), false, factory);
         DefaultProjectCodeParser parser = new DefaultProjectCodeParser(factory, it);
-        Map<Path, Statement> code = parser.results();
+        CodeBase code = parser.results();
 
         // Resolve type hierarchy
         resolver.postprocess(code);

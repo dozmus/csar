@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.postprocess.methodcalls.typeinstances;
 
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.postprocess.CodePostProcessor;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.expression.BinaryExpression;
 import org.qmul.csar.code.java.parse.expression.MethodCallExpression;
@@ -13,6 +13,7 @@ import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.java.postprocess.util.ExpressionTypeResolver;
 import org.qmul.csar.code.java.postprocess.util.TypeInstance;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
 import org.qmul.csar.lang.Expression;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
@@ -44,7 +45,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
         this(new QualifiedNameResolver(), thr);
     }
 
-    public void postprocess(Map<Path, Statement> code) {
+    public void postprocess(CodeBase code) {
         LOGGER.info("Starting...");
         Stopwatch stopwatch = new Stopwatch();
         int methodCallsProcessed = 0;
@@ -52,7 +53,7 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
         try {
             MethodCallExpressionVisitor visitor = new MethodCallExpressionVisitor(code);
 
-            for (Map.Entry<Path, Statement> file : code.entrySet()) {
+            for (Map.Entry<Path, Statement> file : code) {
                 Path path = file.getKey();
                 Statement statement = file.getValue();
 
@@ -86,11 +87,11 @@ public class MethodCallTypeInstanceResolver implements CodePostProcessor {
     private final class MethodCallExpressionVisitor extends StatementVisitor {
 
         private final TraversalHierarchy traversalHierarchy = new TraversalHierarchy();
-        private final Map<Path, Statement> code;
+        private final CodeBase code;
         private Path path;
         private int methodCallsProcessed;
 
-        public MethodCallExpressionVisitor(Map<Path, Statement> code) {
+        public MethodCallExpressionVisitor(CodeBase code) {
             this.code = code;
         }
 

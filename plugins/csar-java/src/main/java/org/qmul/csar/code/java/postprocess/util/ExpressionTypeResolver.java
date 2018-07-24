@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.util;
 
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.parse.expression.*;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.methods.use.TraversalHierarchy;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
@@ -32,7 +32,7 @@ public class ExpressionTypeResolver {
     /**
      * If this is true, the right-most value in a {@link BinaryExpression} with a type of {@link BinaryOperation#DOT}
      * will not be resolved.
-     * This means {@link #resolve(Path, Map, TypeStatement, TypeStatement, List, Optional, BlockStatement,
+     * This means {@link #resolve(Path, CodeBase, TypeStatement, TypeStatement, List, Optional, BlockStatement,
      * QualifiedNameResolver, TraversalHierarchy, TypeHierarchyResolver, Expression)} will essentially return the type
      * the right-most value is acting upon.
      */
@@ -46,7 +46,7 @@ public class ExpressionTypeResolver {
     /**
      * Returns the {@link TypeInstance} of the argument expression.
      */
-    public TypeInstance resolve(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
+    public TypeInstance resolve(Path path, CodeBase code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             Expression expression) {
@@ -189,7 +189,7 @@ public class ExpressionTypeResolver {
      * Returns the {@link TypeInstance} of the argument expression, which is a {@link UnitExpression} of type
      * <tt>IDENTIFIER</tt>, or <tt>null</tt> if not able to be resolved.
      */
-    private TypeInstance resolveIdentifier(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
+    private TypeInstance resolveIdentifier(Path path, CodeBase code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             QualifiedNameResolver r, TraversalHierarchy th, UnitExpression uexp) {
         String lIdentifierName = uexp.getValue();
@@ -303,7 +303,7 @@ public class ExpressionTypeResolver {
      * Returns the {@link TypeInstance} of the argument method call expression, or <tt>null</tt> if not able to be
      * resolved.
      */
-    private TypeInstance resolveMethodCallExpression(Path path, Map<Path, Statement> code,
+    private TypeInstance resolveMethodCallExpression(Path path, CodeBase code,
             QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             MethodCallExpression expression) {
         LOGGER.trace("Resolving: MethodCallExpression");
@@ -327,7 +327,7 @@ public class ExpressionTypeResolver {
     /**
      * Returns the {@link TypeInstance} of the argument binary expression, or <tt>null</tt> if not able to be resolved.
      */
-    private TypeInstance resolveBinaryExpression(Path path, Map<Path, Statement> code,
+    private TypeInstance resolveBinaryExpression(Path path, CodeBase code,
             TypeStatement topLevelType, TypeStatement currentType, List<ImportStatement> imports,
             Optional<PackageStatement> currentPackage, BlockStatement currentContext, QualifiedNameResolver r,
             TraversalHierarchy th, TypeHierarchyResolver thr, Expression left, BinaryOperation op, Expression right) {
@@ -397,7 +397,7 @@ public class ExpressionTypeResolver {
         return null; // XXX wont get here since BinaryOperation.QUESTION is unused outside of JavaCodeParser
     }
 
-    private TypeInstance resolveFullyQualifiedName(Map<Path, Statement> code, QualifiedNameResolver r,
+    private TypeInstance resolveFullyQualifiedName(CodeBase code, QualifiedNameResolver r,
             Expression left) {
         String fullyQualifiedName = qualifiedNameOfBinaryExpressionIdentifier(left);
 
@@ -434,7 +434,7 @@ public class ExpressionTypeResolver {
      * Returns the {@link TypeInstance} of the argument right-hand side of a binary expression, or <tt>null</tt> if not
      * able to be resolved.
      */
-    private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, Map<Path, Statement> code,
+    private TypeInstance resolveBinaryExpressionDotRhs(TypeInstance lhs, Path path, CodeBase code,
             QualifiedNameResolver r, Expression right, TypeHierarchyResolver thr, TraversalHierarchy th,
             boolean onVariable) {
         LOGGER.trace("resolveBinaryExpressionDotRhs [right.class={}]", right.getClass().getSimpleName());
@@ -515,7 +515,7 @@ public class ExpressionTypeResolver {
      * able to be resolved.
      */
     private String resolveBinaryExpressionDotRhsIdentifierType(CompilationUnitStatement topLevelParent,
-            String identifierName, QualifiedNameResolver r, Map<Path, Statement> code, Path path,
+            String identifierName, QualifiedNameResolver r, CodeBase code, Path path,
             boolean checkingSuper, Optional<PackageStatement> baseCallPkg) {
         // Check target
         for (Statement st : PostProcessUtils.getBlock(topLevelParent.getTypeStatement()).getStatements()) {
@@ -551,7 +551,7 @@ public class ExpressionTypeResolver {
     /**
      * Returns the {@link TypeInstance} of the ternary expression, or <tt>null</tt> if not able to be resolved.
      */
-    private TypeInstance resolveTernaryExpression(Path path, Map<Path, Statement> code, TypeStatement topLevelType,
+    private TypeInstance resolveTernaryExpression(Path path, CodeBase code, TypeStatement topLevelType,
             TypeStatement currentType, List<ImportStatement> imports, Optional<PackageStatement> currentPackage,
             BlockStatement currentContext, QualifiedNameResolver r, TraversalHierarchy th, TypeHierarchyResolver thr,
             TernaryExpression texp) {

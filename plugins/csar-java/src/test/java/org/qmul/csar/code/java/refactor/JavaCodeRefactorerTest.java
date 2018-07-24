@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.refactor;
 
 import org.junit.Test;
 import org.qmul.csar.CsarJavaPlugin;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.Result;
 import org.qmul.csar.code.java.TestUtils;
 import org.qmul.csar.code.java.postprocess.JavaPostProcessor;
@@ -18,7 +19,6 @@ import org.qmul.csar.code.refactor.ProjectCodeRefactorer;
 import org.qmul.csar.code.refactor.writer.DummyRefactorChangeWriter;
 import org.qmul.csar.code.search.ProjectCodeSearcher;
 import org.qmul.csar.lang.SerializableCode;
-import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.MethodDescriptor;
 import org.qmul.csar.plugin.CsarPlugin;
 import org.qmul.csar.query.CsarQuery;
@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class JavaCodeRefactorerTest {
 
@@ -204,12 +203,12 @@ public class JavaCodeRefactorerTest {
      */
     private static final class DummyJavaPlugin extends CsarJavaPlugin {
 
-        private Map<Path, Statement> code;
+        private CodeBase code;
         private List<SerializableCode> searchResultObjects;
         private DefaultTypeHierarchyResolver thr;
 
         @Override
-        public Map<Path, Statement> parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
+        public CodeBase parse(Path projectDirectory, boolean narrowSearch, Path ignoreFile, int threadCount)
                 throws Exception {
             code = super.parse(projectDirectory, narrowSearch, ignoreFile, threadCount);
             return code;
@@ -235,7 +234,7 @@ public class JavaCodeRefactorerTest {
         public List<Result> search(CsarQuery csarQuery, int threadCount) {
             ProjectCodeSearcher searcher = new JavaCodeSearcher(threadCount);
             searcher.setCsarQuery(csarQuery);
-            searcher.setIterator(code.entrySet().iterator());
+            searcher.setIterator(code.iterator());
             searchResultObjects = searcher.resultObjects();
             return searcher.results();
         }

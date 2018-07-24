@@ -3,6 +3,7 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.postprocess.methods.MethodTestUtils;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
@@ -12,21 +13,19 @@ import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
 import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
-import org.qmul.csar.lang.Statement;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 @RunWith(Parameterized.class)
 public class DefaultOverriddenMethodsResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
     private static final QualifiedNameResolver qnr = new QualifiedNameResolver();
-    private static Map<Path, Statement> code;
+    private static CodeBase code;
     private DefaultOverriddenMethodsResolver resolver;
 
     @Parameterized.Parameters

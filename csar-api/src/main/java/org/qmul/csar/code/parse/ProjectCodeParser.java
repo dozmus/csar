@@ -1,10 +1,7 @@
 package org.qmul.csar.code.parse;
 
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.lang.Statement;
-
-import java.nio.file.Path;
-import java.util.Map;
+import org.qmul.csar.code.CodeBase;
 
 /**
  * A project-wide code parser.
@@ -17,7 +14,7 @@ public interface ProjectCodeParser {
      *
      * @return parsed code base.
      */
-    Map<Path, Statement> results();
+    CodeBase results();
 
     /**
      * Adds an error listener.

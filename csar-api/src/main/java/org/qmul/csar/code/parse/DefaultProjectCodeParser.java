@@ -2,6 +2,7 @@ package org.qmul.csar.code.parse;
 
 import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.util.MultiThreadedTaskProcessor;
 import org.qmul.csar.util.Stopwatch;
@@ -61,10 +62,10 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
      *
      * @return a map with parsed files as keys, and the output statements as values.
      */
-    public Map<Path, Statement> results() {
+    public CodeBase results() {
         // Check if iterate has items
         if (!it.hasNext()) {
-            return results;
+            return new CodeBase(results);
         }
 
         // Execute and return results
@@ -75,7 +76,7 @@ public class DefaultProjectCodeParser extends MultiThreadedTaskProcessor impleme
         LOGGER.debug("Parsed {}kb of code in {}ms over {} files containing {} LOC", statistics.sizeKb,
                 stopwatch.elapsedMillis(), statistics.fileCount, statistics.linesOfCode);
         LOGGER.info("Finished");
-        return results;
+        return new CodeBase(results);
     }
 
     @Override

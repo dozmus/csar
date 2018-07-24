@@ -1,6 +1,7 @@
 package org.qmul.csar.code.java.postprocess.typehierarchy;
 
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
@@ -130,7 +131,7 @@ public class DefaultTypeHierarchyResolver implements TypeHierarchyResolver {
      *
      * @param code the code base to resolve for
      */
-    public void postprocess(Map<Path, Statement> code) {
+    public void postprocess(CodeBase code) {
         LOGGER.info("Starting...");
         Stopwatch stopwatch = new Stopwatch();
 
@@ -191,7 +192,7 @@ public class DefaultTypeHierarchyResolver implements TypeHierarchyResolver {
      * @param superClasses the superclasses of the child class
      * @param topLevelParent the top-level parent of the parent
      */
-    void placeInList(List<TypeNode> list, Map<Path, Statement> code, Path path, TypeStatement parent,
+    void placeInList(List<TypeNode> list, CodeBase code, Path path, TypeStatement parent,
             Optional<PackageStatement> packageStatement, List<ImportStatement> imports, String child,
             List<String> superClasses, TypeStatement topLevelParent) {
         for (String superClass : superClasses) {

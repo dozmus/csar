@@ -1,13 +1,13 @@
 package org.qmul.csar.code.java.postprocess.typehierarchy;
 
+import org.qmul.csar.code.CodeBase;
+import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.EnumStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
 import org.qmul.csar.code.java.postprocess.typehierarchy.node.TypeNode;
 import org.qmul.csar.lang.IdentifierName;
-import org.qmul.csar.lang.Statement;
-import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.lang.descriptors.EnumDescriptor;
@@ -20,7 +20,7 @@ import java.util.*;
  */
 final class TypeStatementHierarchyResolver extends StatementVisitor {
 
-    private final Map<Path, Statement> code;
+    private final CodeBase code;
     private final List<TypeNode> tmp;
     private final List<ImportStatement> imports;
     private final Optional<PackageStatement> packageStatement;
@@ -32,7 +32,7 @@ final class TypeStatementHierarchyResolver extends StatementVisitor {
     private String currentIdentifierName;
     private int nesting = 0;
 
-    TypeStatementHierarchyResolver(DefaultTypeHierarchyResolver typeHierarchyResolver, Map<Path, Statement> code,
+    TypeStatementHierarchyResolver(DefaultTypeHierarchyResolver typeHierarchyResolver, CodeBase code,
             List<TypeNode> tmp, Path path, String currentPkg, List<ImportStatement> imports,
             Optional<PackageStatement> packageStatement, TypeStatement targetType, TypeStatement topStatement) {
         this.typeHierarchyResolver = typeHierarchyResolver;

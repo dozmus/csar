@@ -1,5 +1,6 @@
 package org.qmul.csar.code.java.postprocess.methods;
 
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.ClassStatement;
 import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
@@ -7,24 +8,22 @@ import org.qmul.csar.code.java.parse.statement.EnumStatement;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
 import org.qmul.csar.lang.Statement;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MethodTestUtils {
 
-    public static void assertIsOverridden(Map<Path, Statement> code, String baseDirectory, String fileName,
+    public static void assertIsOverridden(CodeBase code, String baseDirectory, String fileName,
             String signature) {
         MethodStatement m = findMethod(code, baseDirectory, fileName, signature);
         assertTrue(m.getDescriptor().getOverridden().orElse(false));
     }
 
-    public static void assertIsNotOverridden(Map<Path, Statement> code, String baseDirectory, String fileName,
+    public static void assertIsNotOverridden(CodeBase code, String baseDirectory, String fileName,
             String signature) {
         MethodStatement m = findMethod(code, baseDirectory, fileName, signature);
         assertFalse(m.getDescriptor().getOverridden().orElse(false));
@@ -33,7 +32,7 @@ public class MethodTestUtils {
     /**
      * Returns the method if found, or null otherwise.
      */
-    public static MethodStatement findMethod(Map<Path, Statement> code, String baseDirectory, String path,
+    public static MethodStatement findMethod(CodeBase code, String baseDirectory, String path,
             String signature) throws RuntimeException {
         Statement statement = code.get(Paths.get(baseDirectory + path));
         CompilationUnitStatement cus = (CompilationUnitStatement) statement;

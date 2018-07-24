@@ -1,7 +1,7 @@
 package org.qmul.csar.code.java.postprocess.methods.types;
 
-import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -19,10 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,8 +31,8 @@ public class MethodQualifiedTypeResolver extends MultiThreadedTaskProcessor impl
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodQualifiedTypeResolver.class);
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final AtomicInteger methodsProcessed = new AtomicInteger();
-    private Map<Path, Statement> code;
-    private ConcurrentIterator<Map.Entry<Path, Statement>> it;
+    private CodeBase code;
+    private Iterator<Map.Entry<Path, Statement>> it;
 
     public MethodQualifiedTypeResolver(int threadCount) {
         super(threadCount, "csar-mqtr");
@@ -51,13 +48,12 @@ public class MethodQualifiedTypeResolver extends MultiThreadedTaskProcessor impl
      *
      * @param code the code base to resolve for
      */
-    public void postprocess(Map<Path, Statement> code) {
+    public void postprocess(CodeBase code) {
         LOGGER.info("Starting...");
 
         // Execute and return results
         this.code = code;
-        LOGGER.trace("Code size = {}", code.size());
-        it = new ConcurrentIterator<>(code.entrySet().iterator());
+        it = code.threadSafeIterator();
         Stopwatch stopwatch = new Stopwatch();
         run();
 
@@ -118,7 +114,7 @@ public class MethodQualifiedTypeResolver extends MultiThreadedTaskProcessor impl
     public static class MethodStatementProcessor extends StatementVisitor {
 
         private final QualifiedNameResolver qualifiedNameResolver = new QualifiedNameResolver();
-        private final Map<Path, Statement> code;
+        private final CodeBase code;
         private Path path;
         private TypeStatement topLevelParent;
         private List<ImportStatement> imports;
@@ -126,7 +122,7 @@ public class MethodQualifiedTypeResolver extends MultiThreadedTaskProcessor impl
         private TypeStatement parent;
         private int methodsProcessed;
 
-        public MethodStatementProcessor(Map<Path, Statement> code) {
+        public MethodStatementProcessor(CodeBase code) {
             this.code = code;
         }
 

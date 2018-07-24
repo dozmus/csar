@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.postprocess.methods.use;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.parse.JavaCodeParser;
 import org.qmul.csar.code.java.parse.expression.*;
 import org.qmul.csar.code.java.parse.statement.MethodStatement;
@@ -14,7 +15,6 @@ import org.qmul.csar.code.parse.CodeParserFactory;
 import org.qmul.csar.code.parse.DefaultProjectCodeParser;
 import org.qmul.csar.io.it.ProjectIteratorFactory;
 import org.qmul.csar.lang.Expression;
-import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.descriptors.ClassDescriptor;
 import org.qmul.csar.util.FilePosition;
 
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class MethodUseResolverTest {
 
     private static final String SAMPLES_DIRECTORY = "src/test/resources/org/qmul/csar/postprocess/";
-    private static Map<Path, Statement> code;
+    private static CodeBase code;
 
     @BeforeClass
     public static void setUp() throws IllegalAccessException, InstantiationException {

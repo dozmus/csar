@@ -1,16 +1,13 @@
 package org.qmul.csar.code.java.postprocess;
 
 import org.qmul.csar.CsarErrorListener;
-import org.qmul.csar.code.postprocess.CodePostProcessor;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.postprocess.methodcalls.typeinstances.MethodCallTypeInstanceResolver;
 import org.qmul.csar.code.java.postprocess.methods.overridden.OverriddenMethodsResolver;
 import org.qmul.csar.code.java.postprocess.methods.types.MethodQualifiedTypeResolver;
 import org.qmul.csar.code.java.postprocess.methods.use.MethodUseResolver;
 import org.qmul.csar.code.java.postprocess.typehierarchy.TypeHierarchyResolver;
-import org.qmul.csar.lang.Statement;
-
-import java.nio.file.Path;
-import java.util.Map;
+import org.qmul.csar.code.postprocess.CodePostProcessor;
 
 /**
  * A Java project code post-processor. It is comprised of the following parts, which are executed in order:
@@ -46,7 +43,7 @@ public class JavaPostProcessor implements CodePostProcessor {
     /**
      * Initialize the underlying post-processors.
      */
-    public void postprocess(Map<Path, Statement> code) {
+    public void postprocess(CodeBase code) {
         typeHierarchyResolver.postprocess(code);
         methodQualifiedTypeResolver.postprocess(code);
         overriddenMethodsResolver.postprocess(code);

@@ -2,6 +2,7 @@ package org.qmul.csar.code.java.postprocess.methods.overridden;
 
 import com.github.dozmus.iterators.ConcurrentIterator;
 import org.qmul.csar.CsarErrorListener;
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.StatementVisitor;
 import org.qmul.csar.code.java.parse.statement.*;
 import org.qmul.csar.code.java.postprocess.qualifiedname.QualifiedNameResolver;
@@ -47,7 +48,7 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
     private final Predicate<MethodStatement> methodFilter;
     private final List<CsarErrorListener> errorListeners = new ArrayList<>();
     private final AtomicInteger overriddenMethods = new AtomicInteger();
-    private Map<Path, Statement> code;
+    private CodeBase code;
     private ConcurrentIterator<Map.Entry<Path, Statement>> it;
 
     public DefaultOverriddenMethodsResolver(QualifiedNameResolver qnr, TypeHierarchyResolver thr) {
@@ -67,12 +68,12 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
         setRunnable(new Task());
     }
 
-    public void postprocess(Map<Path, Statement> code) {
+    public void postprocess(CodeBase code) {
         LOGGER.info("Starting...");
 
         // Execute and return results
         this.code = code;
-        it = new ConcurrentIterator<>(code.entrySet().iterator());
+        it = new ConcurrentIterator<>(code.iterator());
         Stopwatch stopwatch = new Stopwatch();
         run();
 
@@ -92,7 +93,7 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
         errorListeners.remove(errorListener);
     }
 
-    public boolean calculateOverridden(Map<Path, Statement> code, Path path, Optional<PackageStatement> pkg,
+    public boolean calculateOverridden(CodeBase code, Path path, Optional<PackageStatement> pkg,
             List<ImportStatement> imports, TypeStatement typeStatement, TypeStatement parent, MethodStatement method) {
 
         // Check if @Override annotation present
@@ -128,7 +129,7 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
         return false;
     }
 
-    private boolean calculateOverridden(Map<Path, Statement> code, Optional<PackageStatement> packageStatement,
+    private boolean calculateOverridden(CodeBase code, Optional<PackageStatement> packageStatement,
             List<ImportStatement> imports, List<String> superClasses, Path path, TypeStatement parent,
             TypeStatement topLevelParent, MethodStatement method) {
         MethodDescriptor desc = method.getDescriptor();
@@ -215,7 +216,7 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
 
     private final class MethodStatementProcessor extends StatementVisitor {
 
-        private final Map<Path, Statement> code;
+        private final CodeBase code;
         private final OverriddenMethodsResolver omr;
         private final Deque<TypeStatement> traversedTypeStatements = new ArrayDeque<>();
         private final Predicate<MethodStatement> methodFilter;
@@ -224,7 +225,7 @@ public class DefaultOverriddenMethodsResolver extends MultiThreadedTaskProcessor
         private Optional<PackageStatement> packageStatement;
         private List<ImportStatement> imports;
 
-        public MethodStatementProcessor(Map<Path, Statement> code, OverriddenMethodsResolver omr,
+        public MethodStatementProcessor(CodeBase code, OverriddenMethodsResolver omr,
                 Predicate<MethodStatement> methodFilter, AtomicInteger overriddenMethods) {
             this.omr = omr;
             this.code = code;

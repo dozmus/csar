@@ -1,9 +1,10 @@
 package org.qmul.csar.code.java.postprocess.qualifiedname;
 
+import org.qmul.csar.code.CodeBase;
 import org.qmul.csar.code.java.parse.statement.AnnotationStatement;
+import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.code.java.parse.statement.ImportStatement;
 import org.qmul.csar.code.java.parse.statement.PackageStatement;
-import org.qmul.csar.code.java.parse.statement.CompilationUnitStatement;
 import org.qmul.csar.lang.Statement;
 import org.qmul.csar.lang.TypeStatement;
 import org.qmul.csar.util.Stopwatch;
@@ -65,45 +66,18 @@ public class QualifiedNameResolver {
 
     /**
      * Resolves a qualified name with <tt>strict</tt> set to <tt>false</tt>.
-     * @see #resolve(Map, Path, TypeStatement, TypeStatement, Optional, List, String, boolean)
+     * @see #resolve(CodeBase, Path, TypeStatement, TypeStatement, Optional, List, String, boolean)
      */
-    public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
+    public QualifiedType resolve(CodeBase code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name) {
         return resolve(code, path, parent, topLevelParent, currentPackage, imports, name, false);
     }
 
     /**
-     * Resolves a fully qualified name.
-     */
-    public QualifiedType resolveFullyQualifiedName(Map<Path, Statement> code, String name) {
-        // TODO make faster by ignoring package names with no content
-        // 1. break up repeatedly name into pkg and name
-        int dotIdx = name.indexOf(".");
-        String pkg = "";
-
-        while (dotIdx != -1) {
-            pkg += name.substring(0, dotIdx);
-            name = name.substring(dotIdx + 1);
-            dotIdx = name.indexOf(".");
-
-            // 2. resolve against classes in target package package
-            Optional<PackageStatement> currentPackage = Optional.of(new PackageStatement(pkg, new ArrayList<>()));
-
-            statistics.prepare();
-            QualifiedType t = resolveInCurrentPackage(code, currentPackage, name);
-            statistics.samePackageTimeTaken += statistics.elapsedMillis();
-
-            if (t != null)
-                return t;
-        }
-        return null;
-    }
-
-    /**
      * Resolves a qualified name.
      */
-    public QualifiedType resolve(Map<Path, Statement> code, Path path, TypeStatement parent,
+    public QualifiedType resolve(CodeBase code, Path path, TypeStatement parent,
             TypeStatement topLevelParent, Optional<PackageStatement> currentPackage, List<ImportStatement> imports,
             String name, boolean strict) {
         // TODO handle fully qualified names here too?
@@ -165,6 +139,33 @@ public class QualifiedNameResolver {
         return new QualifiedType(name); // TODO resolve this properly
     }
 
+    /**
+     * Resolves a fully qualified name.
+     */
+    public QualifiedType resolveFullyQualifiedName(CodeBase code, String name) {
+        // TODO make faster by ignoring package names with no content
+        // 1. break up repeatedly name into pkg and name
+        int dotIdx = name.indexOf(".");
+        String pkg = "";
+
+        while (dotIdx != -1) {
+            pkg += name.substring(0, dotIdx);
+            name = name.substring(dotIdx + 1);
+            dotIdx = name.indexOf(".");
+
+            // 2. resolve against classes in target package package
+            Optional<PackageStatement> currentPackage = Optional.of(new PackageStatement(pkg, new ArrayList<>()));
+
+            statistics.prepare();
+            QualifiedType t = resolveInCurrentPackage(code, currentPackage, name);
+            statistics.samePackageTimeTaken += statistics.elapsedMillis();
+
+            if (t != null)
+                return t;
+        }
+        return null;
+    }
+
     private QualifiedType resolveInCurrentClass(TypeStatement topLevelParent, TypeStatement targetType,
             Optional<PackageStatement> pkg, String name, Path path) {
         if (targetType instanceof CompilationUnitStatement) {
@@ -187,7 +188,7 @@ public class QualifiedNameResolver {
         return null;
     }
 
-    private QualifiedType resolveInOtherPackages(Map<Path, Statement> code, List<ImportStatement> imports,
+    private QualifiedType resolveInOtherPackages(CodeBase code, List<ImportStatement> imports,
             String name) {
         String normalizedName = name.replace("$", ".");
         String nameWithoutSubIdentifiers = name.indexOf('.') == -1 ? name : name.substring(0, name.indexOf('.'));
@@ -218,7 +219,7 @@ public class QualifiedNameResolver {
         return null;
     }
 
-    private QualifiedType resolveInOtherPackages(Map<Path, Statement> code, ImportStatement importStatement,
+    private QualifiedType resolveInOtherPackages(CodeBase code, ImportStatement importStatement,
             String name, String normalizedName, String nameWithoutSubIdentifiers) {
         if (importStatement.isStaticImport())
             return null;
@@ -239,7 +240,7 @@ public class QualifiedNameResolver {
             return null;
         }
 
-        for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+        for (Map.Entry<Path, Statement> entry : code) {
             Path p = entry.getKey();
             Statement statement = entry.getValue();
 
@@ -279,7 +280,7 @@ public class QualifiedNameResolver {
         return null;
     }
 
-    private QualifiedType resolveInCurrentPackage(Map<Path, Statement> code, Optional<PackageStatement> currentPackage,
+    private QualifiedType resolveInCurrentPackage(CodeBase code, Optional<PackageStatement> currentPackage,
             String name) {
         if (!currentPackage.isPresent())
             return null;
@@ -294,7 +295,7 @@ public class QualifiedNameResolver {
         // Compute
         String currentPkg = currentPackage.get().getPackageName();
 
-        for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+        for (Map.Entry<Path, Statement> entry : code) {
             Path p = entry.getKey();
             Statement statement = entry.getValue();
 
@@ -321,7 +322,7 @@ public class QualifiedNameResolver {
         return null;
     }
 
-    private QualifiedType resolveInDefaultPackage(Map<Path, Statement> code, Path path,
+    private QualifiedType resolveInDefaultPackage(CodeBase code, Path path,
             Optional<PackageStatement> currentPackage, String name) {
         // Check cache
         DefaultPackageEntry defaultPackageEntry = new DefaultPackageEntry(path, currentPackage, name);
@@ -332,7 +333,7 @@ public class QualifiedNameResolver {
 
         // Compute
         if (!currentPackage.isPresent()) {
-            for (Map.Entry<Path, Statement> entry : code.entrySet()) {
+            for (Map.Entry<Path, Statement> entry : code) {
                 Path p = entry.getKey();
                 Statement statement = entry.getValue();
 
